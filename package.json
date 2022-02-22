@@ -1,0 +1,29 @@
+{
+  "name": "@knodes/typedoc-plugins",
+  "private": true,
+  "version": "0.0.1",
+  "workspaces": [
+    "./packages/*"
+  ],
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "typedocplugin",
+    "documentation"
+  ],
+  "author": {
+    "name": "GerkinDev",
+    "email": "gerkin@knodes.org"
+  },
+  "license": "MIT",
+  "description": "A monorepo containing all knodes-published TypeDoc plugins",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/KnodesCommunity/typedoc-plugins.git"
+  },
+  "bugs": {
+    "url": "https://github.com/KnodesCommunity/typedoc-plugins/issues"
+  },
+  "homepage": "https://github.com/KnodesCommunity/typedoc-plugins#readme"
+}
