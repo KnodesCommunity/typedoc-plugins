@@ -31,7 +31,7 @@
     "prepare:husky": "[ -d ./node_modules/husky ] && husky install || true",
     "release:do": "standard-version -a",
     "release:trigger": "git commit --allow-empty -m \"ci(release): trigger release\"",
-    "test:ci": "JEST_JUNIT_OUTPUT_NAME=junit.xml npm run test --workspaces -- --all --ci --reporters=default --reporters=jest-junit"
+    "test:ci": "JEST_JUNIT_OUTPUT_NAME=junit.xml jest --all --ci --reporters=default --reporters=jest-junit --collectCoverage"
   },
   "commitlint": {
     "extends": [
@@ -56,6 +56,7 @@
     "format-package": "^6.1.0",
     "glob": "^7.2.0",
     "husky": "^7.0.4",
+    "jest-junit": "^13.0.0",
     "typescript": "^4.5.5"
   }
 }

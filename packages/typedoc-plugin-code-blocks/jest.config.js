@@ -2,6 +2,9 @@
 const baseConfig = {
 	preset: 'ts-jest',
 	testEnvironment: 'node',
+	collectCoverageFrom: [
+		'<rootDir>/src/**/*.{c,m,}{t,j}s',
+	],
 };
 module.exports = {
 	projects: [
@@ -19,7 +22,6 @@ module.exports = {
 				name: 'integration',
 				color: 'green',
 			},
-			collectCoverage: false,
 			testMatch: [ '<rootDir>/__tests__/integration/**/*.spec.ts' ],
 		},
 	],
