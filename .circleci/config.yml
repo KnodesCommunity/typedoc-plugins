@@ -323,8 +323,8 @@ workflows:
   check: # Workflow ran on all branches except `main`, `develop` and `renovate/*`
     unless:
       or:
-        - equal: [ main, << pipeline.git.branch >> ]
-        - equal: [ develop, << pipeline.git.branch >> ]
+        # - equal: [ main, << pipeline.git.branch >> ]
+        # - equal: [ develop, << pipeline.git.branch >> ]
         - matches: { pattern: "^renovate/", value: << pipeline.git.branch >> }
     jobs:
       - npm-ci-install
@@ -340,50 +340,50 @@ workflows:
       - build:
           requires:
             - npm-ci-install
-  publish: # Workflow ran only on `main` & `develop`
-    when:
-      or:
-        - equal: [ main, << pipeline.git.branch >> ]
-        - equal: [ develop, << pipeline.git.branch >> ]
-    jobs:
-      - npm-ci-install
-      - codeclimate-before
+  # publish: # Workflow ran only on `main` & `develop`
+  #   when:
+  #     or:
+  #       - equal: [ main, << pipeline.git.branch >> ]
+  #       - equal: [ develop, << pipeline.git.branch >> ]
+  #   jobs:
+  #     - npm-ci-install
+  #     - codeclimate-before
 
-      - test:
-          requires:
-            - npm-ci-install
-            - codeclimate-before
-      - codeclimate-after:
-          requires:
-            - test
-      - build:
-          requires:
-            - npm-ci-install
+  #     - test:
+  #         requires:
+  #           - npm-ci-install
+  #           - codeclimate-before
+  #     - codeclimate-after:
+  #         requires:
+  #           - test
+  #     - build:
+  #         requires:
+  #           - npm-ci-install
 
-      - infer-version:
-          requires:
-            - build
-            - test
-      - Confirm new release:
-          type: approval
-          requires:
-            - infer-version
-      - do-release:
-          requires:
-            - Confirm new release
+  #     - infer-version:
+  #         requires:
+  #           - build
+  #           - test
+  #     - Confirm new release:
+  #         type: approval
+  #         requires:
+  #           - infer-version
+  #     - do-release:
+  #         requires:
+  #           - Confirm new release
       
-      - npm-publish:
-          requires:
-            - do-release
-      - github-push:
-          requires:
-            - do-release
-      - github-release:
-          requires:
-            - github-push
-      - git-merge-develop:
-          filters:
-            branches:
-              only: main
-          requires:
-            - github-push
+  #     - npm-publish:
+  #         requires:
+  #           - do-release
+  #     - github-push:
+  #         requires:
+  #           - do-release
+  #     - github-release:
+  #         requires:
+  #           - github-push
+  #     - git-merge-develop:
+  #         filters:
+  #           branches:
+  #             only: main
+  #         requires:
+  #           - github-push
