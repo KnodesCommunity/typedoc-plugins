@@ -16,7 +16,7 @@ Set the `code-blocks-directories` options. This option is a map of names/paths.
 
 Example `typedoc.json`:
 
-```
+```json
 {
     "code-blocks-directories": {
         "src": "./src",

@@ -1,5 +1,8 @@
 {
   "extends": [
-    "config:base"
-  ]
+    "config:base",
+    "npm:unpublishSafe"
+  ],
+  "baseBranches": ["develop"],
+  "rangeStrategy": "update-lockfile"
 }
