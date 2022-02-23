@@ -32,7 +32,7 @@ export class CodeBlockPlugin {
 	public constructor( private readonly _application: Application ){
 		this._application.options.addDeclaration( {
 			name: DIRECTORY,
-			help: 'A map of base directories where to extract code blocks. Paths are resolved relative to the `options` file.',
+			help: 'A map of base directories where to extract code blocks.',
 			type: ParameterType.Mixed,
 			validate: obj => {
 				if( !isPojo( obj ) ){
