@@ -1,0 +1,398 @@
+# This config is equivalent to both the '.circleci/extended/orb-free.yml' and the base '.circleci/config.yml'
+version: 2.1
+executors:
+  node:
+    docker:
+      - image: cimg/node:lts
+  default:
+    docker:
+      - image: cimg/base:stable
+  git:
+    docker:
+      - image: alpine/git
+
+# Orbs are reusable packages of CircleCI configuration that you may share across projects, enabling you to create encapsulated, parameterized commands, jobs, and executors that can be used across multiple projects.
+# See: https://circleci.com/docs/2.0/orb-intro/
+orbs:
+  node: circleci/node@4.7.0
+
+jobs:
+  npm-ci-install:
+    executor: node
+    resource_class: small
+    steps:
+      - checkout
+      - restore_cache:
+          keys:
+            - v1--npm-ci--{{ .Branch }}--{{ checksum "package-lock.json" }}
+            - v1--npm-ci--{{ .Branch }}
+            - v1--npm-ci
+      - run: npm ci && npm ci --workspaces
+      - save_cache:
+          key: v1--npm-ci-{{ .Branch }}-{{ checksum "package-lock.json" }}
+          paths:
+            - ~/.npm
+      - persist_to_workspace:
+          root: .
+          paths:
+            - '*'
+  npm-install:
+    executor: node
+    resource_class: small
+    steps:
+      - checkout
+      - restore_cache:
+          keys:
+            - v1--npm-i--{{ .Branch }}--{{ checksum "package-lock.json" }}
+            - v1--npm-i--{{ .Branch }}
+            - v1--npm-i
+      - run: npm install && npm install --workspaces
+      - save_cache:
+          key: v1--npm-i-{{ .Branch }}-{{ checksum "package-lock.json" }}
+          paths:
+            - ./node_mocules
+      - persist_to_workspace:
+          root: .
+          paths:
+            - '*'
+  codeclimate-before:
+    executor: node
+    resource_class: small
+    steps:
+      - run:
+          name: Setup Code Climate test-reporter
+          command: |
+            curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > /tmp/cc-test-reporter
+            chmod +x /tmp/cc-test-reporter
+      - persist_to_workspace:
+          root: /tmp
+          paths: 
+            - cc-test-reporter
+      - run:
+          name: Run Code Climate test-reporter `before-build`
+          command: /tmp/cc-test-reporter before-build
+  codeclimate-after:
+    executor: node
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: .
+      - attach_workspace:
+          at: /tmp
+      - run:
+          name: Send report
+          command: /tmp/cc-test-reporter after-build --coverage-input-type lcov --exit-code $(cat ./TEST_STATUS)
+  test:
+    executor: node
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: .
+      - run: npm run lint
+
+      - run:
+          name: Unit tests
+          command: |
+            npm run test:ci
+            echo $? > TEST_STATUS
+          when: always
+      - store_artifacts:
+          path: ./junit.xml
+      - store_test_results:
+          path: ./junit.xml
+      - store_artifacts:
+          path: ./coverage
+      - persist_to_workspace:
+          root: .
+          paths: 
+            - coverage
+            - TEST_STATUS
+  build:
+    executor: node
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: .
+      - run: npm run build --workspaces
+      - store_artifacts:
+          path: ./dist
+      - persist_to_workspace:
+          root: .
+          paths:
+            - ./packages/**/dist
+  check-releaseable:
+    executor: node
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: .
+      - run:
+          name: Maybe abort ci
+          command: |
+            if ! bash ./scripts/ci/release-type.sh; then
+              curl --request POST \
+                --url https://circleci.com/api/v2/workflow/$CIRCLE_WORKFLOW_ID/cancel \
+                --header "Circle-Token: ${CIRCLE_TOKEN}"
+              echo 'NONE' > RELEASE_TYPE
+            else
+              bash ./scripts/ci/release-type.sh > RELEASE_TYPE
+              echo "Should release $(cat ./RELEASE_TYPE)"
+            fi
+      - persist_to_workspace:
+          root: .
+          paths:
+            - RELEASE_TYPE
+      - run:
+          name: Check files
+          command: npm publish --dry-run
+  do-release:
+    executor: node
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: .
+      - run:
+          name: Config git
+          command: |
+            git config --global user.email "Scitizen-publish-bot@users.noreply.github.com"
+            git config --global user.name "Scitizen-publish-bot"
+      - run: 
+          name: Run standard-version
+          command: |
+            release_type="$(cat ./RELEASE_TYPE)"
+            if [ -z ${release_type} ]; then
+              npm run release:do -- --no-verify
+            else
+              npm run release:do -- --prerelease ${release_type} --no-verify
+            fi
+      - run:
+          name: Prepare archive
+          command: |
+            ARCHIVE="$(npm pack --ignore-scripts --silent)"
+            echo "${ARCHIVE}" > ARCHIVE
+      - persist_to_workspace:
+          root: .
+          paths:
+            - .git
+            - docs
+            - VERSION
+            - CHANGELOG.md
+            - README.md
+            - package.json
+            - package-lock.json
+            - ARCHIVE
+            - '*.tgz'
+  github-push:
+    executor: git
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: .
+      - run:
+          name: Config git
+          command: |
+            git config --global user.email "Scitizen-publish-bot@users.noreply.github.com"
+            git config --global user.name "Scitizen-publish-bot"
+      - run:
+          name: Push branch & tag
+          command: |
+            git remote set-url origin https://$CIRCLE_PROJECT_USERNAME:$GITHUB_AUTH_SECRET@github.com/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME
+            git push --follow-tags --set-upstream origin $CIRCLE_BRANCH
+  github-release:
+    executor: default
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: .
+      - run:
+          name: Install GitHub CLI
+          command: | # From https://circleci.com/developer/orbs/orb/circleci/github-cli#orb-source
+            #!/bin/bash
+            # set smart sudo
+            if [[ $EUID == 0 ]]; then export SUDO=""; else export SUDO="sudo"; fi
+
+            # Get auth token
+            export GITHUB_TOKEN=${GITHUB_AUTH_SECRET}
+            [ -z "${GITHUB_TOKEN}" ] && echo "A GitHub token must be supplied." && exit 1
+            echo "export GITHUB_TOKEN=\"${GITHUB_TOKEN}\"" >> "$BASH_ENV"
+            # Define current platform
+            if [[ "$(uname -s)" == "Linux" && "$(uname -m)" == "x86_64" ]]; then
+              export SYS_ENV_PLATFORM=linux_x86
+            else
+              echo "This platform appears to be unsupported."
+              uname -a
+              exit 1
+            fi
+
+            # If not installed
+            if ! command -v gh >/dev/null 2>&1; then
+              GH_CLI_VERSION=2.0.0
+              echo "Installing the GitHub CLI"
+              case $SYS_ENV_PLATFORM in
+                linux_x86)
+                  curl -sSL "https://github.com/cli/cli/releases/download/v${GH_CLI_VERSION}/gh_${GH_CLI_VERSION}_linux_amd64.deb" -o "gh-cli.deb"
+                  $SUDO apt install ./gh-cli.deb
+                  rm gh-cli.deb
+                  ;;
+                *)
+                echo "This orb does not currently support your platform. If you believe it should, please consider opening an issue on the GitHub repository:"
+                echo "https://github.com/CircleCI-Public/github-cli-orb"
+                exit 1
+              ;;
+              esac
+              # Validate install.
+              echo
+              echo "GH CLI installed"
+              command -v gh
+            else
+              echo "GH CLI is already installed."
+            fi
+
+            # Authenticate
+            echo
+            echo "Authenticating GH CLI"
+            git config --global credential.https://github.com.helper ''
+            git config --global --add credential.https://github.com.helper '!'"$(which gh) auth git-credential"
+            gh auth status
+
+            # Configure
+            echo
+            echo "Disabling interactive prompts for GH CLI"
+            gh config set prompt disabled
+      - run:
+          name: Publish GitHub release
+          command: |-
+            #!/bin/bash
+            ARCHIVE="$(cat ./ARCHIVE)"
+            VERSION="$(cat ./VERSION)"
+            BODY="$(git diff HEAD^...HEAD CHANGELOG.md | sed '0,/^@@.*@@$/d' | grep -oP '^\+\K.*$' | sed '0,/^### \[.*$/d')"
+            if ! [ -z "$(cat ./RELEASE_TYPE)" ]; then
+              set -- "$@" --prerelease
+            fi
+            gh release create "${VERSION}" --target ${CIRCLE_BRANCH}  --notes "${BODY}" "$@" ./{${ARCHIVE},package.json,package-lock.json,README.md,LICENSE,CHANGELOG.md}
+  npm-publish:
+    executor: node
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: .
+      - run:
+          name: Authenticate with registry
+          command: echo "//registry.npmjs.org/:_authToken=$NPM_TOKEN" > ./.npmrc
+      - run:
+          name: Publish package
+          command: |
+            release_type="$(cat ./RELEASE_TYPE)"
+            if [ -z ${release_type} ]; then
+              npm publish
+            else
+              npm publish --tag ${release_type}
+            fi
+  git-merge-develop:
+    executor: git
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: .
+      - run:
+          name: Config git
+          command: |
+            git config --global user.email "Scitizen-autosync-bot@users.noreply.github.com"
+            git config --global user.name "Scitizen-autosync-bot"
+      - run:
+          name: Merge to develop
+          command: |
+            git remote set-url origin https://$CIRCLE_PROJECT_USERNAME:$GITHUB_AUTH_SECRET@github.com/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME
+            git merge $CIRCLE_BRANCH origin/develop -m "ci(auto-merge): auto merge $CIRCLE_BRANCH
+            
+            [skip ci]"
+            git push --set-upstream origin develop
+
+
+# Invoke jobs via workflows
+# See: https://circleci.com/docs/2.0/configuration-reference/#workflows
+workflows:
+  renovate: # Workflow ran only on `renovate/*`
+    when:
+      matches: { pattern: "^renovate/", value: << pipeline.git.branch >> }
+    jobs:
+      - npm-install
+
+      - test:
+          requires:
+            - npm-install
+      - build:
+          requires:
+            - npm-install
+
+      - git-merge-develop:
+          requires:
+            - test
+            - build
+  check: # Workflow ran on all branches except `main`, `develop` and `renovate/*`
+    unless:
+      or:
+        - equal: [ main, << pipeline.git.branch >> ]
+        - equal: [ develop, << pipeline.git.branch >> ]
+        - matches: { pattern: "^renovate/", value: << pipeline.git.branch >> }
+    jobs:
+      - npm-ci-install
+      - codeclimate-before
+
+      - test:
+          requires:
+            - npm-ci-install
+            - codeclimate-before
+      - codeclimate-after:
+          requires:
+            - test
+      - build:
+          requires:
+            - npm-ci-install
+  publish: # Workflow ran only on `main` & `develop`
+    when:
+      or:
+        - equal: [ main, << pipeline.git.branch >> ]
+        - equal: [ develop, << pipeline.git.branch >> ]
+    jobs:
+      - npm-ci-install
+      - codeclimate-before
+
+      - test:
+          requires:
+            - npm-ci-install
+            - codeclimate-before
+      - codeclimate-after:
+          requires:
+            - test
+      - build:
+          requires:
+            - npm-ci-install
+
+      - check-releaseable:
+          requires:
+            - build
+            - test
+      - Confirm new release:
+          type: approval
+          requires:
+            - check-releaseable
+      - do-release:
+          requires:
+            - Confirm new release
+      
+      - npm-publish:
+          requires:
+            - do-release
+      - github-push:
+          requires:
+            - do-release
+      - github-release:
+          requires:
+            - github-push
+      - git-merge-develop:
+          filters:
+            branches:
+              only: main
+          requires:
+            - github-push
