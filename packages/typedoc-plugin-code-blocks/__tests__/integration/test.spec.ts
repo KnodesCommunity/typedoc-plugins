@@ -4,6 +4,7 @@ import { resolve } from 'path';
 import { Application, ArgumentsReader, TSConfigReader, TypeDocOptions, TypeDocReader } from 'typedoc';
 
 const rootDir = resolve( __dirname, '../mock-fs' );
+jest.setTimeout( 30000 );
 beforeEach( () => {
 	process.chdir( rootDir );
 } );

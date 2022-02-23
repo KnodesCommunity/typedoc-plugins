@@ -120,7 +120,7 @@ jobs:
           root: .
           paths:
             - ./packages/**/dist
-  check-releaseable:
+  infer-version:
     executor: node
     resource_class: small
     steps:
@@ -129,15 +129,8 @@ jobs:
       - run:
           name: Maybe abort ci
           command: |
-            if ! bash ./scripts/ci/release-type.sh; then
-              curl --request POST \
-                --url https://circleci.com/api/v2/workflow/$CIRCLE_WORKFLOW_ID/cancel \
-                --header "Circle-Token: ${CIRCLE_TOKEN}"
-              echo 'NONE' > RELEASE_TYPE
-            else
-              bash ./scripts/ci/release-type.sh > RELEASE_TYPE
-              echo "Should release $(cat ./RELEASE_TYPE)"
-            fi
+            npm run tools:infer-next-version --silent > RELEASE_TYPE
+            echo "Should release $(cat ./RELEASE_TYPE)"
       - persist_to_workspace:
           root: .
           paths:
@@ -160,15 +153,13 @@ jobs:
           name: Run standard-version
           command: |
             release_type="$(cat ./RELEASE_TYPE)"
-            if [ -z ${release_type} ]; then
-              npm run release:do -- --no-verify
-            else
-              npm run release:do -- --prerelease ${release_type} --no-verify
+            if [ "${release_type}" != "NONE" ]; then
+              npm run tools:release -- ${release_type}
             fi
       - run:
           name: Prepare archive
           command: |
-            ARCHIVE="$(npm pack --ignore-scripts --silent)"
+            ARCHIVE="$(npm pack --ignore-scripts --silent --workspaces)"
             echo "${ARCHIVE}" > ARCHIVE
       - persist_to_workspace:
           root: .
@@ -369,14 +360,14 @@ workflows:
           requires:
             - npm-ci-install
 
-      - check-releaseable:
+      - infer-version:
           requires:
             - build
             - test
       - Confirm new release:
           type: approval
           requires:
-            - check-releaseable
+            - infer-version
       - do-release:
           requires:
             - Confirm new release

@@ -1,6 +1,6 @@
 {
   "name": "@knodes/typedoc-plugins",
-  "version": "0.0.1",
+  "version": "0.22.0",
   "description": "A monorepo containing all knodes-published TypeDoc plugins",
   "license": "MIT",
   "private": true,
@@ -24,22 +24,22 @@
     "./packages/*"
   ],
   "scripts": {
+    "changelog": "conventional-changelog -p angular -i CHANGELOG.md -s",
     "format:pkg": "format-package --write",
     "lint": "eslint --ignore-path ./.eslintignore '**/?(.)*.?([cm])[tj]s'",
-    "precommit": "npm --workspaces run lint -- --cache && npm --workspaces run test -- --only-changed && npm --workspaces run build",
+    "precommit": "npm run lint -- --cache && npm --workspaces run test -- --only-changed && npm --workspaces run build",
     "prepare": "npm run prepare:husky",
     "prepare:husky": "[ -d ./node_modules/husky ] && husky install || true",
     "release:do": "standard-version -a",
     "release:trigger": "git commit --allow-empty -m \"ci(release): trigger release\"",
-    "test:ci": "JEST_JUNIT_OUTPUT_NAME=junit.xml jest --all --ci --reporters=default --reporters=jest-junit --collectCoverage"
+    "test:ci": "JEST_JUNIT_OUTPUT_NAME=junit.xml jest --all --ci --reporters=default --reporters=jest-junit --collectCoverage",
+    "tools:infer-next-version": "NODE_NO_WARNINGS=1 node tools/infer-next-version",
+    "tools:release": "NODE_NO_WARNINGS=1 node tools/release"
   },
   "commitlint": {
     "extends": [
       "@commitlint/config-conventional"
     ]
-  },
-  "standard-version": {
-    "releaseCommitMessageFormat": "chore: {{currentTag}}\n\n[skip ci]"
   },
   "devDependencies": {
     "@commitlint/cli": "^16.2.1",
