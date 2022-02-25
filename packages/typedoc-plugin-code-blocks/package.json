@@ -32,7 +32,11 @@
     "prepublish": "npm run build:clean && npm run build",
     "test": "jest --config jest.config.js"
   },
+  "dependencies": {
+    "@knodes/typedoc-pluginutils": "*"
+  },
   "peerDependencies": {
+    "lodash": "^4.17.0",
     "typedoc": "^0.22.12"
   },
   "devDependencies": {

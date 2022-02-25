@@ -1,70 +1,108 @@
-import { existsSync, readFileSync } from 'fs';
-import { extname, relative, resolve } from 'path';
+import { existsSync, readFileSync, statSync } from 'fs';
+import { dirname, extname, relative, resolve } from 'path';
 
+import { isNil, isPlainObject, isString } from 'lodash';
 import { Renderer, marked } from 'marked';
-import { Application, MarkdownEvent, ParameterType } from 'typedoc';
+import { Application, Context, Converter, MarkdownEvent, ParameterType, Reflection } from 'typedoc';
+
+import { ABasePlugin } from '@knodes/typedoc-pluginutils';
 
 import { DEFAULT_BLOCK_NAME, ICodeSample, readCodeSample } from './code-sample-file';
-import { DIRECTORY } from './options';
 
 const EXTRACT_CODE_BLOCKS_REGEX = /\{@codeblock\s+(?:(foldable|folded)\s+)?(.+?)(?:#(.+?))?(?:\s*\|\s*(.*?))?\}/;
 
 export type Foldable = 'foldable' | 'folded' | undefined;
 
-const isPojo = ( v: any ): v is Record<any, any> => v && typeof v === 'object' && Object.getPrototypeOf( v )?.constructor.name === 'Object';
-
+type CodeBlockDirs = {'~~': string} & Record<string, string | undefined>
 /**
  * Pages plugin for integrating your own pages into documentation output
  */
-export class CodeBlockPlugin {
+export class CodeBlockPlugin extends ABasePlugin {
+	public readonly directoriesOption = this.addOption<CodeBlockDirs>( {
+		name: 'directories',
+		help: `A map of base directories where to extract code blocks. Some well-known fields are always set:
+* \`~~\` is the directory containing the TypeDoc config.
+* In \`project\` \`entryPointStrategy\`, packages by name.`,
+		type: ParameterType.Mixed,
+		mapper: ( raw: unknown ) => {
+			let obj: Partial<CodeBlockDirs>;
+			if( isNil( raw ) ){
+				obj = {};
+			} else if( isPlainObject( raw ) ){
+				obj = raw as any;
+			} else {
+				throw new TypeError( 'Invalid option value type' );
+			}
+			const pairs = Object.entries( obj );
+			for( const [ key, value ] of pairs ){
+				if( !key.match( /^\w+$/ ) ){
+					throw new Error( 'Should have alphanumeric-only keys' );
+				}
+				if( typeof value !== 'string' ){
+					throw new Error( 'Should have only path values' );
+				}
+				const resolved = resolve( value );
+				if( !existsSync( resolved ) ){
+					throw new Error( `Code block alias "${key}" (resolved to ${resolved}) does not exist.` );
+				}
+				obj[key] = resolved;
+			}
+			if( '~~' in obj ){
+				throw new Error( 'Can\'t explicitly set `~~` directory' );
+			}
+			obj['~~'] = this._rootDir;
+			return obj as CodeBlockDirs;
+		},
+	} );
 	private readonly _fileSamples = new Map<string, Map<string, ICodeSample>>();
-	private get _codeBlockDirs(): Record<string, string | undefined> {
-		const dirs = this._application.options.getValue( DIRECTORY ) as any;
-		if( !isPojo( dirs ) ){
-			throw new Error( `Missing "${DIRECTORY}" option` );
+
+	private _rootDirCache?: string;
+	private get _rootDir(): string {
+		if( !this._rootDirCache ) {
+			const opts = this.application.options.getValue( 'options' );
+			const stat = statSync( opts );
+			if( stat.isDirectory() ){
+				this._rootDirCache = opts;
+			} else if( stat.isFile() ){
+				this._rootDirCache = dirname( opts );
+			} else {
+				throw new Error();
+			}
 		}
-		return dirs;
+		return this._rootDirCache;
 	}
-	private get _optionsDir(){
-		return this._application.options.getValue( 'options' ) as string;
+	private _currentReflection?: Reflection;
+
+	public constructor( application: Application ){
+		super( application, __filename );
 	}
 
-	public constructor( private readonly _application: Application ){
-		this._application.options.addDeclaration( {
-			name: DIRECTORY,
-			help: 'A map of base directories where to extract code blocks.',
-			type: ParameterType.Mixed,
-			validate: obj => {
-				if( !isPojo( obj ) ){
-					throw new Error( `Missing "${DIRECTORY}" option` );
+	/**
+	 *
+	 */
+	public initialize(): void {
+		this.application.renderer.on( MarkdownEvent.PARSE, this._processMarkdown.bind( this ) );
+		this.application.converter.on( Converter.EVENT_RESOLVE, ( _ctx: Context, reflection: Reflection ) => {
+			this._currentReflection = reflection;
+			if( reflection.comment ){
+				reflection.comment.shortText = this.replaceCodeBlocks( reflection.comment.shortText );
+				reflection.comment.text = this.replaceCodeBlocks( reflection.comment.text );
+				if( reflection.comment.returns ){
+					reflection.comment.returns = this.replaceCodeBlocks( reflection.comment.returns );
 				}
-				const pairs = Object.entries( obj );
-				for( const [ key, value ] of pairs ){
-					if( !key.match( /^\w+$/ ) ){
-						throw new Error( `"${DIRECTORY}" option should have alphanumeric-only keys` );
-					}
-					if( typeof value !== 'string' ){
-						throw new Error( `"${DIRECTORY}" option should have only path values` );
-					}
-					const resolved = resolve( value );
-					if( !existsSync( resolved ) ){
-						throw new Error( `"${DIRECTORY}" code block alias "${key}" (resolved to ${resolved}) does not exist.` );
-					}
-					obj[key] = resolved;
-				}
-			},
+			}
 		} );
 	}
 
 	/**
-	 * Transform the parsed text of the given {@link event MarkdownEvent} to replace code blocks.
+	 * Replace code blocks in the given source.
 	 *
-	 * @param event - The event to modify.
+	 * @param sourceMd - The markdown text to replace.
+	 * @returns the replaced markdown.
 	 */
-	public processMarkdown( event: MarkdownEvent ) {
-		const originalText = event.parsedText;
+	public replaceCodeBlocks( sourceMd: string ): string {
 		const regex = new RegExp( EXTRACT_CODE_BLOCKS_REGEX.toString().slice( 1, -1 ), 'g' );
-		event.parsedText = originalText.replace(
+		const replaced = sourceMd.replace(
 			regex,
 			fullmatch => {
 				// eslint-disable-next-line @typescript-eslint/no-non-null-assertion -- Re-run the exact same regex.
@@ -72,11 +110,29 @@ export class CodeBlockPlugin {
 				if( foldable !== 'foldable' && foldable !== 'folded' && foldable ){
 					throw new Error( `Invalid foldable state "${foldable}". Expected "foldable" | "folded"` );
 				}
+				this.logger.makeChildLogger( this._currentReflection?.sources?.[0].fileName ?? 'UNKNOWN SOURCE' ).verbose( [
+					'Generating',
+					foldable,
+					`code block to ${file}`,
+					block ? `(block "${block}")` : null,
+					fakedFileName ? `as "${fakedFileName}"` : null,
+				].filter( isString ).join( ' ' ) );
 				return this._generateCodeBlock( file, block, fakedFileName, ( foldable || undefined ) as Foldable );
 			} );
-		if( event.parsedText !== originalText ){
-			event.parsedText = `<style>${readFileSync( resolve( __dirname, '../static/code-block.css' ) )}</style>\n\n${event.parsedText}`;
+		if( replaced !== sourceMd ){
+			return `<style>${readFileSync( resolve( __dirname, '../static/code-block.css' ) )}</style>\n\n${replaced}`;
 		}
+		return sourceMd;
+	}
+
+	/**
+	 * Transform the parsed text of the given {@link event MarkdownEvent} to replace code blocks.
+	 *
+	 * @param event - The event to modify.
+	 */
+	private _processMarkdown( event: MarkdownEvent ) {
+		const originalText = event.parsedText;
+		event.parsedText = this.replaceCodeBlocks( originalText );
 	}
 
 	/**
@@ -87,13 +143,13 @@ export class CodeBlockPlugin {
 	 */
 	private _resolveFile( file: string ){
 		const [ dir, ...path ] = file.split( '/' );
-		const codeBlockDirs = this._codeBlockDirs;
+		const codeBlockDirs = this.directoriesOption.getValue();
 		const codeBlockDir = codeBlockDirs[dir];
 		if( !codeBlockDir ){
 			throw new Error( `Trying to use code block from named directory ${dir} (targetting file ${file}), but it is not defined.` );
 		}
 
-		const newPath = resolve( this._optionsDir, codeBlockDir, ...path );
+		const newPath = resolve( codeBlockDir, ...path );
 		return newPath;
 	}
 
@@ -105,7 +161,7 @@ export class CodeBlockPlugin {
 	 * @returns the URL, or `null`.
 	 */
 	private _resolveCodeSampleUrl( file: string, codeSample: ICodeSample | null ){
-		const gitHubComponent = this._application.converter.getComponent( 'git-hub' );
+		const gitHubComponent = this.application.converter.getComponent( 'git-hub' );
 		if( !gitHubComponent ){
 			return null;
 		}
@@ -144,7 +200,7 @@ export class CodeBlockPlugin {
 			throw new Error( `Missing block ${region} in ${resolvedFile}` );
 		}
 
-		const headerFileName = fakedFileName ?? `./${relative( this._optionsDir, resolvedFile )}${useWholeFile ? '' : `#${codeSample.startLine}~${codeSample.endLine}`}`;
+		const headerFileName = fakedFileName ?? `./${relative( this._rootDir, resolvedFile )}${useWholeFile ? '' : `#${codeSample.startLine}~${codeSample.endLine}`}`;
 		const url = this._resolveCodeSampleUrl( resolvedFile, useWholeFile ? null : codeSample );
 		const header = marked( `From ${url ? `[${headerFileName}](${url})` : `${headerFileName}`}` );
 
