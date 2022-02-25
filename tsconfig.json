@@ -1,0 +1,5 @@
+{
+    "references": [
+        {"path": "./packages/typedoc-plugin-code-blocks/tsconfig.workspace.json"}
+    ]
+}
