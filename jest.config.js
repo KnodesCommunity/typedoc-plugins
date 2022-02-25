@@ -4,7 +4,7 @@ const { dirname, resolve, basename } = require( 'path' );
 
 const { sync } = require( 'glob' );
 
-const packagesWithJest = sync( './packages/**/jest.config.js' );
+const packagesWithJest = sync( './packages/*/jest.config.js' );
 module.exports = {
 	projects: packagesWithJest
 		.map( p => {
