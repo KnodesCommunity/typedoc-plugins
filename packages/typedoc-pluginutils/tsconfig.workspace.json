@@ -1,0 +1,9 @@
+{
+    "compilerOptions": {
+        "composite": true
+    },
+    "references": [
+        {"path": "./tsconfig.json"},
+        {"path": "./tsconfig.spec.json"}
+    ]
+}
