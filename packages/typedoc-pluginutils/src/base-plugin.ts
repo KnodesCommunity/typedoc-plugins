@@ -16,6 +16,9 @@ export abstract class ABasePlugin {
 	public readonly optionsPrefix: string;
 	public readonly package: ReadonlyDeep<RequiredPackageJson>;
 	public readonly logger: PluginLogger;
+	public get name(): string{
+		return `${this.package.name}:${this.constructor.name}`;
+	}
 	/**
 	 * Instanciate a new instance of the base plugin. The `package.json` file will be read to obtain the plugin name & the TypeDoc compatible range.
 	 * Logs a warning if the current TypeDoc version is not compatible.
