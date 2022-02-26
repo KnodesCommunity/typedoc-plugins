@@ -1,0 +1,4 @@
+# Integration test artifacts
+test/integration/project/pagesconfig.json
+test/integration/project/typedoc.json
+test/integration/project/build
