@@ -36,8 +36,10 @@
   },
   "dependencies": {
     "lodash": "^4.17.21",
+    "magic-string": "^0.25.7",
     "pkg-up": "^3.1.0",
-    "semver": "^7.3.5"
+    "semver": "^7.3.5",
+    "source-map-sync": "^0.8.0-beta.2"
   },
   "peerDependencies": {
     "typedoc": "^0.22.0"

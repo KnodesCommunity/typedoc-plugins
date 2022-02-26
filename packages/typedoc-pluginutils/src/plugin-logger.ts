@@ -1,9 +1,13 @@
-import { Application, LogLevel, Logger } from 'typedoc';
+import { isString } from 'lodash';
+import { LogLevel, Logger } from 'typedoc';
 
 import type { ABasePlugin } from './base-plugin';
 
-export class PluginLogger implements Pick<Logger, 'verbose' | 'info' | 'warn' | 'error' | 'log' | 'deprecated'> {
-	public constructor( private readonly _app: Application, private readonly _plugin: ABasePlugin, private readonly _context?: string ){}
+export class PluginLogger extends Logger {
+	public constructor( private readonly _parent: Logger, private readonly _plugin: ABasePlugin, private readonly _context?: string ){
+		super();
+		this.level = this._parent.level;
+	}
 
 	/**
 	 * Create a new {@link PluginLogger} for the given context.
@@ -12,7 +16,9 @@ export class PluginLogger implements Pick<Logger, 'verbose' | 'info' | 'warn' | 
 	 * @returns the new logger.
 	 */
 	public makeChildLogger( context?: string ){
-		return new PluginLogger( this._app, this._plugin, context );
+		const newLogger = new PluginLogger( this._parent, this._plugin, context );
+		newLogger.level = this.level;
+		return newLogger;
 	}
 
 	/**
@@ -20,8 +26,8 @@ export class PluginLogger implements Pick<Logger, 'verbose' | 'info' | 'warn' | 
 	 *
 	 * @param text  - The message that should be logged.
 	 */
-	public verbose( text: string ): void {
-		this._app.logger.verbose( this._formatMessage( text ) );
+	public verbose( text: string | ( () => string ) ): void {
+		this.log( text, LogLevel.Verbose );
 	}
 
 	/**
@@ -29,8 +35,8 @@ export class PluginLogger implements Pick<Logger, 'verbose' | 'info' | 'warn' | 
 	 *
 	 * @param text  - The message that should be logged.
 	 */
-	public info( text: string ): void {
-		this._app.logger.info( this._formatMessage( text ) );
+	public info( text: string | ( () => string ) ): void {
+		this.log( text, LogLevel.Info );
 	}
 
 	/**
@@ -38,27 +44,8 @@ export class PluginLogger implements Pick<Logger, 'verbose' | 'info' | 'warn' | 
 	 *
 	 * @param text  - The warning that should be logged.
 	 */
-	public warn( text: string ): void {
-		this._app.logger.warn( this._formatMessage( text ) );
-	}
-
-	/**
-	 * Log the given error message.
-	 *
-	 * @param text  - The error that should be logged.
-	 */
-	public error( text: string ): void {
-		this._app.logger.error( this._formatMessage( text ) );
-	}
-
-	/**
-	 * Print a log message.
-	 *
-	 * @param message  - The message itself.
-	 * @param level  - The urgency of the log message.
-	 */
-	public log( message: string, level: LogLevel ): void {
-		this._app.logger.log( this._formatMessage( message ), level );
+	public warn( text: string | ( () => string ) ): void {
+		this.log( text, LogLevel.Warn );
 	}
 
 	/**
@@ -67,8 +54,53 @@ export class PluginLogger implements Pick<Logger, 'verbose' | 'info' | 'warn' | 
 	 * @param text  - The message that should be logged.
 	 * @param addStack - TODO: Not sure why ?
 	 */
-	public deprecated( text: string, addStack?: boolean ): void {
-		this._app.logger.deprecated( this._formatMessage( text ), addStack );
+	public deprecated( text: string | ( () => string ), addStack?: boolean ): void {
+		if ( addStack ) {
+			const stack = new Error().stack?.split( '\n' );
+			if ( stack && stack.length >= 4 ) {
+				text = () => `${text}\n${stack[3]}`;
+			}
+		}
+		this.warn( text );
+	}
+
+	/**
+	 * Log the given error message.
+	 *
+	 * @param text  - The error that should be logged.
+	 */
+	public error( text: string | ( () => string ) ): void {
+		this.log( text, LogLevel.Error );
+	}
+
+	/**
+	 * Print a log message.
+	 *
+	 * @param message  - The message itself.
+	 * @param level  - The urgency of the log message.
+	 */
+	public log( message: string | ( () => string ), level: LogLevel ): void {
+		if( level < this.level ){
+			return;
+		}
+		this._logThroughParent( message, level );
+	}
+
+	/**
+	 * Pass a log message to the parent.
+	 *
+	 * @param message  - The message itself.
+	 * @param level  - The urgency of the log message.
+	 */
+	private _logThroughParent( message: string | ( () => string ), level: LogLevel ){
+		if( this._parent instanceof PluginLogger ){
+			this._parent._logThroughParent( message, level );
+		} else {
+			const orignalLevel = this._parent.level;
+			this._parent.level = LogLevel.Verbose;
+			this._parent.log( this._formatMessage( isString( message ) ? message : message() ), level );
+			this._parent.level = orignalLevel;
+		}
 	}
 
 	/**
