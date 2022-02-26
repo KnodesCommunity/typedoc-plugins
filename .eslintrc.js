@@ -15,4 +15,9 @@ module.exports = {
 				...required,
 			} );
 		} ),
+	settings: {
+		jsdoc: {
+			mode: 'typescript',
+		},
+	},
 };

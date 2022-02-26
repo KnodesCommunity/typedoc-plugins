@@ -28,7 +28,10 @@ module.exports = {
 		.flat( 1 )
 		.map( config => {
 			if( config.displayName ){
-				config.displayName.name = `${basename( config.rootDir )} ${config.displayName.name}`;
+				config.displayName = {
+					...config.displayName,
+					name: `${basename( config.rootDir )} ${config.displayName.name}`,
+				};
 			} else {
 				config.displayName = {
 					name: basename( config.rootDir ),

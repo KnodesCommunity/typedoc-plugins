@@ -5,6 +5,9 @@ const baseConfig = {
 	collectCoverageFrom: [
 		'<rootDir>/src/**/*.{c,m,}{t,j}s{x,}',
 	],
+	coveragePathIgnorePatterns: [
+		'<rootDir>/__tests__',
+	],
 	globals: {
 		'ts-jest': {
 			tsconfig: '<rootDir>/tsconfig.spec.json',
@@ -12,6 +15,7 @@ const baseConfig = {
 	},
 	setupFilesAfterEnv: [ 'jest-extended/all' ],
 };
+/** @type {import('ts-jest/dist/types').InitialOptionsTsJest[]} */
 module.exports = {
 	projects: [
 		{

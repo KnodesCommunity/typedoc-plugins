@@ -1,9 +1,12 @@
 {
+  "extends": "./tsconfig.json",
   "compilerOptions": {
-      "composite": true
+    "types": [
+      "jest",
+      "jest-extended",
+      "node"
+    ]
   },
-  "references": [
-      {"path": "./tsconfig.json"},
-      {"path": "./tsconfig.spec.json"}
-  ]
+  "include": ["src", "__tests__"],
+  "exclude": []
 }

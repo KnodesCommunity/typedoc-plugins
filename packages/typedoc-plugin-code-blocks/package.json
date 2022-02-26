@@ -17,6 +17,10 @@
   },
   "keywords": [
     "typedocplugin",
+    "typedoc-plugin",
+    "typedoc",
+    "plugin",
+    "code",
     "documentation"
   ],
   "main": "dist/index.js",
