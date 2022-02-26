@@ -1,6 +1,8 @@
+import assert from 'assert';
 import { resolve } from 'path';
 
-import { isPlainObject } from 'lodash';
+import { isNumber, isPlainObject, isString } from 'lodash';
+import { LogLevel } from 'typedoc';
 
 import { IPluginOptions } from './plugin-options';
 
@@ -11,6 +13,14 @@ export const readPluginOptions = ( optionsRaw: unknown ): IPluginOptions => {
 	}
 	if( !( 'output' in opts ) ){
 		opts.output = 'pages';
+	}
+	if( 'logLevel' in opts ){
+		if( isString( opts.logLevel ) ){
+			assert( opts.logLevel in LogLevel );
+			opts.logLevel = LogLevel[opts.logLevel] as any;
+		} else if( isNumber( opts.logLevel ) ){
+			assert( Object.values( LogLevel ).includes( opts.logLevel ) );
+		}
 	}
 	// TODO: validate;
 	return opts;

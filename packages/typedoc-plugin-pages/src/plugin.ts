@@ -1,20 +1,21 @@
 import assert from 'assert';
 import { join } from 'path';
 
-import { once } from 'lodash';
-import { Application, JSX, MarkdownEvent, PageEvent, ParameterType, Reflection, RendererEvent } from 'typedoc';
+import { isNumber, once } from 'lodash';
+import { Application, JSX, LogLevel, MarkdownEvent, PageEvent, ParameterType, Reflection, RendererEvent } from 'typedoc';
 
 import { ABasePlugin } from '@knodes/typedoc-pluginutils';
 
 import { IPluginOptions, readPluginOptions } from './options';
 import { getPageTreeBuilder } from './page-tree';
 import { NodeReflection } from './reflections';
+import { MergeExclusive } from 'type-fest';
 
 const EXTRACT_PAGE_LINK_REGEX = /{@page\s+([^}\s]+)(?:\s+([^}]+?))?\s*}/;
 export class PagesPlugin extends ABasePlugin {
 	public readonly pageTreeBuilder = once( () => getPageTreeBuilder( this.application, this ) );
 	private _currentPageEvent?: PageEvent;
-	private readonly _pluginOptions = this.addOption<IPluginOptions>( {
+	private readonly _pluginOptions = this.addOption<MergeExclusive<IPluginOptions, {logLevel: LogLevel}>>( {
 		name: '__',
 		help: 'Configuration or the path to the pages configuration file.',
 		type: ParameterType.Mixed,
@@ -28,6 +29,10 @@ export class PagesPlugin extends ABasePlugin {
 	 * This method is called after the plugin has been instanciated.
 	 */
 	public override initialize(){
+		const opts = this._pluginOptions.getValue();
+		if( 'logLevel' in opts && isNumber( opts.logLevel ) ) {
+			this.logger.level = opts.logLevel;
+		}
 		this.application.renderer.on( RendererEvent.BEGIN, this.addPagesToProject.bind( this ) );
 		this.application.renderer.on( MarkdownEvent.PARSE, this._processMarkdown.bind( this ) );
 		this.application.renderer.on( PageEvent.BEGIN, ( e: PageEvent ) => this._currentPageEvent = e );

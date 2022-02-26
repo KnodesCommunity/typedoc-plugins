@@ -1,3 +1,5 @@
+import { LogLevel } from 'typedoc';
+
 import { IRootPageNode } from './pages';
 
 /**
@@ -59,5 +61,7 @@ export interface IPluginOptions {
 	 * By default this will point to the directory that TypeDoc is run from.
 	 */
 	source?: string;
+
+	logLevel?: LogLevel;
 }
 
