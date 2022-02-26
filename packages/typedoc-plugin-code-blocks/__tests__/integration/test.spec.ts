@@ -22,13 +22,14 @@ describe( 'Real behavior', () => {
 		};
 		app.bootstrap( {
 			...baseOptions,
-			'code-blocks-directories': { blocks: resolve( rootDir, 'blocks' ) },
+			'pluginCodeBlocks:directories': { blocks: resolve( rootDir, 'blocks' ) },
 		} as any );
 		const project = app.convert()!;
 		app.validate( project );
 		await app.generateDocs( project, resolve( rootDir, './docs' ) );
 		const content = await readFile( resolve( rootDir, 'docs/classes/Test.html' ), 'utf-8' );
 		expect( content ).toContain( '{</span><span class="hl-1">&quot;Hello&quot;</span><span class="hl-0">: </span><span class="hl-2">&quot;World&quot;</span><span class="hl-0">}' );
+		expect( content ).toMatch( /<link\s+rel="stylesheet"\s+href="[^"]*?\/assets\/code-blocks\.css"\s*\/>/ );
 		expect( content ).toMatchSnapshot();
 	} );
 } );

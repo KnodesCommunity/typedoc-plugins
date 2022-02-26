@@ -28,12 +28,13 @@
   "scripts": {
     "build": "tsc --project tsconfig.json",
     "build:clean": "rimraf dist",
-    "lint": "eslint --ignore-path ../../.eslintignore '**/?(.)*.?([cm])[tj]s'",
+    "lint": "eslint --ignore-path ../../.eslintignore '**/?(.)*.?([cm])[tj]s?(x)'",
     "prepublish": "npm run build:clean && npm run build",
     "test": "jest --config jest.config.js"
   },
   "dependencies": {
-    "@knodes/typedoc-pluginutils": "*"
+    "@knodes/typedoc-pluginutils": "*",
+    "pkg-up": "^3.1.0"
   },
   "peerDependencies": {
     "lodash": "^4.17.0",

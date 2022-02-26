@@ -1,24 +1,27 @@
-import { existsSync, readFileSync, statSync } from 'fs';
-import { dirname, extname, relative, resolve } from 'path';
+import assert from 'assert';
+import { existsSync, statSync } from 'fs';
+import { dirname, relative, resolve } from 'path';
 
-import { isNil, isPlainObject, isString } from 'lodash';
-import { Renderer, marked } from 'marked';
-import { Application, Context, Converter, MarkdownEvent, ParameterType, Reflection } from 'typedoc';
+import { isNil, isPlainObject, isString, once } from 'lodash';
+import pkgUp from 'pkg-up';
+import { PackageJson } from 'type-fest';
+
+import { Application, Context, Converter, JSX, MarkdownEvent, ParameterType, Reflection, ReflectionKind, RendererEvent } from 'typedoc';
 
 import { ABasePlugin } from '@knodes/typedoc-pluginutils';
 
+import { getCodeBlockRenderer } from './code-blocks';
 import { DEFAULT_BLOCK_NAME, ICodeSample, readCodeSample } from './code-sample-file';
+import { FoldableMode } from './theme';
 
 const EXTRACT_CODE_BLOCKS_REGEX = /\{@codeblock\s+(?:(foldable|folded)\s+)?(.+?)(?:#(.+?))?(?:\s*\|\s*(.*?))?\}/;
-
-export type Foldable = 'foldable' | 'folded' | undefined;
 
 type CodeBlockDirs = {'~~': string} & Record<string, string | undefined>
 /**
  * Pages plugin for integrating your own pages into documentation output
  */
 export class CodeBlockPlugin extends ABasePlugin {
-	public readonly directoriesOption = this.addOption<CodeBlockDirs>( {
+	private readonly _directoriesOption = this.addOption<CodeBlockDirs>( {
 		name: 'directories',
 		help: `A map of base directories where to extract code blocks. Some well-known fields are always set:
 * \`~~\` is the directory containing the TypeDoc config.
@@ -33,6 +36,9 @@ export class CodeBlockPlugin extends ABasePlugin {
 			} else {
 				throw new TypeError( 'Invalid option value type' );
 			}
+			if( '~~' in obj ){
+				throw new Error( 'Can\'t explicitly set `~~` directory' );
+			}
 			const pairs = Object.entries( obj );
 			for( const [ key, value ] of pairs ){
 				if( !key.match( /^\w+$/ ) ){
@@ -41,14 +47,11 @@ export class CodeBlockPlugin extends ABasePlugin {
 				if( typeof value !== 'string' ){
 					throw new Error( 'Should have only path values' );
 				}
-				const resolved = resolve( value );
+				const resolved = relative( process.cwd(), resolve( this._rootDir, value ) );
 				if( !existsSync( resolved ) ){
 					throw new Error( `Code block alias "${key}" (resolved to ${resolved}) does not exist.` );
 				}
 				obj[key] = resolved;
-			}
-			if( '~~' in obj ){
-				throw new Error( 'Can\'t explicitly set `~~` directory' );
 			}
 			obj['~~'] = this._rootDir;
 			return obj as CodeBlockDirs;
@@ -71,38 +74,58 @@ export class CodeBlockPlugin extends ABasePlugin {
 		}
 		return this._rootDirCache;
 	}
-	private _currentReflection?: Reflection;
+	private readonly _getCodeBlockRenderer = once( () => getCodeBlockRenderer( this.application, this ) );
 
 	public constructor( application: Application ){
 		super( application, __filename );
 	}
 
 	/**
+	 * This method is called after the plugin has been instanciated.
 	 *
+	 * @see {@link import('@knodes/typedoc-pluginutils').autoload}.
 	 */
 	public initialize(): void {
+		// Hook over each markdown events to replace code blocks
 		this.application.renderer.on( MarkdownEvent.PARSE, this._processMarkdown.bind( this ) );
-		this.application.converter.on( Converter.EVENT_RESOLVE, ( _ctx: Context, reflection: Reflection ) => {
-			this._currentReflection = reflection;
-			if( reflection.comment ){
-				reflection.comment.shortText = this.replaceCodeBlocks( reflection.comment.shortText );
-				reflection.comment.text = this.replaceCodeBlocks( reflection.comment.text );
-				if( reflection.comment.returns ){
-					reflection.comment.returns = this.replaceCodeBlocks( reflection.comment.returns );
+		// Hook on reflections resolution start. At this point, the project contains all modules in case of a `project` {@link import('typedoc').EntryPointStrategy EntryPointStrategy}.
+		this.application.converter.on( Converter.EVENT_RESOLVE_BEGIN, ( _ctx: Context ) => {
+			const directories = this._directoriesOption.getValue();
+			_ctx.project.getChildrenByKind( ReflectionKind.Module ).forEach( r => {
+				const packageJsonFile = this._findReflectionPackageJson( r );
+				if( !packageJsonFile ){
+					return;
 				}
-			}
+				this.logger.makeChildLogger( r.name ).verbose( `package.json file found at "${packageJsonFile}"` );
+				directories[r.name] = dirname( packageJsonFile );
+			} );
 		} );
+		// Store all reflections so that code blocks can be replaced once the theme is defined.
+		const onRenderBegin: Array<() => void> = [];
+		this.application.converter.on( Converter.EVENT_RESOLVE, ( _ctx: Context, reflection: Reflection ) => {
+			onRenderBegin.push( () => {
+				if( reflection.comment ){
+					reflection.comment.shortText = this.replaceCodeBlocks( reflection.comment.shortText, reflection );
+					reflection.comment.text = this.replaceCodeBlocks( reflection.comment.text, reflection );
+					if( reflection.comment.returns ){
+						reflection.comment.returns = this.replaceCodeBlocks( reflection.comment.returns, reflection );
+					}
+				}
+			} );
+		} );
+		this.application.renderer.on( RendererEvent.BEGIN, () => onRenderBegin.forEach( r => r() ) );
 	}
 
 	/**
 	 * Replace code blocks in the given source.
 	 *
 	 * @param sourceMd - The markdown text to replace.
+	 * @param reflection - The reflection currently being replaced.
 	 * @returns the replaced markdown.
 	 */
-	public replaceCodeBlocks( sourceMd: string ): string {
+	public replaceCodeBlocks( sourceMd: string, reflection?: Reflection ): string {
 		const regex = new RegExp( EXTRACT_CODE_BLOCKS_REGEX.toString().slice( 1, -1 ), 'g' );
-		const replaced = sourceMd.replace(
+		return sourceMd.replace(
 			regex,
 			fullmatch => {
 				// eslint-disable-next-line @typescript-eslint/no-non-null-assertion -- Re-run the exact same regex.
@@ -110,19 +133,41 @@ export class CodeBlockPlugin extends ABasePlugin {
 				if( foldable !== 'foldable' && foldable !== 'folded' && foldable ){
 					throw new Error( `Invalid foldable state "${foldable}". Expected "foldable" | "folded"` );
 				}
-				this.logger.makeChildLogger( this._currentReflection?.sources?.[0].fileName ?? 'UNKNOWN SOURCE' ).verbose( [
+				this.logger.makeChildLogger( reflection?.sources?.[0].fileName ?? 'UNKNOWN SOURCE' ).verbose( [
 					'Generating',
 					foldable,
 					`code block to ${file}`,
 					block ? `(block "${block}")` : null,
 					fakedFileName ? `as "${fakedFileName}"` : null,
 				].filter( isString ).join( ' ' ) );
-				return this._generateCodeBlock( file, block, fakedFileName, ( foldable || undefined ) as Foldable );
+				return this._generateCodeBlock( file, block, fakedFileName, ( foldable || null ) as FoldableMode );
 			} );
-		if( replaced !== sourceMd ){
-			return `<style>${readFileSync( resolve( __dirname, '../static/code-block.css' ) )}</style>\n\n${replaced}`;
+	}
+
+	/**
+	 * Look up the `package.json` file corresponding to the given {@link reflection}.
+	 *
+	 * @param reflection - The reflection to use as a base for the search.
+	 * @returns the `package.json` path, or `undefined` if reflection don't have a source (should never happen).
+	 */
+	private _findReflectionPackageJson( reflection: Reflection ){
+		if( !reflection.sources || reflection.sources.length === 0 ){
+			return;
 		}
-		return sourceMd;
+		let source = reflection.sources[0].fileName;
+		let i = 0;
+		do {
+			const packageJsonPath = pkgUp.sync( { cwd: source } );
+			assert( packageJsonPath );
+			// eslint-disable-next-line @typescript-eslint/no-var-requires -- require package.json
+			const packageContent = require( packageJsonPath ) as PackageJson;
+			if( packageContent.name === reflection.name ){
+				return relative( this._rootDir, packageJsonPath );
+			}
+			this.logger.makeChildLogger( reflection.name ).verbose( `Skipping package.json file "${packageJsonPath}", as its name "${packageContent.name}" does not match the searched name` );
+			source = packageJsonPath;
+		} while( i++ < 5 );
+		throw new Error( `Could not look up the package.json file of ${reflection.sources[0].fileName}` );
 	}
 
 	/**
@@ -143,7 +188,7 @@ export class CodeBlockPlugin extends ABasePlugin {
 	 */
 	private _resolveFile( file: string ){
 		const [ dir, ...path ] = file.split( '/' );
-		const codeBlockDirs = this.directoriesOption.getValue();
+		const codeBlockDirs = this._directoriesOption.getValue();
 		const codeBlockDir = codeBlockDirs[dir];
 		if( !codeBlockDir ){
 			throw new Error( `Trying to use code block from named directory ${dir} (targetting file ${file}), but it is not defined.` );
@@ -160,15 +205,15 @@ export class CodeBlockPlugin extends ABasePlugin {
 	 * @param codeSample - The code sample containing the lines range to select.
 	 * @returns the URL, or `null`.
 	 */
-	private _resolveCodeSampleUrl( file: string, codeSample: ICodeSample | null ){
+	private _resolveCodeSampleUrl( file: string, codeSample: ICodeSample | null ): string | undefined {
 		const gitHubComponent = this.application.converter.getComponent( 'git-hub' );
 		if( !gitHubComponent ){
-			return null;
+			return undefined;
 		}
 		const repository = ( gitHubComponent as any ).getRepository( file );
-		const url = repository.getGitHubURL( file );
+		const url: string | null | undefined = repository.getGitHubURL( file );
 		if( !url ){
-			return null;
+			return undefined;
 		}
 		if( !codeSample ){
 			return url;
@@ -185,7 +230,7 @@ export class CodeBlockPlugin extends ABasePlugin {
 	 * @param foldable - The foldable type of the code block.
 	 * @returns the full code block.
 	 */
-	private _generateCodeBlock( file: string, region: string | null, fakedFileName: string | null, foldable: Foldable ){
+	private _generateCodeBlock( file: string, region: string | null, fakedFileName: string | null, foldable: FoldableMode ){
 		// Use ??= once on node>14
 		region = region ?? DEFAULT_BLOCK_NAME;
 		const useWholeFile = region === DEFAULT_BLOCK_NAME;
@@ -202,37 +247,17 @@ export class CodeBlockPlugin extends ABasePlugin {
 
 		const headerFileName = fakedFileName ?? `./${relative( this._rootDir, resolvedFile )}${useWholeFile ? '' : `#${codeSample.startLine}~${codeSample.endLine}`}`;
 		const url = this._resolveCodeSampleUrl( resolvedFile, useWholeFile ? null : codeSample );
-		const header = marked( `From ${url ? `[${headerFileName}](${url})` : `${headerFileName}`}` );
-
-		const codeHighlighted = new Renderer().code( codeSample.code, extname( resolvedFile ).slice( 1 ), false );
-		return this._wrapCodeBlock( header, codeHighlighted, foldable );
-	}
-
-	/**
-	 * Wrap the given {@link code} into the correct HTML markup depending on the {@link foldable} type.
-	 *
-	 * @param header - The file header (name).
-	 * @param code - The highlighted code to wrap.
-	 * @param foldable - The foldable type.
-	 * @returns the `code-block` element.
-	 */
-	private _wrapCodeBlock( header: string, code: string, foldable: Foldable ) {
-		switch( foldable ){
-			case undefined: {
-				return `<div class="code-block">${header}${code}</div>`;
-			}
-
-			case 'foldable': {
-				return `<details class="code-block" open="open"><summary>${header}</summary>${code}</details>`;
-			}
-
-			case 'folded': {
-				return `<details class="code-block"><summary>${header}</summary>${code}</details>`;
-			}
-
-			default: {
-				throw new Error( 'Invalid foldable marker' );
-			}
+		const rendered = this._getCodeBlockRenderer().renderCodeBlock( {
+			asFile: headerFileName,
+			content: codeSample.code,
+			mode: foldable,
+			sourceFile: resolvedFile,
+			url,
+		} );
+		if( typeof rendered === 'string' ){
+			return rendered;
+		} else {
+			return JSX.renderElement( rendered );
 		}
 	}
 }

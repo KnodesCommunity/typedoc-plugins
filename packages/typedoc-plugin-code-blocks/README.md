@@ -1,6 +1,8 @@
 # @knodes/typedoc-plugin-code-blocks
 
-A TypeDoc plugin to embed source code into your output documentation
+> A TypeDoc plugin to embed source code into your output documentation
+> 
+[![npm](https://img.shields.io/npm/v/@knodes/typedoc-plugin-code-blocks?color=brightgreen)](https://www.npmjs.com/package/@knodes/typedoc-plugin-code-blocks)
 
 ## Compatibility
 
