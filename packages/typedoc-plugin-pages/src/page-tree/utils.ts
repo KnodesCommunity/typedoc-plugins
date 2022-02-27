@@ -9,10 +9,11 @@ import { IPageNode } from '../options';
 import { ANodeReflection } from '../reflections/a-node-reflection';
 
 export const join = ( ...segments: Array<string | undefined> ) => _join( ...segments.filter( isString ) );
-export const traverseDeep = ( reflections: readonly Reflection[], cb: ( reflection: Reflection ) => void ) => reflections.forEach( r => {
-	r.traverse( rr => cb( rr ) );
-	cb( r );
-} );
+export const traverseDeep = ( reflections: readonly Reflection[], cb: ( reflection: Reflection ) => void | boolean  ) => reflections.forEach( r => traverseSingle( r, cb ) );
+const traverseSingle = ( reflection: Reflection, cb: ( reflection: Reflection ) => void | boolean ) => {
+	reflection.traverse( rr => traverseSingle( rr, cb ) );
+	cb( reflection );
+};
 const trimExt = ( file: string ) => {
 	if( !file.match( /\.[^/.]+$/ ) ){
 		throw new Error( `Invalid non-extension filename "${file}"` );
