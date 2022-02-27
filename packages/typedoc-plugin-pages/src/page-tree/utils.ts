@@ -1,19 +1,14 @@
 import assert from 'assert';
-import { join } from 'path';
+import { join as _join } from 'path';
 
+import { isString } from 'lodash';
 import { PascalCase } from 'type-fest';
 import { Reflection } from 'typedoc';
 
 import { IPageNode } from '../options';
+import { ANodeReflection } from '../reflections/a-node-reflection';
 
-export const resolve = ( base?: string, ...left: string[] ) => {
-	const segments: string[] = [];
-	if( base ){
-		segments.push( base );
-	}
-	segments.push( ...left );
-	return join( ...segments );
-};
+export const join = ( ...segments: Array<string | undefined> ) => _join( ...segments.filter( isString ) );
 export const traverseDeep = ( reflections: readonly Reflection[], cb: ( reflection: Reflection ) => void ) => reflections.forEach( r => {
 	r.traverse( rr => cb( rr ) );
 	cb( r );
@@ -61,13 +56,18 @@ export const getNodeUrl = ( node: IPageNode ): string => {
 	}
 };
 
-export const getReflectionPath = ( reflection?: Reflection ): string[] => {
-	if( !reflection ){
+type NodeOrRef = IPageNode | Reflection;
+export const getNodePath = ( self?: NodeOrRef, parent?: NodeOrRef ): string => [ parent, self ]
+	.flatMap( iterateNodeTitle )
+	.map( p => JSON.stringify( p ) ).join( ' ⇥ ' );
+const iterateNodeTitle = ( node?: NodeOrRef ): string[] => {
+	if( node instanceof ANodeReflection ){
+		return [ ...iterateNodeTitle( node.parent ), node.name ];
+	} else if( node instanceof Reflection ){
 		return [];
+	} else if( node ){
+		return [ node.title ];
 	} else {
-		return [
-			...getReflectionPath( reflection.parent ),
-			reflection.name,
-		];
+		return [];
 	}
 };

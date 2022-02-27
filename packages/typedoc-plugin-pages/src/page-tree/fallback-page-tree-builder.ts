@@ -1,11 +1,10 @@
-import { times, uniq } from 'lodash';
+import { uniq } from 'lodash';
 import { DefaultTheme, PageEvent, Reflection, ReflectionKind, RenderTemplate, UrlMapping } from 'typedoc';
 
-import { PageNode } from '../options';
 import type { PagesPlugin } from '../plugin';
 import { MenuReflection, NodeReflection, PageReflection } from '../reflections';
 import { RenderPageLinkProps } from '../theme';
-import { APageTreeBuilder, IDeepParams } from './a-page-tree-builder';
+import { APageTreeBuilder } from './a-page-tree-builder';
 import { doRenderTemplate } from './default-render-link';
 import { traverseDeep } from './utils';
 
@@ -50,26 +49,14 @@ export class FallbackPageTreeBuilder extends APageTreeBuilder {
 	}
 
 	/**
-	 * Generate the node (menu item, page) title.
-	 *
-	 * @param deepParams - The deep params.
-	 * @param node - The node.
-	 * @returns the node title.
-	 */
-	protected getNodeTitle( deepParams: IDeepParams, node: PageNode ): string {
-		return `${times( deepParams.depth, () => '⇒' ).join( ' ' )  } ${node.title}`;
-	}
-
-	/**
 	 * Register the {@link nodeReflection} into the correct reflection (project or module).
 	 *
-	 * @param deepParams - The deep params.
 	 * @param nodeReflection - The node reflection.
 	 */
-	protected addNodeToProjectAsChild( deepParams: IDeepParams, nodeReflection: NodeReflection ): void {
-		deepParams.module.children = uniq( [
+	protected addNodeToProjectAsChild( nodeReflection: NodeReflection ): void {
+		nodeReflection.module.children = uniq( [
 			nodeReflection,
-			...( deepParams.module.children ?? [] ),
+			...( nodeReflection.module.children ?? [] ),
 		] );
 	}
 

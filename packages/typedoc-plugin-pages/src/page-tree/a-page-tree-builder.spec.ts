@@ -1,18 +1,20 @@
+import { resolve } from 'path';
+
+import { isString } from 'lodash';
 import mockFs from 'mock-fs';
 import { Class } from 'type-fest';
-import { Application, ContainerReflection, DeclarationReflection, DefaultTheme, JSX, ProjectReflection, Reflection, ReflectionKind, UrlMapping } from 'typedoc';
+import { Application, DeclarationReflection, DefaultTheme, JSX, ProjectReflection, Reflection, ReflectionKind, UrlMapping } from 'typedoc';
 
 import { PageNode } from '../options';
 import { PagesPlugin } from '../plugin';
 import { MenuReflection, NodeReflection, PageReflection } from '../reflections';
 import { RenderPageLinkProps } from '../theme';
-import { APageTreeBuilder, IDeepParams } from './a-page-tree-builder';
+import { APageTreeBuilder } from './a-page-tree-builder';
 
 class TestHost extends APageTreeBuilder {
 	public readonly renderPageLink = jest.fn<JSX.Element | string, [RenderPageLinkProps]>();
-	public readonly getNodeTitle = jest.fn<string, [deepParams: IDeepParams, node: PageNode]>().mockImplementation( ( { depth, module }, { title } ) => `${module}|${depth}|${title}` );
 	public readonly generateMappings = jest.fn<Array<UrlMapping<PageReflection>>, [reflections: NodeReflection[]]>();
-	public readonly addNodeToProjectAsChild = jest.fn<void, [deepParams: IDeepParams, nodeReflection: NodeReflection]>();
+	public readonly addNodeToProjectAsChild = jest.fn<void, [odeReflection: NodeReflection]>();
 	public constructor(){
 		super( theme, plugin );
 		this.project = undefined;
@@ -27,9 +29,9 @@ class TestHost extends APageTreeBuilder {
 		return this['_project'] as any;
 	}
 
-	public mapPagesToReflections( nodes: PageNode[], inputDir?: string, outputDir?: string, parent?: ContainerReflection ): NodeReflection[] {
+	public mapPagesToReflections( nodes: PageNode[], parent?: ProjectReflection | DeclarationReflection, io: {input?: string; output?: string} = {} ): NodeReflection[] {
 		// eslint-disable-next-line @typescript-eslint/dot-notation
-		return this['_mapPagesToReflections']( { depth: 0 }, nodes, inputDir, outputDir, parent );
+		return this['_mapPagesToReflections']( nodes, parent ?? this.project, io );
 	}
 }
 let application: Application;
@@ -45,6 +47,10 @@ beforeEach( () => {
 afterEach( mockFs.restore );
 const matchReflection = <T extends Reflection>( proto: Class<T>, sample: Partial<T> ) => expect.toSatisfy( v => {
 	expect( v ).toBeInstanceOf( proto );
+	const s = sample as any;
+	if( 'sourceFilePath' in s && isString( s.sourceFilePath ) ){
+		s.sourceFilePath = resolve( s.sourceFilePath );
+	}
 	expect( v ).toMatchObject( sample );
 	return true;
 } );
@@ -53,7 +59,7 @@ describe( APageTreeBuilder.name, () => {
 		const out = testHost.mapPagesToReflections( [ { title: 'Foo' } ] );
 		expect( out ).toHaveLength( 1 );
 		expect( out ).toEqual( [
-			matchReflection( MenuReflection, { name: 'Project TEST|0|Foo' } ),
+			matchReflection( MenuReflection, { name: 'Foo', depth: 0, module: testHost.project } ),
 		] );
 	} );
 	it( 'should map menu with children', () => {
@@ -67,9 +73,9 @@ describe( APageTreeBuilder.name, () => {
 		] } ] );
 		expect( out ).toHaveLength( 1 );
 		expect( out ).toEqual( [
-			matchReflection( MenuReflection, { name: 'Project TEST|0|Foo', children: [
-				matchReflection( PageReflection, { name: 'Project TEST|1|Bar', filename: 'bar.md', content: 'Bar content', url: 'bar.html' } ),
-				matchReflection( PageReflection, { name: 'Project TEST|1|Baz', filename: 'baz.md', content: 'Baz content', url: 'baz.html' } ),
+			matchReflection( MenuReflection, { name: 'Foo', depth: 0, module: testHost.project, children: [
+				matchReflection( PageReflection, { name: 'Bar', depth: 1, module: testHost.project, sourceFilePath: 'bar.md', content: 'Bar content', url: 'bar.html' } ),
+				matchReflection( PageReflection, { name: 'Baz', depth: 1, module: testHost.project, sourceFilePath: 'baz.md', content: 'Baz content', url: 'baz.html' } ),
 			] } ),
 		] );
 	} );
@@ -88,8 +94,8 @@ describe( APageTreeBuilder.name, () => {
 		] } ] );
 		expect( out ).toHaveLength( 2 );
 		expect( out ).toEqual( [
-			matchReflection( PageReflection, { name: 'Project TEST|0|Bar', filename: 'bar.md', content: 'Bar content', url: 'bar.html' } ),
-			matchReflection( PageReflection, { name: 'Project TEST|0|Baz', filename: 'baz.md', content: 'Baz content', url: 'baz.html' } ),
+			matchReflection( PageReflection, { name: 'Bar', depth: 0, module: testHost.project, sourceFilePath: 'bar.md', content: 'Bar content', url: 'bar.html' } ),
+			matchReflection( PageReflection, { name: 'Baz', depth: 0, module: testHost.project, sourceFilePath: 'baz.md', content: 'Baz content', url: 'baz.html' } ),
 		] );
 	} );
 	it( 'should map menu to workspace with children', () => {
@@ -107,10 +113,29 @@ describe( APageTreeBuilder.name, () => {
 		] } ] );
 		expect( out ).toHaveLength( 1 );
 		expect( out ).toEqual( [
-			matchReflection( MenuReflection, { name: 'Module SUB|0|Foo', children: [
-				matchReflection( PageReflection, { name: 'Module SUB|1|Bar', filename: 'bar.md', content: 'Bar content', url: 'bar.html' } ),
-				matchReflection( PageReflection, { name: 'Module SUB|1|Baz', filename: 'baz.md', content: 'Baz content', url: 'baz.html' } ),
+			matchReflection( MenuReflection, { name: 'Foo', depth: 0, module: testHost.project.children[0],  children: [
+				matchReflection( PageReflection, { name: 'Bar', depth: 1, module: testHost.project.children[0], sourceFilePath: 'bar.md', content: 'Bar content', url: 'bar.html' } ),
+				matchReflection( PageReflection, { name: 'Baz', depth: 1, module: testHost.project.children[0], sourceFilePath: 'baz.md', content: 'Baz content', url: 'baz.html' } ),
 			] } ),
+		] );
+	} );
+	it( 'should map virtual menu to workspace with children', () => {
+		testHost.project.children = [
+			new DeclarationReflection( 'SUB', ReflectionKind.Module, testHost.project ),
+			new DeclarationReflection( 'SUB2', ReflectionKind.Module, testHost.project ),
+		];
+		mockFs( {
+			'bar.md': 'Bar content',
+			'baz.md': 'Baz content',
+		} );
+		const out = testHost.mapPagesToReflections( [ { title: 'VIRTUAL', workspace: 'SUB2', children: [
+			{ title: 'Bar', source: 'bar.md' },
+			{ title: 'Baz', source: 'baz.md' },
+		] } ] );
+		expect( out ).toHaveLength( 2 );
+		expect( out ).toEqual( [
+			matchReflection( PageReflection, { name: 'Bar', depth: 0, module: testHost.project.children[1], sourceFilePath: 'bar.md', content: 'Bar content', url: 'bar.html' } ),
+			matchReflection( PageReflection, { name: 'Baz', depth: 0, module: testHost.project.children[1], sourceFilePath: 'baz.md', content: 'Baz content', url: 'baz.html' } ),
 		] );
 	} );
 	it( 'should throw if workspace is not found', () => {
@@ -118,20 +143,13 @@ describe( APageTreeBuilder.name, () => {
 			new DeclarationReflection( 'SUB2', ReflectionKind.Module, testHost.project ),
 		];
 		expect( () => testHost.mapPagesToReflections( [ { title: 'Foo', workspace: 'SUB', children: [] } ] ) )
-			.toThrowWithMessage( Error, /Could not get a module for workspace named "SUB" \(in "Foo"\)/ );
+			.toThrowWithMessage( Error, /Invalid node workspace override "Foo":\s*Could not get a module for workspace named "SUB"\./ );
 	} );
 	it( 'should throw if child if of invalid kind', () => {
 		testHost.project.children = [
 			new DeclarationReflection( 'SUB', ReflectionKind.Namespace, testHost.project ),
 		];
 		expect( () => testHost.mapPagesToReflections( [ { title: 'Foo', workspace: 'SUB', children: [] } ] ) )
-			.toThrowWithMessage( Error, 'Found reflection for workspace name "SUB" (in "Foo") is not a module reflection' );
-	} );
-	it( 'should throw if has both a workspace & a parent', () => {
-		testHost.project.children = [
-			new DeclarationReflection( 'SUB', ReflectionKind.Namespace, testHost.project ),
-		];
-		expect( () => testHost.mapPagesToReflections( [ { title: 'Foo', workspace: 'SUB', children: [] } ], undefined, undefined, new DeclarationReflection( 'Nope', ReflectionKind.Interface ) ) )
-			.toThrowWithMessage( Error, /^Node "Foo" can't have both a parent & a workspace/ );
+			.toThrowWithMessage( Error, /Invalid node workspace override "Foo":\s*Found reflection for workspace name "SUB" is not a module reflection$/ );
 	} );
 } );

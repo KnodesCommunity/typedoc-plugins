@@ -1,4 +1,4 @@
-import { isNumber } from 'lodash';
+import { isNumber, isString } from 'lodash';
 import { ProjectReflection, Reflection, ReflectionKind } from 'typedoc';
 
 export const addReflectionKind = ( ns: string, name: string, value?: number ) => {
@@ -51,5 +51,18 @@ export const getSourceLocationBestClue = ( reflection?: Reflection, position?: n
 		return `${pageSourceCoordinates.file}:${pageSourceCoordinates.line}:${pageSourceCoordinates.column}`;
 	} else {
 		return getReflectionSourceFileName( reflection ) ?? 'UNKNOWN SOURCE';
+	}
+};
+
+export const rethrow = <T>( block: () => T, newErrorFactory: ( err: any ) => string | Error ) => {
+	try {
+		return block();
+	} catch( err ){
+		const newErr = newErrorFactory( err );
+		if( isString( newErr ) ){
+			throw new Error( newErr );
+		} else {
+			throw newErr;
+		}
 	}
 };

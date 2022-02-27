@@ -1,7 +1,8 @@
 import assert from 'assert';
-import { join } from 'path';
+import { join, relative, resolve } from 'path';
 
 import { isNumber, once } from 'lodash';
+import { MergeExclusive } from 'type-fest';
 import { Application, JSX, LogLevel, MarkdownEvent, PageEvent, ParameterType, Reflection, RendererEvent } from 'typedoc';
 
 import { ABasePlugin } from '@knodes/typedoc-pluginutils';
@@ -9,7 +10,6 @@ import { ABasePlugin } from '@knodes/typedoc-pluginutils';
 import { IPluginOptions, readPluginOptions } from './options';
 import { getPageTreeBuilder } from './page-tree';
 import { NodeReflection } from './reflections';
-import { MergeExclusive } from 'type-fest';
 
 const EXTRACT_PAGE_LINK_REGEX = /{@page\s+([^}\s]+)(?:\s+([^}]+?))?\s*}/;
 export class PagesPlugin extends ABasePlugin {
@@ -66,10 +66,12 @@ export class PagesPlugin extends ABasePlugin {
 				// eslint-disable-next-line @typescript-eslint/no-non-null-assertion -- Re-run the exact same regex.
 				const [ , page, label ] = fullmatch.match( EXTRACT_PAGE_LINK_REGEX )!;
 				const prefixedPage = opts.source ? join( opts.source, page ) : page;
-				const mapping = this.pageTreeBuilder().mappings.find( m => m.model.filename === prefixedPage );
+				const mapping = this.pageTreeBuilder().mappings.find( m => m.model.sourceFilePath === resolve( prefixedPage ) );
 				assert( pageEvent.model instanceof Reflection );
 				if( !mapping ){
-					this.logger.makeChildLogger( pageEvent.model.sources?.[0].fileName ?? pageEvent.model.name ).error( `Could not find a page for ${page}` );
+					this.logger.makeChildLogger( pageEvent.model.sources?.[0].fileName ?? pageEvent.model.name )
+						.error( `Could not find a page for ${page}. Known pages are ${JSON.stringify( this.pageTreeBuilder().mappings
+							.map( m => relative( process.cwd(), m.model.sourceFilePath ) ) )}` );
 					return label;
 				}
 				const link = this.pageTreeBuilder().renderPageLink( { event: pageEvent, label, mapping } );

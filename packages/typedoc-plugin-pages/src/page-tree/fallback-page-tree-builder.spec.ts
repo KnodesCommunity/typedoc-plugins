@@ -1,7 +1,9 @@
-import { Application, DeclarationReflection, DefaultTheme, UrlMapping } from 'typedoc';
+import mockFs from 'mock-fs';
+import { Application, DeclarationReflection, DefaultTheme, ProjectReflection, UrlMapping } from 'typedoc';
 
 import { PagesPlugin } from '../plugin';
 import { MenuReflection, NodeReflection, PageReflection, PagesPluginReflectionKind } from '../reflections';
+import { ANodeReflection } from '../reflections/a-node-reflection';
 import { FallbackPageTreeBuilder } from './fallback-page-tree-builder';
 
 class TestHost extends FallbackPageTreeBuilder {
@@ -21,29 +23,32 @@ let application: Application;
 let theme: DefaultTheme;
 let plugin: PagesPlugin;
 let testHost: TestHost;
+let project: ProjectReflection;
 beforeEach( () => {
 	application = new Application();
 	theme = new DefaultTheme( application.renderer );
 	plugin = new PagesPlugin( application );
 	testHost = new TestHost();
+	project = new ProjectReflection( 'TEST' );
 } );
+afterEach( mockFs.restore );
 type Children = undefined | readonly [] | readonly [Dec, ...Dec[]];
 type Dec<T extends DeclarationReflection = DeclarationReflection, Child extends Children = undefined> = Omit<T, 'children'> & {children: Child}
 const pageReflection = <T extends Children = undefined>(
 	name: string,
-	parent: Dec | undefined,
+	parent: Dec | ProjectReflection,
 	children?: ( r: Dec<PageReflection> ) => T,
 ): Dec<PageReflection, T> => {
-	const r = new PageReflection( name, PagesPluginReflectionKind.PAGE as any, name, name, `${name}.html`, parent ) as any;
+	const r = new PageReflection( name, PagesPluginReflectionKind.PAGE as any, parent instanceof ANodeReflection ? parent.module : parent, parent, `${name}.md`, `${name}.html` ) as any;
 	r.children = children?.( r );
 	return r as any;
 };
 const menuReflection = <T extends undefined | readonly [] | readonly [Dec, ...Dec[]] = undefined>(
 	name: string,
-	parent: Dec | undefined,
+	parent: Dec | ProjectReflection,
 	children?: ( r: Dec<MenuReflection> ) => T,
 ): Dec<MenuReflection, T> => {
-	const r = new MenuReflection( name, PagesPluginReflectionKind.MENU as any, parent ) as any;
+	const r = new MenuReflection( name, PagesPluginReflectionKind.MENU as any, parent instanceof ANodeReflection ? parent.module : parent, parent ) as any;
 	r.children = children?.( r );
 	return r as any;
 };
@@ -54,12 +59,17 @@ describe( FallbackPageTreeBuilder.name, () => {
 			expect( testHost.generateMappings( [] ) ).toEqual( [] );
 		} );
 		it( 'should map only pages correctly', () => {
+			mockFs( {
+				'foo.md': 'Foo content',
+				'bar.md': 'Bar content',
+				'quux.md': 'Quux content',
+			} );
 			const nodes = [
-				pageReflection( 'foo', undefined, a => [
+				pageReflection( 'foo', project, a => [
 					pageReflection( 'bar', a ),
 					menuReflection( 'qux', a ),
 				] ),
-				menuReflection( 'baaz', undefined, a => [
+				menuReflection( 'baaz', project, a => [
 					pageReflection( 'quux', a ),
 				] ),
 			] as const;

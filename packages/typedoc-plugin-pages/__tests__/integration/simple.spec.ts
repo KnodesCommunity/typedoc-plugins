@@ -1,6 +1,7 @@
 import { readFile } from 'fs/promises';
 import { resolve } from 'path';
 
+import { html as beautifyHtml } from 'js-beautify';
 import { JSDOM } from 'jsdom';
 import { escapeRegExp } from 'lodash';
 import { Application, ArgumentsReader, TSConfigReader, TypeDocOptions, TypeDocReader } from 'typedoc';
@@ -29,7 +30,7 @@ const passes = <T extends unknown[]>( assert: ( ...args: T ) => void ) => setNam
 	}
 }, `passes(${assert.toString()})` );
 const menuItemMatcher = ( text: string, current: boolean, link: string | null ) => {
-	const reg = new RegExp( `^(\\s|<wbr\\s*\\/>|⇒)*${escapeRegExp( text )}$` );
+	const reg = new RegExp( `^${escapeRegExp( text )}$` );
 	return expect.toSatisfy( setName(
 		passes( ( x: HTMLLIElement ) => {
 			expect( x ).toHaveTextContent( reg, { normalizeWhitespace: true } );
@@ -105,9 +106,9 @@ describe( 'Real behavior', () => {
 			expect( items ).toContainEqual( menuItemMatcher( 'Baaz', false, '../pages/qux/baaz.html' ) );
 			const link = dom.window.document.querySelector( '.tsd-comment a' );
 			expect( link ).toBeTruthy();
-			expect( link ).toHaveTextContent( /^(\s|<wbr\s*\/>|⇒)*Bar$/ );
+			expect( link ).toHaveTextContent( /^Bar$/ );
 			expect( link ).toHaveAttribute( 'href', '../pages/foo/bar.html' );
-			expect( c ).toMatchSnapshot();
+			expect( beautifyHtml( c, { indent_with_tabs: true } ) ).toMatchSnapshot();
 		} );
 	} );
 } );
