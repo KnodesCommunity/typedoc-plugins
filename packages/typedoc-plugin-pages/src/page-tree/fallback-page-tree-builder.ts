@@ -5,7 +5,7 @@ import type { PagesPlugin } from '../plugin';
 import { MenuReflection, NodeReflection, PageReflection } from '../reflections';
 import { RenderPageLinkProps } from '../theme';
 import { APageTreeBuilder } from './a-page-tree-builder';
-import { doRenderTemplate } from './default-render-link';
+import { fallbackRenderPageLink } from './fallback-render-page-link';
 import { traverseDeep } from './utils';
 
 export class FallbackPageTreeBuilder extends APageTreeBuilder {
@@ -15,7 +15,7 @@ export class FallbackPageTreeBuilder extends APageTreeBuilder {
 	}
 
 	public renderPageLink: RenderTemplate<RenderPageLinkProps> = props =>
-		doRenderTemplate( { ...props, context: this.theme.getRenderContext( props.event ) } );
+		fallbackRenderPageLink( { ...props, theme: this.theme } );
 
 	/**
 	 * In fallback mode, all page nodes are identified as {@link ReflectionKind.Namespace}.

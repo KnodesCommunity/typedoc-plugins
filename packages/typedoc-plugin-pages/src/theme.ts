@@ -1,7 +1,7 @@
 import { PageEvent, RenderTemplate, Theme, UrlMapping } from 'typedoc';
 
 import { PageReflection } from './reflections';
-export type RenderPageLinkProps = {mapping: UrlMapping<PageReflection>; label?: string; event: PageEvent};
+export type RenderPageLinkProps = {mapping: UrlMapping<PageReflection>; label?: string};
 export interface IPagesPluginThemeMethods{
 	renderPage: RenderTemplate<PageEvent<PageReflection>>;
 	renderPageLink: RenderTemplate<RenderPageLinkProps>;

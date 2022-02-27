@@ -153,7 +153,8 @@ export abstract class APageTreeBuilder implements IPageTreeBuilder {
 				parent;
 		if(
 			( parent instanceof ANodeReflection && module !== parent.module ) ||
-            ( !( parent instanceof ANodeReflection ) && module !== parent ) ){
+			( !( parent instanceof ANodeReflection ) && module !== parent )
+		){
 			parent = module;
 		}
 		if( node.source ){
