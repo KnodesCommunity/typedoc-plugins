@@ -55,12 +55,19 @@ const matchReflection = <T extends Reflection>( proto: Class<T>, sample: Partial
 	return true;
 } );
 describe( APageTreeBuilder.name, () => {
-	it( 'should map simple menu', () => {
-		const out = testHost.mapPagesToReflections( [ { title: 'Foo' } ] );
+	it( 'should map simple page', () => {
+		mockFs( {
+			'foo.md': 'Foo content',
+		} );
+		const out = testHost.mapPagesToReflections( [ { title: 'Foo', source: 'foo.md'  } ] );
 		expect( out ).toHaveLength( 1 );
 		expect( out ).toEqual( [
-			matchReflection( MenuReflection, { name: 'Foo', depth: 0, module: testHost.project } ),
+			matchReflection( PageReflection, { name: 'Foo', depth: 0, module: testHost.project } ),
 		] );
+	} );
+	it( 'should strip empty menu', () => {
+		const out = testHost.mapPagesToReflections( [ { title: 'Foo' } ] );
+		expect( out ).toHaveLength( 0 );
 	} );
 	it( 'should map menu with children', () => {
 		mockFs( {
@@ -142,14 +149,16 @@ describe( APageTreeBuilder.name, () => {
 		testHost.project.children = [
 			new DeclarationReflection( 'SUB2', ReflectionKind.Module, testHost.project ),
 		];
-		expect( () => testHost.mapPagesToReflections( [ { title: 'Foo', workspace: 'SUB', children: [] } ] ) )
+		mockFs( { 'test.md': 'The content' } );
+		expect( () => testHost.mapPagesToReflections( [ { title: 'Foo', workspace: 'SUB', source: 'test.md' } ] ) )
 			.toThrowWithMessage( Error, /Invalid node workspace override "Foo":\s*Could not get a module for workspace named "SUB"\./ );
 	} );
-	it( 'should throw if child if of invalid kind', () => {
+	it( 'should throw if child is of invalid kind', () => {
 		testHost.project.children = [
 			new DeclarationReflection( 'SUB', ReflectionKind.Namespace, testHost.project ),
 		];
-		expect( () => testHost.mapPagesToReflections( [ { title: 'Foo', workspace: 'SUB', children: [] } ] ) )
+		mockFs( { 'test.md': 'The content' } );
+		expect( () => testHost.mapPagesToReflections( [ { title: 'Foo', workspace: 'SUB', source: 'test.md' } ] ) )
 			.toThrowWithMessage( Error, /Invalid node workspace override "Foo":\s*Found reflection for workspace name "SUB" is not a module reflection$/ );
 	} );
 } );

@@ -121,6 +121,11 @@ export abstract class APageTreeBuilder implements IPageTreeBuilder {
 					childrenIO ) :
 				[];
 		}
+		// Strip empty menu items
+		if( !node.source && ( !node.children || node.children.length === 0 ) ){
+			this.plugin.logger.warn( `Stripping menu item ${getNodePath( node, parent )} because it has no children.` );
+			return [];
+		}
 		const nodeReflection = this._getNodeReflection( node, parent, io );
 		this.project.registerReflection( nodeReflection );
 		const children = node.children ?
