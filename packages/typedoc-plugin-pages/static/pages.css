@@ -25,3 +25,6 @@ li.pages-entry-depth-3 {
 li.pages-entry-depth-4 {
 	padding-left: 50px;
 }
+.tsd-page-toolbar .table-cell .pages-entry {
+	white-space: normal;
+}

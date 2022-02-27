@@ -10,6 +10,7 @@ import { ABasePlugin, CurrentPageMemo, MarkdownReplacer } from '@knodes/typedoc-
 import { IPluginOptions, readPluginOptions } from './options';
 import { getPageTreeBuilder } from './page-tree';
 import { NodeReflection } from './reflections';
+import { FallbackDefaultThemeSearch } from './search';
 
 const EXTRACT_PAGE_LINK_REGEX = /{\\?@page\s+([^}\s]+)(?:\s+([^}]+?))?\s*}/g;
 export class PagesPlugin extends ABasePlugin {
@@ -36,6 +37,7 @@ export class PagesPlugin extends ABasePlugin {
 		this.application.renderer.on( RendererEvent.BEGIN, this.addPagesToProject.bind( this ) );
 		const markdownReplacer = new MarkdownReplacer( this );
 		markdownReplacer.bindReplace( EXTRACT_PAGE_LINK_REGEX, this._replacePageLink.bind( this ) );
+		new FallbackDefaultThemeSearch( this ).initialize();
 	}
 
 	/**
