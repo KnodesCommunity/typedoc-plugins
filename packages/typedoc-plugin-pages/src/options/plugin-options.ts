@@ -20,6 +20,8 @@ export interface IPluginOptions {
 	 */
 	enableSearch?: boolean;
 
+	searchBoost?: number;
+
 	/**
 	 * Whether or not invalid page links should fail the TypeDoc build
 	 *

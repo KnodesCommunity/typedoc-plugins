@@ -4,3 +4,4 @@ import { PageReflection } from './page-reflection';
 export type NodeReflection = MenuReflection | PageReflection;
 export { MenuReflection, PageReflection };
 export { PagesPluginReflectionKind } from './reflection-kind';
+export { ANodeReflection } from './a-node-reflection';

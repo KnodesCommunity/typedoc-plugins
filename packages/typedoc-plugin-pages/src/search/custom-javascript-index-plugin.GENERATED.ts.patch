@@ -1,0 +1,171 @@
+diff --git a/typedoc/src/lib/output/plugins/JavascriptIndexPlugin.ts b/packages/typedoc-plugin-pages/src/search/custom-javascript-index-plugin.GENERATED.ts
+index 8770e6fc..2d85008a 100755
+--- a/typedoc/src/lib/output/plugins/JavascriptIndexPlugin.ts
++++ b/packages/typedoc-plugin-pages/src/search/custom-javascript-index-plugin.GENERATED.ts
+@@ -1,29 +1,65 @@
+-import * as Path from 'path';
++// Edit of <~/typedoc/src/lib/output/plugins/JavascriptIndexPlugin.ts>
++import assert from 'assert';
++import { mkdirSync, writeFileSync } from 'fs';
++
++import { dirname, join } from 'path';
++
++import { isString, omit } from 'lodash';
+ import { Builder, trimmer } from 'lunr';
++import { DeclarationReflection, ProjectReflection, Reflection, ReflectionKind, RendererEvent } from 'typedoc';
++import type { GroupPlugin } from 'typedoc/dist/lib/converter/plugins';
++import type { JavascriptIndexPlugin } from 'typedoc/dist/lib/output/plugins';
+ 
+-import {
+-	DeclarationReflection,
+-	ProjectReflection,
+-	ReflectionKind,
+-} from '../../models/reflections/index';
+-import { GroupPlugin } from '../../converter/plugins/GroupPlugin';
+-import { Component, RendererComponent } from '../components';
+-import { RendererEvent } from '../events';
+-import { writeFileSync } from '../../utils';
+-import { DefaultTheme } from '../themes/default/DefaultTheme';
++import type { PagesPlugin } from '../plugin';
++import { ANodeReflection, MenuReflection } from '../reflections';
+ 
+ /**
+  * A plugin that exports an index of the project to a javascript file.
+  *
+  * The resulting javascript file can be used to build a simple search function.
+  */
+-@Component( { name: 'javascript-index' } )
+-export class JavascriptIndexPlugin extends RendererComponent {
++export class CustomJavascriptIndexPlugin {
++	private readonly _defaultSearch: JavascriptIndexPlugin;
++	private readonly _groupPlugin: GroupPlugin;
++	public constructor( private readonly _plugin: PagesPlugin ) {
++		this._groupPlugin = this._plugin.application.converter.getComponent( 'group' ) as GroupPlugin;
++		this._defaultSearch = this._plugin.application.renderer.getComponent( 'javascript-index' ) as any as JavascriptIndexPlugin;
++	}
+ 	/**
+ 	 * Create a new JavascriptIndexPlugin instance.
+ 	 */
+-	override initialize() {
+-		this.listenTo( this.owner, RendererEvent.BEGIN, this.onRendererBegin );
++	public initialize(){
++		// eslint-disable-next-line @typescript-eslint/dot-notation -- Private property
++		const fn = this._defaultSearch['onRendererBegin'];
++		assert( fn );
++		this._plugin.application.renderer.off( RendererEvent.BEGIN, fn );
++		this._plugin.application.renderer.on( RendererEvent.BEGIN, this._onRendererBegin.bind( this ) );
++	}
++
++	/**
++	 * Convert {@link ANodeReflection} instances to custom declaration reflections with specific properties set.
++	 *
++	 * @param reflection - The reflection to convert.
++	 * @param project - The root project, used to get modules.
++	 * @returns the new reflection, along with a flag indicating if it is a page.
++	 */
++	private _convertNodeReflection( reflection: Reflection, project: ProjectReflection ){
++		if( !( reflection instanceof ANodeReflection ) ){
++			return { reflection, isPage: false };
++		}
++		if( reflection instanceof MenuReflection ){
++			return { reflection: null, isPage: false };
++		}
++		const name = [
++			'Page:',
++			reflection.module !== project ? `${reflection.module.name} ⇒` : undefined,
++			reflection.name,
++		].filter( isString ).join( ' ' );
++		const dec = new DeclarationReflection( name, ReflectionKind.Method );
++		dec.comment = reflection.comment;
++		dec.url = reflection.url;
++		dec.cssClasses = 'tsd-kind-method tsd-parent-kind-interface tsd-is-inherited tsd-is-external pages-entry';
++		return { reflection: dec, isPage: true };
+ 	}
+ 
+ 	/**
+@@ -31,10 +67,7 @@ export class JavascriptIndexPlugin extends RendererComponent {
+ 	 *
+ 	 * @param event  - An event object describing the current render operation.
+ 	 */
+-	private onRendererBegin( event: RendererEvent ) {
+-		if ( !( this.owner.theme instanceof DefaultTheme ) ) {
+-			return;
+-		}
++	private _onRendererBegin( event: RendererEvent ) {
+ 		if ( event.isDefaultPrevented ) {
+ 			return;
+ 		}
+@@ -42,18 +75,18 @@ export class JavascriptIndexPlugin extends RendererComponent {
+ 		const rows: any[] = [];
+ 		const kinds: { [K in ReflectionKind]?: string } = {};
+ 
+-		for ( const reflection of event.project.getReflectionsByKind(
+-			ReflectionKind.All
+-		) ) {
++		for ( const { reflection, isPage } of event.project.getReflectionsByKind(
++			ReflectionKind.All,
++		).map( r => this._convertNodeReflection( r, event.project ) ) ) {
+ 			if ( !( reflection instanceof DeclarationReflection ) ) {
+ 				continue;
+ 			}
+ 
+ 			if (
+ 				!reflection.url ||
+-                !reflection.name ||
+-                reflection.flags.isExternal ||
+-                reflection.name === ''
++				!reflection.name ||
++				reflection.flags.isExternal ||
++				reflection.name === ''
+ 			) {
+ 				continue;
+ 			}
+@@ -69,6 +102,7 @@ export class JavascriptIndexPlugin extends RendererComponent {
+ 				name: reflection.name,
+ 				url: reflection.url,
+ 				classes: reflection.cssClasses,
++				isPage,
+ 			};
+ 
+ 			if ( parent ) {
+@@ -76,8 +110,8 @@ export class JavascriptIndexPlugin extends RendererComponent {
+ 			}
+ 
+ 			if ( !kinds[reflection.kind] ) {
+-				kinds[reflection.kind] = GroupPlugin.getKindSingular(
+-					reflection.kind
++				kinds[reflection.kind] = ( this._groupPlugin.constructor as typeof GroupPlugin ).getKindSingular(
++					reflection.kind,
+ 				);
+ 			}
+ 
+@@ -91,14 +125,14 @@ export class JavascriptIndexPlugin extends RendererComponent {
+ 		builder.field( 'name', { boost: 10 } );
+ 		builder.field( 'parent' );
+ 
+-		rows.forEach( row => builder.add( row ) );
++		rows.forEach( row => builder.add( omit( row, 'isPage' ), { boost: row.isPage ? this._plugin.pluginOptions.getValue().searchBoost ?? 10 : 1 } ) );
+ 
+ 		const index = builder.build();
+ 
+-		const jsonFileName = Path.join(
++		const jsonFileName = join(
+ 			event.outputDirectory,
+ 			'assets',
+-			'search.js'
++			'search.js',
+ 		);
+ 		const jsonData = JSON.stringify( {
+ 			kinds,
+@@ -106,9 +140,10 @@ export class JavascriptIndexPlugin extends RendererComponent {
+ 			index,
+ 		} );
+ 
++		mkdirSync( dirname( jsonFileName ), { recursive: true } );
+ 		writeFileSync(
+ 			jsonFileName,
+-			`window.searchData = JSON.parse(${JSON.stringify( jsonData )});`
++			`window.searchData = JSON.parse(${JSON.stringify( jsonData )});`,
+ 		);
+ 	}
+ }

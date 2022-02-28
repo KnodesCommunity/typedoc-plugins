@@ -1,1 +1,1 @@
-export * from './fallback-default-theme-search';
+export * from './custom-javascript-index-plugin.GENERATED';
