@@ -6,7 +6,7 @@ const { resolve, join } = require( 'path' );
 const { bold } = require( 'chalk' );
 const { defaultsDeep, partition, memoize, isString, cloneDeep, uniq } = require( 'lodash' );
 
-const { spawn, globAsync, getProjects, createStash } = require( './utils' );
+const { spawn, globAsync, selectProjects, createStash } = require( './utils' );
 
 /**
  * @typedef {import('./utils').Project} Project
@@ -155,7 +155,6 @@ const syncFs = () => {
 };
 
 if( require.main === module ){
-	const allProjects = getProjects();
 	const { explicitProjects, noStash } = process.argv.slice( 2 )
 		.reduce( ( acc, arg ) => {
 			if( arg === '--no-stash' ){
@@ -164,13 +163,7 @@ if( require.main === module ){
 				return { ...acc, explicitProjects: [ ...acc.explicitProjects, arg ] };
 			}
 		}, { explicitProjects: [], noStash: false } );
-	const nonExistingProjects = explicitProjects.filter( p => !allProjects.find( pp => pp.name === p ) );
-	if( nonExistingProjects.length > 0 ){
-		throw new Error( `Specified missing projects ${JSON.stringify( nonExistingProjects )}` );
-	}
-	const projects = explicitProjects.length === 0 ?
-		allProjects :
-		allProjects.filter( p => explicitProjects.includes( p.name ) );
+	const projects = selectProjects( explicitProjects );
 	const protoDir = resolve( __dirname, 'proto' );
 	( async () => {
 		if( !noStash ){
