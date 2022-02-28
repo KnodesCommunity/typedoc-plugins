@@ -33,7 +33,6 @@ const packageFiles = glob.sync( '**/package.json', { ignore: 'node_modules/**' }
 				}
 			} );
 		} );
-		// eslint-disable-next-line no-console -- Dev tool
 		console.log( `Bump to ${version} in ${file} along with deps ${JSON.stringify( modifiedDeps )}` );
 		await writeFile( file, JSON.stringify( pkg, null, 2 ) );
 	} ) );

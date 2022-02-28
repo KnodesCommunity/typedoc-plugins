@@ -1,42 +1,42 @@
 const { existsSync } = require( 'fs' );
+const { resolve } = require( 'path' );
 
-const { dirname, resolve, basename } = require( 'path' );
+const { isString } = require( 'lodash' );
 
-const { sync } = require( 'glob' );
+const { getProjects } = require( './tools/utils' );
 
-const packagesWithJest = sync( './packages/*/jest.config.js' );
+const projects = getProjects();
+const maxNameLength = Math.max( ...projects.map( p => p.name.length ) );
 module.exports = {
-	projects: packagesWithJest
-		.map( p => {
-			const dir = dirname( p );
-			const workspace = resolve( dir, 'jest.workspace.config.js' );
-			if( existsSync( workspace ) ){
-				return workspace;
-			} else {
-				return p;
-			}
+	projects: projects
+		.map( ( { path, ...other } ) => {
+			const jestConfigPath = [ 'jest.workspace.config.js', 'jest.config.js' ]
+				.map( c => resolve( path, c ) )
+				.find( existsSync );
+			return { ...other, path, jestConfigPath };
 		} )
-		.map( p => {
-			const dir = dirname( p );
-			const config = require( p );
+		.filter( ( { jestConfigPath } ) => isString( jestConfigPath ) )
+		.map( ( { jestConfigPath, path, name } ) => {
+			const config = require( jestConfigPath );
 			if( config.projects ){
-				return config.projects.map( pp => ( { ...pp, rootDir: dir } ) );
+				return config.projects.map( pp => ( { name, jestConfig: { ...pp, rootDir: path }} ) );
 			} else {
-				return { ...config, rootDir: dir };
+				return { name, jestConfig: { ...config, rootDir: path }};
 			}
 		} )
 		.flat( 1 )
-		.map( config => {
-			if( config.displayName ){
-				config.displayName = {
-					...config.displayName,
-					name: `${basename( config.rootDir )} ${config.displayName.name}`,
+		.map( ( { jestConfig, name } ) => {
+			if( jestConfig.displayName ){
+				const sep = `${' '.repeat( maxNameLength - name.length )} ⇒ `;
+				jestConfig.displayName = {
+					...jestConfig.displayName,
+					name: `${name}${sep}${jestConfig.displayName.name}`,
 				};
 			} else {
-				config.displayName = {
-					name: basename( config.rootDir ),
+				jestConfig.displayName = {
+					name,
 				};
 			}
-			return config;
+			return jestConfig;
 		} ),
 };

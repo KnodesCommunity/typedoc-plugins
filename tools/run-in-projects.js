@@ -1,11 +1,11 @@
-const { relative, resolve } = require( 'path' );
+const { resolve } = require( 'path' );
 
 const { default: concurrently, Logger } = require( 'concurrently' );
+const stripAnsi = require( 'strip-ansi' );
 
-const { getProjects, commonPath } = require( './utils' );
+const { getProjects } = require( './utils' );
 
 const projects = getProjects();
-const common = commonPath( projects );
 
 const colors = [
 	'red',
@@ -26,16 +26,10 @@ const colors = [
 	'black',
 ];
 
-const baseLog = Logger.prototype.log;
-Logger.prototype.log = function( prefix, text, command ) {
-	text = text.replace( /^$\n/gm, '' );
-	baseLog.call( this, prefix, text, command );
-};
-
 const depTypes = [ 'devDependencies', 'dependencies', 'peerDependencies', 'optionalDependencies', 'bundledDependencies' ];
 const isDependencyOf = ( pkgA, pkgB ) => depTypes.some( depType => pkgB[depType] && pkgA.name in pkgB[depType] );
 const orderedProjects = projects
-	.map( path => ( { path, package: require( resolve( path, 'package.json' ) ) } ) )
+	.map( ( { path, ...other } ) => ( { ...other, path, package: require( resolve( path, 'package.json' ) ) } ) )
 	.sort( ( { package: pkgA }, { package: pkgB } ) => {
 		const aDepOfB = isDependencyOf( pkgA, pkgB );
 		const bDepOfA = isDependencyOf( pkgB, pkgA );
@@ -52,6 +46,20 @@ const orderedProjects = projects
 		}
 	} );
 
+const maxNameLength = Math.max( ...orderedProjects.map( p => p.name.length ) );
+const baseLog = Logger.prototype.log;
+Logger.prototype.log = function( prefix, text, command ) {
+	const prefixLength = stripAnsi( prefix ).length - 3;
+	const pad = ' '.repeat( maxNameLength - prefixLength );
+	text = text
+		.split( '\n' )
+		.filter( v => v.trim() )
+		.map( t => pad + t )
+		.join( '\n' );
+	text += '\n';
+	baseLog.call( this, prefix, text, command );
+};
+
 /**
  * @param {Partial<import('concurrently').ConcurrentlyOptions>} opts - The concurrently options.
  * @param {(project: string) => string} commandFactory - The command factory. Called with the project relative path.
@@ -59,11 +67,10 @@ const orderedProjects = projects
  */
 module.exports = ( opts, commandFactory = project => process.argv[2].replace( /\{\}/g, project ) ) => concurrently(
 	orderedProjects
-		.map( ( { path } ) => path )
-		.map( ( project, i ) => ( {
-			cwd: project,
-			name: relative( common, project ).replace( /^typedoc-/, '' ),
+		.map( ( { path, name }, i ) => ( {
+			cwd: path,
+			name,
 			prefixColor: colors[i],
-			command: commandFactory( project ),
+			command: commandFactory( path ),
 		} ) ),
 	opts );
