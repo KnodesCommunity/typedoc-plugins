@@ -6,7 +6,7 @@ import { Context, Converter, JSX, MarkdownEvent, SourceFile } from 'typedoc';
 
 import { ABasePlugin } from './base-plugin';
 import { CurrentPageMemo } from './current-page-memo';
-import { getCoordinates, getReflectionSourceFileName } from './utils';
+import { reflectionSourceUtils, textUtils } from './utils';
 
 const spitArgs = ( ...args: Parameters<Parameters<typeof String.prototype.replace>[1]> ) => {
 	const indexIdx = args.findIndex( isNumber );
@@ -89,6 +89,7 @@ export class MarkdownReplacer {
 		callback: MarkdownReplacer.ReplaceCallback,
 		event: MarkdownEvent,
 	) {
+		// TODO: Proper sourcemap support
 		let magic: MagicString | undefined = new MagicString( event.parsedText );
 		event.parsedText = event.parsedText.replace(
 			regex,
@@ -97,17 +98,18 @@ export class MarkdownReplacer {
 				const replacement = callback(
 					{ fullMatch, captures },
 					() => {
-						const pos = getCoordinates( source, index );
+						const sourceFile = reflectionSourceUtils.getReflectionSourceFileName( this._currentPageMemo.currentReflection );
+						if( !sourceFile ){
+							return 'UNKNOWN SOURCE';
+						}
+						const pos = textUtils.getCoordinates( source, index );
 						const { line, column } = pos;
-						// const {line, column} = magic ? new SourceMapConsumer( magic.generateMap() ).originalPositionFor( { ...pos, bias: SourceMapConsumer.LEAST_UPPER_BOUND } ) : {};
 						const posStr = line && column ? `:${line}:${column}` : '';
-						const sourceFile = getReflectionSourceFileName( this._currentPageMemo.currentReflection );
-						return sourceFile + posStr;
+						return this.plugin.relativeToRoot( sourceFile ) + posStr;
 					} );
 				if( isNil( replacement ) ){
 					return fullMatch;
 				}
-				// console.log({index, before: source.slice(0, index)})
 				const replacementStr = typeof replacement === 'string' ? replacement : JSX.renderElement( replacement );
 				try {
 					magic = magic?.overwrite( index, index + fullMatch.length, replacementStr );

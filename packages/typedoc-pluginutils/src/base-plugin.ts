@@ -1,6 +1,6 @@
 import assert from 'assert';
 import { statSync } from 'fs';
-import { basename, dirname } from 'path';
+import { basename, dirname, relative } from 'path';
 
 import { camelCase, once } from 'lodash';
 import { sync as pkgUpSync } from 'pkg-up';
@@ -67,6 +67,16 @@ export abstract class ABasePlugin {
 	 * @see {@link import('./autoload').autoload}.
 	 */
 	public abstract initialize(): void;
+
+	/**
+	 * Return the path as a relative path from the {@link rootDir}.
+	 *
+	 * @param path - The path to convert.
+	 * @returns the relative path.
+	 */
+	public relativeToRoot( path: string ){
+		return relative( this.rootDir, path );
+	}
 
 	/**
 	 * Instanciate a new option & auto-register it.
