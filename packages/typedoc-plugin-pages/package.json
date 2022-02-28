@@ -10,23 +10,23 @@
   "bugs": {
     "url": "https://github.com/KnodesCommunity/typedoc-plugins/issues"
   },
-  "homepage": "https://github.com/KnodesCommunity/typedoc-plugins#readme",
+  "homepage": "https://github.com/KnodesCommunity/typedoc-plugins/tree/main/./packages/typedoc-plugin-pages#readme",
   "author": {
     "email": "gerkin@knodes.org",
     "name": "GerkinDev"
   },
   "keywords": [
-    "typedocplugin",
-    "typedoc-plugin",
-    "typedoc",
-    "plugin",
+    "documentation",
     "pages",
-    "documentation"
+    "plugin",
+    "typedoc",
+    "typedoc-plugin",
+    "typedocplugin"
   ],
   "main": "dist/index.js",
   "files": [
-    "src",
-    "dist"
+    "dist",
+    "src"
   ],
   "scripts": {
     "build": "tsc --project tsconfig.json",
