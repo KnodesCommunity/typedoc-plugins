@@ -1,15 +1,14 @@
 import assert from 'assert';
 import { statSync } from 'fs';
-import { basename, dirname, relative } from 'path';
+import { basename, dirname, relative, resolve } from 'path';
 
 import { camelCase, once } from 'lodash';
 import { sync as pkgUpSync } from 'pkg-up';
 import { satisfies } from 'semver';
 import { PackageJson, ReadonlyDeep, SetRequired } from 'type-fest';
-import { Application, DeclarationOption } from 'typedoc';
+import { Application } from 'typedoc';
 
-import { InferDeclarationType, Option, OptionDeclaration } from './option';
-
+import { Option } from './options';
 import { PluginLogger } from './plugin-logger';
 
 type RequiredPackageJson = SetRequired<PackageJson, 'name' | 'version'>
@@ -34,6 +33,7 @@ export abstract class ABasePlugin {
 	public get rootDir(): string {
 		return ABasePlugin._rootDir( this.application );
 	}
+	public readonly pluginDir: string;
 	/**
 	 * Instanciate a new instance of the base plugin. The `package.json` file will be read to obtain the plugin name & the TypeDoc compatible range.
 	 * Logs a warning if the current TypeDoc version is not compatible.
@@ -50,6 +50,7 @@ export abstract class ABasePlugin {
 		const pkg: ReadonlyDeep<PackageJson> = require( pkgFile );
 		assert( pkg.name );
 		assert( pkg.version );
+		this.pluginDir = dirname( pkgFile );
 		this.package = pkg as RequiredPackageJson;
 		this.logger = new PluginLogger( application.logger, this );
 		this.logger.verbose( `Using plugin version ${pkg.version}` );
@@ -77,14 +78,23 @@ export abstract class ABasePlugin {
 	public relativeToRoot( path: string ){
 		return relative( this.rootDir, path );
 	}
+	/**
+	 * Resolve the path to a plugin file (resolved from the plugin `package.json`).
+	 *
+	 * @param path - The path to resolve.
+	 * @returns the resolved path.
+	 */
+	public resolvePackageFile( path: string ){
+		return resolve( this.pluginDir, path );
+	}
 
 	/**
-	 * Instanciate a new option & auto-register it.
+	 * Prepare the option factory.
 	 *
-	 * @param declaration - The option declaration.
+	 * @deprecated
 	 * @returns the new option.
 	 */
-	protected addOption<T, TDeclaration extends DeclarationOption = InferDeclarationType<T>>( declaration: OptionDeclaration<T, TDeclaration> ){
-		return new Option( this.application, this, declaration );
+	protected addOption<T>(){
+		return Option.factory<T>( this );
 	}
 }

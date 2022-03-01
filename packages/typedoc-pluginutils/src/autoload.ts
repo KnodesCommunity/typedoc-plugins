@@ -5,6 +5,7 @@ import { ABasePlugin } from './base-plugin';
 /**
  * Generate a TypeDoc `load` function that instantiate the given plugin constructor & call `initialize` on it.
  * This method's result should be typically exported as `load` from your plugin.
+ * {@codeblock ~~/packages/typedoc-plugin-code-blocks/src/load.ts}
  *
  * @param type - The plugin constructor.
  * @returns the `load` function.
