@@ -5,10 +5,10 @@ import mockFs from 'mock-fs';
 import { Class } from 'type-fest';
 import { Application, DeclarationReflection, DefaultTheme, JSX, ProjectReflection, Reflection, ReflectionKind, UrlMapping } from 'typedoc';
 
-import { PageNode } from '../options';
-import { PagesPlugin } from '../plugin';
-import { MenuReflection, NodeReflection, PageReflection } from '../reflections';
-import { RenderPageLinkProps } from '../theme';
+import { PageNode } from '../../options';
+import { PagesPlugin } from '../../plugin';
+import { MenuReflection, NodeReflection, PageReflection } from '../../reflections';
+import { RenderPageLinkProps } from '../../theme';
 import { APageTreeBuilder } from './a-page-tree-builder';
 
 class TestHost extends APageTreeBuilder {

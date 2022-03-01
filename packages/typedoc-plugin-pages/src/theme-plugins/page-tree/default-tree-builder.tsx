@@ -1,28 +1,26 @@
 import { copyFileSync } from 'fs';
-import { join, resolve } from 'path';
+import { join } from 'path';
 
 import { DefaultTheme, JSX, PageEvent, Reflection, ReflectionKind, RenderTemplate, RendererEvent, UrlMapping } from 'typedoc';
 
-import type { PagesPlugin } from '../plugin';
-import { MenuReflection, NodeReflection, PageReflection } from '../reflections';
-import { RenderPageLinkProps } from '../theme';
+import type { PagesPlugin } from '../../plugin';
+import { MenuReflection, NodeReflection, PageReflection } from '../../reflections';
+import { RenderPageLinkProps } from '../../theme';
 import { APageTreeBuilder } from './a-page-tree-builder';
-import { fallbackRenderPageLink } from './fallback-render-page-link';
 import { traverseDeep } from './utils';
 
 const CSS_FILE_NAME = 'assets/pages.css';
-export class FallbackPageTreeBuilder extends APageTreeBuilder {
-	public constructor( protected override readonly theme: DefaultTheme, themeName: string, plugin: PagesPlugin ){
+export class DefaultTreeBuilder extends APageTreeBuilder {
+	public constructor( protected override readonly theme: DefaultTheme, plugin: PagesPlugin ){
 		super( theme, plugin );
-		plugin.logger.warn( `The current theme "${themeName}" is not compatible with the plugin. Using fallback pages tree builder.` );
 		const { renderer } = theme.application;
 		// Add stylesheet
 		renderer.on( RendererEvent.END, this._onRenderEnd.bind( this ) );
 		renderer.hooks.on( 'head.end', context => <link rel="stylesheet" href={context.relativeURL( CSS_FILE_NAME )} /> );
 	}
 
-	public renderPageLink: RenderTemplate<RenderPageLinkProps> = props =>
-		fallbackRenderPageLink( { ...props, theme: this.theme } );
+	public renderPageLink: RenderTemplate<RenderPageLinkProps> = ( { mapping, label } ): JSX.Element =>
+		<a href={this.theme.markedPlugin.getRelativeUrl( mapping.url )}>{label ?? mapping.model.originalName}</a>;
 
 	/**
 	 * In fallback mode, all page nodes are identified as {@link ReflectionKind.Namespace}.
@@ -68,8 +66,8 @@ export class FallbackPageTreeBuilder extends APageTreeBuilder {
 			...( nodeReflection.cssClasses?.split( ' ' ) ?? [] ),
 		].join( ' ' );
 		nodeReflection.module.children = ( [
-			nodeReflection,
 			...( nodeReflection.module.children ?? [] ),
+			nodeReflection,
 		] );
 	}
 
@@ -84,7 +82,7 @@ export class FallbackPageTreeBuilder extends APageTreeBuilder {
 	 */
 	private _onRenderEnd( event: RendererEvent ) {
 		const dest = join( event.outputDirectory, CSS_FILE_NAME );
-		const src = resolve( __dirname, '../../static/pages.css' );
+		const src = this.plugin.resolvePackageFile( 'static/pages.css' );
 		copyFileSync( src, dest );
 	}
 }

@@ -13,6 +13,7 @@ exports[`Real behavior should render correctly 1`] = `
 	<link rel=\\"stylesheet\\" href=\\"../assets/style.css\\" />
 	<link rel=\\"stylesheet\\" href=\\"../assets/highlight.css\\" />
 	<script async src=\\"../assets/search.js\\" id=\\"search-script\\"></script>
+	<link rel=\\"stylesheet\\" href=\\"../assets/pages.css\\" />
 </head>
 
 <body>
@@ -111,10 +112,10 @@ exports[`Real behavior should render correctly 1`] = `
 				<nav class=\\"tsd-navigation primary\\">
 					<ul>
 						<li class=\\"\\"><a href=\\"../modules.html\\">Exports</a></li>
-						<li class=\\" undefined\\"><a>Qux</a></li>
-						<li class=\\" undefined\\"><a href=\\"../pages/qux/baaz.html\\">Baaz</a></li>
-						<li class=\\" undefined\\"><a href=\\"../pages/foo/index.html\\">Foo</a></li>
-						<li class=\\" undefined\\"><a href=\\"../pages/foo/bar.html\\">Bar</a></li>
+						<li class=\\" pages-entry pages-entry-page pages-entry-depth-0\\"><a href=\\"../pages/foo/index.html\\">Foo</a></li>
+						<li class=\\" pages-entry pages-entry-page pages-entry-depth-1\\"><a href=\\"../pages/foo/bar.html\\">Bar</a></li>
+						<li class=\\" pages-entry pages-entry-menu pages-entry-depth-0\\"><a>Qux</a></li>
+						<li class=\\" pages-entry pages-entry-page pages-entry-depth-1\\"><a href=\\"../pages/qux/baaz.html\\">Baaz</a></li>
 					</ul>
 				</nav>
 				<nav class=\\"tsd-navigation secondary menu-sticky\\">

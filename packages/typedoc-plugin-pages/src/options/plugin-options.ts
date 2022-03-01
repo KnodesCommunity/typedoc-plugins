@@ -2,68 +2,68 @@ import { LogLevel } from 'typedoc';
 
 import { IRootPageNode } from './pages';
 
+export enum EInvalidPageLinkHandling{
+	FAIL,
+	LOG_ERROR,
+	LOG_WARN,
+	NONE
+}
 /**
  * Plugin options
  */
 export interface IPluginOptions {
 	/**
-	 * Whether or not @page and @pagelink tags should be parsed
+	 * Whether or not @page and @pagelink tags should be parsed.
 	 *
-	 * Defaults to true.
+	 * @default true
 	 */
 	enablePageLinks?: boolean;
 
 	/**
-	 * Whether or not the pages should be added to the search index
+	 * Whether or not the pages should be added to the search index.
 	 *
-	 * This defaults to true.
+	 * @default true
 	 */
 	enableSearch?: boolean;
 
+	/**
+	 * The score multiplier for pages in search.
+	 *
+	 * @default 10
+	 */
 	searchBoost?: number;
 
 	/**
-	 * Whether or not invalid page links should fail the TypeDoc build
+	 * The kind of error to throw in case of an invalid page link.
 	 *
-	 * This defaults to false.
+	 * @default EInvalidPageLinkHandling.FAIL
 	 */
-	failBuildOnInvalidPageLink?: boolean;
+	invalidPageLinkHandling?: EInvalidPageLinkHandling;
 
 	/**
-	 * Page group definitions
-	 *
-	 * This is where you define the groups your pages live in.
+	 * Actual pages definitions.
 	 */
 	pages?: IRootPageNode[];
 
 	/**
-	 * Writes a list of any broken page links to the console
-	 *
-	 * This defaults to false.
-	 */
-	listInvalidPageLinks?: boolean;
-
-	/**
 	 * Output directory where your pages will be rendered.
 	 *
-	 * This defaults to "pages".
+	 * @default "pages".
 	 */
 	output?: string;
 
 	/**
-	 * Title for the standard TypeDoc reflection items in the navigation sidebar
+	 * Root directory where all page source files live.
 	 *
-	 * This defaults to "API".
-	 */
-	reflectionNavigationTitle?: string;
-
-	/**
-	 * Root directory where all page source files live
-	 *
-	 * By default this will point to the directory that TypeDoc is run from.
+	 * @default "pages"
 	 */
 	source?: string;
 
+	/**
+	 * The plugin log level.
+	 *
+	 * @default application.logger.level
+	 */
 	logLevel?: LogLevel;
 }
 

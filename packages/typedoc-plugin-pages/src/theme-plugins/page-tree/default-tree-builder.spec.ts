@@ -1,17 +1,17 @@
 import mockFs from 'mock-fs';
 import { Application, DeclarationReflection, DefaultTheme, ProjectReflection, UrlMapping } from 'typedoc';
 
-import { PagesPlugin } from '../plugin';
-import { MenuReflection, NodeReflection, PageReflection, PagesPluginReflectionKind } from '../reflections';
-import { ANodeReflection } from '../reflections/a-node-reflection';
-import { FallbackPageTreeBuilder } from './fallback-page-tree-builder';
+import { PagesPlugin } from '../../plugin';
+import { MenuReflection, NodeReflection, PageReflection, PagesPluginReflectionKind } from '../../reflections';
+import { ANodeReflection } from '../../reflections/a-node-reflection';
+import { DefaultTreeBuilder } from './default-tree-builder';
 
-class TestHost extends FallbackPageTreeBuilder {
+class TestHost extends DefaultTreeBuilder {
 	// eslint-disable-next-line @typescript-eslint/dot-notation
 	public renderPage = this['_renderPage'];
 
 	public constructor(){
-		super( theme, application.options.getValue( 'theme' ), plugin );
+		super( theme, plugin );
 	}
 
 	public override generateMappings( reflections: readonly NodeReflection[] ): Array<UrlMapping<PageReflection>> {
@@ -53,7 +53,7 @@ const menuReflection = <T extends undefined | readonly [] | readonly [Dec, ...De
 	return r as any;
 };
 const matchMapping = ( page: PageReflection ) => expect.objectContaining( { url: page.url, model: page, template: testHost.renderPage } as Partial<UrlMapping> );
-describe( FallbackPageTreeBuilder.name, () => {
+describe( DefaultTreeBuilder.name, () => {
 	describe( 'Mappings generation', () => {
 		it( 'should return empty list', () => {
 			expect( testHost.generateMappings( [] ) ).toEqual( [] );

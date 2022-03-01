@@ -1,7 +1,7 @@
-diff --git a/typedoc/src/lib/output/plugins/JavascriptIndexPlugin.ts b/packages/typedoc-plugin-pages/src/search/custom-javascript-index-plugin.GENERATED.ts
-index 8770e6fc..2d85008a 100755
+diff --git a/typedoc/src/lib/output/plugins/JavascriptIndexPlugin.ts b/packages/typedoc-plugin-pages/src/theme-plugins/search/default-pages-javascript-index-plugin.GENERATED.ts
+index 8770e6fc..7f310a75 100755
 --- a/typedoc/src/lib/output/plugins/JavascriptIndexPlugin.ts
-+++ b/packages/typedoc-plugin-pages/src/search/custom-javascript-index-plugin.GENERATED.ts
++++ b/packages/typedoc-plugin-pages/src/theme-plugins/search/default-pages-javascript-index-plugin.GENERATED.ts
 @@ -1,29 +1,65 @@
 -import * as Path from 'path';
 +// Edit of <~/typedoc/src/lib/output/plugins/JavascriptIndexPlugin.ts>
@@ -26,8 +26,8 @@ index 8770e6fc..2d85008a 100755
 -import { RendererEvent } from '../events';
 -import { writeFileSync } from '../../utils';
 -import { DefaultTheme } from '../themes/default/DefaultTheme';
-+import type { PagesPlugin } from '../plugin';
-+import { ANodeReflection, MenuReflection } from '../reflections';
++import type { PagesPlugin } from '../../plugin';
++import { ANodeReflection, MenuReflection } from '../../reflections';
  
  /**
   * A plugin that exports an index of the project to a javascript file.
@@ -36,7 +36,7 @@ index 8770e6fc..2d85008a 100755
   */
 -@Component( { name: 'javascript-index' } )
 -export class JavascriptIndexPlugin extends RendererComponent {
-+export class CustomJavascriptIndexPlugin {
++export class DefaultPagesJavascriptIndexPlugin {
 +	private readonly _defaultSearch: JavascriptIndexPlugin;
 +	private readonly _groupPlugin: GroupPlugin;
 +	public constructor( private readonly _plugin: PagesPlugin ) {

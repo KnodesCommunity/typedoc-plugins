@@ -1,8 +1,8 @@
 import { RenderTemplate, RendererEvent, UrlMapping } from 'typedoc';
 
-import { IPluginOptions } from '../options';
-import { PageReflection } from '../reflections';
-import { RenderPageLinkProps } from '../theme';
+import { IPluginOptions } from '../../options';
+import { PageReflection } from '../../reflections';
+import { RenderPageLinkProps } from '../../theme';
 
 export interface IPageTreeBuilder {
 	renderPageLink: RenderTemplate<RenderPageLinkProps>;

@@ -5,11 +5,11 @@ import { DeclarationReflection, ProjectReflection, ReflectionKind, RenderTemplat
 
 import { rethrow } from '@knodes/typedoc-pluginutils';
 
-import { IPluginOptions, IRootPageNode, PageNode } from '../options';
-import type { PagesPlugin } from '../plugin';
-import { MenuReflection, NodeReflection, PageReflection, PagesPluginReflectionKind } from '../reflections';
-import { ANodeReflection } from '../reflections/a-node-reflection';
-import { RenderPageLinkProps } from '../theme';
+import { IPluginOptions, IRootPageNode, PageNode } from '../../options';
+import type { PagesPlugin } from '../../plugin';
+import { MenuReflection, NodeReflection, PageReflection, PagesPluginReflectionKind } from '../../reflections';
+import { ANodeReflection } from '../../reflections/a-node-reflection';
+import { RenderPageLinkProps } from '../../theme';
 import { IPageTreeBuilder } from './types';
 import { getDir, getNodePath, getNodeUrl, join } from './utils';
 
@@ -128,6 +128,7 @@ export abstract class APageTreeBuilder implements IPageTreeBuilder {
 		}
 		const nodeReflection = this._getNodeReflection( node, parent, io );
 		this.project.registerReflection( nodeReflection );
+		this.addNodeToProjectAsChild( nodeReflection );
 		const children = node.children ?
 			this._mapPagesToReflections(
 				node.children,
@@ -135,7 +136,6 @@ export abstract class APageTreeBuilder implements IPageTreeBuilder {
 				childrenIO ) :
 			[];
 		nodeReflection.children = children;
-		this.addNodeToProjectAsChild( nodeReflection );
 		return [ nodeReflection ];
 	}
 
