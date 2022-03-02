@@ -37,16 +37,15 @@
   },
   "dependencies": {
     "lodash": "^4.17.0",
-    "magic-string": "^0.25.7",
     "pkg-up": "^3.1.0",
-    "semver": "^7.3.5",
-    "source-map-sync": "^0.8.0-beta.2"
+    "semver": "^7.3.5"
   },
   "peerDependencies": {
     "lodash": "^4.17.0",
     "typedoc": "^0.22.0"
   },
   "devDependencies": {
+    "@alex_neo/jest-expect-message": "^1.0.5",
     "@knodes/eslint-config": "^1.6.3",
     "@testing-library/jest-dom": "^5.16.2",
     "@types/jest": "^27.4.1",
