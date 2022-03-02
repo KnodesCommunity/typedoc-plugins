@@ -1,13 +1,7 @@
 import { RenderTemplate, Theme } from 'typedoc';
 
-export type FoldableMode = 'foldable' | 'folded' | null;
-export interface ICodeBlock {
-	sourceFile: string;
-	asFile: string;
-	mode: FoldableMode;
-	content: string;
-	url?: string;
-}
+import { ICodeBlock } from './types';
+
 export interface ICodeBlocksPluginThemeMethods {
 	renderCodeBlock: RenderTemplate<ICodeBlock>;
 }

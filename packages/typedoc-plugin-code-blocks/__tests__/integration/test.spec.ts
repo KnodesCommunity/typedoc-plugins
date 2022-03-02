@@ -24,7 +24,7 @@ describe( 'Real behavior', () => {
 		};
 		app.bootstrap( {
 			...baseOptions,
-			'pluginCodeBlocks:directories': { blocks: resolve( rootDir, 'blocks' ) },
+			'pluginCodeBlocks:source': 'blocks',
 		} as any );
 		const project = app.convert()!;
 		app.validate( project );

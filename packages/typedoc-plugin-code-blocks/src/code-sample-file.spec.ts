@@ -1,8 +1,8 @@
-import mockFs from 'mock-fs';
+import { restoreFs, setVirtualFs } from '@knodes/typedoc-plugintestbed';
 
 import { DEFAULT_BLOCK_NAME, readCodeSample } from './code-sample-file';
 
-afterEach( mockFs.restore );
+afterEach( restoreFs );
 describe( 'Valid parses', () => {
 	it.each( [
 		[ 'No region', `Hello
@@ -87,7 +87,7 @@ Baz
 			C: { startLine: 5, endLine: 9, code: 'Baz\nQux' },
 		} ],
 	] )( 'should parse correctly "%s"', ( _, content, output ) => {
-		mockFs( {
+		setVirtualFs( {
 			'test.txt': content,
 		} );
 		const res = Object.fromEntries( readCodeSample( 'test.txt' ).entries() );

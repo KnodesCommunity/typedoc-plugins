@@ -8,7 +8,6 @@ import { satisfies } from 'semver';
 import { PackageJson, ReadonlyDeep, SetRequired } from 'type-fest';
 import { Application } from 'typedoc';
 
-import { Option } from './options';
 import { PluginLogger } from './plugin-logger';
 
 type RequiredPackageJson = SetRequired<PackageJson, 'name' | 'version'>
@@ -86,15 +85,5 @@ export abstract class ABasePlugin {
 	 */
 	public resolvePackageFile( path: string ){
 		return resolve( this.pluginDir, path );
-	}
-
-	/**
-	 * Prepare the option factory.
-	 *
-	 * @deprecated
-	 * @returns the new option.
-	 */
-	protected addOption<T>(){
-		return Option.factory<T>( this );
 	}
 }

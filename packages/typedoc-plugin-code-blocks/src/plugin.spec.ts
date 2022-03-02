@@ -1,19 +1,20 @@
-import { join, resolve } from 'path';
+import assert, { AssertionError } from 'assert';
+import { resolve } from 'path';
 
 import { identity } from 'lodash';
-import mockFs from 'mock-fs';
-import { Application, JSX } from 'typedoc';
+import { Application, DeclarationReflection, JSX, ReflectionKind } from 'typedoc';
+
+import { restoreFs, setVirtualFs, setupMockMarkdownReplacer, setupMockPageMemo } from '@knodes/typedoc-plugintestbed';
 
 /* eslint-disable @typescript-eslint/no-var-requires */
 jest.mock( './code-blocks' );
 const { getCodeBlockRenderer: getCodeBlockRendererMock } = require( './code-blocks' ) as jest.Mocked<typeof import( './code-blocks' )>;
 jest.mock( './code-sample-file' );
-const { readCodeSample: readCodeSampleMock } = require( './code-sample-file' ) as jest.Mocked<typeof import( './code-sample-file' )>;
+const { DEFAULT_BLOCK_NAME, readCodeSample: readCodeSampleMock } = require( './code-sample-file' ) as jest.Mocked<typeof import( './code-sample-file' )>;
 /* eslint-enable @typescript-eslint/no-var-requires */
 
-import { DEFAULT_BLOCK_NAME } from './code-sample-file';
 import { CodeBlockPlugin } from './plugin';
-import { ICodeBlock } from './theme';
+import { EBlockMode, ICodeBlock } from './types';
 
 class FakeGitHub {
 	public static readonly REPO_URL = 'https://example.repo.com';
@@ -25,66 +26,30 @@ class FakeGitHub {
 let application: Application;
 let plugin: CodeBlockPlugin;
 const rootDir = resolve( __dirname, '..' );
-const DIRECTORIES = 'pluginCodeBlocks:directories';
+const markdownReplacerTestbed = setupMockMarkdownReplacer();
+const pageMemoTestbed = setupMockPageMemo();
 beforeEach( () => {
 	process.chdir( rootDir );
 	jest.clearAllMocks();
 	application = new Application();
 	plugin = new CodeBlockPlugin( application );
-	plugin.initialize();
 } );
-afterEach( mockFs.restore );
-describe( 'Options', () => {
-	const base = 'test';
-	const tryOption = ( value: any ) => {
-		const baseGetValue = application.options.getValue.bind( application.options );
-		jest.spyOn( application.options, 'getValue' ).mockImplementation( k => k === 'options' ? base : baseGetValue( k ) );
-		application.options.setValue( DIRECTORIES, value );
-		// eslint-disable-next-line @typescript-eslint/dot-notation
-		return plugin['_directoriesOption'].getValue();
-	};
-	describe( DIRECTORIES, () => {
-		it.each( [ 42, true, [], false ] )( 'should throw an error if not an object (%j)', v =>
-			expect( () => tryOption( v ) ).toThrow() );
-		it.each( [ 42, true, {}, []] )( 'should throw if value is not a string (%j)', v =>
-			expect( () => tryOption( { v } ) ).toThrow() );
-		it.each( [ '/', ' ' ] )( 'should throw an error if it contains invalid key (%j)', k =>
-			expect( () => tryOption( { [k]: './test' } ) ).toThrow() );
-		it.each( [ '/foo', '/bar' ] )( 'should throw an error if the path does not exist (%j)', path => {
-			mockFs( { [base]: {}} );
-			expect( () => tryOption( { foo: path } ) ).toThrow();
-		} );
-		it( 'should throw if trying to set a forbidden value ~~', () => {
-			mockFs( { [base]: { hello: {}}} );
-			expect( () => tryOption( { '~~': './hello' } ) ).toThrow();
-		} );
-		it.each( [
-			[ null,  { '~~': base } ],
-			[ undefined,  { '~~': base } ],
-			[ { hello: './hello', world: './world' },  {
-				'hello': join( base, 'hello' ),
-				'world': join( base, 'world' ),
-				'~~': base,
-			} ],
-		] )( 'should pass with valid options (%j ⇒ %j)', ( input, output ) => {
-			mockFs( { [base]: {
-				hello: {},
-				world: {},
-			}} );
-			expect( tryOption( input ) ).toEqual( output );
-		} );
-	} );
-} );
+afterEach( restoreFs );
 describe( 'Behavior', () => {
 	beforeEach( () => {
-		mockFs( {
-			foo: {},
+		markdownReplacerTestbed.captureEventRegistration();
+		pageMemoTestbed.captureEventRegistration();
+		plugin.initialize();
+		pageMemoTestbed.setCurrentPage( 'foo.html', 'foo.ts', new DeclarationReflection( 'Foo', ReflectionKind.Class ) );
+		setVirtualFs( {
+			foo: {
+				'qux.txt': '',
+			},
 		} );
-		application.options.setValue( DIRECTORIES, { foo: './foo' } );
 	} );
 	it( 'should not affect text if no code block', () => {
 		const text = 'Hello world' ;
-		expect( plugin.replaceCodeBlocks( text ) ).toEqual( text );
+		expect( markdownReplacerTestbed.runMarkdownReplace( text ) ).toEqual( text );
 	} );
 	describe( 'Code block generation', ()=> {
 		const file = 'foo/qux.txt';
@@ -105,9 +70,9 @@ describe( 'Behavior', () => {
 		}
 		const helloRegion: IBlockGenerationAssertion['blocks'] = [[ 'hello', { code: 'Content of foo/qux.txt', startLine: 13, endLine: 24 } ]];
 		it.each<[label: string, source: string, assertion: Partial<IBlockGenerationAssertion>]>( [
-			[ 'Mode ⇒ code block',            `{@codeblock ${file}}`,                  { renderCall: { mode: null }} ],
-			[ 'Mode ⇒ foldable code block',   `{@codeblock foldable ${file}}`,         { renderCall: { mode: 'foldable' }} ],
-			[ 'Mode ⇒ folded code block',     `{@codeblock folded ${file}}`,           { renderCall: { mode: 'folded' }} ],
+			[ 'Mode ⇒ code block',            `{@codeblock ${file} default}`,          { renderCall: { mode: EBlockMode.DEFAULT }} ],
+			[ 'Mode ⇒ foldable code block',   `{@codeblock ${file} expanded}`,         { renderCall: { mode: EBlockMode.EXPANDED }} ],
+			[ 'Mode ⇒ folded code block',     `{@codeblock ${file} folded}`,           { renderCall: { mode: EBlockMode.FOLDED }} ],
 			[ 'Filename ⇒ default',           `{@codeblock ${file}}`,                  { renderCall: { asFile: `./${file}` }} ],
 			[ 'Filename ⇒ explicit',          `{@codeblock ${file} | hello.txt}`,      { renderCall: { asFile: 'hello.txt' }} ],
 			[ 'Filename ⇒ region',            `{@codeblock ${file}#hello}`,            { renderCall: { asFile: `./${file}#13~24` }, blocks: helloRegion } ],
@@ -115,12 +80,14 @@ describe( 'Behavior', () => {
 			[ 'URL ⇒ default',                `{@codeblock ${file}}`,                  { withGitHub: true, renderCall: { url: FakeGitHub.REPO_URL }} ],
 			[ 'URL ⇒ region',                 `{@codeblock ${file}#hello}`,            { withGitHub: true, renderCall: { url: `${FakeGitHub.REPO_URL}#L13-L24` }, blocks: helloRegion } ],
 		] )( 'Code block "%s"', ( _label, source, { expected, renderCall, blocks, withGitHub } ) => {
+			application.logger.error = assert.fail;
+			application.logger.warn = assert.fail;
 			if( withGitHub ){
-				application.converter.addComponent( 'git-hub', new FakeGitHub() as any );
+				application.converter.addComponent( 'git-hub', FakeGitHub as any );
 			}
 			readCodeSampleMock.mockReturnValue( new Map( blocks ?? [[ DEFAULT_BLOCK_NAME, { code, startLine: 1, endLine: 1 } ]] ) );
 			const { elemStr, renderCodeBlock } = setup( uuid => JSX.createElement( 'p', {}, uuid ) );
-			expect( plugin.replaceCodeBlocks( source ) ).toEqual( ( expected ?? identity )( elemStr ) );
+			const callOut = markdownReplacerTestbed.runMarkdownReplace( source );
 			expect( getCodeBlockRendererMock ).toHaveBeenCalledTimes( 1 );
 			expect( renderCodeBlock ).toHaveBeenCalledTimes( 1 );
 			expect( renderCodeBlock ).toHaveBeenCalledWith( expect.objectContaining( renderCall ) );
@@ -130,17 +97,18 @@ describe( 'Behavior', () => {
 				expect( FakeGitHub.getRepository ).toHaveBeenCalledTimes( 1 );
 				expect( FakeGitHub.getRepository ).toHaveBeenCalledWith( sourceFile );
 			}
+			expect( callOut ).toEqual( ( expected ?? identity )( elemStr ) );
 		} );
 		it( 'should throw if region does not exists', () => {
+			setVirtualFs( { foo: { 'bar.txt': '' }} );
 			setup( uuid => JSX.createElement( 'p', {}, uuid ) );
 			readCodeSampleMock.mockReturnValue( new Map( [[ DEFAULT_BLOCK_NAME, { code, startLine: 1, endLine: 1 } ]] ) );
-			expect( () => plugin.replaceCodeBlocks( '{@codeblock foo/bar.txt#nope}' ) ).toThrowWithMessage( Error, /^Missing block nope/ );
+			expect( () => markdownReplacerTestbed.runMarkdownReplace( '{@codeblock foo/bar.txt#nope}' ) ).toThrowWithMessage( Error, /^Missing block nope/ );
 		} );
-		it( 'should throw if code block dir does not exists', () => {
+		it( 'should throw if invalid mode', () => {
 			setup( uuid => JSX.createElement( 'p', {}, uuid ) );
 			readCodeSampleMock.mockReturnValue( new Map( [[ DEFAULT_BLOCK_NAME, { code, startLine: 1, endLine: 1 } ]] ) );
-			expect( () => plugin.replaceCodeBlocks( '{@codeblock bar/bar.txt}' ) ).toThrowWithMessage( Error, /^Trying to use code block from named directory bar/ );
-			expect( readCodeSampleMock ).not.toHaveBeenCalled();
+			expect( () => markdownReplacerTestbed.runMarkdownReplace( '{@codeblock foo/bar.txt asdasd}' ) ).toThrowWithMessage( AssertionError, /^Invalid block mode "asdasd"/ );
 		} );
 	} );
 } );

@@ -1,25 +1,15 @@
 .code-block {
 	tab-size: 4;
+	background-color: var(--color-toolbar);
+	padding: 0.5em;
 }
-.code-block > p {
-	margin-bottom: 0;
+.code-block > p,
+.code-block > summary > p {
+	margin: 0 0 0.25em;
+	display: inline-block;
+	font-weight: bolder;
 }
 
 details.code-block summary {
 	cursor: pointer;
-}
-details.code-block summary::before {
-	content: '';
-	border: 0.5em solid transparent;
-	height: 0;
-	width: 0;
-	display: block;
-	border-left-color: currentcolor;
-	float: left;
-	margin-right: 0.5em
-}
-details.code-block[open] summary::before {
-	border-left-color: transparent;
-	border-top-color: currentcolor;
-	margin-top: 0.25em
 }

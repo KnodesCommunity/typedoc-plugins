@@ -2,7 +2,7 @@ import { Application, DefaultTheme } from 'typedoc';
 
 import type { CodeBlockPlugin } from '../plugin';
 import { ICodeBlocksPluginThemeMethods, isCodeBlocksPluginTheme } from '../theme';
-import { FallbackCodeBlockRenderer } from './fallback-code-block-renderer';
+import { DefaultCodeBlockRenderer } from './default-code-block-renderer';
 
 export const getCodeBlockRenderer = ( application: Application, plugin: CodeBlockPlugin ): ICodeBlocksPluginThemeMethods => {
 	const theme = application.renderer.theme;
@@ -11,11 +11,11 @@ export const getCodeBlockRenderer = ( application: Application, plugin: CodeBloc
 	}
 	if( !isCodeBlocksPluginTheme( theme ) ){
 		if( theme instanceof DefaultTheme ){
-			return new FallbackCodeBlockRenderer( theme, application.options.getValue( 'theme' ), plugin );
+			return new DefaultCodeBlockRenderer( theme, plugin );
 		} else {
-			throw new Error( 'Unhandled non-default theme' );
+			throw new Error( 'Unhandled theme not compatible nor extending the default theme.' );
 		}
 	} else {
-		throw new Error();
+		throw new Error( 'Not implemented' );
 	}
 };
