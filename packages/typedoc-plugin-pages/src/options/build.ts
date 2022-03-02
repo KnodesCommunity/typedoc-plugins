@@ -3,8 +3,7 @@ import { LogLevel, ParameterHint, ParameterType } from 'typedoc';
 import { OptionGroup } from '@knodes/typedoc-pluginutils';
 
 import type { PagesPlugin } from '../plugin';
-import { EInvalidPageLinkHandling, IPluginOptions } from './plugin-options';
-
+import { EInvalidPageLinkHandling, IPluginOptions } from './types';
 
 export const buildOptions = ( plugin: PagesPlugin ) => OptionGroup.factory<IPluginOptions>( plugin )
 	.add( 'enablePageLinks', {
@@ -26,7 +25,7 @@ export const buildOptions = ( plugin: PagesPlugin ) => OptionGroup.factory<IPlug
 		help: 'The kind of error to throw in case of an invalid page link.',
 		type: ParameterType.Map,
 		map: EInvalidPageLinkHandling,
-		defaultValue: EInvalidPageLinkHandling.FAIL,
+		defaultValue: EInvalidPageLinkHandling.LOG_ERROR,
 	} )
 	.add( 'pages', {
 		help: 'Actual pages definitions.',

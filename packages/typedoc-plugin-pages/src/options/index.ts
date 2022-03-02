@@ -1,3 +1,2 @@
-export * from './build-options';
-export * from './pages';
-export * from './plugin-options';
+export * from './build';
+export * from './types';

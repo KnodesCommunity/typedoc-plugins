@@ -11,9 +11,10 @@ import { initThemePlugins } from './theme-plugins';
 
 const EXTRACT_PAGE_LINK_REGEX = /{\\?@page\s+([^}\s]+)(?:\s+([^}]+?))?\s*}/g;
 export class PagesPlugin extends ABasePlugin {
-	public readonly pageTreeBuilder = once( () => initThemePlugins( this.application, this ) );
 	public readonly pluginOptions = buildOptions( this );
+	private readonly _pageTreeBuilder = once( () => initThemePlugins( this.application, this ) );
 	private readonly _currentPageMemo = new CurrentPageMemo( this );
+	private readonly _markdownReplacer = new MarkdownReplacer( this );
 	private readonly _pathReflectionResolver = new PathReflectionResolver( this );
 	public constructor( application: Application ){
 		super( application, __filename );
@@ -24,10 +25,11 @@ export class PagesPlugin extends ABasePlugin {
 	 */
 	public override initialize(){
 		const opts = this.pluginOptions.getValue();
-		this.logger.level = opts.logLevel ?? this.application.logger.level;
+		this.logger.level = opts.logLevel;
+		this._markdownReplacer.bindReplace( EXTRACT_PAGE_LINK_REGEX, this._replacePageLink.bind( this ) );
+		this._currentPageMemo.initialize();
+		this.application.renderer.on( RendererEvent.BEGIN, this._pageTreeBuilder.bind( this ) );
 		this.application.renderer.on( RendererEvent.BEGIN, this.addPagesToProject.bind( this ) );
-		const markdownReplacer = new MarkdownReplacer( this );
-		markdownReplacer.bindReplace( EXTRACT_PAGE_LINK_REGEX, this._replacePageLink.bind( this ) );
 	}
 
 	/**
@@ -37,12 +39,12 @@ export class PagesPlugin extends ABasePlugin {
 	 */
 	public addPagesToProject( event: RendererEvent ){
 		const opts = this.pluginOptions.getValue();
-		this.pageTreeBuilder().appendToProject( event, opts );
-		this.application.logger.info( `Generating ${this.pageTreeBuilder().mappings.length} pages` );
+		this._pageTreeBuilder().appendToProject( event, opts );
+		this.application.logger.info( `Generating ${this._pageTreeBuilder().mappings.length} pages` );
 	}
 
 	/**
-	 * Transform the parsed text of the given {@link event MarkdownEvent} to replace page links.
+	 * Transform the parsed page link.
 	 *
 	 * @param capture - The captured infos.
 	 * @param sourceHint - The best guess to the source of the match,
@@ -66,9 +68,10 @@ export class PagesPlugin extends ABasePlugin {
 				containerFolder: this.pluginOptions.getValue().source,
 			} );
 		if( !resolvedFile ){
+			this.logger.error( () => `In "${sourceHint()}", could not resolve page "${page}" from ${this._currentPageMemo.currentReflection.name}` );
 			return fullMatch;
 		}
-		const builder = this.pageTreeBuilder();
+		const builder = this._pageTreeBuilder();
 		const { mappings } = builder;
 		const mapping = mappings.find( m => m.model.sourceFilePath === resolvedFile );
 		if( !mapping ){

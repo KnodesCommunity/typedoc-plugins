@@ -1,12 +1,27 @@
+import { LiteralUnion } from 'type-fest';
 import { LogLevel } from 'typedoc';
 
-import { IRootPageNode } from './pages';
+export interface IPageNode {
+	children?: IPageNode[];
+	childrenDir?: string;
+	childrenSourceDir?: string;
+	childrenOutputDir?: string;
+	output?: string;
+	source?: string;
+	title: LiteralUnion<'VIRTUAL', string>;
+}
+
+export interface IRootPageNode extends IPageNode {
+	workspace?: string;
+}
+
+export type PageNode = IRootPageNode | IPageNode;
 
 export enum EInvalidPageLinkHandling{
-	FAIL,
-	LOG_ERROR,
-	LOG_WARN,
-	NONE
+	FAIL = 'fail',
+	LOG_ERROR = 'logError',
+	LOG_WARN = 'logWarn',
+	NONE = 'none'
 }
 /**
  * Plugin options
@@ -17,53 +32,53 @@ export interface IPluginOptions {
 	 *
 	 * @default true
 	 */
-	enablePageLinks?: boolean;
+	enablePageLinks: boolean;
 
 	/**
 	 * Whether or not the pages should be added to the search index.
 	 *
 	 * @default true
 	 */
-	enableSearch?: boolean;
+	enableSearch: boolean;
 
 	/**
 	 * The score multiplier for pages in search.
 	 *
 	 * @default 10
 	 */
-	searchBoost?: number;
+	searchBoost: number;
 
 	/**
 	 * The kind of error to throw in case of an invalid page link.
 	 *
-	 * @default EInvalidPageLinkHandling.FAIL
+	 * @default {@link EInvalidPageLinkHandling.LOG_ERROR}
 	 */
-	invalidPageLinkHandling?: EInvalidPageLinkHandling;
+	invalidPageLinkHandling: EInvalidPageLinkHandling;
 
 	/**
 	 * Actual pages definitions.
 	 */
-	pages?: IRootPageNode[];
+	pages: IRootPageNode[];
 
 	/**
 	 * Output directory where your pages will be rendered.
 	 *
 	 * @default "pages".
 	 */
-	output?: string;
+	output: string;
 
 	/**
 	 * Root directory where all page source files live.
 	 *
 	 * @default "pages"
 	 */
-	source?: string;
+	source: string;
 
 	/**
 	 * The plugin log level.
 	 *
 	 * @default application.logger.level
 	 */
-	logLevel?: LogLevel;
+	logLevel: LogLevel;
 }
 

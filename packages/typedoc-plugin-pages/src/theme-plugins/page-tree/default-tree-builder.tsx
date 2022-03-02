@@ -4,7 +4,7 @@ import { join } from 'path';
 import { DefaultTheme, JSX, PageEvent, Reflection, ReflectionKind, RenderTemplate, RendererEvent, UrlMapping } from 'typedoc';
 
 import type { PagesPlugin } from '../../plugin';
-import { MenuReflection, NodeReflection, PageReflection } from '../../reflections';
+import { ANodeReflection, MenuReflection, NodeReflection, PageReflection } from '../../reflections';
 import { RenderPageLinkProps } from '../../theme';
 import { APageTreeBuilder } from './a-page-tree-builder';
 import { traverseDeep } from './utils';
@@ -65,10 +65,21 @@ export class DefaultTreeBuilder extends APageTreeBuilder {
 			`pages-entry-depth-${nodeReflection.depth}`,
 			...( nodeReflection.cssClasses?.split( ' ' ) ?? [] ),
 		].join( ' ' );
-		nodeReflection.module.children = ( [
-			...( nodeReflection.module.children ?? [] ),
-			nodeReflection,
-		] );
+		const moduleChildren = nodeReflection.module.children ?? [];
+		if( nodeReflection.module === nodeReflection.project ){
+			const lastPageIndexRev = moduleChildren.slice().reverse().findIndex( r => r instanceof ANodeReflection );
+			const lastPageIndex = lastPageIndexRev === -1 ? 0 : moduleChildren.length - lastPageIndexRev;
+			nodeReflection.module.children = [
+				...moduleChildren.slice( 0, lastPageIndex ),
+				nodeReflection,
+				...moduleChildren.slice( lastPageIndex ),
+			];
+		} else {
+			nodeReflection.module.children = [
+				...moduleChildren,
+				nodeReflection,
+			];
+		}
 	}
 
 	private readonly _renderPage: RenderTemplate<PageEvent<PageReflection>> = props => {
