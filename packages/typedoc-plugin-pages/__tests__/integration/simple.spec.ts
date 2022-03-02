@@ -1,10 +1,11 @@
 import { readFile } from 'fs/promises';
 import { resolve } from 'path';
 
-import { html as beautifyHtml } from 'js-beautify';
 import { JSDOM } from 'jsdom';
 import { escapeRegExp } from 'lodash';
 import { Application, ArgumentsReader, TSConfigReader, TypeDocOptions, TypeDocReader } from 'typedoc';
+
+import { formatHtml } from '@knodes/typedoc-plugintestbed';
 
 const rootDir = resolve( __dirname, '../mock-fs/simple' );
 jest.setTimeout( 30000 );
@@ -108,7 +109,7 @@ describe( 'Real behavior', () => {
 			expect( link ).toBeTruthy();
 			expect( link ).toHaveTextContent( /^Bar$/ );
 			expect( link ).toHaveAttribute( 'href', '../pages/foo/bar.html' );
-			expect( beautifyHtml( c, { indent_with_tabs: true } ) ).toMatchSnapshot();
+			expect( formatHtml( c ) ).toMatchSnapshot();
 		} );
 	} );
 } );

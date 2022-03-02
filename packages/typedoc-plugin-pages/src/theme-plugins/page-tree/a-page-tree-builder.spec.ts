@@ -1,9 +1,10 @@
 import { resolve } from 'path';
 
 import { isString } from 'lodash';
-import mockFs from 'mock-fs';
 import { Class } from 'type-fest';
 import { Application, DeclarationReflection, DefaultTheme, JSX, ProjectReflection, Reflection, ReflectionKind, UrlMapping } from 'typedoc';
+
+import { restoreFs, setVirtualFs } from '@knodes/typedoc-plugintestbed';
 
 import { PageNode } from '../../options';
 import { PagesPlugin } from '../../plugin';
@@ -44,7 +45,7 @@ beforeEach( () => {
 	plugin = new PagesPlugin( application );
 	testHost = new TestHost();
 } );
-afterEach( mockFs.restore );
+afterEach( restoreFs );
 const matchReflection = <T extends Reflection>( proto: Class<T>, sample: Partial<T> ) => expect.toSatisfy( v => {
 	expect( v ).toBeInstanceOf( proto );
 	const s = sample as any;
@@ -56,7 +57,7 @@ const matchReflection = <T extends Reflection>( proto: Class<T>, sample: Partial
 } );
 describe( APageTreeBuilder.name, () => {
 	it( 'should map simple page', () => {
-		mockFs( {
+		setVirtualFs( {
 			'foo.md': 'Foo content',
 		} );
 		const out = testHost.mapPagesToReflections( [ { title: 'Foo', source: 'foo.md'  } ] );
@@ -70,7 +71,7 @@ describe( APageTreeBuilder.name, () => {
 		expect( out ).toHaveLength( 0 );
 	} );
 	it( 'should map menu with children', () => {
-		mockFs( {
+		setVirtualFs( {
 			'bar.md': 'Bar content',
 			'baz.md': 'Baz content',
 		} );
@@ -91,7 +92,7 @@ describe( APageTreeBuilder.name, () => {
 		expect( out ).toHaveLength( 0 );
 	} );
 	it( 'should map virtual menu with children', () => {
-		mockFs( {
+		setVirtualFs( {
 			'bar.md': 'Bar content',
 			'baz.md': 'Baz content',
 		} );
@@ -110,7 +111,7 @@ describe( APageTreeBuilder.name, () => {
 			new DeclarationReflection( 'SUB', ReflectionKind.Module, testHost.project ),
 			new DeclarationReflection( 'SUB2', ReflectionKind.Module, testHost.project ),
 		];
-		mockFs( {
+		setVirtualFs( {
 			'bar.md': 'Bar content',
 			'baz.md': 'Baz content',
 		} );
@@ -131,7 +132,7 @@ describe( APageTreeBuilder.name, () => {
 			new DeclarationReflection( 'SUB', ReflectionKind.Module, testHost.project ),
 			new DeclarationReflection( 'SUB2', ReflectionKind.Module, testHost.project ),
 		];
-		mockFs( {
+		setVirtualFs( {
 			'bar.md': 'Bar content',
 			'baz.md': 'Baz content',
 		} );
@@ -149,7 +150,7 @@ describe( APageTreeBuilder.name, () => {
 		testHost.project.children = [
 			new DeclarationReflection( 'SUB2', ReflectionKind.Module, testHost.project ),
 		];
-		mockFs( { 'test.md': 'The content' } );
+		setVirtualFs( { 'test.md': 'The content' } );
 		expect( () => testHost.mapPagesToReflections( [ { title: 'Foo', workspace: 'SUB', source: 'test.md' } ] ) )
 			.toThrowWithMessage( Error, /Invalid node workspace override "Foo":\s*Could not get a module for workspace named "SUB"\./ );
 	} );
@@ -157,7 +158,7 @@ describe( APageTreeBuilder.name, () => {
 		testHost.project.children = [
 			new DeclarationReflection( 'SUB', ReflectionKind.Namespace, testHost.project ),
 		];
-		mockFs( { 'test.md': 'The content' } );
+		setVirtualFs( { 'test.md': 'The content' } );
 		expect( () => testHost.mapPagesToReflections( [ { title: 'Foo', workspace: 'SUB', source: 'test.md' } ] ) )
 			.toThrowWithMessage( Error, /Invalid node workspace override "Foo":\s*Found reflection for workspace name "SUB" is not a module reflection$/ );
 	} );

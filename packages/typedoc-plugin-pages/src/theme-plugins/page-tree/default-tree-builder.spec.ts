@@ -1,5 +1,6 @@
-import mockFs from 'mock-fs';
 import { Application, DeclarationReflection, DefaultTheme, ProjectReflection, UrlMapping } from 'typedoc';
+
+import { restoreFs, setVirtualFs } from '@knodes/typedoc-plugintestbed';
 
 import { PagesPlugin } from '../../plugin';
 import { MenuReflection, NodeReflection, PageReflection, PagesPluginReflectionKind } from '../../reflections';
@@ -31,7 +32,7 @@ beforeEach( () => {
 	testHost = new TestHost();
 	project = new ProjectReflection( 'TEST' );
 } );
-afterEach( mockFs.restore );
+afterEach( restoreFs );
 type Children = undefined | readonly [] | readonly [Dec, ...Dec[]];
 type Dec<T extends DeclarationReflection = DeclarationReflection, Child extends Children = undefined> = Omit<T, 'children'> & {children: Child}
 const pageReflection = <T extends Children = undefined>(
@@ -59,7 +60,7 @@ describe( DefaultTreeBuilder.name, () => {
 			expect( testHost.generateMappings( [] ) ).toEqual( [] );
 		} );
 		it( 'should map only pages correctly', () => {
-			mockFs( {
+			setVirtualFs( {
 				'foo.md': 'Foo content',
 				'bar.md': 'Bar content',
 				'quux.md': 'Quux content',

@@ -3,6 +3,8 @@ import { resolve } from 'path';
 
 import { Application, ArgumentsReader, TSConfigReader, TypeDocOptions, TypeDocReader } from 'typedoc';
 
+import { formatHtml } from '@knodes/typedoc-plugintestbed';
+
 const rootDir = resolve( __dirname, '../mock-fs' );
 jest.setTimeout( 30000 );
 beforeEach( () => {
@@ -27,9 +29,9 @@ describe( 'Real behavior', () => {
 		const project = app.convert()!;
 		app.validate( project );
 		await app.generateDocs( project, resolve( rootDir, './docs' ) );
-		const content = await readFile( resolve( rootDir, 'docs/classes/Test.html' ), 'utf-8' );
-		expect( content ).toContain( '{</span><span class="hl-1">&quot;Hello&quot;</span><span class="hl-0">: </span><span class="hl-2">&quot;World&quot;</span><span class="hl-0">}' );
-		expect( content ).toMatch( /<link\s+rel="stylesheet"\s+href="[^"]*?\/assets\/code-blocks\.css"\s*\/>/ );
-		expect( content ).toMatchSnapshot();
+		const c = await readFile( resolve( rootDir, 'docs/classes/Test.html' ), 'utf-8' );
+		expect( c ).toContain( '{</span><span class="hl-1">&quot;Hello&quot;</span><span class="hl-0">: </span><span class="hl-2">&quot;World&quot;</span><span class="hl-0">}' );
+		expect( c ).toMatch( /<link\s+rel="stylesheet"\s+href="[^"]*?\/assets\/code-blocks\.css"\s*\/>/ );
+		expect( formatHtml( c ) ).toMatchSnapshot();
 	} );
 } );

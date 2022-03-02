@@ -46,9 +46,9 @@
   },
   "devDependencies": {
     "@knodes/eslint-config": "^1.6.3",
+    "@knodes/typedoc-plugintestbed": "*",
     "@testing-library/jest-dom": "^5.16.2",
     "@types/jest": "^27.4.1",
-    "@types/js-beautify": "^1.13.3",
     "@types/jsdom": "^16.2.14",
     "@types/lodash": "^4.14.178",
     "@types/marked": "^4.0.2",
@@ -67,7 +67,6 @@
     "jest": "^27.5.1",
     "jest-extended": "^2.0.0",
     "jest-junit": "^13.0.0",
-    "js-beautify": "^1.14.0",
     "jsdom": "^19.0.0",
     "marked": "^4.0.12",
     "mock-fs": "^5.1.2",
