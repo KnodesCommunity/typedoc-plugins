@@ -2,21 +2,18 @@
 const baseConfig = {
 	preset: 'ts-jest',
 	testEnvironment: 'node',
-	collectCoverageFrom: [
-		'<rootDir>/src/**/*.{c,m,}{t,j}s{x,}',
-	],
-	coveragePathIgnorePatterns: [
-		'<rootDir>/__tests__',
-	],
 	globals: {
 		'ts-jest': {
 			tsconfig: '<rootDir>/tsconfig.spec.json',
 		},
 	},
 	setupFilesAfterEnv: [ 'jest-extended/all' ],
+	watchPathIgnorePatterns: [ '<rootDir>/__tests__/mock-fs/' ],
 };
+const anyExt = '.{c,m,}{t,j}s{x,}';
 /** @type {import('ts-jest/dist/types').InitialOptionsTsJest[]} */
 module.exports = {
+	anyExt,
 	projects: [
 		{
 			...baseConfig,
@@ -24,7 +21,7 @@ module.exports = {
 				name: 'unit',
 				color: 'blue',
 			},
-			testMatch: [ '<rootDir>/src/**/*.spec.{c,m,}{t,j}s{x,}' ],
+			testMatch: [ `<rootDir>/src/**/*.spec${anyExt}` ],
 		},
 		{
 			...baseConfig,
@@ -32,7 +29,10 @@ module.exports = {
 				name: 'integration',
 				color: 'green',
 			},
-			testMatch: [ '<rootDir>/__tests__/integration/**/*.spec.{c,m,}{t,j}s{x,}' ],
+			testMatch: [ `<rootDir>/__tests__/integration/**/*.spec${anyExt}` ],
 		},
+	],
+	collectCoverageFrom: [
+		'src/**',
 	],
 };

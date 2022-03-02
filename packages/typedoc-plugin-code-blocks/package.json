@@ -30,8 +30,8 @@
     "static"
   ],
   "scripts": {
-    "build": "tsc --project tsconfig.json",
-    "build:clean": "rimraf dist tsconfig.tsbuildinfo",
+    "build": "tsc --project tsconfig.build.json",
+    "build:clean": "rimraf dist",
     "lint": "eslint --ignore-path ../../.eslintignore '**/?(.)*.?([cm])[tj]s?(x)'",
     "prepublish": "npm run build:clean && npm run build",
     "test": "jest --config jest.config.js"

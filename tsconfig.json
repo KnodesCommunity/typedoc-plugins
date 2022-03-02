@@ -1,13 +1,12 @@
 {
-  "extends": "./tsconfig.build.json",
+  "extends": "./tsconfig.base.json",
   "compilerOptions": {
     "types": [
       "jest",
       "jest-extended",
       "@testing-library/jest-dom",
       "node"
-    ]
+    ],
   },
-  "include": ["src", "__tests__", "types/test.d.ts"],
-  "exclude": []
+  "exclude": ["typedoc"]
 }

@@ -3,11 +3,18 @@ const { resolve } = require( 'path' );
 
 const { isString } = require( 'lodash' );
 
+const { anyExt } = require( './jest.config.base' );
 const { getProjects } = require( './tools/utils' );
 
 const projects = getProjects();
 const maxNameLength = Math.max( ...projects.map( p => p.name.length ) );
 module.exports = {
+	collectCoverageFrom: [
+		'**/src/**',
+		`!**/index${anyExt}`,
+		'!**/__tests__/**',
+	],
+	// ...baseConfig,
 	projects: projects
 		.map( ( { path, ...other } ) => {
 			const jestConfigPath = [ 'jest.workspace.config.js', 'jest.config.js' ]

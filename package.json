@@ -32,6 +32,7 @@
     "prepare": "npm run prepare:husky",
     "prepare:husky": "[ -d ./node_modules/husky ] && husky install || true",
     "projects:build": "node ./tools/s-projects 'npm run build -- --pretty'",
+    "projects:build:clean": "npm run build:clean --workspaces",
     "projects:patch": "node ./tools/typedoc-patcher --no-stash",
     "projects:build:watch": "npm run projects:patch -- apply && npm run projects:build && node ./tools/p-projects 'npm run build -- --watch --preserveWatchOutput --pretty'",
     "projects:test": "jest",

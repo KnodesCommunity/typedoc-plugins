@@ -1,6 +1,6 @@
 const assert = require( 'assert' );
 const { createHash } = require( 'crypto' );
-const { readFile, writeFile, mkdir, copyFile, access } = require( 'fs/promises' );
+const { readFile, writeFile, mkdir, copyFile, access, unlink } = require( 'fs/promises' );
 const { resolve, join } = require( 'path' );
 
 const { bold } = require( 'chalk' );
@@ -120,18 +120,25 @@ const syncFs = () => {
 			await Promise.all( Object.entries( changedFiles ).map( async ( [ file, protoSum ] ) => {
 				const source = resolve( proto, file );
 				const dest = resolve( projectPath, file );
-				try{
-					await access( dest );
-					const prevSum = ( await readCache() )[file];
-					if( ( prevSum ?? protoSum ) !== await checksum( dest ) ){
-						conflicting.push( join( projectPath, file ) );
+				if( protoSum ){
+					try{
+						await access( dest );
+						const prevSum = ( await readCache() )[file];
+						if( ( prevSum ?? protoSum ) !== await checksum( dest ) ){
+							conflicting.push( join( projectPath, file ) );
+						}
+					} catch( err ){
+						if ( err.code !== 'ENOENT' ) {
+							throw err;
+						}
 					}
-				} catch( err ){
-					if ( err.code !== 'ENOENT' ) {
-						throw err;
-					}
+					await copyFile( source, dest );
+				} else {
+					try{
+						await unlink( dest );
+						// eslint-disable-next-line no-empty -- No error
+					} catch( e ){}
 				}
-				await copyFile( source, dest );
 			} ) );
 		},
 		tearDown: async proto => {
