@@ -5,6 +5,7 @@ import { defaultsDeep, get, identity, kebabCase } from 'lodash';
 import { DeclarationOption, ParameterType } from 'typedoc';
 
 import type { ABasePlugin } from '../base-plugin';
+import { EventsExtra } from '../events-extra';
 import { MapperPart, Option } from './option';
 import { DecOptType, TypeErr, _DecOpt } from './utils';
 
@@ -85,20 +86,19 @@ export class OptionGroup<
 			help: `[${this.plugin.package.name}]: Set all plugin options below as an object, a JSON string or from a file.${linkAppendix}`,
 		} );
 
-		const readBck = this.plugin.application.options.read.bind( this.plugin.application.options );
-		this.plugin.application.options.read = logger => {
-			readBck( logger );
-			const defaultOpts = this.getValue();
-			// Try read default files
-			const generalOpts = this.plugin.application.options.getValue( this.plugin.optionsPrefix ) ?? `./typedoc-${kebabCase( this.plugin.optionsPrefix )}` as any;
-			if( generalOpts ){
-				try {
-					this._setValue( generalOpts );
-					// eslint-disable-next-line no-empty -- Autoload errors allowed.
-				} catch( _e ){}
-			}
-			this.setValue( defaultsDeep( this.getValue(), defaultOpts ) );
-		};
+		EventsExtra.for( this.plugin.application )
+			.beforeOptionsFreeze( () => {
+				const defaultOpts = this.getValue();
+				// Try read default files
+				const generalOpts = this.plugin.application.options.getValue( this.plugin.optionsPrefix ) ?? `./typedoc-${kebabCase( this.plugin.optionsPrefix )}` as any;
+				if( generalOpts ){
+					try {
+						this._setValue( generalOpts );
+						// eslint-disable-next-line no-empty -- Autoload errors allowed.
+					} catch( _e ){}
+				}
+				this.setValue( defaultsDeep( this.getValue(), defaultOpts ) );
+			} );
 	}
 
 	/**
@@ -167,6 +167,11 @@ export class OptionGroup<
 				}
 				return o.getValue();
 			} );
+			for( const k in value ){
+				if( !( k in newOpts ) ){
+					this.plugin.application.options.setValue( `${this.plugin.optionsPrefix}:${k}`, value[k] );
+				}
+			}
 			this.plugin.application.options.setValue( this.plugin.optionsPrefix, newOpts );
 		}
 	}

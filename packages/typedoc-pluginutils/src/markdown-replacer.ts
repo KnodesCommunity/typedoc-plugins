@@ -14,17 +14,17 @@ interface ISourceEdit {
 	replacement: string;
 }
 interface ISourceMapContainer {
-	editions: ISourceEdit[];
-	getEditionContext: ( position: number ) => ( {
+	readonly editions: ISourceEdit[];
+	readonly getEditionContext: ( position: number ) => ( {
 		line: number;
 		column: number;
 		expansions: ISourceMapContainer[];
 		index: number;
 		source: string;
 	} );
-	label: string;
-	plugin: ABasePlugin;
-	regex: RegExp;
+	readonly label: string;
+	readonly plugin: ABasePlugin;
+	readonly regex: RegExp;
 }
 const spitArgs = ( ...args: Parameters<Parameters<typeof String.prototype.replace>[1]> ) => {
 	const indexIdx = args.findIndex( isNumber );
@@ -101,6 +101,7 @@ export class MarkdownReplacer {
 	 */
 	public bindReplace( regex: RegExp, callback: MarkdownReplacer.ReplaceCallback, label = `${this.plugin.name}: Unnamed markdown replace` ) {
 		assert( regex.flags.includes( 'g' ) );
+		this._currentPageMemo.initialize();
 		this.plugin.application.renderer.on( MarkdownEvent.PARSE, this._processMarkdown.bind( this, regex, callback, label ), undefined, 100 );
 	}
 
@@ -123,38 +124,15 @@ export class MarkdownReplacer {
 		const sourceFile = this._currentPageMemo.hasCurrent ? reflectionSourceUtils.getReflectionSourceFileName( this._currentPageMemo.currentReflection ) : undefined;
 		const relativeSource = sourceFile ? this.plugin.relativeToRoot( sourceFile ) : undefined;
 		const originalText = event.parsedText;
-		const edits: ISourceEdit[] = [];
 		const getCtxInParent = last( mapContainers )?.getEditionContext ??
 			( pos => ( { ...textUtils.getCoordinates( originalText, pos ), source: originalText, index: pos, expansions: [] } ) );
-		event.parsedText = originalText.replace(
-			regex,
-			( ...args ) => {
-				const { captures, fullMatch, index } = spitArgs( ...args );
-				const replacement = callback(
-					{ fullMatch, captures },
-					() => {
-						if( !relativeSource ){
-							return 'UNKNOWN SOURCE';
-						}
-						const { line, column, expansions } = getCtxInParent( index );
-						const posStr = line && column ? `:${line}:${column}` : '';
-						const expansionContext = ` (in expansion of ${expansions.concat( [ thisContainer ] ).map( e => e.label ).join( ' ⇒ ' )})`;
-						return relativeSource + posStr + expansionContext;
-					} );
-				if( isNil( replacement ) ){
-					return fullMatch;
-				}
-				const replacementStr = typeof replacement === 'string' ? replacement : JSX.renderElement( replacement );
-				edits.push( { from: index, to: index + fullMatch.length, replacement: replacementStr, source: fullMatch } );
-				return replacementStr;
-			} );
 		const thisContainer: ISourceMapContainer = {
 			regex,
-			editions: edits,
+			editions: [],
 			label,
 			plugin: this.plugin,
 			getEditionContext: ( pos: number ) => {
-				const { offsetedPos, didEdit } = edits.reduce(
+				const { offsetedPos, didEdit } = thisContainer.editions.reduce(
 					( acc, edit ) => {
 						const isAfterEdit = edit.from <= acc.offsetedPos;
 						if( !isAfterEdit ){
@@ -176,6 +154,28 @@ export class MarkdownReplacer {
 				return parentCtx;
 			},
 		};
+		event.parsedText = originalText.replace(
+			regex,
+			( ...args ) => {
+				const { captures, fullMatch, index } = spitArgs( ...args );
+				const replacement = callback(
+					{ fullMatch, captures },
+					() => {
+						if( !relativeSource ){
+							return 'UNKNOWN SOURCE';
+						}
+						const { line, column, expansions } = getCtxInParent( index );
+						const posStr = line && column ? `:${line}:${column}` : '';
+						const expansionContext = ` (in expansion of ${expansions.concat( [ thisContainer ] ).map( e => e.label ).join( ' ⇒ ' )})`;
+						return relativeSource + posStr + expansionContext;
+					} );
+				if( isNil( replacement ) ){
+					return fullMatch;
+				}
+				const replacementStr = typeof replacement === 'string' ? replacement : JSX.renderElement( replacement );
+				thisContainer.editions.push( { from: index, to: index + fullMatch.length, replacement: replacementStr, source: fullMatch } );
+				return replacementStr;
+			} );
 		MarkdownReplacer._mapContainers.set( event, [
 			...mapContainers,
 			thisContainer,

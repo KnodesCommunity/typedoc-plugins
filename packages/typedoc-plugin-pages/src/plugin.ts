@@ -1,9 +1,9 @@
 import assert from 'assert';
 
 import { isString, once } from 'lodash';
-import { Application, JSX, RendererEvent } from 'typedoc';
+import { Application, JSX, LogLevel, RendererEvent } from 'typedoc';
 
-import { ABasePlugin, CurrentPageMemo, MarkdownReplacer, PathReflectionResolver } from '@knodes/typedoc-pluginutils';
+import { ABasePlugin, CurrentPageMemo, EventsExtra, MarkdownReplacer, PathReflectionResolver } from '@knodes/typedoc-pluginutils';
 
 import { buildOptions } from './options';
 import { NodeReflection } from './reflections';
@@ -26,10 +26,19 @@ export class PagesPlugin extends ABasePlugin {
 	public override initialize(){
 		const opts = this.pluginOptions.getValue();
 		this.logger.level = opts.logLevel;
-		this._markdownReplacer.bindReplace( EXTRACT_PAGE_LINK_REGEX, this._replacePageLink.bind( this ) );
 		this._currentPageMemo.initialize();
-		this.application.renderer.on( RendererEvent.BEGIN, this._pageTreeBuilder.bind( this ) );
-		this.application.renderer.on( RendererEvent.BEGIN, this.addPagesToProject.bind( this ) );
+		this.application.renderer.on( RendererEvent.BEGIN, this._addPagesToProject.bind( this ) );
+
+		EventsExtra.for( this.application )
+			.beforeOptionsFreeze( () => {
+				if( this.pluginOptions.getValue().enablePageLinks ){
+					this._markdownReplacer.bindReplace( EXTRACT_PAGE_LINK_REGEX, this._replacePageLink.bind( this ), 'replace page links' );
+				}
+			} )
+			.onThemeReady( this._pageTreeBuilder.bind( this ) )
+			.onSetOption( `${this.optionsPrefix}:logLevel`, v => {
+				this.logger.level = v as LogLevel;
+			} );
 	}
 
 	/**
@@ -37,7 +46,7 @@ export class PagesPlugin extends ABasePlugin {
 	 *
 	 * @param event - The renderer event emitted at {@link RendererEvent.BEGIN}.
 	 */
-	public addPagesToProject( event: RendererEvent ){
+	private _addPagesToProject( event: RendererEvent ){
 		const opts = this.pluginOptions.getValue();
 		this._pageTreeBuilder().appendToProject( event, opts );
 		this.application.logger.info( `Generating ${this._pageTreeBuilder().mappings.length} pages` );
@@ -79,7 +88,7 @@ export class PagesPlugin extends ABasePlugin {
 				.map( m => this.relativeToRoot( m.model.sourceFilePath ) ) )}` );
 			return fullMatch;
 		} else {
-			this.logger.verbose( () => `Created a link from "${sourceHint()}" to "${mapping.model.name}" (resolved as "${resolvedFile}")` );
+			this.logger.verbose( () => `Created a link from "${sourceHint()}" to "${mapping.model.name}" (resolved as "${this.relativeToRoot( resolvedFile )}")` );
 		}
 		const link = builder.renderPageLink( { label: label ?? undefined, mapping } );
 		if( typeof link === 'string' ){

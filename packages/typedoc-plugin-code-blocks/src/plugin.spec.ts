@@ -47,7 +47,7 @@ describe( 'Behavior', () => {
 			},
 		} );
 	} );
-	it( 'should not affect text if no code block', () => {
+	it.only( 'should not affect text if no code block', () => {
 		const text = 'Hello world' ;
 		expect( markdownReplacerTestbed.runMarkdownReplace( text ) ).toEqual( text );
 	} );

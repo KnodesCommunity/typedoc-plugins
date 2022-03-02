@@ -2,9 +2,9 @@ import assert from 'assert';
 import { relative } from 'path';
 
 import { once } from 'lodash';
-import { Application, JSX, RendererEvent } from 'typedoc';
+import { Application, JSX, LogLevel } from 'typedoc';
 
-import { ABasePlugin, CurrentPageMemo, MarkdownReplacer, PathReflectionResolver } from '@knodes/typedoc-pluginutils';
+import { ABasePlugin, CurrentPageMemo, EventsExtra, MarkdownReplacer, PathReflectionResolver } from '@knodes/typedoc-pluginutils';
 
 import { getCodeBlockRenderer } from './code-blocks';
 import { DEFAULT_BLOCK_NAME, ICodeSample, readCodeSample } from './code-sample-file';
@@ -33,10 +33,14 @@ export class CodeBlockPlugin extends ABasePlugin {
 	 * @see {@link import('@knodes/typedoc-pluginutils').autoload}.
 	 */
 	public initialize(): void {
-		this.application.renderer.on( RendererEvent.BEGIN, this._codeBlockRenderer.bind( this ) );
 		// Hook over each markdown events to replace code blocks
-		this._markdownReplacer.bindReplace( EXTRACT_CODE_BLOCKS_REGEX, this._replaceCodeBlock.bind( this ) );
+		this._markdownReplacer.bindReplace( EXTRACT_CODE_BLOCKS_REGEX, this._replaceCodeBlock.bind( this ), 'replace code blocks' );
 		this._currentPageMemo.initialize();
+		EventsExtra.for( this.application )
+			.onThemeReady( this._codeBlockRenderer.bind( this ) )
+			.onSetOption( `${this.optionsPrefix}:logLevel`, v => {
+				this.logger.level = v as LogLevel;
+			} );
 	}
 
 
@@ -74,7 +78,7 @@ export class CodeBlockPlugin extends ABasePlugin {
 			this.logger.error( () => `In "${sourceHint()}", could not resolve file "${file}" from ${this._currentPageMemo.currentReflection.name}` );
 			return fullMatch;
 		} else {
-			this.logger.verbose( () => `Created a code block to ${resolvedFile} from "${sourceHint()}"` );
+			this.logger.verbose( () => `Created a code block to ${this.relativeToRoot( resolvedFile )} from "${sourceHint()}"` );
 		}
 		if( !this._fileSamples.has( resolvedFile ) ){
 			this._fileSamples.set( resolvedFile, readCodeSample( resolvedFile ) );

@@ -116,7 +116,7 @@ describe( 'Behavior', () => {
 			.add( 'bar', { type: ParameterType.String, help: '' } )
 			.add( 'foo', { type: ParameterType.Number, help: '' } )
 			.build();
-		app.options.read( app.logger );
+		app.options.freeze();
 		expect( app.options.getRawValues() ).toMatchObject( { 'TEST:foo': 0, 'TEST:bar': '', 'TEST': { foo: 0, bar: '' }} );
 		expect( opts.getValue() ).toMatchObject( { foo: 0, bar: '' } );
 	} );
@@ -125,8 +125,8 @@ describe( 'Behavior', () => {
 			.add( 'bar', { type: ParameterType.String, help: '' } )
 			.add( 'foo', { type: ParameterType.Number, help: '' } )
 			.build();
-		app.options.read( app.logger );
 		opts.setValue( { bar: 'Hello', foo: 42 } );
+		app.options.freeze();
 		expect( app.options.getRawValues() ).toMatchObject( { 'TEST:foo': 42, 'TEST:bar': 'Hello', 'TEST': { foo: 42, bar: 'Hello' }} );
 		expect( opts.getValue() ).toMatchObject( { foo: 42, bar: 'Hello' } );
 	} );
@@ -135,8 +135,8 @@ describe( 'Behavior', () => {
 			.add( 'bar', { type: ParameterType.String, help: '' } )
 			.add( 'foo', { type: ParameterType.Number, help: '' } )
 			.build();
-		app.options.read( app.logger );
 		opts.setValue( { bar: 'Hello' } );
+		app.options.freeze();
 		expect( app.options.getRawValues() ).toMatchObject( { 'TEST:foo': 0, 'TEST:bar': 'Hello', 'TEST': { foo: 0, bar: 'Hello' }} );
 		expect( opts.getValue() ).toMatchObject( { foo: 0, bar: 'Hello' } );
 	} );
@@ -145,8 +145,8 @@ describe( 'Behavior', () => {
 			.add( 'bar', { type: ParameterType.String, help: '' } )
 			.add( 'foo', { type: ParameterType.Number, help: '' } )
 			.build();
-		app.options.read( app.logger );
 		opts.setValue( JSON.stringify( { bar: 'World' } ) );
+		app.options.freeze();
 		expect( app.options.getRawValues() ).toMatchObject( { 'TEST:foo': 0, 'TEST:bar': 'World', 'TEST': { foo: 0, bar: 'World' }} );
 		expect( opts.getValue() ).toMatchObject( { foo: 0, bar: 'World' } );
 	} );
@@ -157,8 +157,8 @@ describe( 'Behavior', () => {
 			.add( 'bar', { type: ParameterType.String, help: '' } )
 			.add( 'foo', { type: ParameterType.Number, help: '' } )
 			.build();
-		app.options.read( app.logger );
 		opts.setValue( tmp.name );
+		app.options.freeze();
 		expect( app.options.getRawValues() ).toMatchObject( { 'TEST:foo': 0, 'TEST:bar': 'Doh', 'TEST': { foo: 0, bar: 'Doh' }} );
 		expect( opts.getValue() ).toMatchObject( { foo: 0, bar: 'Doh' } );
 	} );
@@ -169,8 +169,8 @@ describe( 'Behavior', () => {
 			.add( 'bar', { type: ParameterType.String, help: '' } )
 			.add( 'foo', { type: ParameterType.Number, help: '' } )
 			.build();
-		app.options.read( app.logger );
 		opts.setValue( tmp.name );
+		app.options.freeze();
 		expect( app.options.getRawValues() ).toMatchObject( { 'TEST:foo': 0, 'TEST:bar': 'DohJS', 'TEST': { foo: 0, bar: 'DohJS' }} );
 		expect( opts.getValue() ).toMatchObject( { foo: 0, bar: 'DohJS' } );
 	} );

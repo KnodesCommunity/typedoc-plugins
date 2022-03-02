@@ -1,5 +1,6 @@
 import assert from 'assert';
 
+import { isNil } from 'lodash';
 import { MarkdownEvent, Renderer } from 'typedoc';
 
 import { setupCaptureEvent } from './capture-event';
@@ -8,11 +9,12 @@ export const setupMockMarkdownReplacer = () => {
 	const capture = setupCaptureEvent( Renderer, MarkdownEvent.PARSE );
 	return {
 		captureEventRegistration: capture.captureEventRegistration,
-		runMarkdownReplace: ( text: string ) => {
+		runMarkdownReplace: ( text: string, listenerIndex?: number ) => {
 			const listeners = capture.getListeners();
-			assert.equal( listeners.length, 1, `Invalid listeners count for event ${MarkdownEvent.PARSE}` );
 			const markdownEvent = new MarkdownEvent( MarkdownEvent.PARSE, text, text );
-			listeners[0]( markdownEvent );
+			assert( listeners.length >= 1, `Invalid listeners count for event ${MarkdownEvent.PARSE}` );
+			const listenersToTrigger = isNil( listenerIndex ) ? listeners : [ listeners[listenerIndex] ];
+			listenersToTrigger.forEach( l => l( markdownEvent ) );
 			return markdownEvent.parsedText;
 		},
 	};
