@@ -11,7 +11,7 @@ import { DEFAULT_BLOCK_NAME, ICodeSample, readCodeSample } from './code-sample-f
 import { buildOptions } from './options';
 import { EBlockMode } from './types';
 
-const EXTRACT_CODE_BLOCKS_REGEX = /\{@codeblock\s+(\S+?)(?:#(.+?))?(?:\s+(\w+))?(?:\s*\|\s*(.*?))?\}/g;
+const EXTRACT_CODE_BLOCKS_REGEX = /\{@codeblock\s+(\S+?\w+?)(?:#(.+?))?(?:\s+(\w+))?(?:\s*\|\s*(.*?))?\}/g;
 /**
  * Pages plugin for integrating your own pages into documentation output
  */

@@ -1,14 +1,23 @@
-# typedoc-plugin-pages
+<!-- HEADER -->
+# @knodes/typedoc-plugin-pages
 
 > A TypeDoc plugin that lets you integrate your own pages into the documentation output
 
-[![npm](https://img.shields.io/npm/v/typedoc-plugin-pages?color=brightgreen)](https://www.npmjs.com/package/typedoc-plugin-pages)
-
-This plugin is based on [typedoc-plugin-loopingz-pages](https://github.com/loopingz/typedoc-plugin-loopingz-pages), which is in turn a fork of [typedoc-plugin-pages](https://github.com/mipatterson/typedoc-plugin-pages). Integrating it in this monorepo should (I hope) make easier maintainance.
+[![npm](https://img.shields.io/npm/v/knodes/typedoc-plugin-pages)](https://www.npmjs.com/package/@knodes/typedoc-plugin-pages)
 
 ## Compatibility
 
-This plugin version should match TypeDoc `major.minor.x` for compatibility.
+This plugin version should match TypeDoc `^0.22.0` for compatibility.
+
+## Quick start
+
+```sh
+npm install --save-dev @knodes/typedoc-plugin-pages typedoc@^0.22.0
+```
+
+<!-- HEADER end -->
+
+> **NOTE:** This plugin is based on [typedoc-plugin-loopingz-pages](https://github.com/loopingz/typedoc-plugin-loopingz-pages), which is in turn a fork of [typedoc-plugin-pages](https://github.com/mipatterson/typedoc-plugin-pages). Integrating it in this monorepo should (I hope) make easier maintainance.
 
 ## Features
 

@@ -3,7 +3,7 @@ const { createHash } = require( 'crypto' );
 const { readFile, writeFile, mkdir, copyFile, access, unlink } = require( 'fs/promises' );
 const { resolve, join } = require( 'path' );
 
-const { bold } = require( 'chalk' );
+const { bold, yellow } = require( 'chalk' );
 const { defaultsDeep, partition, memoize, isString, cloneDeep, uniq } = require( 'lodash' );
 
 const { spawn, globAsync, selectProjects, createStash } = require( './utils' );
@@ -13,11 +13,41 @@ const { spawn, globAsync, selectProjects, createStash } = require( './utils' );
  */
 /**
  * @typedef {{
- * 	setup?: (proto: string; projects: Project[]) => Promise<void>;
- * 	tearDown?: (proto: string; projects: Project[]) => Promise<void>;
- * 	run: (proto: string; project: Project) => Promise<void>;
+ * 	setup?: (proto: string; projects: Project[], handlers: ProtoHandler[]) => Promise<void>;
+ * 	tearDown?: (proto: string; projects: Project[], handlers: ProtoHandler[]) => Promise<void>;
+ * 	run: (proto: string; project: Project, handlers: ProtoHandler[]) => Promise<void>;
  * }} ProtoHandler
  */
+
+const readProjectPackageJson = projectPath => {
+	const projectPkgPath = resolve( projectPath, 'package.json' );
+	try {
+		return {
+			packageContent: require( projectPkgPath ),
+			path: projectPkgPath,
+		};
+	} catch( e ){
+		if( e.code === 'MODULE_NOT_FOUND' ){
+			return {
+				packageContent: undefined,
+				path: projectPkgPath,
+			};
+		} else {
+			throw e;
+		}
+	}
+};
+
+/**
+ * @param {string} file
+ */
+const tryReadFile = async file => {
+	try{
+		return await readFile( file, 'utf-8' );
+	} catch( e ){
+		return undefined;
+	}
+};
 
 /**
  * @returns {ProtoHandler}
@@ -29,29 +59,20 @@ const packageJson = () => {
 			const protoPkgContent = await getProtoPkg( proto );
 			const protoPkg = JSON.parse( protoPkgContent
 				.replace( /\{projectRelDir\}/g, projectPath ) );
-			const projectPkgPath = resolve( projectPath, 'package.json' );
-			let projectPkg;
-			try {
-				projectPkg = require( projectPkgPath );
-			} catch( e ){
-				if( e.code === 'MODULE_NOT_FOUND' ){
-					projectPkg = {};
-				} else {
-					throw e;
-				}
-			}
-			const newProjectPkg = defaultsDeep( cloneDeep( protoPkg ), projectPkg );
+			const { packageContent = {}, path: packagePath } = readProjectPackageJson( projectPath ) ?? {};
+			const newProjectPkg = defaultsDeep( cloneDeep( protoPkg ), packageContent );
 			[ 'keywords', 'files' ].forEach( prop => newProjectPkg[prop] = uniq( [
 				...( protoPkg[prop] ?? [] ),
-				...( projectPkg[prop] ?? [] ),
+				...( packageContent[prop] ?? [] ),
 			]
 				.map( k => k.toLowerCase() ) )
 				.sort() );
-			await writeFile( projectPkgPath, JSON.stringify( newProjectPkg, null, 2 ) );
+			await writeFile( packagePath, JSON.stringify( newProjectPkg, null, 2 ) );
 		},
 		tearDown: async( proto, projects ) => {
 			await spawn( 'npx', [ 'format-package', '--write', ...projects.map( p => resolve( p.path, 'package.json' ) ) ] );
 		},
+		handleFile: filename => /(\/|^)package\.json$/.test( filename ),
 	};
 };
 
@@ -66,7 +87,7 @@ const syncFs = () => {
 	const cacheFile = resolve( __dirname, '.package-proto-cache' );
 	const readCache = memoize( async () => {
 		try {
-			const cacheContent = await readFile( cacheFile, 'utf-8' );
+			const cacheContent = ( await tryReadFile( cacheFile, 'utf-8' ) ) ?? '';
 			return cacheContent
 				.split( '\n' )
 				.filter( v => v.trim() )
@@ -84,16 +105,16 @@ const syncFs = () => {
 			return {};
 		}
 	} );
-	const protoFs = memoize( async proto => {
+	const protoFs = memoize( async ( proto, handlers ) => {
 		const filesDirs = ( await globAsync( '**', { cwd: proto, ignore: [ '**/node_modules/**' ], mark: true, dot: true } ) )
-			.filter( fd => !/(\/|^)package\.json$/.test( fd ) );
+			.filter( fd => !( handlers.some( h => h.handleFile?.( fd ) ?? false ) ) );
 		const [ dirs, files ] = partition( filesDirs, p => p.endsWith( '/' ) );
 		return { dirs, files };
 	} );
-	const getChangedFiles = memoize( async proto => {
+	const getChangedFiles = memoize( async ( proto, handlers ) => {
 		const [ cacheContent, { files } ] = await Promise.all( [
 			readCache(),
-			protoFs( proto ),
+			protoFs( proto, handlers ),
 		] );
 		const changedFiles = {};
 		await Promise.all( files.map( async file => {
@@ -111,12 +132,12 @@ const syncFs = () => {
 	} );
 	const conflicting = [];
 	return {
-		run: async ( proto, { path: projectPath } ) => {
-			const { dirs } = await protoFs( proto );
+		run: async ( proto, { path: projectPath }, handlers ) => {
+			const { dirs, files } = await protoFs( proto, handlers );
 			for( const dir of dirs ){
 				await mkdir( resolve( projectPath, dir ), { recursive: true } );
 			}
-			const changedFiles = await getChangedFiles( proto );
+			const changedFiles = await getChangedFiles( proto, handlers );
 			await Promise.all( Object.entries( changedFiles ).map( async ( [ file, protoSum ] ) => {
 				const source = resolve( proto, file );
 				const dest = resolve( projectPath, file );
@@ -140,14 +161,25 @@ const syncFs = () => {
 					} catch( e ){}
 				}
 			} ) );
+			await Promise.all( files.map( async file => {
+				if( file in changedFiles ){
+					return;
+				}
+				const absFile = resolve( projectPath, file );
+				try{
+					await access( absFile );
+				} catch( e ){
+					await copyFile( resolve( proto, file ), absFile );
+				}
+			} ) );
 		},
-		tearDown: async proto => {
+		tearDown: async ( proto, _projects, handlers ) => {
 			conflicting.forEach( c => {
 				console.error( `File ${bold( c )} has been changed compared to prototype. Please review git changes.` );
 			} );
 			const [ cache, changed ] = await Promise.all( [
 				readCache(),
-				getChangedFiles( proto ),
+				getChangedFiles( proto, handlers ),
 			] );
 			const newCache = {
 				...cache,
@@ -158,6 +190,65 @@ const syncFs = () => {
 				.map( entry => entry.join( ' :: ' ) )
 				.join( '\n' ) );
 		},
+	};
+};
+
+/**
+ * @returns {ProtoHandler}
+ */
+const readme = () => {
+	/**
+	 * @param {string} readmeFile
+	 * @param {string} projectPath
+	 */
+	const replaceHeader = async ( readmeFile, projectPath ) => {
+		const readmeContent = ( await tryReadFile( readmeFile, 'utf-8' ) ) ?? '';
+		const { packageContent } = readProjectPackageJson( projectPath );
+		if( !packageContent ){
+			throw new Error();
+		}
+		let newHeader = `# ${packageContent.name}`;
+		if( packageContent.description ){
+			newHeader += `\n\n> ${packageContent.description}`;
+		}
+		newHeader += `\n
+[![npm](https://img.shields.io/npm/v/${packageContent.name.replace( /^@/, '' )})](https://www.npmjs.com/package/${packageContent.name})`;
+		const typedocVer = packageContent.dependencies?.['typedoc'] ?? packageContent.peerDependencies?.['typedoc'];
+		if( typedocVer ){
+			newHeader += `
+
+## Compatibility
+
+This plugin version should match TypeDoc \`${typedocVer}\` for compatibility.`;
+		}
+		newHeader += `
+
+## Quick start
+
+\`\`\`sh
+npm install --save-dev ${packageContent.name}${typedocVer ? ` typedoc@${typedocVer}` : ''}
+\`\`\``;
+		newHeader = `<!-- HEADER -->
+${newHeader}
+<!-- HEADER end -->
+`;
+		const headerRegex = /^<!-- HEADER -->(.*?)<!-- HEADER end -->\n/s;
+		if( !headerRegex.test( readmeContent ) ){
+			console.log( yellow( `Header not found in ${readmeFile}` ) );
+		}
+		const newReadme = newHeader + readmeContent.replace( /^<!-- HEADER -->(.*?)<!-- HEADER end -->(\n|$)/s, '' );
+		await writeFile( readmeFile, newReadme );
+	};
+	return {
+		run: async ( _proto, { path: projectPath } ) => {
+			const readmeFiles = await globAsync( `${projectPath}/@(readme|README).@(md|MD)` );
+			if( readmeFiles.length > 1 ){
+				throw new Error( 'Multiple README files' );
+			}
+			const readmeFile = readmeFiles[0] ?? `${projectPath}/README.md`;
+			await replaceHeader( readmeFile, projectPath );
+		},
+		handleFile: filename => /(\/|^)readme\.md$/i.test( filename ),
 	};
 };
 
@@ -179,15 +270,16 @@ if( require.main === module ){
 		const handlers = [
 			syncFs(),
 			packageJson(),
+			readme(),
 		];
 		for( const { setup } of handlers ){
-			await setup?.( protoDir, projects );
+			await setup?.( protoDir, projects, handlers );
 		}
 		for( const { run } of handlers ){
-			await Promise.all( projects.map( p => run( protoDir, p ) ) );
+			await Promise.all( projects.map( p => run( protoDir, p, handlers ) ) );
 		}
 		for( const { tearDown } of handlers ){
-			await tearDown?.( protoDir, projects );
+			await tearDown?.( protoDir, projects, handlers );
 		}
 	} )();
 }

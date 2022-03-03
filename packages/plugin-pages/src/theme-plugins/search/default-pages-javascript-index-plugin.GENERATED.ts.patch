@@ -1,7 +1,7 @@
-diff --git a/typedoc/src/lib/output/plugins/JavascriptIndexPlugin.ts b/packages/typedoc-plugin-pages/src/theme-plugins/search/default-pages-javascript-index-plugin.GENERATED.ts
+diff --git a/typedoc/src/lib/output/plugins/JavascriptIndexPlugin.ts b/packages/plugin-pages/src/theme-plugins/search/default-pages-javascript-index-plugin.GENERATED.ts
 index 8770e6fc..c6598447 100755
 --- a/typedoc/src/lib/output/plugins/JavascriptIndexPlugin.ts
-+++ b/packages/typedoc-plugin-pages/src/theme-plugins/search/default-pages-javascript-index-plugin.GENERATED.ts
++++ b/packages/plugin-pages/src/theme-plugins/search/default-pages-javascript-index-plugin.GENERATED.ts
 @@ -1,29 +1,65 @@
 -import * as Path from 'path';
 +// Edit of <~/typedoc/src/lib/output/plugins/JavascriptIndexPlugin.ts>
@@ -167,6 +167,10 @@ index 8770e6fc..c6598447 100755
  			jsonFileName,
 -			`window.searchData = JSON.parse(${JSON.stringify( jsonData )});`
 +			`window.searchData = JSON.parse(${JSON.stringify( jsonData )});`,
+ 		);
+ 	}
+ }
+`,
  		);
  	}
  }

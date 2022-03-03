@@ -158,23 +158,26 @@ export class MarkdownReplacer {
 			regex,
 			( ...args ) => {
 				const { captures, fullMatch, index } = spitArgs( ...args );
-				const replacement = callback(
-					{ fullMatch, captures },
-					() => {
-						if( !relativeSource ){
-							return 'UNKNOWN SOURCE';
-						}
-						const { line, column, expansions } = getCtxInParent( index );
-						const posStr = line && column ? `:${line}:${column}` : '';
-						const expansionContext = ` (in expansion of ${expansions.concat( [ thisContainer ] ).map( e => e.label ).join( ' ⇒ ' )})`;
-						return relativeSource + posStr + expansionContext;
-					} );
-				if( isNil( replacement ) ){
-					return fullMatch;
+				const getSourceHint = () => {
+					if( !relativeSource ){
+						return 'UNKNOWN SOURCE';
+					}
+					const { line, column, expansions } = getCtxInParent( index );
+					const posStr = line && column ? `:${line}:${column}` : '';
+					const expansionContext = ` (in expansion of ${expansions.concat( [ thisContainer ] ).map( e => e.label ).join( ' ⇒ ' )})`;
+					return relativeSource + posStr + expansionContext;
+				};
+				try {
+					const replacement = callback( { fullMatch, captures }, getSourceHint );
+					if( isNil( replacement ) ){
+						return fullMatch;
+					}
+					const replacementStr = typeof replacement === 'string' ? replacement : JSX.renderElement( replacement );
+					thisContainer.editions.push( { from: index, to: index + fullMatch.length, replacement: replacementStr, source: fullMatch } );
+					return replacementStr;
+				} catch( e ){
+					throw new Error( `Error in ${getSourceHint()}:\n${e}` );
 				}
-				const replacementStr = typeof replacement === 'string' ? replacement : JSX.renderElement( replacement );
-				thisContainer.editions.push( { from: index, to: index + fullMatch.length, replacement: replacementStr, source: fullMatch } );
-				return replacementStr;
 			} );
 		MarkdownReplacer._mapContainers.set( event, [
 			...mapContainers,
