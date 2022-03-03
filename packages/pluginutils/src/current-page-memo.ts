@@ -7,13 +7,26 @@ import { PageEvent, Reflection, Renderer } from 'typedoc';
 import { ABasePlugin } from './base-plugin';
 
 export class CurrentPageMemo {
+	private static readonly _plugins = new WeakMap<ABasePlugin, CurrentPageMemo>();
 	private _currentPage?: PageEvent<Reflection>;
 	private _initialized = false;
 	public get initialized(){
 		return this._initialized;
 	}
 
-	public constructor( protected readonly plugin: ABasePlugin ){}
+	/**
+	 * Get the instance for the given plugin.
+	 *
+	 * @param plugin - The plugin to get memo for,
+	 * @returns the plugin page memo
+	 */
+	public static for( plugin: ABasePlugin ){
+		const e = this._plugins.get( plugin ) ?? new CurrentPageMemo( plugin );
+		this._plugins.set( plugin, e );
+		return e;
+	}
+
+	private constructor( protected readonly plugin: ABasePlugin ){}
 
 	/**
 	 * Start watching for pages event.
@@ -29,6 +42,23 @@ export class CurrentPageMemo {
 		this.plugin.application.renderer.on( Renderer.EVENT_END_PAGE, ( _e: PageEvent<Reflection> ) => {
 			this._currentPage = undefined;
 		} );
+	}
+
+	/**
+	 * Set the current page as being the {@link newPage} while running the {@link callback}. The current page is restored afterwards no matter what.
+	 *
+	 * @param newPage - The page to set.
+	 * @param callback - The function to execute.
+	 * @returns the {@link callback} return value.
+	 */
+	public fakeWrapPage<T>( newPage: PageEvent<Reflection>, callback: () => T ){
+		const bck = this._currentPage;
+		this._currentPage = newPage;
+		try{
+			return callback();
+		}finally{
+			this._currentPage = bck;
+		}
 	}
 
 	public get currentPage(): PageEvent<Reflection> {

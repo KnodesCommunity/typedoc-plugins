@@ -91,6 +91,8 @@ Baz
 			'test.txt': content,
 		} );
 		const res = Object.fromEntries( readCodeSample( 'test.txt' ).entries() );
-		expect( res ).toEqual( output );
+		const expected = Object.fromEntries( Object.entries( output )
+			.map( ( [ k, v ] ) => [ k, { ...v, file: 'test.txt', region: k } ] ) );
+		expect( res ).toEqual( expected );
 	} );
 } );

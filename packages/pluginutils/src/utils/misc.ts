@@ -24,3 +24,13 @@ export const rethrow = <T>( block: () => T, newErrorFactory: ( err: any ) => str
 		}
 	}
 };
+
+export const wrapError = ( message: string, err: any, propagateStack = true ) => {
+	const newErr = new Error( `${message}:\n${err.message || err}` );
+	if( propagateStack ){
+		if( 'stack' in err && err.stack ){
+			newErr.stack = err.stack;
+		}
+	}
+	return newErr;
+};

@@ -1,4 +1,4 @@
-import { LogLevel, ParameterHint, ParameterType } from 'typedoc';
+import { LogLevel, ParameterType } from 'typedoc';
 
 import { OptionGroup } from '@knodes/typedoc-pluginutils';
 
@@ -21,8 +21,7 @@ export const buildOptions = ( plugin: CodeBlockPlugin ) => OptionGroup.factory<I
 	} )
 	.add( 'source', {
 		help: 'Root directory where all code blocks live.',
-		type: ParameterType.Path,
-		hint: ParameterHint.Directory,
+		type: ParameterType.String,
 		defaultValue: 'examples',
 	} )
 	.add( 'logLevel', {

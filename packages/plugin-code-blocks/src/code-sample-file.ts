@@ -1,9 +1,13 @@
 import { readFileSync } from 'fs';
 
+import { textUtils } from '@knodes/typedoc-pluginutils';
+
 export const DEFAULT_BLOCK_NAME = '__DEFAULT__';
 const REGION_REGEX = /^[\t ]*\/\/[\t ]*#((?:end)?region)(?:[\t ]+(.*?))?$/gm;
 
 export interface ICodeSample {
+	region: string;
+	file: string;
 	code: string;
 	startLine: number;
 	endLine: number;
@@ -32,6 +36,8 @@ export const readCodeSample = ( file: string ): Map<string, ICodeSample> => {
 	if( regionMarkers.length === 0 ){
 		return new Map( [
 			[ DEFAULT_BLOCK_NAME, {
+				file,
+				region: DEFAULT_BLOCK_NAME,
 				code: content,
 				endLine: lines.length,
 				startLine: 1,
@@ -49,7 +55,8 @@ export const readCodeSample = ( file: string ): Map<string, ICodeSample> => {
 			if( type === 'start' && !name ){
 				throw new Error( 'Missing name of #region' );
 			}
-			return { type, name, fullMatch: m[0], line: getLineNumberofChar( lines, m.index ) };
+			const location = textUtils.getCoordinates( content, m.index );
+			return { ...location, type, name, fullMatch: m[0] };
 		} )
 		.reduce( ( acc, marker ) => {
 			if( marker.type === 'start' ){
@@ -93,19 +100,12 @@ export const readCodeSample = ( file: string ): Map<string, ICodeSample> => {
 		.reduce( ( acc, { open, close, name } ) => {
 			const code = lines.slice( open.line, close.line ).filter( l => !l.match( REGION_REGEX ) ).join( '\n' );
 			acc.set( name, {
+				file,
+				region: name,
 				endLine: close.line,
 				startLine: open.line,
 				code,
 			} );
 			return acc;
 		}, new Map<string, ICodeSample>() );
-};
-const getLineNumberofChar = ( perLine: string[], index: number ): number => {
-	let totalLength = 0;
-	for ( let i = 0; i < perLine.length; i++ ) {
-		totalLength += perLine[i].length;
-		if ( totalLength >= index )
-			return i + 1;
-	}
-	throw new Error();
 };

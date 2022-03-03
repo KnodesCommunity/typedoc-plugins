@@ -5,7 +5,7 @@ import { Context, Converter, JSX, MarkdownEvent, SourceFile } from 'typedoc';
 
 import { ABasePlugin } from './base-plugin';
 import { CurrentPageMemo } from './current-page-memo';
-import { reflectionSourceUtils, textUtils } from './utils';
+import { reflectionSourceUtils, textUtils, wrapError } from './utils';
 
 interface ISourceEdit {
 	from: number;
@@ -74,7 +74,7 @@ export class MarkdownReplacer {
 	private static readonly _mapContainers = new WeakMap<MarkdownEvent, ISourceMapContainer[]>();
 
 	private readonly _logger = this.plugin.logger.makeChildLogger( 'MarkdownReplacer' );
-	private readonly _currentPageMemo = new CurrentPageMemo( this.plugin );
+	private readonly _currentPageMemo = CurrentPageMemo.for( this.plugin );
 
 	/**
 	 * Get the list of source map containers for the given event.
@@ -175,8 +175,8 @@ export class MarkdownReplacer {
 					const replacementStr = typeof replacement === 'string' ? replacement : JSX.renderElement( replacement );
 					thisContainer.editions.push( { from: index, to: index + fullMatch.length, replacement: replacementStr, source: fullMatch } );
 					return replacementStr;
-				} catch( e ){
-					throw new Error( `Error in ${getSourceHint()}:\n${e}` );
+				} catch( e: any ){
+					throw wrapError( `Error in ${getSourceHint()}`, e );
 				}
 			} );
 		MarkdownReplacer._mapContainers.set( event, [

@@ -13,7 +13,7 @@ const EXTRACT_PAGE_LINK_REGEX = /{\\?@page\s+([^}\s]+)(?:\s+([^}]+?))?\s*}/g;
 export class PagesPlugin extends ABasePlugin {
 	public readonly pluginOptions = buildOptions( this );
 	private readonly _pageTreeBuilder = once( () => initThemePlugins( this.application, this ) );
-	private readonly _currentPageMemo = new CurrentPageMemo( this );
+	private readonly _currentPageMemo = CurrentPageMemo.for( this );
 	private readonly _markdownReplacer = new MarkdownReplacer( this );
 	private readonly _pathReflectionResolver = new PathReflectionResolver( this );
 	public constructor( application: Application ){

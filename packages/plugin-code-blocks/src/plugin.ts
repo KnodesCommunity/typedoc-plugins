@@ -2,13 +2,14 @@ import assert from 'assert';
 import { relative } from 'path';
 
 import { once } from 'lodash';
-import { Application, JSX, LogLevel } from 'typedoc';
+import { Application, JSX, LogLevel, PageEvent, Reflection } from 'typedoc';
 
 import { ABasePlugin, CurrentPageMemo, EventsExtra, MarkdownReplacer, PathReflectionResolver } from '@knodes/typedoc-pluginutils';
 
 import { getCodeBlockRenderer } from './code-blocks';
 import { DEFAULT_BLOCK_NAME, ICodeSample, readCodeSample } from './code-sample-file';
 import { buildOptions } from './options';
+import { CodeBlockReflection } from './reflections';
 import { EBlockMode } from './types';
 
 const EXTRACT_CODE_BLOCKS_REGEX = /\{@codeblock\s+(\S+?\w+?)(?:#(.+?))?(?:\s+(\w+))?(?:\s*\|\s*(.*?))?\}/g;
@@ -18,7 +19,7 @@ const EXTRACT_CODE_BLOCKS_REGEX = /\{@codeblock\s+(\S+?\w+?)(?:#(.+?))?(?:\s+(\w
 export class CodeBlockPlugin extends ABasePlugin {
 	public readonly pluginOptions = buildOptions( this );
 	private readonly _codeBlockRenderer = once( () => getCodeBlockRenderer( this.application, this ) );
-	private readonly _currentPageMemo = new CurrentPageMemo( this );
+	private readonly _currentPageMemo = CurrentPageMemo.for( this );
 	private readonly _markdownReplacer = new MarkdownReplacer( this );
 	private readonly _pathReflectionResolver = new PathReflectionResolver( this );
 	private readonly _fileSamples = new Map<string, Map<string, ICodeSample>>();
@@ -55,17 +56,22 @@ export class CodeBlockPlugin extends ABasePlugin {
 		{ captures, fullMatch }: Parameters<MarkdownReplacer.ReplaceCallback>[0],
 		sourceHint: Parameters<MarkdownReplacer.ReplaceCallback>[1],
 	): ReturnType<MarkdownReplacer.ReplaceCallback> {
+		// Avoid recursion in code blocks
+		if( this._currentPageMemo.currentReflection instanceof CodeBlockReflection ){
+			return fullMatch;
+		}
+		// Support escaped tags
 		if( fullMatch.startsWith( '{\\@' ) ){
 			this.logger.verbose( () => `Found an escaped tag "${fullMatch}" in "${sourceHint()}"` );
 			return fullMatch.replace( '{\\@', '{@' );
 		}
+		// Extract informations
 		const [ file, block, blockModeStr, fakedFileName ] = captures;
 		const blockMode = blockModeStr ?
 			EBlockMode[blockModeStr.toUpperCase() as keyof typeof EBlockMode] ?? assert.fail( `Invalid block mode "${blockModeStr}".` ) :
 			this.pluginOptions.getValue().defaultBlockMode ?? EBlockMode.EXPANDED;
 		assert.ok( file );
-		// Use ??= once on node>14
-		const defaultedBlock = block ?? DEFAULT_BLOCK_NAME;
+		const defaultedBlock = block ?? DEFAULT_BLOCK_NAME; // TODO: Use ??= once on node>14
 		const useWholeFile = defaultedBlock === DEFAULT_BLOCK_NAME;
 		const resolvedFile = this._pathReflectionResolver.resolveNamedPath(
 			this._currentPageMemo.currentReflection.project,
@@ -80,6 +86,7 @@ export class CodeBlockPlugin extends ABasePlugin {
 		} else {
 			this.logger.verbose( () => `Created a code block to ${this.relativeToRoot( resolvedFile )} from "${sourceHint()}"` );
 		}
+		// Get the actual code sample
 		if( !this._fileSamples.has( resolvedFile ) ){
 			this._fileSamples.set( resolvedFile, readCodeSample( resolvedFile ) );
 		}
@@ -90,20 +97,25 @@ export class CodeBlockPlugin extends ABasePlugin {
 			throw new Error( `Missing block ${defaultedBlock} in ${resolvedFile}` );
 		}
 
+		// Render
 		const headerFileName = fakedFileName ?? `./${relative( this.rootDir, resolvedFile )}${useWholeFile ? '' : `#${codeSample.startLine}~${codeSample.endLine}`}`;
 		const url = this._resolveCodeSampleUrl( resolvedFile, useWholeFile ? null : codeSample );
-		const rendered = this._codeBlockRenderer().renderCodeBlock( {
-			asFile: headerFileName,
-			content: codeSample.code,
-			mode: blockMode,
-			sourceFile: resolvedFile,
-			url,
+		const fakePage = new PageEvent<Reflection>( codeSample.file );
+		fakePage.model = new CodeBlockReflection( codeSample.region, codeSample.file, codeSample.code, codeSample.startLine, codeSample.endLine );
+		return this._currentPageMemo.fakeWrapPage( fakePage, () => {
+			const rendered = this._codeBlockRenderer().renderCodeBlock( {
+				asFile: headerFileName,
+				content: codeSample.code,
+				mode: blockMode,
+				sourceFile: resolvedFile,
+				url,
+			} );
+			if( typeof rendered === 'string' ){
+				return rendered;
+			} else {
+				return JSX.renderElement( rendered );
+			}
 		} );
-		if( typeof rendered === 'string' ){
-			return rendered;
-		} else {
-			return JSX.renderElement( rendered );
-		}
 	}
 
 	/**

@@ -1,0 +1,4 @@
+{
+    "name": "pkg-a",
+    "typedocMain": "./src"
+}

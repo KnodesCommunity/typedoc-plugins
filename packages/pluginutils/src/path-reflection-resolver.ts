@@ -3,10 +3,27 @@ import { existsSync } from 'fs';
 import { dirname, isAbsolute, join, resolve } from 'path';
 
 import { isString, uniq } from 'lodash';
+import { sync as pkgUpSync } from 'pkg-up';
 import { LiteralUnion } from 'type-fest';
 import { DeclarationReflection, ProjectReflection, Reflection, ReflectionKind } from 'typedoc';
 
 import type { ABasePlugin } from './base-plugin';
+
+const getReflectionSources = ( reflection: Reflection, isDotPrefixed: boolean ) => {
+	const selfSources = reflection.sources
+		?.map( s => s?.file?.fullFileName ?? s?.fileName )
+		.filter( isString )
+		.map( p => resolve( p ) ) ?? [];
+	if( !isDotPrefixed && reflection instanceof DeclarationReflection && reflection.kindOf( ReflectionKind.Module ) ){
+		const pkgSources = uniq( selfSources.map( s => pkgUpSync( { cwd: dirname( s ) } ) ).filter( isString ) );
+		return [
+			...pkgSources,
+			...selfSources,
+		];
+	} else {
+		return selfSources;
+	}
+};
 
 /**
  * Don't worry about typings, it's just a string with special prefixes.
@@ -45,20 +62,11 @@ export class PathReflectionResolver {
 	 * @returns the resolved path.
 	 */
 	public resolveAllFromReflection( reflection: Reflection, path: string ): string[]{
-		if( isAbsolute( path ) ){
-			return [ path ];
-		}
-		return reflection.sources
-			?.map( s => {
-				const source = s?.fileName;
-				if( !source ){
-					return undefined;
-				} else {
-					return resolve( dirname( source ), path );
-				}
-			} )
-			.filter( isString )
-			.filter( existsSync ) ?? [];
+		const paths = isAbsolute( path ) ?
+			[ path ] :
+			getReflectionSources( reflection, path.startsWith( '.' ) )
+				.map( s => resolve( dirname( s ), path ) );
+		return paths.filter( existsSync );
 	}
 
 	/**
@@ -96,10 +104,6 @@ export class PathReflectionResolver {
 		if( path.startsWith( '~~/' ) ){
 			path = path.replace( /^~~\//, '' );
 			currentReflection = project;
-			if( containerFolder ){
-				pathsToTry.push( join( containerFolder, path ) );
-			}
-			pathsToTry.push( path );
 		} else if( path.match( /^~.+\// ) ){
 			const workspace = this.getWorkspaces( project ).slice( 1 ).find( w => path.startsWith( `~${w.name}/` ) );
 			if( !workspace ){
@@ -107,22 +111,22 @@ export class PathReflectionResolver {
 			}
 			path = path.slice( workspace.name.length + 2 );
 			currentReflection = workspace;
-			if( containerFolder ){
-				pathsToTry.push( join( containerFolder, path ) );
-			}
-			pathsToTry.push( path );
-		} else {
-			pathsToTry.push( path );
 		}
+		if( containerFolder && !path.startsWith( '.' ) ){
+			pathsToTry.push( join( containerFolder, path ) );
+		}
+		pathsToTry.push( path );
 		const reflection = currentReflection ?? project;
-		for( const p of uniq( pathsToTry ).reverse() ){
+		const pathsList = uniq( pathsToTry );
+		for( const p of pathsList ){
 			const ret = this.resolveAllFromReflection( reflection, p );
 			if( ret.length > 0 ) {
 				return ret[0];
 			}
 		}
-		const sourcesLog = `Reflection sources: ${JSON.stringify( reflection.sources?.map( s => s.fileName ) ?? [] )}`;
-		this.plugin.logger.error( `Could not resolve "${pathSv}" from reflection "${reflection.name}". ${sourcesLog}` );
+		const sourcesLog = `Reflection sources: ${JSON.stringify( getReflectionSources( reflection, path.startsWith( '.' ) ).map( this.plugin.relativeToRoot.bind( this.plugin ) ) )}`;
+		this.plugin.logger.error( `Could not resolve "${pathSv}" from reflection "${reflection.name}". Tried paths: ${JSON.stringify( pathsList
+			.map( p => isAbsolute( p ) ? this.plugin.relativeToRoot( p ) : p ) )}. ${sourcesLog}` );
 		return undefined;
 	}
 }

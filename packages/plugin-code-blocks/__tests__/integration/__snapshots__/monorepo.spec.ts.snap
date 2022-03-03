@@ -1,0 +1,523 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Real behavior should render correctly 1`] = `
+"<!DOCTYPE html>
+<html class=\\"default\\">
+
+<head>
+	<meta charSet=\\"utf-8\\" />
+	<meta http-equiv=\\"x-ua-compatible\\" content=\\"IE=edge\\" />
+	<title>pkg-a | @knodes/typedoc-plugin-code-blocks</title>
+	<meta name=\\"description\\" content=\\"Documentation for @knodes/typedoc-plugin-code-blocks\\" />
+	<meta name=\\"viewport\\" content=\\"width=device-width, initial-scale=1\\" />
+	<link rel=\\"stylesheet\\" href=\\"../assets/style.css\\" />
+	<link rel=\\"stylesheet\\" href=\\"../assets/highlight.css\\" />
+	<script async src=\\"../assets/search.js\\" id=\\"search-script\\"></script>
+	<link rel=\\"stylesheet\\" href=\\"../assets/code-blocks.css\\" />
+</head>
+
+<body>
+	<script>
+		document.body.classList.add(localStorage.getItem(\\"tsd-theme\\") || \\"os\\")
+	</script>
+	<header>
+		<div class=\\"tsd-page-toolbar\\">
+			<div class=\\"container\\">
+				<div class=\\"table-wrap\\">
+					<div class=\\"table-cell\\" id=\\"tsd-search\\" data-base=\\"..\\">
+						<div class=\\"field\\"><label for=\\"tsd-search-field\\" class=\\"tsd-widget search no-caption\\">Search</label><input type=\\"text\\" id=\\"tsd-search-field\\" /></div>
+						<ul class=\\"results\\">
+							<li class=\\"state loading\\">Preparing search index...</li>
+							<li class=\\"state failure\\">The search index is not available</li>
+						</ul><a href=\\"../index.html\\" class=\\"title\\">@knodes/typedoc-plugin-code-blocks</a>
+					</div>
+					<div class=\\"table-cell\\" id=\\"tsd-widgets\\">
+						<div id=\\"tsd-filter\\"><a href=\\"#\\" class=\\"tsd-widget options no-caption\\" data-toggle=\\"options\\">Options</a>
+							<div class=\\"tsd-filter-group\\">
+								<div class=\\"tsd-select\\" id=\\"tsd-filter-visibility\\"><span class=\\"tsd-select-label\\">All</span>
+									<ul class=\\"tsd-select-list\\">
+										<li data-value=\\"public\\">Public</li>
+										<li data-value=\\"protected\\">Public/Protected</li>
+										<li data-value=\\"private\\" class=\\"selected\\">All</li>
+									</ul>
+								</div> <input type=\\"checkbox\\" id=\\"tsd-filter-inherited\\" checked /><label class=\\"tsd-widget\\" for=\\"tsd-filter-inherited\\">Inherited</label><input type=\\"checkbox\\" id=\\"tsd-filter-externals\\" checked /><label class=\\"tsd-widget\\" for=\\"tsd-filter-externals\\">Externals</label>
+							</div>
+						</div><a href=\\"#\\" class=\\"tsd-widget menu no-caption\\" data-toggle=\\"menu\\">Menu</a>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class=\\"tsd-page-title\\">
+			<div class=\\"container\\">
+				<ul class=\\"tsd-breadcrumb\\">
+					<li><a href=\\"../modules.html\\">@knodes/typedoc-plugin-code-blocks</a></li>
+					<li><a href=\\"pkg_a.html\\">pkg-a</a></li>
+				</ul>
+				<h1>Module pkg-a</h1>
+			</div>
+		</div>
+	</header>
+	<div class=\\"container container-main\\">
+		<div class=\\"row\\">
+			<div class=\\"col-8 col-content\\">
+				<section class=\\"tsd-panel-group tsd-index-group\\">
+					<h2>Index</h2>
+					<section class=\\"tsd-panel tsd-index-panel\\">
+						<div class=\\"tsd-index-content\\">
+							<section class=\\"tsd-index-section \\">
+								<h3>Functions</h3>
+								<ul class=\\"tsd-index-list\\">
+									<li class=\\"tsd-kind-function tsd-parent-kind-module\\"><a href=\\"pkg_a.html#testInProjA\\" class=\\"tsd-kind-icon\\">test<wbr />In<wbr />ProjA</a></li>
+									<li class=\\"tsd-kind-function tsd-parent-kind-module\\"><a href=\\"pkg_a.html#testInProjB\\" class=\\"tsd-kind-icon\\">test<wbr />In<wbr />ProjB</a></li>
+									<li class=\\"tsd-kind-function tsd-parent-kind-module\\"><a href=\\"pkg_a.html#testNoPrefixImplicitInBlocks\\" class=\\"tsd-kind-icon\\">test<wbr />No<wbr />Prefix<wbr />Implicit<wbr />In<wbr />Blocks</a></li>
+									<li class=\\"tsd-kind-function tsd-parent-kind-module\\"><a href=\\"pkg_a.html#testNoPrefixInBlocks\\" class=\\"tsd-kind-icon\\">test<wbr />No<wbr />Prefix<wbr />In<wbr />Blocks</a></li>
+								</ul>
+							</section>
+						</div>
+					</section>
+				</section>
+				<section class=\\"tsd-panel-group tsd-member-group \\">
+					<h2>Functions</h2>
+					<section class=\\"tsd-panel tsd-member tsd-kind-function tsd-parent-kind-module\\"><a id=\\"testInProjA\\" class=\\"tsd-anchor\\"></a>
+						<h3 class=\\"tsd-anchor-link\\">test<wbr />In<wbr />ProjA<a href=\\"#testInProjA\\" aria-label=\\"Permalink\\" class=\\"tsd-anchor-icon\\"><svg xmlns=\\"http://www.w3.org/2000/svg\\" class=\\"icon icon-tabler icon-tabler-link\\" viewBox=\\"0 0 24 24\\" stroke-width=\\"2\\" stroke=\\"currentColor\\" fill=\\"none\\" stroke-linecap=\\"round\\" stroke-linejoin=\\"round\\">
+									<path stroke=\\"none\\" d=\\"M0 0h24v24H0z\\" fill=\\"none\\"></path>
+									<path d=\\"M10 14a3.5 3.5 0 0 0 5 0l4 -4a3.5 3.5 0 0 0 -5 -5l-.5 .5\\"></path>
+									<path d=\\"M14 10a3.5 3.5 0 0 0 -5 0l-4 4a3.5 3.5 0 0 0 5 5l.5 -.5\\"></path>
+								</svg></a></h3>
+						<ul class=\\"tsd-signatures tsd-kind-function tsd-parent-kind-module\\">
+							<li class=\\"tsd-signature tsd-kind-icon\\">test<wbr />In<wbr />ProjA<span class=\\"tsd-signature-symbol\\">(</span><span class=\\"tsd-signature-symbol\\">)</span><span class=\\"tsd-signature-symbol\\">: </span><span class=\\"tsd-signature-type\\">number</span></li>
+						</ul>
+						<ul class=\\"tsd-descriptions\\">
+							<li class=\\"tsd-description\\">
+								<aside class=\\"tsd-sources\\">
+									<ul>
+										<li>Defined in a/src/index.ts:9</li>
+									</ul>
+								</aside>
+								<div class=\\"tsd-comment tsd-typography\\">
+									<div class=\\"lead\\">
+										<p>A test code block targetting project A</p>
+									</div>
+									<div>
+										<details class=\\"code-block\\" open>
+											<summary>
+												<p>From ./packages/a/blocks/test.json</p>
+											</summary>
+											<pre><code class=\\"language-json\\"><span class=\\"hl-0\\">{</span><span class=\\"hl-1\\">&quot;pkg&quot;</span><span class=\\"hl-0\\">: </span><span class=\\"hl-2\\">&quot;a&quot;</span><span class=\\"hl-0\\">}</span>
+</code></pre>
+										</details>
+									</div>
+								</div>
+								<h4 class=\\"tsd-returns-title\\">Returns <span class=\\"tsd-signature-type\\">number</span></h4>
+							</li>
+						</ul>
+					</section>
+					<section class=\\"tsd-panel tsd-member tsd-kind-function tsd-parent-kind-module\\"><a id=\\"testInProjB\\" class=\\"tsd-anchor\\"></a>
+						<h3 class=\\"tsd-anchor-link\\">test<wbr />In<wbr />ProjB<a href=\\"#testInProjB\\" aria-label=\\"Permalink\\" class=\\"tsd-anchor-icon\\"><svg xmlns=\\"http://www.w3.org/2000/svg\\" class=\\"icon icon-tabler icon-tabler-link\\" viewBox=\\"0 0 24 24\\" stroke-width=\\"2\\" stroke=\\"currentColor\\" fill=\\"none\\" stroke-linecap=\\"round\\" stroke-linejoin=\\"round\\">
+									<path stroke=\\"none\\" d=\\"M0 0h24v24H0z\\" fill=\\"none\\"></path>
+									<path d=\\"M10 14a3.5 3.5 0 0 0 5 0l4 -4a3.5 3.5 0 0 0 -5 -5l-.5 .5\\"></path>
+									<path d=\\"M14 10a3.5 3.5 0 0 0 -5 0l-4 4a3.5 3.5 0 0 0 5 5l.5 -.5\\"></path>
+								</svg></a></h3>
+						<ul class=\\"tsd-signatures tsd-kind-function tsd-parent-kind-module\\">
+							<li class=\\"tsd-signature tsd-kind-icon\\">test<wbr />In<wbr />ProjB<span class=\\"tsd-signature-symbol\\">(</span><span class=\\"tsd-signature-symbol\\">)</span><span class=\\"tsd-signature-symbol\\">: </span><span class=\\"tsd-signature-type\\">number</span></li>
+						</ul>
+						<ul class=\\"tsd-descriptions\\">
+							<li class=\\"tsd-description\\">
+								<aside class=\\"tsd-sources\\">
+									<ul>
+										<li>Defined in a/src/index.ts:16</li>
+									</ul>
+								</aside>
+								<div class=\\"tsd-comment tsd-typography\\">
+									<div class=\\"lead\\">
+										<p>A test code block targetting project B</p>
+									</div>
+									<div>
+										<details class=\\"code-block\\" open>
+											<summary>
+												<p>From ./packages/b/blocks/test.json</p>
+											</summary>
+											<pre><code class=\\"language-json\\"><span class=\\"hl-0\\">{</span><span class=\\"hl-1\\">&quot;pkg&quot;</span><span class=\\"hl-0\\">: </span><span class=\\"hl-2\\">&quot;b&quot;</span><span class=\\"hl-0\\">}</span>
+</code></pre>
+										</details>
+									</div>
+								</div>
+								<h4 class=\\"tsd-returns-title\\">Returns <span class=\\"tsd-signature-type\\">number</span></h4>
+							</li>
+						</ul>
+					</section>
+					<section class=\\"tsd-panel tsd-member tsd-kind-function tsd-parent-kind-module\\"><a id=\\"testNoPrefixImplicitInBlocks\\" class=\\"tsd-anchor\\"></a>
+						<h3 class=\\"tsd-anchor-link\\">test<wbr />No<wbr />Prefix<wbr />Implicit<wbr />In<wbr />Blocks<a href=\\"#testNoPrefixImplicitInBlocks\\" aria-label=\\"Permalink\\" class=\\"tsd-anchor-icon\\"><svg xmlns=\\"http://www.w3.org/2000/svg\\" class=\\"icon icon-tabler icon-tabler-link\\" viewBox=\\"0 0 24 24\\" stroke-width=\\"2\\" stroke=\\"currentColor\\" fill=\\"none\\" stroke-linecap=\\"round\\" stroke-linejoin=\\"round\\">
+									<path stroke=\\"none\\" d=\\"M0 0h24v24H0z\\" fill=\\"none\\"></path>
+									<path d=\\"M10 14a3.5 3.5 0 0 0 5 0l4 -4a3.5 3.5 0 0 0 -5 -5l-.5 .5\\"></path>
+									<path d=\\"M14 10a3.5 3.5 0 0 0 -5 0l-4 4a3.5 3.5 0 0 0 5 5l.5 -.5\\"></path>
+								</svg></a></h3>
+						<ul class=\\"tsd-signatures tsd-kind-function tsd-parent-kind-module\\">
+							<li class=\\"tsd-signature tsd-kind-icon\\">test<wbr />No<wbr />Prefix<wbr />Implicit<wbr />In<wbr />Blocks<span class=\\"tsd-signature-symbol\\">(</span><span class=\\"tsd-signature-symbol\\">)</span><span class=\\"tsd-signature-symbol\\">: </span><span class=\\"tsd-signature-type\\">number</span></li>
+						</ul>
+						<ul class=\\"tsd-descriptions\\">
+							<li class=\\"tsd-description\\">
+								<aside class=\\"tsd-sources\\">
+									<ul>
+										<li>Defined in a/src/index.ts:25</li>
+									</ul>
+								</aside>
+								<div class=\\"tsd-comment tsd-typography\\">
+									<div class=\\"lead\\">
+										<p>A test code block for unprefixed path implicitly in blocks directory</p>
+									</div>
+									<div>
+										<details class=\\"code-block\\" open>
+											<summary>
+												<p>From ./packages/a/blocks/test.json</p>
+											</summary>
+											<pre><code class=\\"language-json\\"><span class=\\"hl-0\\">{</span><span class=\\"hl-1\\">&quot;pkg&quot;</span><span class=\\"hl-0\\">: </span><span class=\\"hl-2\\">&quot;a&quot;</span><span class=\\"hl-0\\">}</span>
+</code></pre>
+										</details>
+									</div>
+								</div>
+								<h4 class=\\"tsd-returns-title\\">Returns <span class=\\"tsd-signature-type\\">number</span></h4>
+							</li>
+						</ul>
+					</section>
+					<section class=\\"tsd-panel tsd-member tsd-kind-function tsd-parent-kind-module\\"><a id=\\"testNoPrefixInBlocks\\" class=\\"tsd-anchor\\"></a>
+						<h3 class=\\"tsd-anchor-link\\">test<wbr />No<wbr />Prefix<wbr />In<wbr />Blocks<a href=\\"#testNoPrefixInBlocks\\" aria-label=\\"Permalink\\" class=\\"tsd-anchor-icon\\"><svg xmlns=\\"http://www.w3.org/2000/svg\\" class=\\"icon icon-tabler icon-tabler-link\\" viewBox=\\"0 0 24 24\\" stroke-width=\\"2\\" stroke=\\"currentColor\\" fill=\\"none\\" stroke-linecap=\\"round\\" stroke-linejoin=\\"round\\">
+									<path stroke=\\"none\\" d=\\"M0 0h24v24H0z\\" fill=\\"none\\"></path>
+									<path d=\\"M10 14a3.5 3.5 0 0 0 5 0l4 -4a3.5 3.5 0 0 0 -5 -5l-.5 .5\\"></path>
+									<path d=\\"M14 10a3.5 3.5 0 0 0 -5 0l-4 4a3.5 3.5 0 0 0 5 5l.5 -.5\\"></path>
+								</svg></a></h3>
+						<ul class=\\"tsd-signatures tsd-kind-function tsd-parent-kind-module\\">
+							<li class=\\"tsd-signature tsd-kind-icon\\">test<wbr />No<wbr />Prefix<wbr />In<wbr />Blocks<span class=\\"tsd-signature-symbol\\">(</span><span class=\\"tsd-signature-symbol\\">)</span><span class=\\"tsd-signature-symbol\\">: </span><span class=\\"tsd-signature-type\\">number</span></li>
+						</ul>
+						<ul class=\\"tsd-descriptions\\">
+							<li class=\\"tsd-description\\">
+								<aside class=\\"tsd-sources\\">
+									<ul>
+										<li>Defined in a/src/index.ts:32</li>
+									</ul>
+								</aside>
+								<div class=\\"tsd-comment tsd-typography\\">
+									<div class=\\"lead\\">
+										<p>A test code block for unprefixed path in blocks directory</p>
+									</div>
+									<div>
+										<details class=\\"code-block\\" open>
+											<summary>
+												<p>From ./packages/a/blocks/test.json</p>
+											</summary>
+											<pre><code class=\\"language-json\\"><span class=\\"hl-0\\">{</span><span class=\\"hl-1\\">&quot;pkg&quot;</span><span class=\\"hl-0\\">: </span><span class=\\"hl-2\\">&quot;a&quot;</span><span class=\\"hl-0\\">}</span>
+</code></pre>
+										</details>
+									</div>
+								</div>
+								<h4 class=\\"tsd-returns-title\\">Returns <span class=\\"tsd-signature-type\\">number</span></h4>
+							</li>
+						</ul>
+					</section>
+				</section>
+			</div>
+			<div class=\\"col-4 col-menu menu-sticky-wrap menu-highlight\\">
+				<nav class=\\"tsd-navigation primary\\">
+					<ul>
+						<li class=\\"\\"><a href=\\"../modules.html\\">Modules</a></li>
+						<li class=\\"current tsd-kind-module\\"><a href=\\"pkg_a.html\\">pkg-<wbr />a</a></li>
+						<li class=\\" tsd-kind-module\\"><a href=\\"pkg_b.html\\">pkg-<wbr />b</a></li>
+					</ul>
+				</nav>
+				<nav class=\\"tsd-navigation secondary menu-sticky\\">
+					<ul>
+						<li class=\\"tsd-kind-function tsd-parent-kind-module\\"><a href=\\"pkg_a.html#testInProjA\\" class=\\"tsd-kind-icon\\">test<wbr />In<wbr />ProjA</a></li>
+						<li class=\\"tsd-kind-function tsd-parent-kind-module\\"><a href=\\"pkg_a.html#testInProjB\\" class=\\"tsd-kind-icon\\">test<wbr />In<wbr />ProjB</a></li>
+						<li class=\\"tsd-kind-function tsd-parent-kind-module\\"><a href=\\"pkg_a.html#testNoPrefixImplicitInBlocks\\" class=\\"tsd-kind-icon\\">test<wbr />No<wbr />Prefix<wbr />Implicit<wbr />In<wbr />Blocks</a></li>
+						<li class=\\"tsd-kind-function tsd-parent-kind-module\\"><a href=\\"pkg_a.html#testNoPrefixInBlocks\\" class=\\"tsd-kind-icon\\">test<wbr />No<wbr />Prefix<wbr />In<wbr />Blocks</a></li>
+					</ul>
+				</nav>
+			</div>
+		</div>
+	</div>
+	<footer class=\\"with-border-bottom\\">
+		<div class=\\"container\\">
+			<h2>Legend</h2>
+			<div class=\\"tsd-legend-group\\">
+				<ul class=\\"tsd-legend\\">
+					<li class=\\"tsd-kind-function\\"><span class=\\"tsd-kind-icon\\">Function</span></li>
+				</ul>
+			</div>
+			<h2>Settings</h2>
+			<p>Theme <select id=\\"theme\\">
+					<option value=\\"os\\">OS</option>
+					<option value=\\"light\\">Light</option>
+					<option value=\\"dark\\">Dark</option>
+				</select></p>
+		</div>
+	</footer>
+	<div class=\\"container tsd-generator\\">
+		<p>Generated using <a href=\\"https://typedoc.org/\\" target=\\"_blank\\">TypeDoc</a></p>
+	</div>
+	<div class=\\"overlay\\"></div>
+	<script src=\\"../assets/main.js\\"></script>
+</body>
+
+</html>"
+`;
+
+exports[`Real behavior should render correctly 2`] = `
+"<!DOCTYPE html>
+<html class=\\"default\\">
+
+<head>
+	<meta charSet=\\"utf-8\\" />
+	<meta http-equiv=\\"x-ua-compatible\\" content=\\"IE=edge\\" />
+	<title>pkg-b | @knodes/typedoc-plugin-code-blocks</title>
+	<meta name=\\"description\\" content=\\"Documentation for @knodes/typedoc-plugin-code-blocks\\" />
+	<meta name=\\"viewport\\" content=\\"width=device-width, initial-scale=1\\" />
+	<link rel=\\"stylesheet\\" href=\\"../assets/style.css\\" />
+	<link rel=\\"stylesheet\\" href=\\"../assets/highlight.css\\" />
+	<script async src=\\"../assets/search.js\\" id=\\"search-script\\"></script>
+	<link rel=\\"stylesheet\\" href=\\"../assets/code-blocks.css\\" />
+</head>
+
+<body>
+	<script>
+		document.body.classList.add(localStorage.getItem(\\"tsd-theme\\") || \\"os\\")
+	</script>
+	<header>
+		<div class=\\"tsd-page-toolbar\\">
+			<div class=\\"container\\">
+				<div class=\\"table-wrap\\">
+					<div class=\\"table-cell\\" id=\\"tsd-search\\" data-base=\\"..\\">
+						<div class=\\"field\\"><label for=\\"tsd-search-field\\" class=\\"tsd-widget search no-caption\\">Search</label><input type=\\"text\\" id=\\"tsd-search-field\\" /></div>
+						<ul class=\\"results\\">
+							<li class=\\"state loading\\">Preparing search index...</li>
+							<li class=\\"state failure\\">The search index is not available</li>
+						</ul><a href=\\"../index.html\\" class=\\"title\\">@knodes/typedoc-plugin-code-blocks</a>
+					</div>
+					<div class=\\"table-cell\\" id=\\"tsd-widgets\\">
+						<div id=\\"tsd-filter\\"><a href=\\"#\\" class=\\"tsd-widget options no-caption\\" data-toggle=\\"options\\">Options</a>
+							<div class=\\"tsd-filter-group\\">
+								<div class=\\"tsd-select\\" id=\\"tsd-filter-visibility\\"><span class=\\"tsd-select-label\\">All</span>
+									<ul class=\\"tsd-select-list\\">
+										<li data-value=\\"public\\">Public</li>
+										<li data-value=\\"protected\\">Public/Protected</li>
+										<li data-value=\\"private\\" class=\\"selected\\">All</li>
+									</ul>
+								</div> <input type=\\"checkbox\\" id=\\"tsd-filter-inherited\\" checked /><label class=\\"tsd-widget\\" for=\\"tsd-filter-inherited\\">Inherited</label><input type=\\"checkbox\\" id=\\"tsd-filter-externals\\" checked /><label class=\\"tsd-widget\\" for=\\"tsd-filter-externals\\">Externals</label>
+							</div>
+						</div><a href=\\"#\\" class=\\"tsd-widget menu no-caption\\" data-toggle=\\"menu\\">Menu</a>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class=\\"tsd-page-title\\">
+			<div class=\\"container\\">
+				<ul class=\\"tsd-breadcrumb\\">
+					<li><a href=\\"../modules.html\\">@knodes/typedoc-plugin-code-blocks</a></li>
+					<li><a href=\\"pkg_b.html\\">pkg-b</a></li>
+				</ul>
+				<h1>Module pkg-b</h1>
+			</div>
+		</div>
+	</header>
+	<div class=\\"container container-main\\">
+		<div class=\\"row\\">
+			<div class=\\"col-8 col-content\\">
+				<section class=\\"tsd-panel-group tsd-index-group\\">
+					<h2>Index</h2>
+					<section class=\\"tsd-panel tsd-index-panel\\">
+						<div class=\\"tsd-index-content\\">
+							<section class=\\"tsd-index-section \\">
+								<h3>Functions</h3>
+								<ul class=\\"tsd-index-list\\">
+									<li class=\\"tsd-kind-function tsd-parent-kind-module\\"><a href=\\"pkg_b.html#testInProjA\\" class=\\"tsd-kind-icon\\">test<wbr />In<wbr />ProjA</a></li>
+									<li class=\\"tsd-kind-function tsd-parent-kind-module\\"><a href=\\"pkg_b.html#testInProjB\\" class=\\"tsd-kind-icon\\">test<wbr />In<wbr />ProjB</a></li>
+									<li class=\\"tsd-kind-function tsd-parent-kind-module\\"><a href=\\"pkg_b.html#testNoPrefixImplicitInBlocks\\" class=\\"tsd-kind-icon\\">test<wbr />No<wbr />Prefix<wbr />Implicit<wbr />In<wbr />Blocks</a></li>
+									<li class=\\"tsd-kind-function tsd-parent-kind-module\\"><a href=\\"pkg_b.html#testNoPrefixInBlocks\\" class=\\"tsd-kind-icon\\">test<wbr />No<wbr />Prefix<wbr />In<wbr />Blocks</a></li>
+								</ul>
+							</section>
+						</div>
+					</section>
+				</section>
+				<section class=\\"tsd-panel-group tsd-member-group \\">
+					<h2>Functions</h2>
+					<section class=\\"tsd-panel tsd-member tsd-kind-function tsd-parent-kind-module\\"><a id=\\"testInProjA\\" class=\\"tsd-anchor\\"></a>
+						<h3 class=\\"tsd-anchor-link\\">test<wbr />In<wbr />ProjA<a href=\\"#testInProjA\\" aria-label=\\"Permalink\\" class=\\"tsd-anchor-icon\\"><svg xmlns=\\"http://www.w3.org/2000/svg\\" class=\\"icon icon-tabler icon-tabler-link\\" viewBox=\\"0 0 24 24\\" stroke-width=\\"2\\" stroke=\\"currentColor\\" fill=\\"none\\" stroke-linecap=\\"round\\" stroke-linejoin=\\"round\\">
+									<path stroke=\\"none\\" d=\\"M0 0h24v24H0z\\" fill=\\"none\\"></path>
+									<path d=\\"M10 14a3.5 3.5 0 0 0 5 0l4 -4a3.5 3.5 0 0 0 -5 -5l-.5 .5\\"></path>
+									<path d=\\"M14 10a3.5 3.5 0 0 0 -5 0l-4 4a3.5 3.5 0 0 0 5 5l.5 -.5\\"></path>
+								</svg></a></h3>
+						<ul class=\\"tsd-signatures tsd-kind-function tsd-parent-kind-module\\">
+							<li class=\\"tsd-signature tsd-kind-icon\\">test<wbr />In<wbr />ProjA<span class=\\"tsd-signature-symbol\\">(</span><span class=\\"tsd-signature-symbol\\">)</span><span class=\\"tsd-signature-symbol\\">: </span><span class=\\"tsd-signature-type\\">number</span></li>
+						</ul>
+						<ul class=\\"tsd-descriptions\\">
+							<li class=\\"tsd-description\\">
+								<aside class=\\"tsd-sources\\">
+									<ul>
+										<li>Defined in b/src/index.ts:9</li>
+									</ul>
+								</aside>
+								<div class=\\"tsd-comment tsd-typography\\">
+									<div class=\\"lead\\">
+										<p>A test code block targetting project A</p>
+									</div>
+									<div>
+										<details class=\\"code-block\\" open>
+											<summary>
+												<p>From ./packages/a/blocks/test.json</p>
+											</summary>
+											<pre><code class=\\"language-json\\"><span class=\\"hl-0\\">{</span><span class=\\"hl-1\\">&quot;pkg&quot;</span><span class=\\"hl-0\\">: </span><span class=\\"hl-2\\">&quot;a&quot;</span><span class=\\"hl-0\\">}</span>
+</code></pre>
+										</details>
+									</div>
+								</div>
+								<h4 class=\\"tsd-returns-title\\">Returns <span class=\\"tsd-signature-type\\">number</span></h4>
+							</li>
+						</ul>
+					</section>
+					<section class=\\"tsd-panel tsd-member tsd-kind-function tsd-parent-kind-module\\"><a id=\\"testInProjB\\" class=\\"tsd-anchor\\"></a>
+						<h3 class=\\"tsd-anchor-link\\">test<wbr />In<wbr />ProjB<a href=\\"#testInProjB\\" aria-label=\\"Permalink\\" class=\\"tsd-anchor-icon\\"><svg xmlns=\\"http://www.w3.org/2000/svg\\" class=\\"icon icon-tabler icon-tabler-link\\" viewBox=\\"0 0 24 24\\" stroke-width=\\"2\\" stroke=\\"currentColor\\" fill=\\"none\\" stroke-linecap=\\"round\\" stroke-linejoin=\\"round\\">
+									<path stroke=\\"none\\" d=\\"M0 0h24v24H0z\\" fill=\\"none\\"></path>
+									<path d=\\"M10 14a3.5 3.5 0 0 0 5 0l4 -4a3.5 3.5 0 0 0 -5 -5l-.5 .5\\"></path>
+									<path d=\\"M14 10a3.5 3.5 0 0 0 -5 0l-4 4a3.5 3.5 0 0 0 5 5l.5 -.5\\"></path>
+								</svg></a></h3>
+						<ul class=\\"tsd-signatures tsd-kind-function tsd-parent-kind-module\\">
+							<li class=\\"tsd-signature tsd-kind-icon\\">test<wbr />In<wbr />ProjB<span class=\\"tsd-signature-symbol\\">(</span><span class=\\"tsd-signature-symbol\\">)</span><span class=\\"tsd-signature-symbol\\">: </span><span class=\\"tsd-signature-type\\">number</span></li>
+						</ul>
+						<ul class=\\"tsd-descriptions\\">
+							<li class=\\"tsd-description\\">
+								<aside class=\\"tsd-sources\\">
+									<ul>
+										<li>Defined in b/src/index.ts:16</li>
+									</ul>
+								</aside>
+								<div class=\\"tsd-comment tsd-typography\\">
+									<div class=\\"lead\\">
+										<p>A test code block targetting project B</p>
+									</div>
+									<div>
+										<details class=\\"code-block\\" open>
+											<summary>
+												<p>From ./packages/b/blocks/test.json</p>
+											</summary>
+											<pre><code class=\\"language-json\\"><span class=\\"hl-0\\">{</span><span class=\\"hl-1\\">&quot;pkg&quot;</span><span class=\\"hl-0\\">: </span><span class=\\"hl-2\\">&quot;b&quot;</span><span class=\\"hl-0\\">}</span>
+</code></pre>
+										</details>
+									</div>
+								</div>
+								<h4 class=\\"tsd-returns-title\\">Returns <span class=\\"tsd-signature-type\\">number</span></h4>
+							</li>
+						</ul>
+					</section>
+					<section class=\\"tsd-panel tsd-member tsd-kind-function tsd-parent-kind-module\\"><a id=\\"testNoPrefixImplicitInBlocks\\" class=\\"tsd-anchor\\"></a>
+						<h3 class=\\"tsd-anchor-link\\">test<wbr />No<wbr />Prefix<wbr />Implicit<wbr />In<wbr />Blocks<a href=\\"#testNoPrefixImplicitInBlocks\\" aria-label=\\"Permalink\\" class=\\"tsd-anchor-icon\\"><svg xmlns=\\"http://www.w3.org/2000/svg\\" class=\\"icon icon-tabler icon-tabler-link\\" viewBox=\\"0 0 24 24\\" stroke-width=\\"2\\" stroke=\\"currentColor\\" fill=\\"none\\" stroke-linecap=\\"round\\" stroke-linejoin=\\"round\\">
+									<path stroke=\\"none\\" d=\\"M0 0h24v24H0z\\" fill=\\"none\\"></path>
+									<path d=\\"M10 14a3.5 3.5 0 0 0 5 0l4 -4a3.5 3.5 0 0 0 -5 -5l-.5 .5\\"></path>
+									<path d=\\"M14 10a3.5 3.5 0 0 0 -5 0l-4 4a3.5 3.5 0 0 0 5 5l.5 -.5\\"></path>
+								</svg></a></h3>
+						<ul class=\\"tsd-signatures tsd-kind-function tsd-parent-kind-module\\">
+							<li class=\\"tsd-signature tsd-kind-icon\\">test<wbr />No<wbr />Prefix<wbr />Implicit<wbr />In<wbr />Blocks<span class=\\"tsd-signature-symbol\\">(</span><span class=\\"tsd-signature-symbol\\">)</span><span class=\\"tsd-signature-symbol\\">: </span><span class=\\"tsd-signature-type\\">number</span></li>
+						</ul>
+						<ul class=\\"tsd-descriptions\\">
+							<li class=\\"tsd-description\\">
+								<aside class=\\"tsd-sources\\">
+									<ul>
+										<li>Defined in b/src/index.ts:25</li>
+									</ul>
+								</aside>
+								<div class=\\"tsd-comment tsd-typography\\">
+									<div class=\\"lead\\">
+										<p>A test code block for unprefixed path implicitly in blocks directory</p>
+									</div>
+									<div>
+										<details class=\\"code-block\\" open>
+											<summary>
+												<p>From ./packages/b/blocks/test.json</p>
+											</summary>
+											<pre><code class=\\"language-json\\"><span class=\\"hl-0\\">{</span><span class=\\"hl-1\\">&quot;pkg&quot;</span><span class=\\"hl-0\\">: </span><span class=\\"hl-2\\">&quot;b&quot;</span><span class=\\"hl-0\\">}</span>
+</code></pre>
+										</details>
+									</div>
+								</div>
+								<h4 class=\\"tsd-returns-title\\">Returns <span class=\\"tsd-signature-type\\">number</span></h4>
+							</li>
+						</ul>
+					</section>
+					<section class=\\"tsd-panel tsd-member tsd-kind-function tsd-parent-kind-module\\"><a id=\\"testNoPrefixInBlocks\\" class=\\"tsd-anchor\\"></a>
+						<h3 class=\\"tsd-anchor-link\\">test<wbr />No<wbr />Prefix<wbr />In<wbr />Blocks<a href=\\"#testNoPrefixInBlocks\\" aria-label=\\"Permalink\\" class=\\"tsd-anchor-icon\\"><svg xmlns=\\"http://www.w3.org/2000/svg\\" class=\\"icon icon-tabler icon-tabler-link\\" viewBox=\\"0 0 24 24\\" stroke-width=\\"2\\" stroke=\\"currentColor\\" fill=\\"none\\" stroke-linecap=\\"round\\" stroke-linejoin=\\"round\\">
+									<path stroke=\\"none\\" d=\\"M0 0h24v24H0z\\" fill=\\"none\\"></path>
+									<path d=\\"M10 14a3.5 3.5 0 0 0 5 0l4 -4a3.5 3.5 0 0 0 -5 -5l-.5 .5\\"></path>
+									<path d=\\"M14 10a3.5 3.5 0 0 0 -5 0l-4 4a3.5 3.5 0 0 0 5 5l.5 -.5\\"></path>
+								</svg></a></h3>
+						<ul class=\\"tsd-signatures tsd-kind-function tsd-parent-kind-module\\">
+							<li class=\\"tsd-signature tsd-kind-icon\\">test<wbr />No<wbr />Prefix<wbr />In<wbr />Blocks<span class=\\"tsd-signature-symbol\\">(</span><span class=\\"tsd-signature-symbol\\">)</span><span class=\\"tsd-signature-symbol\\">: </span><span class=\\"tsd-signature-type\\">number</span></li>
+						</ul>
+						<ul class=\\"tsd-descriptions\\">
+							<li class=\\"tsd-description\\">
+								<aside class=\\"tsd-sources\\">
+									<ul>
+										<li>Defined in b/src/index.ts:32</li>
+									</ul>
+								</aside>
+								<div class=\\"tsd-comment tsd-typography\\">
+									<div class=\\"lead\\">
+										<p>A test code block for unprefixed path in blocks directory</p>
+									</div>
+									<div>
+										<details class=\\"code-block\\" open>
+											<summary>
+												<p>From ./packages/b/blocks/test.json</p>
+											</summary>
+											<pre><code class=\\"language-json\\"><span class=\\"hl-0\\">{</span><span class=\\"hl-1\\">&quot;pkg&quot;</span><span class=\\"hl-0\\">: </span><span class=\\"hl-2\\">&quot;b&quot;</span><span class=\\"hl-0\\">}</span>
+</code></pre>
+										</details>
+									</div>
+								</div>
+								<h4 class=\\"tsd-returns-title\\">Returns <span class=\\"tsd-signature-type\\">number</span></h4>
+							</li>
+						</ul>
+					</section>
+				</section>
+			</div>
+			<div class=\\"col-4 col-menu menu-sticky-wrap menu-highlight\\">
+				<nav class=\\"tsd-navigation primary\\">
+					<ul>
+						<li class=\\"\\"><a href=\\"../modules.html\\">Modules</a></li>
+						<li class=\\" tsd-kind-module\\"><a href=\\"pkg_a.html\\">pkg-<wbr />a</a></li>
+						<li class=\\"current tsd-kind-module\\"><a href=\\"pkg_b.html\\">pkg-<wbr />b</a></li>
+					</ul>
+				</nav>
+				<nav class=\\"tsd-navigation secondary menu-sticky\\">
+					<ul>
+						<li class=\\"tsd-kind-function tsd-parent-kind-module\\"><a href=\\"pkg_b.html#testInProjA\\" class=\\"tsd-kind-icon\\">test<wbr />In<wbr />ProjA</a></li>
+						<li class=\\"tsd-kind-function tsd-parent-kind-module\\"><a href=\\"pkg_b.html#testInProjB\\" class=\\"tsd-kind-icon\\">test<wbr />In<wbr />ProjB</a></li>
+						<li class=\\"tsd-kind-function tsd-parent-kind-module\\"><a href=\\"pkg_b.html#testNoPrefixImplicitInBlocks\\" class=\\"tsd-kind-icon\\">test<wbr />No<wbr />Prefix<wbr />Implicit<wbr />In<wbr />Blocks</a></li>
+						<li class=\\"tsd-kind-function tsd-parent-kind-module\\"><a href=\\"pkg_b.html#testNoPrefixInBlocks\\" class=\\"tsd-kind-icon\\">test<wbr />No<wbr />Prefix<wbr />In<wbr />Blocks</a></li>
+					</ul>
+				</nav>
+			</div>
+		</div>
+	</div>
+	<footer class=\\"with-border-bottom\\">
+		<div class=\\"container\\">
+			<h2>Legend</h2>
+			<div class=\\"tsd-legend-group\\">
+				<ul class=\\"tsd-legend\\">
+					<li class=\\"tsd-kind-function\\"><span class=\\"tsd-kind-icon\\">Function</span></li>
+				</ul>
+			</div>
+			<h2>Settings</h2>
+			<p>Theme <select id=\\"theme\\">
+					<option value=\\"os\\">OS</option>
+					<option value=\\"light\\">Light</option>
+					<option value=\\"dark\\">Dark</option>
+				</select></p>
+		</div>
+	</footer>
+	<div class=\\"container tsd-generator\\">
+		<p>Generated using <a href=\\"https://typedoc.org/\\" target=\\"_blank\\">TypeDoc</a></p>
+	</div>
+	<div class=\\"overlay\\"></div>
+	<script src=\\"../assets/main.js\\"></script>
+</body>
+
+</html>"
+`;

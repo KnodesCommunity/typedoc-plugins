@@ -1,6 +1,5 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
 import assert from 'assert';
-
 import { relative, resolve } from 'path';
 
 import { escapeRegExp } from 'lodash';
@@ -9,9 +8,8 @@ import { Application, DeclarationReflection, MarkdownEvent, ReflectionKind, Sour
 
 jest.mock( './base-plugin' );
 const { ABasePlugin } = require( './base-plugin' ) as jest.Mocked<typeof import( './base-plugin' )>;
-jest.mock( './current-page-memo' );
-const { CurrentPageMemo } = require( './current-page-memo' ) as jest.Mocked<typeof import( './current-page-memo' )>;
 
+import { CurrentPageMemo } from './current-page-memo';
 import { MarkdownReplacer } from './markdown-replacer';
 
 class TestPlugin extends ABasePlugin {
@@ -51,6 +49,9 @@ afterEach( () => {
 	Object.defineProperty( CurrentPageMemo.prototype, 'currentReflection', { writable: true, value: undefined } );
 	Object.defineProperty( CurrentPageMemo.prototype, 'hasCurrent', { writable: true, value: false } );
 } );
+const getParseMarkdownEventListeners = ( plugin: TestPlugin ) => plugin.application.renderer.on.mock.calls
+	.filter( c => c[0] === MarkdownEvent.PARSE )
+	.map( c => c[1] );
 describe( MarkdownReplacer.name, () => {
 	describe( 'Once', () => {
 		let plugin: TestPlugin;
@@ -70,7 +71,10 @@ describe( MarkdownReplacer.name, () => {
 				const fn = jest.fn().mockReturnValue( '#' );
 				replacer.bindReplace( /##/g, fn, 'Replacer' );
 				const evt = new MarkdownEvent( MarkdownEvent.PARSE, source, source );
-				plugin.application.renderer.on.mock.calls[0][1]( evt );
+				const listeners = getParseMarkdownEventListeners( plugin );
+				expect( listeners ).toHaveLength( 1 );
+				listeners[0]( evt );
+				expect( fn ).toHaveBeenCalledTimes( expectedMaps.length );
 				expectedMaps.forEach( ( m, i ) => {
 					expect( fn.mock.calls[i][1]() ).toContain( `${m} ` );
 					expect( fn.mock.calls[i][1]() ).toContain( 'Replacer)' );
@@ -134,7 +138,9 @@ describe( MarkdownReplacer.name, () => {
 				mockCurrentPage( 'Test', resolve( 'hello.ts' ), 1, 1 );
 				binds.forEach( b => replacer.bindReplace( b.match, b.replacer, b.label ) );
 				const evt = new MarkdownEvent( MarkdownEvent.PARSE, source, source );
-				binds.forEach( ( _b, i ) => plugin.application.renderer.on.mock.calls[i][1]( evt ) );
+				const listeners = getParseMarkdownEventListeners( plugin );
+				expect( listeners ).toHaveLength( binds.length );
+				binds.forEach( ( _b, i ) => listeners[i]( evt ) );
 				binds.forEach( b => {
 					expect( b.replacer, `Replacer ${b.label}` ).toHaveBeenCalledTimes( b.maps.length );
 					b.maps.forEach( ( m, j ) => {

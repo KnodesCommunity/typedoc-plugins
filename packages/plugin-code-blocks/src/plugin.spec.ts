@@ -1,4 +1,4 @@
-import assert, { AssertionError } from 'assert';
+import assert from 'assert';
 import { resolve } from 'path';
 
 import { identity } from 'lodash';
@@ -47,7 +47,7 @@ describe( 'Behavior', () => {
 			},
 		} );
 	} );
-	it.only( 'should not affect text if no code block', () => {
+	it( 'should not affect text if no code block', () => {
 		const text = 'Hello world' ;
 		expect( markdownReplacerTestbed.runMarkdownReplace( text ) ).toEqual( text );
 	} );
@@ -68,6 +68,7 @@ describe( 'Behavior', () => {
 			blocks: Array<[string, {code: string;startLine: number;endLine: number}]>;
 			withGitHub: boolean;
 		}
+		const defaultBlock = { startLine: 1, endLine: 1, file, region: DEFAULT_BLOCK_NAME as string };
 		const helloRegion: IBlockGenerationAssertion['blocks'] = [[ 'hello', { code: 'Content of foo/qux.txt', startLine: 13, endLine: 24 } ]];
 		it.each<[label: string, source: string, assertion: Partial<IBlockGenerationAssertion>]>( [
 			[ 'Mode ⇒ code block',            `{@codeblock ${file} default}`,          { renderCall: { mode: EBlockMode.DEFAULT }} ],
@@ -85,7 +86,7 @@ describe( 'Behavior', () => {
 			if( withGitHub ){
 				application.converter.addComponent( 'git-hub', FakeGitHub as any );
 			}
-			readCodeSampleMock.mockReturnValue( new Map( blocks ?? [[ DEFAULT_BLOCK_NAME, { code, startLine: 1, endLine: 1 } ]] ) );
+			readCodeSampleMock.mockReturnValue( new Map( blocks?.map( ( [ name, b ] ) => [ name, { ...b, file, region: name } ] as const ) ?? [[ DEFAULT_BLOCK_NAME, { code, ...defaultBlock } ]] ) );
 			const { elemStr, renderCodeBlock } = setup( uuid => JSX.createElement( 'p', {}, uuid ) );
 			const callOut = markdownReplacerTestbed.runMarkdownReplace( source );
 			expect( getCodeBlockRendererMock ).toHaveBeenCalledTimes( 1 );
@@ -102,13 +103,13 @@ describe( 'Behavior', () => {
 		it( 'should throw if region does not exists', () => {
 			setVirtualFs( { foo: { 'bar.txt': '' }} );
 			setup( uuid => JSX.createElement( 'p', {}, uuid ) );
-			readCodeSampleMock.mockReturnValue( new Map( [[ DEFAULT_BLOCK_NAME, { code, startLine: 1, endLine: 1 } ]] ) );
-			expect( () => markdownReplacerTestbed.runMarkdownReplace( '{@codeblock foo/bar.txt#nope}' ) ).toThrowWithMessage( Error, /^Missing block nope/ );
+			readCodeSampleMock.mockReturnValue( new Map( [[ DEFAULT_BLOCK_NAME, { code, ...defaultBlock } ]] ) );
+			expect( () => markdownReplacerTestbed.runMarkdownReplace( '{@codeblock foo/bar.txt#nope}' ) ).toThrowWithMessage( Error, /^Missing block nope/m );
 		} );
 		it( 'should throw if invalid mode', () => {
 			setup( uuid => JSX.createElement( 'p', {}, uuid ) );
-			readCodeSampleMock.mockReturnValue( new Map( [[ DEFAULT_BLOCK_NAME, { code, startLine: 1, endLine: 1 } ]] ) );
-			expect( () => markdownReplacerTestbed.runMarkdownReplace( '{@codeblock foo/bar.txt asdasd}' ) ).toThrowWithMessage( AssertionError, /^Invalid block mode "asdasd"/ );
+			readCodeSampleMock.mockReturnValue( new Map( [[ DEFAULT_BLOCK_NAME, { code, ...defaultBlock } ]] ) );
+			expect( () => markdownReplacerTestbed.runMarkdownReplace( '{@codeblock foo/bar.txt asdasd}' ) ).toThrowWithMessage( Error, /^Invalid block mode "asdasd"/m );
 		} );
 	} );
 } );

@@ -3,7 +3,7 @@ import { resolve } from 'path';
 
 import { DeclarationReflection, ProjectReflection, ReflectionKind, RenderTemplate, RendererEvent, Theme, UrlMapping } from 'typedoc';
 
-import { rethrow } from '@knodes/typedoc-pluginutils';
+import { rethrow, wrapError } from '@knodes/typedoc-pluginutils';
 
 import { IPluginOptions, IRootPageNode, PageNode } from '../../options';
 import type { PagesPlugin } from '../../plugin';
@@ -116,7 +116,7 @@ export abstract class APageTreeBuilder implements IPageTreeBuilder {
 					node.children,
 					rethrow(
 						() => this._getNodeModuleOverride( node ),
-						err => `Invalid virtual module ${getNodePath( node, parent )}:\n${err.message}`,
+						err => wrapError( `Invalid virtual module ${getNodePath( node, parent )}`, err ),
 					) ?? parent,
 					childrenIO ) :
 				[];
@@ -151,7 +151,7 @@ export abstract class APageTreeBuilder implements IPageTreeBuilder {
 		const module: ProjectReflection | DeclarationReflection = parent instanceof ProjectReflection ? // If module is project (the default for root), see if workspace is overriden.
 			rethrow(
 				() => this._getNodeModuleOverride( node ),
-				err => `Invalid node workspace override ${getNodePath( node, parent )}:\n${err.message}`,
+				err => wrapError( `Invalid node workspace override ${getNodePath( node, parent )}`, err ),
 			) ?? parent : // Otherwise, we are either in a child page, or in a module.
 			parent instanceof ANodeReflection ? // If child page, inherit module
 				parent.module : // Otherwise, use module as parent
@@ -172,7 +172,7 @@ export abstract class APageTreeBuilder implements IPageTreeBuilder {
 					parent,
 					filename,
 					join( io.output, getNodeUrl( node ) ) ),
-				err => `Could not generate a page reflection for ${getNodePath( node, parent )}:\n${err.message}` );
+				err => wrapError( `Could not generate a page reflection for ${getNodePath( node, parent )}`, err ) );
 		}
 		return new MenuReflection(
 			node.title,

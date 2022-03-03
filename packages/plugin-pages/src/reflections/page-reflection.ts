@@ -3,7 +3,7 @@ import { relative } from 'path';
 
 import { Comment, DeclarationReflection, ProjectReflection, ReflectionKind, SourceFile } from 'typedoc';
 
-import { rethrow } from '@knodes/typedoc-pluginutils';
+import { rethrow, wrapError } from '@knodes/typedoc-pluginutils';
 
 import { ANodeReflection } from './a-node-reflection';
 
@@ -20,7 +20,7 @@ export class PageReflection extends ANodeReflection {
 		super( name, kind, module, parent );
 		this.content = rethrow(
 			() => readFileSync( sourceFilePath, 'utf-8' ),
-			err => `Error during reading of ${relative( process.cwd(), sourceFilePath )}:\n${err.message}` );
+			err => wrapError( `Error during reading of ${relative( process.cwd(), sourceFilePath )}`, err ) );
 		this.sources = [
 			{ character: 0, fileName: sourceFilePath, line: 1, url, file: new SourceFile( sourceFilePath ) },
 		];
