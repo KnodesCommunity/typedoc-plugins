@@ -3,8 +3,8 @@ const semver = require( 'semver' );
 const packageLock = require( '../package-lock.json' );
 const pkg = require( '../package.json' );
 
-const typedocVersionStr = packageLock.default.dependencies.typedoc.version;
-const selfVersionStr = pkg.default.version;
+const typedocVersionStr = packageLock.dependencies.typedoc.version;
+const selfVersionStr = pkg.version;
 
 const typedocVersion = semver.parse( typedocVersionStr );
 const selfVersion = semver.parse( selfVersionStr );
