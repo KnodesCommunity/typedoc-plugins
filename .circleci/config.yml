@@ -17,17 +17,29 @@ orbs:
   node: circleci/node@4.7.0
 
 jobs:
+  checkout:
+    executor: git
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: .
+      - checkout
+      - persist_to_workspace:
+          root: .
+          paths:
+            - '*'
   npm-ci-install:
     executor: node
     resource_class: small
     steps:
-      - checkout
+      - attach_workspace:
+          at: .
       - restore_cache:
           keys:
             - v1--npm-ci--{{ .Branch }}--{{ checksum "package-lock.json" }}
             - v1--npm-ci--{{ .Branch }}
             - v1--npm-ci
-      - run: npm ci && npm ci --workspaces
+      - run: npm ci
       - save_cache:
           key: v1--npm-ci-{{ .Branch }}-{{ checksum "package-lock.json" }}
           paths:
@@ -35,12 +47,14 @@ jobs:
       - persist_to_workspace:
           root: .
           paths:
-            - '*'
+            - 'node_modules'
+            - 'packages/*/node_modules'
   npm-install:
     executor: node
     resource_class: small
     steps:
-      - checkout
+      - attach_workspace:
+          at: .
       - restore_cache:
           keys:
             - v1--npm-i--{{ .Branch }}--{{ checksum "package-lock.json" }}
@@ -50,11 +64,26 @@ jobs:
       - save_cache:
           key: v1--npm-i-{{ .Branch }}-{{ checksum "package-lock.json" }}
           paths:
-            - ./node_mocules
+            - ~/.npm
       - persist_to_workspace:
           root: .
           paths:
-            - '*'
+            - 'node_modules'
+            - 'packages/*/node_modules'
+  clone-typedoc:
+    executor: git
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: .
+      - run:
+          name: Update submodule
+          command: git submodule update --init --recursive
+      - persist_to_workspace:
+          root: .
+          paths:
+            - '.git'
+            - 'typedoc'
   codeclimate-before:
     executor: node
     resource_class: small
@@ -84,14 +113,14 @@ jobs:
           command: /tmp/cc-test-reporter after-build --coverage-input-type lcov --exit-code $(cat ./TEST_STATUS)
   test:
     executor: node
-    resource_class: small
+    resource_class: medium+
     steps:
       - attach_workspace:
           at: .
+      - run: npm run projects:patch -- apply --no-stash
       - run: npm run lint
-
       - run:
-          name: Unit tests
+          name: Tests
           command: |
             npm run test:ci
             echo $? > TEST_STATUS
@@ -113,9 +142,9 @@ jobs:
     steps:
       - attach_workspace:
           at: .
-      - run: npm run build --workspaces
+      - run: npm run projects:build
       - store_artifacts:
-          path: ./dist
+          path: ./packages/**/dist
       - persist_to_workspace:
           root: .
           paths:
@@ -307,14 +336,21 @@ workflows:
     when:
       matches: { pattern: "^renovate/", value: << pipeline.git.branch >> }
     jobs:
-      - npm-install
-
-      - test:
+      - checkout
+      - npm-install:
           requires:
-            - npm-install
+            - checkout
+      - clone-typedoc:
+          requires:
+            - checkout
+
       - build:
           requires:
             - npm-install
+            - clone-typedoc
+      - test:
+          requires:
+            - build
 
       - git-merge-develop:
           requires:
@@ -327,19 +363,26 @@ workflows:
         # - equal: [ develop, << pipeline.git.branch >> ]
         - matches: { pattern: "^renovate/", value: << pipeline.git.branch >> }
     jobs:
-      - npm-ci-install
+      - checkout
+      - npm-ci-install:
+          requires:
+            - checkout
+      - clone-typedoc:
+          requires:
+            - checkout
       - codeclimate-before
 
-      - test:
+      - build:
           requires:
             - npm-ci-install
+            - clone-typedoc
+      - test:
+          requires:
+            - build
             - codeclimate-before
       - codeclimate-after:
           requires:
             - test
-      - build:
-          requires:
-            - npm-ci-install
   # publish: # Workflow ran only on `main` & `develop`
   #   when:
   #     or:
