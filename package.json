@@ -28,7 +28,7 @@
     "docs": "typedoc",
     "format:pkg": "format-package --write",
     "lint": "eslint --ignore-path ./.eslintignore '**/?(.)*.?([cm])[tj]s?(x)'",
-    "precommit": "npm run projects:patch -- diff && npm run lint -- --cache && npm run projects:build && jest --only-changed && npm run docs",
+    "precommit": "npm run projects:patch -- diff && npm run lint -- --cache && npm run projects:build && npm run projects:test -- --onlyChanged && npm run docs",
     "prepare": "npm run prepare:husky",
     "prepare:husky": "[ -d ./node_modules/husky ] && husky install || true",
     "projects:build": "node ./tools/s-projects 'npm run build -- --pretty'",

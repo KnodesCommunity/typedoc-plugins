@@ -34,5 +34,6 @@ module.exports = {
 	],
 	collectCoverageFrom: [
 		'src/**',
+		`!**/*.spec${anyExt}`,
 	],
 };

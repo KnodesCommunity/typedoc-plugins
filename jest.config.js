@@ -13,6 +13,7 @@ module.exports = {
 		'**/src/**',
 		`!**/index${anyExt}`,
 		'!**/__tests__/**',
+		`!**/*.spec${anyExt}`,
 	],
 	// ...baseConfig,
 	projects: projects
