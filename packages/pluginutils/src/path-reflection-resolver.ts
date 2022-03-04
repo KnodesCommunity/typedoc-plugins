@@ -9,12 +9,14 @@ import { DeclarationReflection, ProjectReflection, Reflection, ReflectionKind } 
 
 import type { ABasePlugin } from './base-plugin';
 
-const getReflectionSources = ( reflection: Reflection, isDotPrefixed: boolean ) => {
+const isModule = ( reflection: Reflection ): reflection is DeclarationReflection => reflection instanceof DeclarationReflection && reflection.kindOf( ReflectionKind.Module );
+const getReflectionSources = ( reflection: Reflection ) => {
 	const selfSources = reflection.sources
 		?.map( s => s?.file?.fullFileName ?? s?.fileName )
 		.filter( isString )
 		.map( p => resolve( p ) ) ?? [];
-	if( !isDotPrefixed && reflection instanceof DeclarationReflection && reflection.kindOf( ReflectionKind.Module ) ){
+	// Try to find the module.
+	if( isModule( reflection ) ) {
 		const pkgSources = uniq( selfSources.map( s => pkgUpSync( { cwd: dirname( s ) } ) ).filter( isString ) );
 		return [
 			...pkgSources,
@@ -41,10 +43,11 @@ export class PathReflectionResolver {
 	 *
 	 * @param reflection - The reflection to resolve from.
 	 * @param path - The path to resolve.
+	 * @param canLookupModule - Set to `true` to try resolving the path from the {@link reflection}'s module if direct resolution failed.
 	 * @returns the resolved path.
 	 */
-	public resolveFromReflection( reflection: Reflection, path: string ): string | undefined {
-		const resolved = this.resolveAllFromReflection( reflection, path );
+	public resolveFromReflection( reflection: Reflection, path: string, canLookupModule: boolean ): string | undefined {
+		const resolved = this.resolveAllFromReflection( reflection, path, canLookupModule );
 		const sourcesLog = `Reflection sources: ${JSON.stringify( reflection.sources?.map( s => s.fileName ) ?? [] )}`;
 		if( resolved.length === 0 ){
 			this.plugin.logger.error( `Could not resolve "${path}" from reflection "${reflection.name}". ${sourcesLog}` );
@@ -59,14 +62,11 @@ export class PathReflectionResolver {
 	 *
 	 * @param reflection - The reflection to resolve from.
 	 * @param path - The path to resolve.
+	 * @param canLookupModule - Set to `true` to try resolving the path from the {@link reflection}'s module if direct resolution failed.
 	 * @returns the resolved path.
 	 */
-	public resolveAllFromReflection( reflection: Reflection, path: string ): string[]{
-		const paths = isAbsolute( path ) ?
-			[ path ] :
-			getReflectionSources( reflection, path.startsWith( '.' ) )
-				.map( s => resolve( dirname( s ), path ) );
-		return paths.filter( existsSync );
+	public resolveAllFromReflection( reflection: Reflection, path: string, canLookupModule: boolean ): string[]{
+		return this._getAllPossibleResolutionPaths( reflection, path, canLookupModule ).filter( existsSync );
 	}
 
 	/**
@@ -101,6 +101,7 @@ export class PathReflectionResolver {
 	){
 		const pathSv = path;
 		const pathsToTry = [];
+		let canLookupModule = false;
 		if( path.startsWith( '~~/' ) ){
 			path = path.replace( /^~~\//, '' );
 			currentReflection = project;
@@ -111,6 +112,8 @@ export class PathReflectionResolver {
 			}
 			path = path.slice( workspace.name.length + 2 );
 			currentReflection = workspace;
+		} else {
+			canLookupModule = !path.startsWith( '.' );
 		}
 		if( containerFolder && !path.startsWith( '.' ) ){
 			pathsToTry.push( join( containerFolder, path ) );
@@ -118,15 +121,69 @@ export class PathReflectionResolver {
 		pathsToTry.push( path );
 		const reflection = currentReflection ?? project;
 		const pathsList = uniq( pathsToTry );
+		const candidates: string[] = [];
 		for( const p of pathsList ){
-			const ret = this.resolveAllFromReflection( reflection, p );
+			const ret = this.resolveAllFromReflection( reflection, p, canLookupModule );
 			if( ret.length > 0 ) {
 				return ret[0];
 			}
+			candidates.push( ...this._getAllPossibleResolutionPaths( reflection, p, canLookupModule ) );
 		}
-		const sourcesLog = `Reflection sources: ${JSON.stringify( getReflectionSources( reflection, path.startsWith( '.' ) ).map( this.plugin.relativeToRoot.bind( this.plugin ) ) )}`;
-		this.plugin.logger.error( `Could not resolve "${pathSv}" from reflection "${reflection.name}". Tried paths: ${JSON.stringify( pathsList
-			.map( p => isAbsolute( p ) ? this.plugin.relativeToRoot( p ) : p ) )}. ${sourcesLog}` );
+		this.plugin.logger.error( `Could not resolve "${pathSv}" from reflection "${reflection.name}".${canLookupModule ? ' Tried to resolve via module root.' : ''}
+Tried paths: ${JSON.stringify( uniq( candidates ).map( p => isAbsolute( p ) ? this.plugin.relativeToRoot( p ) : p ) )}.` );
 		return undefined;
+	}
+
+	/**
+	 * Look up the reflection & its parents to find the 1st parent matching the given {@link filter}.
+	 *
+	 * @param reflection - The reflection to get the parent for.
+	 * @param filter - The check function. Returns `true` to select the reflection.
+	 * @returns the module matching the filter, or `undefined`.
+	 */
+	public getParentMatching<T extends Reflection>( reflection: Reflection, filter: ( reflection: Reflection ) => reflection is T ): T | undefined
+	public getParentMatching( reflection: Reflection, filter: ( reflection: Reflection ) => boolean ): Reflection | undefined
+	public getParentMatching( reflection: Reflection, filter: ( reflection: Reflection ) => boolean ): Reflection | undefined {
+		let reflectionCursor = reflection as Reflection | undefined;
+		while( reflectionCursor ){
+			if( filter( reflectionCursor ) ){
+				return reflectionCursor;
+			}
+			reflectionCursor = reflectionCursor.parent;
+		}
+		return reflectionCursor;
+	}
+
+	/**
+	 * Find the 1st module reflection in the {@link reflection}'s parents. The reflection itself is checked.
+	 *
+	 * @param reflection - The reflection to get the module for.
+	 * @returns the module reflection, or the project if no module is found.
+	 */
+	public getReflectionModule( reflection: Reflection ){
+		return this.getParentMatching( reflection, isModule ) ?? reflection.project;
+	}
+
+
+	/**
+	 * Get a list of paths to check for the resolution.
+	 *
+	 * @param reflection - The reflection to resolve from.
+	 * @param path - The path to resolve.
+	 * @param canLookupModule - Set to `true` to try resolving the path from the {@link reflection}'s module if direct resolution failed.
+	 * @returns all paths to check.
+	 */
+	private _getAllPossibleResolutionPaths( reflection: Reflection, path: string, canLookupModule: boolean ): string[]{
+		if( isAbsolute( path ) ){
+			return [ path ];
+		}
+		const candidateSources = getReflectionSources( reflection );
+		if( canLookupModule ){
+			const module = this.getReflectionModule( reflection );
+			if( !( module instanceof ProjectReflection ) ){
+				candidateSources.push( ...getReflectionSources( module ) );
+			}
+		}
+		return uniq( candidateSources.map( s => resolve( dirname( s ), path ) ) );
 	}
 }
