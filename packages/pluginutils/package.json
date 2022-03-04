@@ -1,6 +1,6 @@
 {
   "name": "@knodes/typedoc-pluginutils",
-  "version": "0.0.1",
+  "version": "0.22.1",
   "description": "A set of utilities for TypeDoc plugins",
   "license": "MIT",
   "repository": {

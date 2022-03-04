@@ -3,7 +3,13 @@
 
 > A TypeDoc plugin that lets you integrate your own pages into the documentation output
 
-[![npm](https://img.shields.io/npm/v/knodes/typedoc-plugin-pages)](https://www.npmjs.com/package/@knodes/typedoc-plugin-pages)
+[![npm version](https://img.shields.io/npm/v/@knodes/typedoc-plugin-pages?style=for-the-badge)](https://www.npmjs.com/package/@knodes/typedoc-plugin-pages)
+[![npm downloads](https://img.shields.io/npm/dm/@knodes/typedoc-plugin-pages?style=for-the-badge)](https://www.npmjs.com/package/@knodes/typedoc-plugin-pages)
+[![Compatible with TypeDoc](https://img.shields.io/badge/For%20typedoc-^0.22.0-green?logo=npm&style=for-the-badge)](https://www.npmjs.com/package/typedoc)\
+---\
+[![CircleCI](https://img.shields.io/circleci/build/github/KnodesCommunity/typedoc-plugins/main?style=for-the-badge)](https://circleci.com/gh/KnodesCommunity/typedoc-plugins/tree/main)
+[![Code Climate coverage](https://img.shields.io/codeclimate/coverage-letter/KnodesCommunity/typedoc-plugins?style=for-the-badge)](https://codeclimate.com/github/KnodesCommunity/typedoc-plugins)
+[![Code Climate maintainability](https://img.shields.io/codeclimate/maintainability/KnodesCommunity/typedoc-plugins?style=for-the-badge)](https://codeclimate.com/github/KnodesCommunity/typedoc-plugins)
 
 ## Compatibility
 
@@ -14,7 +20,6 @@ This plugin version should match TypeDoc `^0.22.0` for compatibility.
 ```sh
 npm install --save-dev @knodes/typedoc-plugin-pages typedoc@^0.22.0
 ```
-
 <!-- HEADER end -->
 
 > **NOTE:** This plugin is based on [typedoc-plugin-loopingz-pages](https://github.com/loopingz/typedoc-plugin-loopingz-pages), which is in turn a fork of [typedoc-plugin-pages](https://github.com/mipatterson/typedoc-plugin-pages). Integrating it in this monorepo should (I hope) make easier maintainance.
