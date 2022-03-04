@@ -17,17 +17,29 @@ orbs:
   node: circleci/node@4.7.0
 
 jobs:
+  checkout:
+    executor: git
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: .
+      - checkout
+      - persist_to_workspace:
+          root: .
+          paths:
+            - '*'
   npm-ci-install:
     executor: node
     resource_class: small
     steps:
-      - checkout
+      - attach_workspace:
+          at: .
       - restore_cache:
           keys:
             - v1--npm-ci--{{ .Branch }}--{{ checksum "package-lock.json" }}
             - v1--npm-ci--{{ .Branch }}
             - v1--npm-ci
-      - run: npm ci && npm ci --workspaces
+      - run: npm ci
       - save_cache:
           key: v1--npm-ci-{{ .Branch }}-{{ checksum "package-lock.json" }}
           paths:
@@ -40,7 +52,8 @@ jobs:
     executor: node
     resource_class: small
     steps:
-      - checkout
+      - attach_workspace:
+          at: .
       - restore_cache:
           keys:
             - v1--npm-i--{{ .Branch }}--{{ checksum "package-lock.json" }}
@@ -55,6 +68,19 @@ jobs:
           root: .
           paths:
             - '*'
+  clone-typedoc:
+    executor: git
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: .
+      - run:
+          name: Update submodule
+          command: git submodule update --init --recursive
+      - persist_to_workspace:
+          root: .
+          paths:
+            - 'typedoc'
   codeclimate-before:
     executor: node
     resource_class: small
@@ -88,10 +114,10 @@ jobs:
     steps:
       - attach_workspace:
           at: .
+      - run: npm run projects:patch -- apply --no-stash
       - run: npm run lint
-
       - run:
-          name: Unit tests
+          name: Tests
           command: |
             npm run test:ci
             echo $? > TEST_STATUS
@@ -113,9 +139,9 @@ jobs:
     steps:
       - attach_workspace:
           at: .
-      - run: npm run build --workspaces
+      - run: npm run projects:build
       - store_artifacts:
-          path: ./dist
+          path: ./packages/**/dist
       - persist_to_workspace:
           root: .
           paths:
@@ -307,14 +333,22 @@ workflows:
     when:
       matches: { pattern: "^renovate/", value: << pipeline.git.branch >> }
     jobs:
-      - npm-install
+      - checkout
+      - npm-install:
+          requires:
+            - checkout
+      - clone-typedoc:
+          requires:
+            - checkout
 
       - test:
           requires:
-            - npm-install
+            - npm-ci-install
+            - clone-typedoc
       - build:
           requires:
             - npm-install
+            - clone-typedoc
 
       - git-merge-develop:
           requires:
@@ -327,12 +361,19 @@ workflows:
         # - equal: [ develop, << pipeline.git.branch >> ]
         - matches: { pattern: "^renovate/", value: << pipeline.git.branch >> }
     jobs:
-      - npm-ci-install
+      - checkout
+      - npm-ci-install:
+          requires:
+            - checkout
+      - clone-typedoc:
+          requires:
+            - checkout
       - codeclimate-before
 
       - test:
           requires:
             - npm-ci-install
+            - clone-typedoc
             - codeclimate-before
       - codeclimate-after:
           requires:
@@ -340,6 +381,7 @@ workflows:
       - build:
           requires:
             - npm-ci-install
+            - clone-typedoc
   # publish: # Workflow ran only on `main` & `develop`
   #   when:
   #     or:
