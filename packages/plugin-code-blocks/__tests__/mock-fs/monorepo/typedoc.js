@@ -1,7 +1,6 @@
 module.exports = {
-	'entryPoints': [
+	entryPoints: [
 		'packages/*',
 	],
-	'entryPointStrategy': 'packages',
-	'pluginCodeBlocks:source': 'blocks',
+	entryPointStrategy: 'packages',
 };

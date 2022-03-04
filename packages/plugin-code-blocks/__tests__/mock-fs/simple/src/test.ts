@@ -9,32 +9,32 @@ const stub = () => 1;
 export const testRel = stub;
 // #endregion
 
-// #region projPath
 /**
- * A test code block for unprefixed path implicitly in blocks directory
+ * A test code block for unprefixed path implicitly in `examples` directory
  *
  * {@codeblock test.json}
  */
-export const testNoPrefixImplicitInBlocks = stub;
+export const testNoPrefixImplicitInExamples = stub;
 
 /**
- * A test code block for unprefixed path in blocks directory
+ * A test code block for unprefixed path in `examples` directory
  *
- * {@codeblock blocks/test.json}
+ * {@codeblock examples/test.json}
  */
-export const testNoPrefixInBlocks = stub;
+export const testNoPrefixInExamples = stub;
 
+// #region projPath
 /**
- * A test code block for project path in blocks directory
- *
- * {@codeblock ~~/blocks/test.json}
- */
-export const testProjInBlocks = stub;
-
-/**
- * A test code block for project path implicitly in blocks directory
+ * A test code block for project path implicitly in `examples` directory
  *
  * {@codeblock ~~/test.json}
  */
-export const testProjImplicitInBlocks = stub;
+export const testProjImplicitInExamples = stub;
 // #endregion
+
+/**
+ * A test code block for project path in `examples` directory
+ *
+ * {@codeblock ~~/examples/test.json}
+ */
+export const testProjInExamples = stub;

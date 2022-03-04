@@ -1,6 +1,5 @@
 module.exports = {
-	'entryPoints': [
+	entryPoints: [
 		'./src/test.ts',
 	],
-	'pluginCodeBlocks:source': 'blocks',
 };

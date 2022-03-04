@@ -18,16 +18,16 @@ export const testInProjB = stub;
 
 // #region inPackage
 /**
- * A test code block for unprefixed path implicitly in blocks directory
+ * A test code block for unprefixed path implicitly in `examples` directory
  *
  * {@codeblock test.json}
  */
-export const testNoPrefixImplicitInBlocks = stub;
+export const testNoPrefixImplicitInExamples = stub;
 
 /**
- * A test code block for unprefixed path in blocks directory
+ * A test code block for unprefixed path in `examples` directory
  *
- * {@codeblock blocks/test.json}
+ * {@codeblock examples/test.json}
  */
-export const testNoPrefixInBlocks = stub;
+export const testNoPrefixInExamples = stub;
 // #endregion

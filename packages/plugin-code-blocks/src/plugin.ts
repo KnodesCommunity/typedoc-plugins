@@ -1,7 +1,7 @@
 import assert from 'assert';
 import { relative } from 'path';
 
-import { once } from 'lodash';
+import { escapeRegExp, isString, once } from 'lodash';
 import { Application, JSX, LogLevel, PageEvent, Reflection } from 'typedoc';
 
 import { ABasePlugin, CurrentPageMemo, EventsExtra, MarkdownReplacer, PathReflectionResolver } from '@knodes/typedoc-pluginutils';
@@ -12,7 +12,8 @@ import { buildOptions } from './options';
 import { CodeBlockReflection } from './reflections';
 import { EBlockMode } from './types';
 
-const EXTRACT_CODE_BLOCKS_REGEX = /\{@codeblock\s+(\S+?\w+?)(?:#(.+?))?(?:\s+(\w+))?(?:\s*\|\s*(.*?))?\}/g;
+const EXTRACT_CODE_BLOCKS_REGEX = /\{\\?@codeblock\s+(\S+?\w+?)(?:#(.+?))?(?:\s+(\w+))?(?:\s*\|\s*(.*?))?\s*\}/g;
+const EXTRACT_INLINE_CODE_BLOCKS_REGEX = /\{\\?@inline-codeblock\s+(\S+?\w+?)(?:\s+(\w+))?\s*}\n(\s*)(```.*?```)/gs;
 /**
  * Pages plugin for integrating your own pages into documentation output
  */
@@ -35,7 +36,8 @@ export class CodeBlockPlugin extends ABasePlugin {
 	 */
 	public initialize(): void {
 		// Hook over each markdown events to replace code blocks
-		this._markdownReplacer.bindReplace( EXTRACT_CODE_BLOCKS_REGEX, this._replaceCodeBlock.bind( this ), 'replace code blocks' );
+		this._markdownReplacer.bindReplace( EXTRACT_CODE_BLOCKS_REGEX, this._replaceCodeBlock.bind( this ), '{@codeblock}' );
+		this._markdownReplacer.bindReplace( EXTRACT_INLINE_CODE_BLOCKS_REGEX, this._replaceInlineCodeBlock.bind( this ), '{@inline-codeblock}' );
 		this._currentPageMemo.initialize();
 		EventsExtra.for( this.application )
 			.onThemeReady( this._codeBlockRenderer.bind( this ) )
@@ -44,6 +46,44 @@ export class CodeBlockPlugin extends ABasePlugin {
 			} );
 	}
 
+	/**
+	 * Transform the parsed inline code block.
+	 *
+	 * @param capture - The captured infos.
+	 * @param sourceHint - The best guess to the source of the match,
+	 * @returns the replaced content.
+	 */
+	private _replaceInlineCodeBlock(
+		{ captures, fullMatch }: Parameters<MarkdownReplacer.ReplaceCallback>[0],
+		sourceHint: Parameters<MarkdownReplacer.ReplaceCallback>[1],
+	): ReturnType<MarkdownReplacer.ReplaceCallback> {
+		// Support escaped tags
+		if( fullMatch.startsWith( '{\\@' ) ){
+			this.logger.verbose( () => `Found an escaped tag "${fullMatch}" in "${sourceHint()}"` );
+			return fullMatch.replace( '{\\@', '{@' );
+		}
+		// Extract informations
+		const [ fileName, blockModeStr, blockIndent, markdownCodeSource ] = captures;
+		const blockMode = blockModeStr ?
+			EBlockMode[blockModeStr.toUpperCase() as keyof typeof EBlockMode] ?? assert.fail( `Invalid block mode "${blockModeStr}".` ) :
+			this.pluginOptions.getValue().defaultBlockMode ?? EBlockMode.EXPANDED;
+		assert.ok( fileName );
+		assert.ok( markdownCodeSource );
+		assert.ok( isString( blockIndent ) );
+		const markdownCode = markdownCodeSource.replace( new RegExp( `^${escapeRegExp( blockIndent )}`, 'gm' ), '' );
+
+		// Render
+		const rendered = this._codeBlockRenderer().renderInlineCodeBlock( {
+			fileName,
+			markdownCode,
+			mode: blockMode,
+		} );
+		if( typeof rendered === 'string' ){
+			return rendered;
+		} else {
+			return JSX.renderElement( rendered );
+		}
+	}
 
 	/**
 	 * Transform the parsed code block.

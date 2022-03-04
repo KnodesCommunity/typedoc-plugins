@@ -21,10 +21,10 @@ describe( 'Real behavior', () => {
 		'<span class="hl-0">{</span><span class="hl-1">"Hello"</span><span class="hl-0">: </span><span class="hl-2">"World"</span><span class="hl-0">}</span>\n'+
 		'</code></pre>';
 		const testJsonFooBar = testJson.replace( 'Hello', 'Foo' ).replace( 'World', 'Bar' );
-		checkDef( dom, 'testProjImplicitInBlocks', formatExpanded( './blocks/test.json', testJson ) );
-		checkDef( dom, 'testProjInBlocks', formatExpanded( './blocks/test.json', testJson ) );
-		checkDef( dom, 'testNoPrefixImplicitInBlocks', formatExpanded( './blocks/test.json', testJson ) );
-		checkDef( dom, 'testNoPrefixInBlocks', formatExpanded( './blocks/test.json', testJson ) );
+		checkDef( dom, 'testProjImplicitInExamples', formatExpanded( './examples/test.json', testJson ) );
+		checkDef( dom, 'testProjInExamples', formatExpanded( './examples/test.json', testJson ) );
+		checkDef( dom, 'testNoPrefixImplicitInExamples', formatExpanded( './examples/test.json', testJson ) );
+		checkDef( dom, 'testNoPrefixInExamples', formatExpanded( './examples/test.json', testJson ) );
 		checkDef( dom, 'testRel', formatExpanded( './src/test.json', testJsonFooBar ) );
 		expect( c ).toMatch( /<link\s+rel="stylesheet"\s+href="([^"]*?\/)?assets\/code-blocks\.css"\s*\/>/ );
 		expect( formatHtml( c ) ).toMatchSnapshot();

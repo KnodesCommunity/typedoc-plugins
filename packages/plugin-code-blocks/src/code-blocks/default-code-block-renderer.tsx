@@ -5,7 +5,7 @@ import { DefaultTheme, JSX, PageEvent, RendererEvent } from 'typedoc';
 
 import type { CodeBlockPlugin } from '../plugin';
 import { ICodeBlocksPluginThemeMethods } from '../theme';
-import { EBlockMode, ICodeBlock } from '../types';
+import { EBlockMode, ICodeBlock, IInlineCodeBlock } from '../types';
 
 const CSS_FILE_NAME = 'assets/code-blocks.css';
 export class DefaultCodeBlockRenderer implements ICodeBlocksPluginThemeMethods {
@@ -16,17 +16,23 @@ export class DefaultCodeBlockRenderer implements ICodeBlocksPluginThemeMethods {
 		renderer.hooks.on( 'head.end', context => <link rel="stylesheet" href={context.relativeURL( CSS_FILE_NAME )} /> );
 	}
 
-	public readonly renderCodeBlock = ( { asFile, sourceFile, mode, content, url }: ICodeBlock ) => {
-		const header = <p>
-			From {url ? <a href={url}>{asFile}</a> : <>{asFile}</>}
-		</p>;
+	public readonly renderInlineCodeBlock = ( { fileName, markdownCode, mode }: IInlineCodeBlock ) => this._wrapCode(
+		<>From {fileName}</>,
+		this.theme.getRenderContext( new PageEvent( fileName ) ).markdown( markdownCode ),
+		mode,
+	);
 
-		content = content.replace( /\\/g, '\\\\' ).replace( /`/g, '\\`' );
-		content = `\`\`\`${extname( sourceFile ).slice( 1 )}
-${content}
-\`\`\``;
-		const code = <JSX.Raw html={this.theme.getRenderContext( new PageEvent( asFile ) ).markdown( content )}></JSX.Raw>;
+	public readonly renderCodeBlock = ( { asFile, sourceFile, mode, content, url }: ICodeBlock ) => this._wrapCode(
+		<>From {url ? <a href={url}>{asFile}</a> : <>{asFile}</>}</>,
+		this.theme.getRenderContext( new PageEvent( asFile ) ).markdown( `\`\`\`${extname( sourceFile ).slice( 1 )}
+${content.replace( /\\/g, '\\\\' ).replace( /`/g, '\\`' )}
+\`\`\`` ),
+		mode,
+	);
 
+	private readonly _wrapCode = ( header: string | JSX.Element, codeHighlighted: string, mode: EBlockMode ) => {
+		header = <p>{header}</p>;
+		const code = <JSX.Raw html={codeHighlighted}></JSX.Raw>;
 		switch( mode ){
 			case EBlockMode.DEFAULT: {
 				return <div class="code-block">

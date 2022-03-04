@@ -23,19 +23,19 @@ describe( 'Real behavior', () => {
 
 		const pkgA = await readFile( resolve( rootDir, 'docs/modules/pkg_a.html' ), 'utf-8' );
 		const domA = new JSDOM( pkgA );
-		checkDef( domA, 'testInProjA', formatExpanded( './packages/a/blocks/test.json', testJsonA ) );
-		checkDef( domA, 'testInProjB', formatExpanded( './packages/b/blocks/test.json', testJsonB ) );
-		checkDef( domA, 'testNoPrefixImplicitInBlocks', formatExpanded( './packages/a/blocks/test.json', testJsonA ) );
-		checkDef( domA, 'testNoPrefixInBlocks', formatExpanded( './packages/a/blocks/test.json', testJsonA ) );
+		checkDef( domA, 'testInProjA', formatExpanded( './packages/a/examples/test.json', testJsonA ) );
+		checkDef( domA, 'testInProjB', formatExpanded( './packages/b/examples/test.json', testJsonB ) );
+		checkDef( domA, 'testNoPrefixImplicitInExamples', formatExpanded( './packages/a/examples/test.json', testJsonA ) );
+		checkDef( domA, 'testNoPrefixInExamples', formatExpanded( './packages/a/examples/test.json', testJsonA ) );
 		expect( pkgA ).toMatch( /<link\s+rel="stylesheet"\s+href="([^"]*?\/)?assets\/code-blocks\.css"\s*\/>/ );
 		expect( formatHtml( pkgA ) ).toMatchSnapshot();
 
 		const pkgB = await readFile( resolve( rootDir, 'docs/modules/pkg_b.html' ), 'utf-8' );
 		const domB = new JSDOM( pkgB );
-		checkDef( domB, 'testInProjA', formatExpanded( './packages/a/blocks/test.json', testJsonA ) );
-		checkDef( domB, 'testInProjB', formatExpanded( './packages/b/blocks/test.json', testJsonB ) );
-		checkDef( domB, 'testNoPrefixImplicitInBlocks', formatExpanded( './packages/b/blocks/test.json', testJsonB ) );
-		checkDef( domB, 'testNoPrefixInBlocks', formatExpanded( './packages/b/blocks/test.json', testJsonB ) );
+		checkDef( domB, 'testInProjA', formatExpanded( './packages/a/examples/test.json', testJsonA ) );
+		checkDef( domB, 'testInProjB', formatExpanded( './packages/b/examples/test.json', testJsonB ) );
+		checkDef( domB, 'testNoPrefixImplicitInExamples', formatExpanded( './packages/b/examples/test.json', testJsonB ) );
+		checkDef( domB, 'testNoPrefixInExamples', formatExpanded( './packages/b/examples/test.json', testJsonB ) );
 		expect( pkgB ).toMatch( /<link\s+rel="stylesheet"\s+href="([^"]*?\/)?assets\/code-blocks\.css"\s*\/>/ );
 		expect( formatHtml( pkgB ) ).toMatchSnapshot();
 	} );

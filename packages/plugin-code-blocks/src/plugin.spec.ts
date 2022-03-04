@@ -14,7 +14,7 @@ const { DEFAULT_BLOCK_NAME, readCodeSample: readCodeSampleMock } = require( './c
 /* eslint-enable @typescript-eslint/no-var-requires */
 
 import { CodeBlockPlugin } from './plugin';
-import { EBlockMode, ICodeBlock } from './types';
+import { EBlockMode, ICodeBlock, IInlineCodeBlock } from './types';
 
 class FakeGitHub {
 	public static readonly REPO_URL = 'https://example.repo.com';
@@ -58,7 +58,8 @@ describe( 'Behavior', () => {
 			const uuid = new Date().toISOString();
 			const elem = factory( uuid );
 			const renderCodeBlock = jest.fn<JSX.Element, [ICodeBlock]>().mockReturnValue( elem );
-			getCodeBlockRendererMock.mockReturnValue( { renderCodeBlock } );
+			const renderInlineCodeBlock = jest.fn<JSX.Element, [IInlineCodeBlock]>().mockReturnValue( elem );
+			getCodeBlockRendererMock.mockReturnValue( { renderCodeBlock, renderInlineCodeBlock } );
 			return { renderCodeBlock, elem, elemStr: JSX.renderElement( elem ) };
 		};
 		const sourceFile = resolve( rootDir, file );

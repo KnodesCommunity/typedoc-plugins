@@ -10,3 +10,8 @@ export interface ICodeBlock {
 	content: string;
 	url?: string;
 }
+export interface IInlineCodeBlock {
+	mode: EBlockMode;
+	fileName: string;
+	markdownCode: string;
+}

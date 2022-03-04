@@ -63,10 +63,10 @@ exports[`Real behavior should render correctly 1`] = `
 							<section class=\\"tsd-index-section \\">
 								<h3>Functions</h3>
 								<ul class=\\"tsd-index-list\\">
-									<li class=\\"tsd-kind-function\\"><a href=\\"modules.html#testNoPrefixImplicitInBlocks\\" class=\\"tsd-kind-icon\\">test<wbr />No<wbr />Prefix<wbr />Implicit<wbr />In<wbr />Blocks</a></li>
-									<li class=\\"tsd-kind-function\\"><a href=\\"modules.html#testNoPrefixInBlocks\\" class=\\"tsd-kind-icon\\">test<wbr />No<wbr />Prefix<wbr />In<wbr />Blocks</a></li>
-									<li class=\\"tsd-kind-function\\"><a href=\\"modules.html#testProjImplicitInBlocks\\" class=\\"tsd-kind-icon\\">test<wbr />Proj<wbr />Implicit<wbr />In<wbr />Blocks</a></li>
-									<li class=\\"tsd-kind-function\\"><a href=\\"modules.html#testProjInBlocks\\" class=\\"tsd-kind-icon\\">test<wbr />Proj<wbr />In<wbr />Blocks</a></li>
+									<li class=\\"tsd-kind-function\\"><a href=\\"modules.html#testNoPrefixImplicitInExamples\\" class=\\"tsd-kind-icon\\">test<wbr />No<wbr />Prefix<wbr />Implicit<wbr />In<wbr />Examples</a></li>
+									<li class=\\"tsd-kind-function\\"><a href=\\"modules.html#testNoPrefixInExamples\\" class=\\"tsd-kind-icon\\">test<wbr />No<wbr />Prefix<wbr />In<wbr />Examples</a></li>
+									<li class=\\"tsd-kind-function\\"><a href=\\"modules.html#testProjImplicitInExamples\\" class=\\"tsd-kind-icon\\">test<wbr />Proj<wbr />Implicit<wbr />In<wbr />Examples</a></li>
+									<li class=\\"tsd-kind-function\\"><a href=\\"modules.html#testProjInExamples\\" class=\\"tsd-kind-icon\\">test<wbr />Proj<wbr />In<wbr />Examples</a></li>
 									<li class=\\"tsd-kind-function\\"><a href=\\"modules.html#testRel\\" class=\\"tsd-kind-icon\\">test<wbr />Rel</a></li>
 								</ul>
 							</section>
@@ -75,30 +75,30 @@ exports[`Real behavior should render correctly 1`] = `
 				</section>
 				<section class=\\"tsd-panel-group tsd-member-group \\">
 					<h2>Functions</h2>
-					<section class=\\"tsd-panel tsd-member tsd-kind-function\\"><a id=\\"testNoPrefixImplicitInBlocks\\" class=\\"tsd-anchor\\"></a>
-						<h3 class=\\"tsd-anchor-link\\">test<wbr />No<wbr />Prefix<wbr />Implicit<wbr />In<wbr />Blocks<a href=\\"#testNoPrefixImplicitInBlocks\\" aria-label=\\"Permalink\\" class=\\"tsd-anchor-icon\\"><svg xmlns=\\"http://www.w3.org/2000/svg\\" class=\\"icon icon-tabler icon-tabler-link\\" viewBox=\\"0 0 24 24\\" stroke-width=\\"2\\" stroke=\\"currentColor\\" fill=\\"none\\" stroke-linecap=\\"round\\" stroke-linejoin=\\"round\\">
+					<section class=\\"tsd-panel tsd-member tsd-kind-function\\"><a id=\\"testNoPrefixImplicitInExamples\\" class=\\"tsd-anchor\\"></a>
+						<h3 class=\\"tsd-anchor-link\\">test<wbr />No<wbr />Prefix<wbr />Implicit<wbr />In<wbr />Examples<a href=\\"#testNoPrefixImplicitInExamples\\" aria-label=\\"Permalink\\" class=\\"tsd-anchor-icon\\"><svg xmlns=\\"http://www.w3.org/2000/svg\\" class=\\"icon icon-tabler icon-tabler-link\\" viewBox=\\"0 0 24 24\\" stroke-width=\\"2\\" stroke=\\"currentColor\\" fill=\\"none\\" stroke-linecap=\\"round\\" stroke-linejoin=\\"round\\">
 									<path stroke=\\"none\\" d=\\"M0 0h24v24H0z\\" fill=\\"none\\"></path>
 									<path d=\\"M10 14a3.5 3.5 0 0 0 5 0l4 -4a3.5 3.5 0 0 0 -5 -5l-.5 .5\\"></path>
 									<path d=\\"M14 10a3.5 3.5 0 0 0 -5 0l-4 4a3.5 3.5 0 0 0 5 5l.5 -.5\\"></path>
 								</svg></a></h3>
 						<ul class=\\"tsd-signatures tsd-kind-function\\">
-							<li class=\\"tsd-signature tsd-kind-icon\\">test<wbr />No<wbr />Prefix<wbr />Implicit<wbr />In<wbr />Blocks<span class=\\"tsd-signature-symbol\\">(</span><span class=\\"tsd-signature-symbol\\">)</span><span class=\\"tsd-signature-symbol\\">: </span><span class=\\"tsd-signature-type\\">number</span></li>
+							<li class=\\"tsd-signature tsd-kind-icon\\">test<wbr />No<wbr />Prefix<wbr />Implicit<wbr />In<wbr />Examples<span class=\\"tsd-signature-symbol\\">(</span><span class=\\"tsd-signature-symbol\\">)</span><span class=\\"tsd-signature-symbol\\">: </span><span class=\\"tsd-signature-type\\">number</span></li>
 						</ul>
 						<ul class=\\"tsd-descriptions\\">
 							<li class=\\"tsd-description\\">
 								<aside class=\\"tsd-sources\\">
 									<ul>
-										<li>Defined in test.ts:18</li>
+										<li>Defined in test.ts:17</li>
 									</ul>
 								</aside>
 								<div class=\\"tsd-comment tsd-typography\\">
 									<div class=\\"lead\\">
-										<p>A test code block for unprefixed path implicitly in blocks directory</p>
+										<p>A test code block for unprefixed path implicitly in <code>examples</code> directory</p>
 									</div>
 									<div>
 										<details class=\\"code-block\\" open>
 											<summary>
-												<p>From ./blocks/test.json</p>
+												<p>From ./examples/test.json</p>
 											</summary>
 											<pre><code class=\\"language-json\\"><span class=\\"hl-0\\">{</span><span class=\\"hl-1\\">&quot;Hello&quot;</span><span class=\\"hl-0\\">: </span><span class=\\"hl-2\\">&quot;World&quot;</span><span class=\\"hl-0\\">}</span>
 </code></pre>
@@ -109,30 +109,30 @@ exports[`Real behavior should render correctly 1`] = `
 							</li>
 						</ul>
 					</section>
-					<section class=\\"tsd-panel tsd-member tsd-kind-function\\"><a id=\\"testNoPrefixInBlocks\\" class=\\"tsd-anchor\\"></a>
-						<h3 class=\\"tsd-anchor-link\\">test<wbr />No<wbr />Prefix<wbr />In<wbr />Blocks<a href=\\"#testNoPrefixInBlocks\\" aria-label=\\"Permalink\\" class=\\"tsd-anchor-icon\\"><svg xmlns=\\"http://www.w3.org/2000/svg\\" class=\\"icon icon-tabler icon-tabler-link\\" viewBox=\\"0 0 24 24\\" stroke-width=\\"2\\" stroke=\\"currentColor\\" fill=\\"none\\" stroke-linecap=\\"round\\" stroke-linejoin=\\"round\\">
+					<section class=\\"tsd-panel tsd-member tsd-kind-function\\"><a id=\\"testNoPrefixInExamples\\" class=\\"tsd-anchor\\"></a>
+						<h3 class=\\"tsd-anchor-link\\">test<wbr />No<wbr />Prefix<wbr />In<wbr />Examples<a href=\\"#testNoPrefixInExamples\\" aria-label=\\"Permalink\\" class=\\"tsd-anchor-icon\\"><svg xmlns=\\"http://www.w3.org/2000/svg\\" class=\\"icon icon-tabler icon-tabler-link\\" viewBox=\\"0 0 24 24\\" stroke-width=\\"2\\" stroke=\\"currentColor\\" fill=\\"none\\" stroke-linecap=\\"round\\" stroke-linejoin=\\"round\\">
 									<path stroke=\\"none\\" d=\\"M0 0h24v24H0z\\" fill=\\"none\\"></path>
 									<path d=\\"M10 14a3.5 3.5 0 0 0 5 0l4 -4a3.5 3.5 0 0 0 -5 -5l-.5 .5\\"></path>
 									<path d=\\"M14 10a3.5 3.5 0 0 0 -5 0l-4 4a3.5 3.5 0 0 0 5 5l.5 -.5\\"></path>
 								</svg></a></h3>
 						<ul class=\\"tsd-signatures tsd-kind-function\\">
-							<li class=\\"tsd-signature tsd-kind-icon\\">test<wbr />No<wbr />Prefix<wbr />In<wbr />Blocks<span class=\\"tsd-signature-symbol\\">(</span><span class=\\"tsd-signature-symbol\\">)</span><span class=\\"tsd-signature-symbol\\">: </span><span class=\\"tsd-signature-type\\">number</span></li>
+							<li class=\\"tsd-signature tsd-kind-icon\\">test<wbr />No<wbr />Prefix<wbr />In<wbr />Examples<span class=\\"tsd-signature-symbol\\">(</span><span class=\\"tsd-signature-symbol\\">)</span><span class=\\"tsd-signature-symbol\\">: </span><span class=\\"tsd-signature-type\\">number</span></li>
 						</ul>
 						<ul class=\\"tsd-descriptions\\">
 							<li class=\\"tsd-description\\">
 								<aside class=\\"tsd-sources\\">
 									<ul>
-										<li>Defined in test.ts:25</li>
+										<li>Defined in test.ts:24</li>
 									</ul>
 								</aside>
 								<div class=\\"tsd-comment tsd-typography\\">
 									<div class=\\"lead\\">
-										<p>A test code block for unprefixed path in blocks directory</p>
+										<p>A test code block for unprefixed path in <code>examples</code> directory</p>
 									</div>
 									<div>
 										<details class=\\"code-block\\" open>
 											<summary>
-												<p>From ./blocks/test.json</p>
+												<p>From ./examples/test.json</p>
 											</summary>
 											<pre><code class=\\"language-json\\"><span class=\\"hl-0\\">{</span><span class=\\"hl-1\\">&quot;Hello&quot;</span><span class=\\"hl-0\\">: </span><span class=\\"hl-2\\">&quot;World&quot;</span><span class=\\"hl-0\\">}</span>
 </code></pre>
@@ -143,48 +143,14 @@ exports[`Real behavior should render correctly 1`] = `
 							</li>
 						</ul>
 					</section>
-					<section class=\\"tsd-panel tsd-member tsd-kind-function\\"><a id=\\"testProjImplicitInBlocks\\" class=\\"tsd-anchor\\"></a>
-						<h3 class=\\"tsd-anchor-link\\">test<wbr />Proj<wbr />Implicit<wbr />In<wbr />Blocks<a href=\\"#testProjImplicitInBlocks\\" aria-label=\\"Permalink\\" class=\\"tsd-anchor-icon\\"><svg xmlns=\\"http://www.w3.org/2000/svg\\" class=\\"icon icon-tabler icon-tabler-link\\" viewBox=\\"0 0 24 24\\" stroke-width=\\"2\\" stroke=\\"currentColor\\" fill=\\"none\\" stroke-linecap=\\"round\\" stroke-linejoin=\\"round\\">
+					<section class=\\"tsd-panel tsd-member tsd-kind-function\\"><a id=\\"testProjImplicitInExamples\\" class=\\"tsd-anchor\\"></a>
+						<h3 class=\\"tsd-anchor-link\\">test<wbr />Proj<wbr />Implicit<wbr />In<wbr />Examples<a href=\\"#testProjImplicitInExamples\\" aria-label=\\"Permalink\\" class=\\"tsd-anchor-icon\\"><svg xmlns=\\"http://www.w3.org/2000/svg\\" class=\\"icon icon-tabler icon-tabler-link\\" viewBox=\\"0 0 24 24\\" stroke-width=\\"2\\" stroke=\\"currentColor\\" fill=\\"none\\" stroke-linecap=\\"round\\" stroke-linejoin=\\"round\\">
 									<path stroke=\\"none\\" d=\\"M0 0h24v24H0z\\" fill=\\"none\\"></path>
 									<path d=\\"M10 14a3.5 3.5 0 0 0 5 0l4 -4a3.5 3.5 0 0 0 -5 -5l-.5 .5\\"></path>
 									<path d=\\"M14 10a3.5 3.5 0 0 0 -5 0l-4 4a3.5 3.5 0 0 0 5 5l.5 -.5\\"></path>
 								</svg></a></h3>
 						<ul class=\\"tsd-signatures tsd-kind-function\\">
-							<li class=\\"tsd-signature tsd-kind-icon\\">test<wbr />Proj<wbr />Implicit<wbr />In<wbr />Blocks<span class=\\"tsd-signature-symbol\\">(</span><span class=\\"tsd-signature-symbol\\">)</span><span class=\\"tsd-signature-symbol\\">: </span><span class=\\"tsd-signature-type\\">number</span></li>
-						</ul>
-						<ul class=\\"tsd-descriptions\\">
-							<li class=\\"tsd-description\\">
-								<aside class=\\"tsd-sources\\">
-									<ul>
-										<li>Defined in test.ts:39</li>
-									</ul>
-								</aside>
-								<div class=\\"tsd-comment tsd-typography\\">
-									<div class=\\"lead\\">
-										<p>A test code block for project path implicitly in blocks directory</p>
-									</div>
-									<div>
-										<details class=\\"code-block\\" open>
-											<summary>
-												<p>From ./blocks/test.json</p>
-											</summary>
-											<pre><code class=\\"language-json\\"><span class=\\"hl-0\\">{</span><span class=\\"hl-1\\">&quot;Hello&quot;</span><span class=\\"hl-0\\">: </span><span class=\\"hl-2\\">&quot;World&quot;</span><span class=\\"hl-0\\">}</span>
-</code></pre>
-										</details>
-									</div>
-								</div>
-								<h4 class=\\"tsd-returns-title\\">Returns <span class=\\"tsd-signature-type\\">number</span></h4>
-							</li>
-						</ul>
-					</section>
-					<section class=\\"tsd-panel tsd-member tsd-kind-function\\"><a id=\\"testProjInBlocks\\" class=\\"tsd-anchor\\"></a>
-						<h3 class=\\"tsd-anchor-link\\">test<wbr />Proj<wbr />In<wbr />Blocks<a href=\\"#testProjInBlocks\\" aria-label=\\"Permalink\\" class=\\"tsd-anchor-icon\\"><svg xmlns=\\"http://www.w3.org/2000/svg\\" class=\\"icon icon-tabler icon-tabler-link\\" viewBox=\\"0 0 24 24\\" stroke-width=\\"2\\" stroke=\\"currentColor\\" fill=\\"none\\" stroke-linecap=\\"round\\" stroke-linejoin=\\"round\\">
-									<path stroke=\\"none\\" d=\\"M0 0h24v24H0z\\" fill=\\"none\\"></path>
-									<path d=\\"M10 14a3.5 3.5 0 0 0 5 0l4 -4a3.5 3.5 0 0 0 -5 -5l-.5 .5\\"></path>
-									<path d=\\"M14 10a3.5 3.5 0 0 0 -5 0l-4 4a3.5 3.5 0 0 0 5 5l.5 -.5\\"></path>
-								</svg></a></h3>
-						<ul class=\\"tsd-signatures tsd-kind-function\\">
-							<li class=\\"tsd-signature tsd-kind-icon\\">test<wbr />Proj<wbr />In<wbr />Blocks<span class=\\"tsd-signature-symbol\\">(</span><span class=\\"tsd-signature-symbol\\">)</span><span class=\\"tsd-signature-symbol\\">: </span><span class=\\"tsd-signature-type\\">number</span></li>
+							<li class=\\"tsd-signature tsd-kind-icon\\">test<wbr />Proj<wbr />Implicit<wbr />In<wbr />Examples<span class=\\"tsd-signature-symbol\\">(</span><span class=\\"tsd-signature-symbol\\">)</span><span class=\\"tsd-signature-symbol\\">: </span><span class=\\"tsd-signature-type\\">number</span></li>
 						</ul>
 						<ul class=\\"tsd-descriptions\\">
 							<li class=\\"tsd-description\\">
@@ -195,12 +161,46 @@ exports[`Real behavior should render correctly 1`] = `
 								</aside>
 								<div class=\\"tsd-comment tsd-typography\\">
 									<div class=\\"lead\\">
-										<p>A test code block for project path in blocks directory</p>
+										<p>A test code block for project path implicitly in <code>examples</code> directory</p>
 									</div>
 									<div>
 										<details class=\\"code-block\\" open>
 											<summary>
-												<p>From ./blocks/test.json</p>
+												<p>From ./examples/test.json</p>
+											</summary>
+											<pre><code class=\\"language-json\\"><span class=\\"hl-0\\">{</span><span class=\\"hl-1\\">&quot;Hello&quot;</span><span class=\\"hl-0\\">: </span><span class=\\"hl-2\\">&quot;World&quot;</span><span class=\\"hl-0\\">}</span>
+</code></pre>
+										</details>
+									</div>
+								</div>
+								<h4 class=\\"tsd-returns-title\\">Returns <span class=\\"tsd-signature-type\\">number</span></h4>
+							</li>
+						</ul>
+					</section>
+					<section class=\\"tsd-panel tsd-member tsd-kind-function\\"><a id=\\"testProjInExamples\\" class=\\"tsd-anchor\\"></a>
+						<h3 class=\\"tsd-anchor-link\\">test<wbr />Proj<wbr />In<wbr />Examples<a href=\\"#testProjInExamples\\" aria-label=\\"Permalink\\" class=\\"tsd-anchor-icon\\"><svg xmlns=\\"http://www.w3.org/2000/svg\\" class=\\"icon icon-tabler icon-tabler-link\\" viewBox=\\"0 0 24 24\\" stroke-width=\\"2\\" stroke=\\"currentColor\\" fill=\\"none\\" stroke-linecap=\\"round\\" stroke-linejoin=\\"round\\">
+									<path stroke=\\"none\\" d=\\"M0 0h24v24H0z\\" fill=\\"none\\"></path>
+									<path d=\\"M10 14a3.5 3.5 0 0 0 5 0l4 -4a3.5 3.5 0 0 0 -5 -5l-.5 .5\\"></path>
+									<path d=\\"M14 10a3.5 3.5 0 0 0 -5 0l-4 4a3.5 3.5 0 0 0 5 5l.5 -.5\\"></path>
+								</svg></a></h3>
+						<ul class=\\"tsd-signatures tsd-kind-function\\">
+							<li class=\\"tsd-signature tsd-kind-icon\\">test<wbr />Proj<wbr />In<wbr />Examples<span class=\\"tsd-signature-symbol\\">(</span><span class=\\"tsd-signature-symbol\\">)</span><span class=\\"tsd-signature-symbol\\">: </span><span class=\\"tsd-signature-type\\">number</span></li>
+						</ul>
+						<ul class=\\"tsd-descriptions\\">
+							<li class=\\"tsd-description\\">
+								<aside class=\\"tsd-sources\\">
+									<ul>
+										<li>Defined in test.ts:40</li>
+									</ul>
+								</aside>
+								<div class=\\"tsd-comment tsd-typography\\">
+									<div class=\\"lead\\">
+										<p>A test code block for project path in <code>examples</code> directory</p>
+									</div>
+									<div>
+										<details class=\\"code-block\\" open>
+											<summary>
+												<p>From ./examples/test.json</p>
 											</summary>
 											<pre><code class=\\"language-json\\"><span class=\\"hl-0\\">{</span><span class=\\"hl-1\\">&quot;Hello&quot;</span><span class=\\"hl-0\\">: </span><span class=\\"hl-2\\">&quot;World&quot;</span><span class=\\"hl-0\\">}</span>
 </code></pre>
@@ -255,10 +255,10 @@ exports[`Real behavior should render correctly 1`] = `
 				</nav>
 				<nav class=\\"tsd-navigation secondary menu-sticky\\">
 					<ul>
-						<li class=\\"tsd-kind-function\\"><a href=\\"modules.html#testNoPrefixImplicitInBlocks\\" class=\\"tsd-kind-icon\\">test<wbr />No<wbr />Prefix<wbr />Implicit<wbr />In<wbr />Blocks</a></li>
-						<li class=\\"tsd-kind-function\\"><a href=\\"modules.html#testNoPrefixInBlocks\\" class=\\"tsd-kind-icon\\">test<wbr />No<wbr />Prefix<wbr />In<wbr />Blocks</a></li>
-						<li class=\\"tsd-kind-function\\"><a href=\\"modules.html#testProjImplicitInBlocks\\" class=\\"tsd-kind-icon\\">test<wbr />Proj<wbr />Implicit<wbr />In<wbr />Blocks</a></li>
-						<li class=\\"tsd-kind-function\\"><a href=\\"modules.html#testProjInBlocks\\" class=\\"tsd-kind-icon\\">test<wbr />Proj<wbr />In<wbr />Blocks</a></li>
+						<li class=\\"tsd-kind-function\\"><a href=\\"modules.html#testNoPrefixImplicitInExamples\\" class=\\"tsd-kind-icon\\">test<wbr />No<wbr />Prefix<wbr />Implicit<wbr />In<wbr />Examples</a></li>
+						<li class=\\"tsd-kind-function\\"><a href=\\"modules.html#testNoPrefixInExamples\\" class=\\"tsd-kind-icon\\">test<wbr />No<wbr />Prefix<wbr />In<wbr />Examples</a></li>
+						<li class=\\"tsd-kind-function\\"><a href=\\"modules.html#testProjImplicitInExamples\\" class=\\"tsd-kind-icon\\">test<wbr />Proj<wbr />Implicit<wbr />In<wbr />Examples</a></li>
+						<li class=\\"tsd-kind-function\\"><a href=\\"modules.html#testProjInExamples\\" class=\\"tsd-kind-icon\\">test<wbr />Proj<wbr />In<wbr />Examples</a></li>
 						<li class=\\"tsd-kind-function\\"><a href=\\"modules.html#testRel\\" class=\\"tsd-kind-icon\\">test<wbr />Rel</a></li>
 					</ul>
 				</nav>
