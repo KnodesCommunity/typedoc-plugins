@@ -8,6 +8,7 @@ const { defaultsDeep, partition, memoize, isString, cloneDeep, uniq } = require(
 
 const { spawn, globAsync, selectProjects, createStash } = require( './utils' );
 
+const getDocsUrl = pkgJson => `https://knodescommunity.github.io/typedoc-plugins/modules/${( pkgJson.name ?? assert.fail( 'No name' ) ).replace( /[^a-z0-9]/gi, '_' )}.html`;
 /**
  * @typedef {import('./utils').Project} Project
  */
@@ -56,10 +57,11 @@ const packageJson = () => {
 	const getProtoPkg = memoize( proto => readFile( resolve( proto, 'package.json' ), 'utf-8' ) );
 	return {
 		run: async ( proto, { path: projectPath } ) => {
+			const { packageContent = {}, path: packagePath } = readProjectPackageJson( projectPath ) ?? {};
 			const protoPkgContent = await getProtoPkg( proto );
 			const protoPkg = JSON.parse( protoPkgContent
-				.replace( /\{projectRelDir\}/g, projectPath ) );
-			const { packageContent = {}, path: packagePath } = readProjectPackageJson( projectPath ) ?? {};
+				.replace( /\{projectRelDir\}/g, projectPath )
+				.replace( /\{projectTypeDocUrl\}/g, getDocsUrl( packageContent ) ) );
 			const newProjectPkg = defaultsDeep( cloneDeep( protoPkg ), packageContent );
 			[ 'keywords', 'files' ].forEach( prop => newProjectPkg[prop] = uniq( [
 				...( protoPkg[prop] ?? [] ),
@@ -215,8 +217,10 @@ const readme = () => {
 		newHeader += `\n
 ${shield( 'npm version', `/npm/v/${packageContent.name}`, `https://www.npmjs.com/package/${packageContent.name}` )}
 ${shield( 'npm downloads', `/npm/dm/${packageContent.name}`, `https://www.npmjs.com/package/${packageContent.name}` )}
-[![Compatible with TypeDoc](https://img.shields.io/badge/For%20typedoc-${packageContent.peerDependencies.typedoc}-green?logo=npm&style=for-the-badge)](https://www.npmjs.com/package/typedoc)\\
----\\
+[![Compatible with TypeDoc](https://img.shields.io/badge/For%20typedoc-${packageContent.peerDependencies.typedoc}-green?logo=npm&style=for-the-badge)](https://www.npmjs.com/package/typedoc)
+
+---
+
 ${shield( 'CircleCI', '/circleci/build/github/KnodesCommunity/typedoc-plugins/main', 'https://circleci.com/gh/KnodesCommunity/typedoc-plugins/tree/main' )}
 ${shield( 'Code Climate coverage', '/codeclimate/coverage-letter/KnodesCommunity/typedoc-plugins', 'https://codeclimate.com/github/KnodesCommunity/typedoc-plugins' )}
 ${shield( 'Code Climate maintainability', '/codeclimate/maintainability/KnodesCommunity/typedoc-plugins', 'https://codeclimate.com/github/KnodesCommunity/typedoc-plugins' )}`;
@@ -234,7 +238,9 @@ This plugin version should match TypeDoc \`${typedocVer}\` for compatibility.`;
 
 \`\`\`sh
 npm install --save-dev ${packageContent.name}${typedocVer ? ` typedoc@${typedocVer}` : ''}
-\`\`\``;
+\`\`\`
+
+For more infos, please refer to [the documentation](${getDocsUrl( packageContent )})`;
 		newHeader = `<!-- HEADER -->
 ${newHeader}
 <!-- HEADER end -->

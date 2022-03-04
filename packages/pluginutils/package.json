@@ -10,7 +10,7 @@
   "bugs": {
     "url": "https://github.com/KnodesCommunity/typedoc-plugins/issues"
   },
-  "homepage": "https://github.com/KnodesCommunity/typedoc-plugins/tree/main/./packages/pluginutils#readme",
+  "homepage": "https://knodescommunity.github.io/typedoc-plugins/modules/_knodes_typedoc_pluginutils.html",
   "author": {
     "email": "gerkin@knodes.org",
     "name": "GerkinDev"

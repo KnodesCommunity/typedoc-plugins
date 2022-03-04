@@ -10,7 +10,7 @@
   "bugs": {
     "url": "https://github.com/KnodesCommunity/typedoc-plugins/issues"
   },
-  "homepage": "https://github.com/KnodesCommunity/typedoc-plugins/tree/main/./packages/plugin-monorepo-readmes#readme",
+  "homepage": "https://knodescommunity.github.io/typedoc-plugins/modules/_knodes_typedoc_plugin_monorepo_readmes.html",
   "author": {
     "email": "gerkin@knodes.org",
     "name": "GerkinDev"
@@ -55,7 +55,7 @@
     "eslint": "^8.10.0",
     "eslint-plugin-eslint-comments": "^3.2.0",
     "eslint-plugin-import": "^2.25.4",
-    "eslint-plugin-jsdoc": "^37.9.4",
+    "eslint-plugin-jsdoc": "^37.9.6",
     "eslint-plugin-prefer-arrow": "^1.2.3",
     "eslint-plugin-sort-export-all": "^1.2.1",
     "jest": "^27.5.1",
