@@ -9,7 +9,7 @@ import { buildOptions } from './options';
 import { NodeReflection } from './reflections';
 import { initThemePlugins } from './theme-plugins';
 
-const EXTRACT_PAGE_LINK_REGEX = /{\\?@page\s+([^}\s]+)(?:\s+([^}]+?))?\s*}/g;
+const EXTRACT_PAGE_LINK_REGEX = /{\\?@page\s+(\S+?\w+?)(?:\s+([^}]+?))?\s*}/g;
 export class PagesPlugin extends ABasePlugin {
 	public readonly pluginOptions = buildOptions( this );
 	private readonly _pageTreeBuilder = once( () => initThemePlugins( this.application, this ) );
@@ -32,7 +32,7 @@ export class PagesPlugin extends ABasePlugin {
 		EventsExtra.for( this.application )
 			.beforeOptionsFreeze( () => {
 				if( this.pluginOptions.getValue().enablePageLinks ){
-					this._markdownReplacer.bindReplace( EXTRACT_PAGE_LINK_REGEX, this._replacePageLink.bind( this ), 'replace page links' );
+					this._markdownReplacer.bindReplace( EXTRACT_PAGE_LINK_REGEX, this._replacePageLink.bind( this ), '{@page}' );
 				}
 			} )
 			.onThemeReady( this._pageTreeBuilder.bind( this ) )
@@ -77,7 +77,7 @@ export class PagesPlugin extends ABasePlugin {
 				containerFolder: this.pluginOptions.getValue().source,
 			} );
 		if( !resolvedFile ){
-			this.logger.error( () => `In "${sourceHint()}", could not resolve page "${page}" from ${this._currentPageMemo.currentReflection.name}` );
+			this.logger.error( () => `In "${sourceHint()}", could not resolve page "${page}" from reflection ${this._currentPageMemo.currentReflection.name}` );
 			return fullMatch;
 		}
 		const builder = this._pageTreeBuilder();

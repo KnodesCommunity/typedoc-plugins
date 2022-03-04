@@ -1,7 +1,7 @@
 import assert from 'assert';
 import { join as _join } from 'path';
 
-import { isString } from 'lodash';
+import { isObject, isString } from 'lodash';
 import { PascalCase } from 'type-fest';
 import { Reflection } from 'typedoc';
 
@@ -59,6 +59,7 @@ export const getNodeUrl = ( node: IPageNode ): string => {
 
 type NodeOrRef = IPageNode | Reflection;
 export const getNodePath = ( self?: NodeOrRef, parent?: NodeOrRef ): string => [ parent, self ]
+	.filter( isObject )
 	.flatMap( iterateNodeTitle )
 	.map( p => JSON.stringify( p ) ).join( ' ⇥ ' );
 const iterateNodeTitle = ( node?: NodeOrRef ): string[] => {

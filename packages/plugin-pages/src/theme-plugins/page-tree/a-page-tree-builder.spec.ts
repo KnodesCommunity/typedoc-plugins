@@ -1,12 +1,12 @@
-import { resolve } from 'path';
+import { basename, resolve } from 'path';
 
 import { isString } from 'lodash';
 import { Class } from 'type-fest';
-import { Application, DeclarationReflection, DefaultTheme, JSX, ProjectReflection, Reflection, ReflectionKind, UrlMapping } from 'typedoc';
+import { Application, DeclarationReflection, DefaultTheme, JSX, ProjectReflection, Reflection, ReflectionKind, RendererEvent, SourceFile, UrlMapping } from 'typedoc';
 
 import { restoreFs, setVirtualFs } from '@knodes/typedoc-plugintestbed';
 
-import { PageNode } from '../../options';
+import { IPageNode } from '../../options';
 import { PagesPlugin } from '../../plugin';
 import { MenuReflection, NodeReflection, PageReflection } from '../../reflections';
 import { RenderPageLinkProps } from '../../theme';
@@ -14,7 +14,7 @@ import { APageTreeBuilder } from './a-page-tree-builder';
 
 class TestHost extends APageTreeBuilder {
 	public readonly renderPageLink = jest.fn<JSX.Element | string, [RenderPageLinkProps]>();
-	public readonly generateMappings = jest.fn<Array<UrlMapping<PageReflection>>, [reflections: NodeReflection[]]>();
+	public readonly generateMappings = jest.fn<Array<UrlMapping<PageReflection>>, [event: RendererEvent, reflections: NodeReflection[]]>();
 	public readonly addNodeToProjectAsChild = jest.fn<void, [odeReflection: NodeReflection]>();
 	public constructor(){
 		super( theme, plugin );
@@ -24,13 +24,18 @@ class TestHost extends APageTreeBuilder {
 	public set project( project: ProjectReflection | undefined ){
 		// eslint-disable-next-line @typescript-eslint/dot-notation
 		this['_project'] = project ?? new ProjectReflection( 'TEST' );
+		// eslint-disable-next-line @typescript-eslint/dot-notation
+		project = this['_project'];
+		project.sources = [
+			{ file: new SourceFile( resolve( basename( __filename ) ) ), fileName: basename( __filename ), character: 0, line: 0 },
+		];
 	}
 	public override get project(): ProjectReflection {
 		// eslint-disable-next-line @typescript-eslint/dot-notation
 		return this['_project'] as any;
 	}
 
-	public mapPagesToReflections( nodes: PageNode[], parent?: ProjectReflection | DeclarationReflection, io: {input?: string; output?: string} = {} ): NodeReflection[] {
+	public mapPagesToReflections( nodes: IPageNode[], parent?: ProjectReflection | DeclarationReflection, io: {input?: string; output?: string} = {} ): NodeReflection[] {
 		// eslint-disable-next-line @typescript-eslint/dot-notation
 		return this['_mapPagesToReflections']( nodes, parent ?? this.project, io );
 	}
@@ -46,6 +51,16 @@ beforeEach( () => {
 	testHost = new TestHost();
 } );
 afterEach( restoreFs );
+const addChildModule = ( name: string ) => {
+	const moduleRef = new DeclarationReflection( name, ReflectionKind.Module, testHost.project );
+	moduleRef.sources = [
+		{ file: new SourceFile( resolve( `${name}/index.ts` ) ), fileName: 'index.ts', character: 0, line: 0 },
+	];
+	testHost.project.children ??= [];
+	testHost.project.children.push( moduleRef );
+	testHost.project.registerReflection( moduleRef );
+	return moduleRef;
+};
 const matchReflection = <T extends Reflection>( proto: Class<T>, sample: Partial<T> ) => expect.toSatisfy( v => {
 	expect( v ).toBeInstanceOf( proto );
 	const s = sample as any;
@@ -106,60 +121,86 @@ describe( APageTreeBuilder.name, () => {
 			matchReflection( PageReflection, { name: 'Baz', depth: 0, module: testHost.project, sourceFilePath: 'baz.md', content: 'Baz content', url: 'baz.html' } ),
 		] );
 	} );
-	it( 'should map menu to workspace with children', () => {
-		testHost.project.children = [
-			new DeclarationReflection( 'SUB', ReflectionKind.Module, testHost.project ),
-			new DeclarationReflection( 'SUB2', ReflectionKind.Module, testHost.project ),
-		];
+	it( 'should map page with children', () => {
 		setVirtualFs( {
-			'bar.md': 'Bar content',
-			'baz.md': 'Baz content',
+			'foo.md': 'Foo content',
+			'foo': {
+				'bar.md': 'Bar content',
+				'baz.md': 'Baz content',
+			},
 		} );
-		const out = testHost.mapPagesToReflections( [ { title: 'Foo', workspace: 'SUB', children: [
+		const out = testHost.mapPagesToReflections( [ { title: 'Foo', source: 'foo.md', children: [
 			{ title: 'Bar', source: 'bar.md' },
 			{ title: 'Baz', source: 'baz.md' },
 		] } ] );
 		expect( out ).toHaveLength( 1 );
 		expect( out ).toEqual( [
-			matchReflection( MenuReflection, { name: 'Foo', depth: 0, module: testHost.project.children[0],  children: [
-				matchReflection( PageReflection, { name: 'Bar', depth: 1, module: testHost.project.children[0], sourceFilePath: 'bar.md', content: 'Bar content', url: 'bar.html' } ),
-				matchReflection( PageReflection, { name: 'Baz', depth: 1, module: testHost.project.children[0], sourceFilePath: 'baz.md', content: 'Baz content', url: 'baz.html' } ),
+			matchReflection( PageReflection, { name: 'Foo', depth: 0, module: testHost.project, sourceFilePath: 'foo.md', content: 'Foo content', url: 'foo/index.html',  children: [
+				matchReflection( PageReflection, { name: 'Bar', depth: 1, module: testHost.project, sourceFilePath: 'foo/bar.md', content: 'Bar content', url: 'foo/bar.html' } ),
+				matchReflection( PageReflection, { name: 'Baz', depth: 1, module: testHost.project, sourceFilePath: 'foo/baz.md', content: 'Baz content', url: 'foo/baz.html' } ),
 			] } ),
 		] );
 	} );
-	it( 'should map virtual menu to workspace with children', () => {
-		testHost.project.children = [
-			new DeclarationReflection( 'SUB', ReflectionKind.Module, testHost.project ),
-			new DeclarationReflection( 'SUB2', ReflectionKind.Module, testHost.project ),
-		];
+	it( 'should map menu to workspace with children', () => {
+		const targetModule = addChildModule( 'SUB' );
+		addChildModule( 'SUB2' );
 		setVirtualFs( {
 			'bar.md': 'Bar content',
 			'baz.md': 'Baz content',
 		} );
-		const out = testHost.mapPagesToReflections( [ { title: 'VIRTUAL', workspace: 'SUB2', children: [
+		const out = testHost.mapPagesToReflections( [ { title: 'SUB', children: [
 			{ title: 'Bar', source: 'bar.md' },
 			{ title: 'Baz', source: 'baz.md' },
 		] } ] );
-		expect( out ).toHaveLength( 2 );
+		expect( out ).toHaveLength( 1 );
 		expect( out ).toEqual( [
-			matchReflection( PageReflection, { name: 'Bar', depth: 0, module: testHost.project.children[1], sourceFilePath: 'bar.md', content: 'Bar content', url: 'bar.html' } ),
-			matchReflection( PageReflection, { name: 'Baz', depth: 0, module: testHost.project.children[1], sourceFilePath: 'baz.md', content: 'Baz content', url: 'baz.html' } ),
+			matchReflection( MenuReflection, { name: 'SUB', depth: 0, module: targetModule,  children: [
+				matchReflection( PageReflection, { name: 'Bar', depth: 1, module: targetModule, sourceFilePath: 'bar.md', content: 'Bar content', url: 'SUB/bar.html' } ),
+				matchReflection( PageReflection, { name: 'Baz', depth: 1, module: targetModule, sourceFilePath: 'baz.md', content: 'Baz content', url: 'SUB/baz.html' } ),
+			] } ),
 		] );
 	} );
-	it( 'should throw if workspace is not found', () => {
-		testHost.project.children = [
-			new DeclarationReflection( 'SUB2', ReflectionKind.Module, testHost.project ),
-		];
-		setVirtualFs( { 'test.md': 'The content' } );
-		expect( () => testHost.mapPagesToReflections( [ { title: 'Foo', workspace: 'SUB', source: 'test.md' } ] ) )
-			.toThrowWithMessage( Error, /Invalid node workspace override "Foo":\s*Could not get a module for workspace named "SUB"\./ );
+	it( 'should page to workspace with children', () => {
+		addChildModule( 'SUB' );
+		const targetModule = addChildModule( 'SUB2' );
+		setVirtualFs( {
+
+			'appendix.md': 'APPENDIX',
+			'bar.md': 'Bar content',
+			'baz.md': 'Baz content',
+		} );
+		const out = testHost.mapPagesToReflections( [ { title: 'SUB2', source: 'appendix.md', children: [
+			{ title: 'Bar', source: 'bar.md' },
+			{ title: 'Baz', source: 'baz.md' },
+		] } ] );
+		expect( out ).toHaveLength( 1 );
+		expect( out ).toEqual( [
+			matchReflection( PageReflection, { name: 'SUB2', depth: 0, module: targetModule, sourceFilePath: 'appendix.md', children: [
+				matchReflection( PageReflection, { name: 'Bar', depth: 1, module: targetModule, sourceFilePath: 'bar.md', content: 'Bar content', url: 'SUB2/bar.html' } ),
+				matchReflection( PageReflection, { name: 'Baz', depth: 1, module: targetModule, sourceFilePath: 'baz.md', content: 'Baz content', url: 'SUB2/baz.html' } ),
+			] } ),
+		] );
 	} );
-	it( 'should throw if child is of invalid kind', () => {
-		testHost.project.children = [
-			new DeclarationReflection( 'SUB', ReflectionKind.Namespace, testHost.project ),
-		];
-		setVirtualFs( { 'test.md': 'The content' } );
-		expect( () => testHost.mapPagesToReflections( [ { title: 'Foo', workspace: 'SUB', source: 'test.md' } ] ) )
-			.toThrowWithMessage( Error, /Invalid node workspace override "Foo":\s*Found reflection for workspace name "SUB" is not a module reflection$/ );
+	it( 'should page to workspace with children', () => {
+		addChildModule( 'SUB' );
+		const targetModule = addChildModule( 'SUB2' );
+		setVirtualFs( {
+			SUB2: {
+				'appendix.md': 'APPENDIX',
+				'bar.md': 'Bar content',
+				'baz.md': 'Baz content',
+			},
+		} );
+		const out = testHost.mapPagesToReflections( [ { title: 'SUB2', source: 'appendix.md', children: [
+			{ title: 'Bar', source: 'bar.md' },
+			{ title: 'Baz', source: 'baz.md' },
+		] } ] );
+		expect( out ).toHaveLength( 1 );
+		expect( out ).toEqual( [
+			matchReflection( PageReflection, { name: 'SUB2', depth: 0, module: targetModule, sourceFilePath: 'SUB2/appendix.md', children: [
+				matchReflection( PageReflection, { name: 'Bar', depth: 1, module: targetModule, sourceFilePath: 'SUB2/bar.md', content: 'Bar content', url: 'SUB2/bar.html' } ),
+				matchReflection( PageReflection, { name: 'Baz', depth: 1, module: targetModule, sourceFilePath: 'SUB2/baz.md', content: 'Baz content', url: 'SUB2/baz.html' } ),
+			] } ),
+		] );
 	} );
 } );

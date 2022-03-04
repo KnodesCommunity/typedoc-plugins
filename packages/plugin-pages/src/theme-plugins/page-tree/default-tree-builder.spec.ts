@@ -1,4 +1,4 @@
-import { Application, DeclarationReflection, DefaultTheme, ProjectReflection, UrlMapping } from 'typedoc';
+import { Application, DeclarationReflection, DefaultTheme, ProjectReflection, RendererEvent, UrlMapping } from 'typedoc';
 
 import { restoreFs, setVirtualFs } from '@knodes/typedoc-plugintestbed';
 
@@ -15,8 +15,8 @@ class TestHost extends DefaultTreeBuilder {
 		super( theme, plugin );
 	}
 
-	public override generateMappings( reflections: readonly NodeReflection[] ): Array<UrlMapping<PageReflection>> {
-		return super.generateMappings( reflections );
+	public override generateMappings( event: RendererEvent, reflections: readonly NodeReflection[] ): Array<UrlMapping<PageReflection>> {
+		return super.generateMappings( event, reflections );
 	}
 
 }
@@ -57,7 +57,8 @@ const matchMapping = ( page: PageReflection ) => expect.objectContaining( { url:
 describe( DefaultTreeBuilder.name, () => {
 	describe( 'Mappings generation', () => {
 		it( 'should return empty list', () => {
-			expect( testHost.generateMappings( [] ) ).toEqual( [] );
+			const evt = new RendererEvent( 'test', 'test', new ProjectReflection( 'Test' ) );
+			expect( testHost.generateMappings( evt, [] ) ).toEqual( [] );
 		} );
 		it( 'should map only pages correctly', () => {
 			setVirtualFs( {
@@ -79,7 +80,8 @@ describe( DefaultTreeBuilder.name, () => {
 				nodes[0].children[0],
 				nodes[1].children[0],
 			];
-			const mappings = testHost.generateMappings( nodes );
+			const evt = new RendererEvent( 'test', 'test', new ProjectReflection( 'Test' ) );
+			const mappings = testHost.generateMappings( evt, nodes );
 			expect( mappings ).toHaveLength( 3 );
 			expect( mappings ).toIncludeSameMembers( pages.map( p => matchMapping( p ) ) );
 			pages.forEach( p => {

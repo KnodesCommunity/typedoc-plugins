@@ -1,4 +1,4 @@
-import { LogLevel, ParameterHint, ParameterType } from 'typedoc';
+import { LogLevel, ParameterType } from 'typedoc';
 
 import { OptionGroup } from '@knodes/typedoc-pluginutils';
 
@@ -37,14 +37,12 @@ export const buildOptions = ( plugin: PagesPlugin ) => OptionGroup.factory<IPlug
 	} )
 	.add( 'output', {
 		help: 'Output directory where your pages will be rendered. This must be a relative path.',
-		type: ParameterType.Path,
-		hint: ParameterHint.Directory,
+		type: ParameterType.String,
 		defaultValue: 'pages',
 	}, v => plugin.relativeToRoot( v ) )
 	.add( 'source', {
 		help: 'Root directory where all page source files live.',
-		type: ParameterType.Path,
-		hint: ParameterHint.Directory,
+		type: ParameterType.String,
 		defaultValue: 'pages',
 	} )
 	.add( 'logLevel', {

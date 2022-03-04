@@ -1,5 +1,5 @@
 diff --git a/typedoc/src/lib/output/plugins/JavascriptIndexPlugin.ts b/packages/plugin-pages/src/theme-plugins/search/default-pages-javascript-index-plugin.GENERATED.ts
-index 8770e6fc..c6598447 100755
+index 8770e6fc..834c41aa 100755
 --- a/typedoc/src/lib/output/plugins/JavascriptIndexPlugin.ts
 +++ b/packages/plugin-pages/src/theme-plugins/search/default-pages-javascript-index-plugin.GENERATED.ts
 @@ -1,29 +1,65 @@
@@ -83,7 +83,7 @@ index 8770e6fc..c6598447 100755
  	}
  
  	/**
-@@ -31,29 +67,27 @@ export class JavascriptIndexPlugin extends RendererComponent {
+@@ -31,29 +67,29 @@ export class JavascriptIndexPlugin extends RendererComponent {
  	 *
  	 * @param event  - An event object describing the current render operation.
  	 */
@@ -103,9 +103,11 @@ index 8770e6fc..c6598447 100755
 -		for ( const reflection of event.project.getReflectionsByKind(
 -			ReflectionKind.All
 -		) ) {
-+		for ( const { reflection, isPage } of event.project.getReflectionsByKind(
-+			ReflectionKind.All,
-+		).map( r => this._convertNodeReflection( r, event.project ) ) ) {
++		const reflections = event.project.getReflectionsByKind( ReflectionKind.All )
++			.map( r => this._convertNodeReflection( r, event.project ) );
++		const pagesCount = reflections.filter( r => r.isPage ).length;
++		this._plugin.logger.verbose( `Adding ${pagesCount} pages to the search index` );
++		for ( const { reflection, isPage } of reflections ) {
  			if ( !( reflection instanceof DeclarationReflection ) ) {
  				continue;
  			}
@@ -121,7 +123,7 @@ index 8770e6fc..c6598447 100755
  			) {
  				continue;
  			}
-@@ -69,6 +103,7 @@ export class JavascriptIndexPlugin extends RendererComponent {
+@@ -69,6 +105,7 @@ export class JavascriptIndexPlugin extends RendererComponent {
  				name: reflection.name,
  				url: reflection.url,
  				classes: reflection.cssClasses,
@@ -129,7 +131,7 @@ index 8770e6fc..c6598447 100755
  			};
  
  			if ( parent ) {
-@@ -76,8 +111,8 @@ export class JavascriptIndexPlugin extends RendererComponent {
+@@ -76,8 +113,8 @@ export class JavascriptIndexPlugin extends RendererComponent {
  			}
  
  			if ( !kinds[reflection.kind] ) {
@@ -140,7 +142,7 @@ index 8770e6fc..c6598447 100755
  				);
  			}
  
-@@ -91,14 +126,14 @@ export class JavascriptIndexPlugin extends RendererComponent {
+@@ -91,14 +128,14 @@ export class JavascriptIndexPlugin extends RendererComponent {
  		builder.field( 'name', { boost: 10 } );
  		builder.field( 'parent' );
  
@@ -158,7 +160,7 @@ index 8770e6fc..c6598447 100755
  		);
  		const jsonData = JSON.stringify( {
  			kinds,
-@@ -106,9 +141,10 @@ export class JavascriptIndexPlugin extends RendererComponent {
+@@ -106,9 +143,10 @@ export class JavascriptIndexPlugin extends RendererComponent {
  			index,
  		} );
  
@@ -167,10 +169,6 @@ index 8770e6fc..c6598447 100755
  			jsonFileName,
 -			`window.searchData = JSON.parse(${JSON.stringify( jsonData )});`
 +			`window.searchData = JSON.parse(${JSON.stringify( jsonData )});`,
- 		);
- 	}
- }
-`,
  		);
  	}
  }

@@ -1,11 +1,10 @@
 import assert from 'assert';
-import { resolve } from 'path';
 
-import { DeclarationReflection, ProjectReflection, ReflectionKind, RenderTemplate, RendererEvent, Theme, UrlMapping } from 'typedoc';
+import { DeclarationReflection, ProjectReflection, Reflection, ReflectionKind, RenderTemplate, RendererEvent, Theme, UrlMapping } from 'typedoc';
 
-import { rethrow, wrapError } from '@knodes/typedoc-pluginutils';
+import { PathReflectionResolver, catchWrap } from '@knodes/typedoc-pluginutils';
 
-import { IPluginOptions, IRootPageNode, PageNode } from '../../options';
+import { IPageNode, IPluginOptions } from '../../options';
 import type { PagesPlugin } from '../../plugin';
 import { MenuReflection, NodeReflection, PageReflection, PagesPluginReflectionKind } from '../../reflections';
 import { ANodeReflection } from '../../reflections/a-node-reflection';
@@ -19,6 +18,7 @@ interface IIOPath {
 }
 export abstract class APageTreeBuilder implements IPageTreeBuilder {
 	public abstract renderPageLink: RenderTemplate<RenderPageLinkProps>;
+	private readonly _pathReflectionResolver = new PathReflectionResolver( this.plugin );
 	private _mappings?: Array<UrlMapping<PageReflection>>;
 	public get mappings(): Array<UrlMapping<PageReflection>> {
 		assert( this._mappings );
@@ -34,10 +34,11 @@ export abstract class APageTreeBuilder implements IPageTreeBuilder {
 	/**
 	 * Generate mappings (pages) from the given node reflections.
 	 *
+	 * @param event - The render event to affect.
 	 * @param reflections - The list of node reflections (pages & menu).
 	 * @returns the list of mappings to create.
 	 */
-	protected abstract generateMappings( reflections: NodeReflection[] ): Array<UrlMapping<PageReflection>>;
+	protected abstract generateMappings( event: RendererEvent, reflections: NodeReflection[] ): Array<UrlMapping<PageReflection>>;
 	/**
 	 * Register the {@link nodeReflection} into the correct reflection (project or module).
 	 *
@@ -63,7 +64,7 @@ export abstract class APageTreeBuilder implements IPageTreeBuilder {
 				options.pages,
 				this.project,
 				{ input: options.source, output: options.output } );
-			this._mappings = this.generateMappings( reflections );
+			this._mappings = this.generateMappings( event, reflections );
 		}
 		if( !event.urls ){
 			event.urls = [];
@@ -84,6 +85,20 @@ export abstract class APageTreeBuilder implements IPageTreeBuilder {
 	}
 
 	/**
+	 * Get the module with the given {@link name}.
+	 *
+	 * @param reflection - The reflection to get the project from.
+	 * @param name - The name of the module to search.
+	 * @returns the module declaration reflection, or `undefined`.
+	 */
+	private _getModule( reflection: Reflection, name: string ){
+		const modules = this._pathReflectionResolver.getWorkspaces( reflection.project ).slice( 1 );
+		const modulesWithName = modules.filter( m => m.name === name );
+		assert( modulesWithName.length <= 1 );
+		return modulesWithName[0] as DeclarationReflection | undefined;
+	}
+
+	/**
 	 * Map multiple raw page node objects to node reflections.
 	 *
 	 * @param nodes - The nodes.
@@ -91,7 +106,7 @@ export abstract class APageTreeBuilder implements IPageTreeBuilder {
 	 * @param io - The children base input/output paths
 	 * @returns the node reflections.
 	 */
-	private _mapPagesToReflections( nodes: PageNode[], parent: ProjectReflection | DeclarationReflection, io: IIOPath ): NodeReflection[] {
+	private _mapPagesToReflections( nodes: IPageNode[], parent: ProjectReflection | DeclarationReflection, io: IIOPath ): NodeReflection[] {
 		return nodes
 			.map( n => this._mapPageToReflection( n, parent, io ) )
 			.flat( 1 );
@@ -105,20 +120,15 @@ export abstract class APageTreeBuilder implements IPageTreeBuilder {
 	 * @param io - The children base input/output paths
 	 * @returns the node reflections.
 	 */
-	private _mapPageToReflection( node: PageNode, parent: ProjectReflection | DeclarationReflection, io: IIOPath ): NodeReflection[] {
-		const childrenIO = {
+	private _mapPageToReflection( node: IPageNode, parent: ProjectReflection | DeclarationReflection, io: IIOPath ): NodeReflection[] {
+		const childrenIO: IIOPath = {
+			...io,
 			input: join( io.input, getDir( node, 'source' ) ),
 			output: join( io.output, getDir( node, 'output' ) ),
 		};
 		if( node.title === 'VIRTUAL' ){
 			return node.children ?
-				this._mapPagesToReflections(
-					node.children,
-					rethrow(
-						() => this._getNodeModuleOverride( node ),
-						err => wrapError( `Invalid virtual module ${getNodePath( node, parent )}`, err ),
-					) ?? parent,
-					childrenIO ) :
+				this._mapPagesToReflections( node.children, parent, childrenIO ) :
 				[];
 		}
 		// Strip empty menu items
@@ -127,6 +137,12 @@ export abstract class APageTreeBuilder implements IPageTreeBuilder {
 			return [];
 		}
 		const nodeReflection = this._getNodeReflection( node, parent, io );
+		if( !( nodeReflection.module instanceof ProjectReflection ) && nodeReflection.isModuleRoot ){
+			// If the node is attached to a new module, skip changes in the input tree (stay at root of `pages` in module)
+			childrenIO.input = io.input;
+			// Output is now like `pkg-a/pages/...`
+			childrenIO.output = `${nodeReflection.name.replace( /[^a-z0-9]/gi, '_' )}/${io.output ?? ''}`;
+		}
 		this.project.registerReflection( nodeReflection );
 		this.addNodeToProjectAsChild( nodeReflection );
 		const children = node.children ?
@@ -147,11 +163,11 @@ export abstract class APageTreeBuilder implements IPageTreeBuilder {
 	 * @param io - This node input/output paths.
 	 * @returns the node reflection.
 	 */
-	private _getNodeReflection( node: PageNode, parent: ProjectReflection | DeclarationReflection, io: IIOPath ){
+	private _getNodeReflection( node: IPageNode, parent: ProjectReflection | DeclarationReflection, io: IIOPath ){
 		const module: ProjectReflection | DeclarationReflection = parent instanceof ProjectReflection ? // If module is project (the default for root), see if workspace is overriden.
-			rethrow(
-				() => this._getNodeModuleOverride( node ),
-				err => wrapError( `Invalid node workspace override ${getNodePath( node, parent )}`, err ),
+			catchWrap(
+				() => this._getModule( parent, node.title ),
+				`Invalid node workspace override ${getNodePath( node, parent )}`,
 			) ?? parent : // Otherwise, we are either in a child page, or in a module.
 			parent instanceof ANodeReflection ? // If child page, inherit module
 				parent.module : // Otherwise, use module as parent
@@ -163,8 +179,11 @@ export abstract class APageTreeBuilder implements IPageTreeBuilder {
 			parent = module;
 		}
 		if( node.source ){
-			const filename = resolve( join( io.input, node.source ) );
-			return rethrow(
+			const filename = this._pathReflectionResolver.resolveNamedPath( parent.project, join( io.input, node.source ), { currentReflection: module } );
+			if( !filename ){
+				throw new Error( `Could not locate page for ${getNodePath( node, parent )}` );
+			}
+			return catchWrap(
 				() => new PageReflection(
 					node.title,
 					this.getReflectionKind( PagesPluginReflectionKind.PAGE ),
@@ -172,7 +191,7 @@ export abstract class APageTreeBuilder implements IPageTreeBuilder {
 					parent,
 					filename,
 					join( io.output, getNodeUrl( node ) ) ),
-				err => wrapError( `Could not generate a page reflection for ${getNodePath( node, parent )}`, err ) );
+				`Could not generate a page reflection for ${getNodePath( node, parent )}` );
 		}
 		return new MenuReflection(
 			node.title,
@@ -180,26 +199,4 @@ export abstract class APageTreeBuilder implements IPageTreeBuilder {
 			module,
 			parent );
 	}
-
-	/**
-	 * Obtain the container reflection (project or module) the given node should be attached to, depending on its {@link IRootPageNode.workspace}.
-	 *
-	 * @param node - The node to get the container for.
-	 * @returns the target container.
-	 */
-	private _getNodeModuleOverride( node: PageNode ){
-		if( 'workspace' in node && node.workspace ){
-			const { workspace } = node;
-			const module = this.project.getChildByName( workspace );
-			if( !module ){
-				const modules = this.project.getReflectionsByKind( ReflectionKind.Module );
-				throw new Error( `Could not get a module for workspace named "${workspace}". Known modules are ${JSON.stringify( modules.map( m => m.name ) )}` );
-			}
-			if( !( module instanceof DeclarationReflection ) || !module.kindOf( ReflectionKind.Module ) ){
-				throw new Error( `Found reflection for workspace name "${workspace}" is not a module reflection` );
-			}
-			return module;
-		}
-	}
 }
-( {} as IRootPageNode );
