@@ -108,6 +108,7 @@ jobs:
           at: .
       - attach_workspace:
           at: /tmp
+      - run: npm run projects:patch -- apply --no-stash
       - run:
           name: Send report
           command: /tmp/cc-test-reporter after-build --coverage-input-type lcov --exit-code $(cat ./TEST_STATUS)
