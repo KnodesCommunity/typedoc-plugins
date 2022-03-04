@@ -1,4 +1,4 @@
-import { isNumber, isString } from 'lodash';
+import { isFunction, isNumber, isString } from 'lodash';
 import { ReflectionKind } from 'typedoc';
 
 export const addReflectionKind = ( ns: string, name: string, value?: number ) => {
@@ -26,11 +26,14 @@ export const rethrow = <T>( block: () => T, newErrorFactory: ( err: any ) => str
 };
 
 export const wrapError = ( message: string, err: any, propagateStack = true ) => {
-	const newErr = new Error( `${message}:\n${err.message || err}` );
+	const newErr = new Error( `${message}:\n${err?.message || err}` );
 	if( propagateStack ){
-		if( 'stack' in err && err.stack ){
-			newErr.stack = err.stack;
+		if( err.stack ){
+			newErr.stack = `${message}\n${err.stack}`;
 		}
 	}
 	return newErr;
 };
+
+export const catchWrap = <T>( block: () => T, contextMessage: string | ( ( err: any ) => any ) ) =>
+	rethrow( block, err => isFunction( contextMessage ) ? contextMessage( err ) : wrapError( contextMessage, err ) );

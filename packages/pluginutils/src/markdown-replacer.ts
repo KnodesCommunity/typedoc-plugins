@@ -5,7 +5,7 @@ import { Context, Converter, JSX, MarkdownEvent, SourceFile } from 'typedoc';
 
 import { ABasePlugin } from './base-plugin';
 import { CurrentPageMemo } from './current-page-memo';
-import { reflectionSourceUtils, textUtils, wrapError } from './utils';
+import { catchWrap, reflectionSourceUtils, textUtils, wrapError } from './utils';
 
 interface ISourceEdit {
 	from: number;
@@ -167,17 +167,15 @@ export class MarkdownReplacer {
 					const expansionContext = ` (in expansion of ${expansions.concat( [ thisContainer ] ).map( e => e.label ).join( ' ⇒ ' )})`;
 					return relativeSource + posStr + expansionContext;
 				};
-				try {
-					const replacement = callback( { fullMatch, captures }, getSourceHint );
-					if( isNil( replacement ) ){
-						return fullMatch;
-					}
-					const replacementStr = typeof replacement === 'string' ? replacement : JSX.renderElement( replacement );
-					thisContainer.editions.push( { from: index, to: index + fullMatch.length, replacement: replacementStr, source: fullMatch } );
-					return replacementStr;
-				} catch( e: any ){
-					throw wrapError( `Error in ${getSourceHint()}`, e );
+				const replacement = catchWrap(
+					() => callback( { fullMatch, captures }, getSourceHint ),
+					e => wrapError( `Error in ${getSourceHint()}`, e ) );
+				if( isNil( replacement ) ){
+					return fullMatch;
 				}
+				const replacementStr = typeof replacement === 'string' ? replacement : JSX.renderElement( replacement );
+				thisContainer.editions.push( { from: index, to: index + fullMatch.length, replacement: replacementStr, source: fullMatch } );
+				return replacementStr;
 			} );
 		MarkdownReplacer._mapContainers.set( event, [
 			...mapContainers,
