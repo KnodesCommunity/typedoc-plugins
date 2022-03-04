@@ -1,0 +1,70 @@
+{
+  "name": "@knodes/typedoc-plugin-monorepo-readmes",
+  "version": "0.0.1",
+  "description": "A TypeDoc plugin to prepend modules indexes with readmes",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/KnodesCommunity/typedoc-plugins.git"
+  },
+  "bugs": {
+    "url": "https://github.com/KnodesCommunity/typedoc-plugins/issues"
+  },
+  "homepage": "https://github.com/KnodesCommunity/typedoc-plugins/tree/main/./packages/plugin-monorepo-readmes#readme",
+  "author": {
+    "email": "gerkin@knodes.org",
+    "name": "GerkinDev"
+  },
+  "keywords": [
+    "documentation",
+    "plugin",
+    "typedoc",
+    "typedoc-plugin",
+    "typedocplugin"
+  ],
+  "main": "dist/index.js",
+  "files": [
+    "dist",
+    "src"
+  ],
+  "scripts": {
+    "build": "tsc --project tsconfig.build.json",
+    "build:clean": "rimraf dist",
+    "lint": "eslint --ignore-path ../../.eslintignore '**/?(.)*.?([cm])[tj]s?(x)'",
+    "prepublish": "npm run build:clean && npm run build",
+    "test": "jest --config jest.config.js"
+  },
+  "dependencies": {
+    "@knodes/typedoc-pluginutils": "*",
+    "pkg-up": "^3.1.0"
+  },
+  "peerDependencies": {
+    "lodash": "^4.17.0",
+    "typedoc": "^0.22.0"
+  },
+  "devDependencies": {
+    "@knodes/eslint-config": "^1.6.3",
+    "@testing-library/jest-dom": "^5.16.2",
+    "@types/jest": "^27.4.1",
+    "@types/jsdom": "^16.2.14",
+    "@types/lodash": "^4.14.178",
+    "@types/node": "^17.0.21",
+    "@types/react": "^17.0.39",
+    "@typescript-eslint/eslint-plugin": "^5.12.1",
+    "@typescript-eslint/parser": "^5.12.1",
+    "eslint": "^8.9.0",
+    "eslint-plugin-eslint-comments": "^3.2.0",
+    "eslint-plugin-import": "^2.25.4",
+    "eslint-plugin-jsdoc": "^37.9.4",
+    "eslint-plugin-prefer-arrow": "^1.2.3",
+    "eslint-plugin-sort-export-all": "^1.2.1",
+    "jest": "^27.5.1",
+    "jest-extended": "^2.0.0",
+    "jest-junit": "^13.0.0",
+    "jsdom": "^19.0.0",
+    "rimraf": "^3.0.2",
+    "ts-jest": "^27.1.3",
+    "typedoc": "^0.22.12",
+    "typescript": "^4.5.5"
+  }
+}
