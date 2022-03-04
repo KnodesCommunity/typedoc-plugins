@@ -8,7 +8,7 @@ import { formatHtml, runPlugin } from '@knodes/typedoc-plugintestbed';
 import { checkDef, formatExpanded } from '../helpers';
 
 const rootDir = resolve( __dirname, '../mock-fs/monorepo' );
-jest.setTimeout( 30000 );
+jest.setTimeout( process.env.CI === 'true' ? 60000 : 30000 );
 beforeEach( () => {
 	process.chdir( rootDir );
 } );

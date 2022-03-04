@@ -9,7 +9,7 @@ import { checkFile, menuItemMatcher } from '../helpers';
 const rootDir = resolve( __dirname, '../mock-fs/monorepo' );
 const docsDir = resolve( rootDir, './docs' );
 process.chdir( rootDir );
-jest.setTimeout( 30000 );
+jest.setTimeout( process.env.CI === 'true' ? 60000 : 30000 );
 beforeAll( () => runPlugin( rootDir, resolve( __dirname, '../../src/index' ) ) );
 describe( 'Root module', () => {
 	it( '`index.html` should be correct', () => checkFile( docsDir, 'index.html', c => {
