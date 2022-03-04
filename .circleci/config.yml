@@ -41,7 +41,7 @@ jobs:
             - v1--npm-ci
       - run: npm ci
       - save_cache:
-          key: v1--npm-ci-{{ .Branch }}-{{ checksum "package-lock.json" }}
+          key: v1--npm-ci-{{ .Branch }}--{{ checksum "package-lock.json" }}
           paths:
             - ~/.npm
       - persist_to_workspace:
@@ -62,7 +62,7 @@ jobs:
             - v1--npm-i
       - run: npm install && npm install --workspaces
       - save_cache:
-          key: v1--npm-i-{{ .Branch }}-{{ checksum "package-lock.json" }}
+          key: v1--npm-i-{{ .Branch }}--{{ checksum "package-lock.json" }}
           paths:
             - ~/.npm
       - persist_to_workspace:
