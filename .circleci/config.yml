@@ -349,7 +349,7 @@ jobs:
 workflows:
   renovate: # Workflow ran only on `renovate/*`
     when:
-      matches: { pattern: "^renovate/", value: << pipeline.git.branch >> }
+      matches: { pattern: "^renovate/.+$", value: << pipeline.git.branch >> }
     jobs:
       - checkout
       - npm-install:
@@ -367,17 +367,16 @@ workflows:
           requires:
             - build
 
-      - git-merge-develop:
-          requires:
-            - test
-            - build
+      # - git-merge-develop:
+      #     requires:
+      #       - test
+      #       - build
   check: # Workflow ran on all branches except `main`, `develop` and `renovate/*`
     unless:
-      matches: { pattern: "^renovate/", value: << pipeline.git.branch >> }
-      # or:
+      or:
       #   - equal: [ main, << pipeline.git.branch >> ]
       #   - equal: [ develop, << pipeline.git.branch >> ]
-      #   - matches: { pattern: "^renovate/", value: << pipeline.git.branch >> }
+        - matches: { pattern: "^renovate/.+$", value: << pipeline.git.branch >> }
     jobs:
       - checkout
       - npm-ci-install:
