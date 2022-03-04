@@ -38,7 +38,8 @@
     "projects:test": "jest",
     "release:do": "standard-version -a",
     "release:trigger": "git commit --allow-empty -m \"ci(release): trigger release\"",
-    "test:ci": "JEST_JUNIT_OUTPUT_NAME=junit.xml jest --all --ci --reporters=default --reporters=jest-junit --collectCoverage",
+    "test:ci:coverage": "npm run test:ci -- --collectCoverage",
+    "test:ci": "JEST_JUNIT_OUTPUT_NAME=junit.xml jest --all --ci --reporters=default --reporters=jest-junit",
     "tools:infer-next-version": "NODE_NO_WARNINGS=1 node tools/infer-next-version",
     "tools:release": "NODE_NO_WARNINGS=1 node tools/release"
   },

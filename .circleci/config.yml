@@ -112,7 +112,7 @@ jobs:
       - run:
           name: Send report
           command: /tmp/cc-test-reporter after-build --coverage-input-type lcov --exit-code $(cat ./TEST_STATUS)
-  test:
+  test-coverage:
     executor: node
     resource_class: medium+
     steps:
@@ -121,9 +121,8 @@ jobs:
       - run: npm run projects:patch -- apply --no-stash
       - run: npm run lint
       - run:
-          name: Tests
           command: |
-            npm run test:ci
+            npm run test:ci:coverage
             echo $? > TEST_STATUS
           when: always
       - store_artifacts:
@@ -137,6 +136,21 @@ jobs:
           paths: 
             - coverage
             - TEST_STATUS
+  test:
+    executor: node
+    resource_class: medium+
+    steps:
+      - attach_workspace:
+          at: .
+      - run: npm run projects:patch -- apply --no-stash
+      - run: npm run lint
+      - run:
+          command: npm run test:ci
+          when: always
+      - store_artifacts:
+          path: ./junit.xml
+      - store_test_results:
+          path: ./junit.xml
   build:
     executor: node
     resource_class: small
@@ -359,10 +373,11 @@ workflows:
             - build
   check: # Workflow ran on all branches except `main`, `develop` and `renovate/*`
     unless:
-      or:
-        # - equal: [ main, << pipeline.git.branch >> ]
-        # - equal: [ develop, << pipeline.git.branch >> ]
-        - matches: { pattern: "^renovate/", value: << pipeline.git.branch >> }
+      matches: { pattern: "^renovate/", value: << pipeline.git.branch >> }
+      # or:
+      #   - equal: [ main, << pipeline.git.branch >> ]
+      #   - equal: [ develop, << pipeline.git.branch >> ]
+      #   - matches: { pattern: "^renovate/", value: << pipeline.git.branch >> }
     jobs:
       - checkout
       - npm-ci-install:
@@ -377,13 +392,13 @@ workflows:
           requires:
             - npm-ci-install
             - clone-typedoc
-      - test:
+      - test-coverage:
           requires:
             - build
             - codeclimate-before
       - codeclimate-after:
           requires:
-            - test
+            - test-coverage
   # publish: # Workflow ran only on `main` & `develop`
   #   when:
   #     or:
