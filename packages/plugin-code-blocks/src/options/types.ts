@@ -13,9 +13,9 @@ export enum EInvalidBlockLinkHandling {
  */
 export interface IPluginOptions {
 	/**
-	 * The kind of error to throw in case of an invalid page link.
+	 * The kind of error to throw in case of an invalid code block reference.
 	 *
-	 * @default EInvalidPageLinkHandling.LOG_ERROR
+	 * @default EInvalidBlockLinkHandling.LOG_ERROR
 	 */
 	invalidBlockLinkHandling: EInvalidBlockLinkHandling;
 

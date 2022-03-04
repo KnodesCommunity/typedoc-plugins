@@ -8,7 +8,7 @@ import { EInvalidBlockLinkHandling, IPluginOptions } from './types';
 
 export const buildOptions = ( plugin: CodeBlockPlugin ) => OptionGroup.factory<IPluginOptions>( plugin )
 	.add( 'invalidBlockLinkHandling', {
-		help: 'The kind of error to throw in case of an invalid code block.',
+		help: 'The kind of error to throw in case of an invalid code block reference.',
 		type: ParameterType.Map,
 		map: EInvalidBlockLinkHandling,
 		defaultValue: EInvalidBlockLinkHandling.LOG_ERROR,

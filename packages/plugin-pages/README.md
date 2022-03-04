@@ -23,18 +23,25 @@ npm install --save-dev @knodes/typedoc-plugin-pages typedoc@^0.22.0
 
 - 🔍 Search integration
 - 🔗 Interpage hyperlinks
-- 🎨 Integrated Theme
-- 📑 Reflection Navigation Title Customization
-- ✏️ Integrated spell-checking (coming soon...)
-
-## Demo
-
-You can view a live demo of the original `typedoc-plugin-pages` [here](https://mipatterson.github.io/typedoc-plugin-pages/).
+- 🎨 Compatible with the default theme
+- 📁 Monorepo support
+- 🎯 Locate invalid markups
 
 ## Usage
 
-See the [Quick Start](https://mipatterson.github.io/typedoc-plugin-pages/pages/Getting%20Started/quick-start.html) guide to get started.
+In any markdown content, you can use the `{@page ...}` macro to lookup for pages.
 
-## Supported Versions of TypeDoc
+Syntax:
 
-This plugin is designed to work with as many versions of TypeDoc as possible. It has been tested with the following versions `0.16.5` through `0.17.6`. If you are reporting an issue, please include the version of TypeDoc you are using the plugin with.
+```md
+{@page <path-to-file>[ link label]}
+```
+
+* `<path-to-file>`: A path to the desired page. The page resolution is as follow:
+  * If the path starts with a `.`, search from the current file.
+  * If the path starts with `~~/`, search from the project root.
+  * If the path starts with `~[....]/`, search from the module/workspace with the given name.
+  * Otherwise, the page is searched from the current module/workspace (or the project root).
+* `[ link label]`: allow to specify the text in the link.
+
+Module/workspace/project resolution first tries to search in the `pages` subfolder. You can customize this setting with the `source` option.
