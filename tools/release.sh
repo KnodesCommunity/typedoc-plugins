@@ -1,4 +1,5 @@
 #! /bin/zsh
+set -e
 VERSION=$(node tools/infer-next-version)
 echo "Will publish version '${VERSION}'"
 if ! read -q "REPLY?Are you sure? "; then
@@ -17,7 +18,7 @@ npm run projects:build
 npm run lint
 npm run projects:test -- --all
 # Commit
-git commit -m "chore: bump to version ${VERSION}"
+git commit -m "chore: bump to version ${VERSION}" --no-verify
 git tag "v${VERSION}"
 # Publish docs
 npm run docs
@@ -30,10 +31,11 @@ git init .
 git remote add origin "${REMOTE_URL}"
 git fetch
 git checkout --track origin/docs
-rsync -va --delete "${PWD_SV}/docs/*" .
+rsync -va --delete --exclude ".git" "${PWD_SV}/docs/" ./
 git add .
 git commit -m "docs: publish docs for v${VERSION}"
-git push
-# Publish on NPM
 cd "${PWD_SV}"
-npm publish --access public --workspaces
+# Print publish script
+# BRANCH="$(git rev-parse --abbrev-ref HEAD)"
+echo "All is OK so far. To finish publishing, enter the following command:"
+echo "( cd ${TEMP_DIR} && git push ) && git merge --ff-only main && git push develop main --follow-tags && npm publish --access public --workspaces"
