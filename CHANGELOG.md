@@ -1,3 +1,12 @@
+## [0.22.2](https://github.com/KnodesCommunity/typedoc-plugins/compare/v0.22.1...v0.22.2) (2022-03-06)
+
+
+### Bug Fixes
+
+* **plugin-pages:** include missing `static` folder in package files ([1889d89](https://github.com/KnodesCommunity/typedoc-plugins/commit/1889d8919b90bb8716bd9b6d97962bab5ad17132))
+
+
+
 ## 0.22.1 (2022-03-04)
 
 

@@ -1,6 +1,6 @@
 {
   "name": "@knodes/typedoc-plugintestbed",
-  "version": "0.22.1",
+  "version": "0.22.2",
   "description": "A set of utilities to test TypeDoc plugins",
   "license": "MIT",
   "repository": {
@@ -36,7 +36,7 @@
     "unionfs": "^4.4.0"
   },
   "peerDependencies": {
-    "@knodes/typedoc-pluginutils": "~0.22.1",
+    "@knodes/typedoc-pluginutils": "~0.22.2",
     "lodash": "^4.17.0",
     "typedoc": "^0.22.0"
   },

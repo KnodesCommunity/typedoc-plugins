@@ -1,6 +1,6 @@
 {
   "name": "@knodes/typedoc-plugin-code-blocks",
-  "version": "0.22.1",
+  "version": "0.22.2",
   "description": "A TypeDoc plugin to embed source code into your output documentation",
   "license": "MIT",
   "repository": {
@@ -37,7 +37,7 @@
     "test": "jest --config jest.config.js"
   },
   "dependencies": {
-    "@knodes/typedoc-pluginutils": "~0.22.1"
+    "@knodes/typedoc-pluginutils": "~0.22.2"
   },
   "peerDependencies": {
     "lodash": "^4.17.0",
@@ -45,7 +45,7 @@
   },
   "devDependencies": {
     "@knodes/eslint-config": "^1.6.3",
-    "@knodes/typedoc-plugintestbed": "~0.22.1",
+    "@knodes/typedoc-plugintestbed": "~0.22.2",
     "@testing-library/jest-dom": "^5.16.2",
     "@types/jest": "^27.4.1",
     "@types/jsdom": "^16.2.14",
