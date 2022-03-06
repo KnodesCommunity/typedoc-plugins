@@ -7,6 +7,9 @@ module.exports = {
 	entryPointStrategy: 'packages',
 	pluginPages: {
 		pages: [
+			{ title: 'VIRTUAL', childrenDir: '../', children: [
+				{ title: 'Changelog', source: 'CHANGELOG.md' },
+			] },
 			{ title: '@knodes/typedoc-plugin-code-blocks', source: 'readme-extras.md', children: [
 				{ title: 'Using options', source: 'options.md' },
 			] },
