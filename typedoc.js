@@ -22,4 +22,5 @@ module.exports = {
 	pluginCodeBlocks: {
 		source: '__tests__/mock-fs',
 	},
+	excludePrivate: true,
 };
