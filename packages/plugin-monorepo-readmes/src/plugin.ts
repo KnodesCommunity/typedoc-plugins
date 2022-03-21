@@ -7,6 +7,15 @@ import { Application, DeclarationReflection, DefaultTheme, JSX, PageEvent, Proje
 
 import { ABasePlugin } from '@knodes/typedoc-pluginutils';
 
+const getModuleReflectionSource = ( reflection: DeclarationReflection ) => {
+	for( const source of reflection.sources ?? [] ) {
+		if( source.file ){
+			return source.file?.fullFileName;
+		}
+	}
+	return undefined;
+};
+
 export class MonorepoReadmePlugin extends ABasePlugin {
 	public constructor( application: Application ){
 		super( application, __filename );
@@ -25,7 +34,7 @@ export class MonorepoReadmePlugin extends ABasePlugin {
 			const theme = this.application.renderer.theme;
 			const modulesUrls = event.urls.filter( ( u ): u is UrlMapping<DeclarationReflection> => u.model instanceof DeclarationReflection && u.model.kindOf( ReflectionKind.Module ) );
 			modulesUrls.forEach( u => {
-				const src = u.model.sources?.[0].fileName;
+				const src = getModuleReflectionSource( u.model );
 				if( !src ){
 					return;
 				}
