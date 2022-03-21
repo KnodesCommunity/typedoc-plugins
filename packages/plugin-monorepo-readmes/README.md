@@ -17,6 +17,8 @@
 
 This plugin version should match TypeDoc `^0.22.0` for compatibility.
 
+> **Note**: this plugin version was released by testing against `^0.22.13`.
+
 ## Quick start
 
 ```sh

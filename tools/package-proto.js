@@ -20,22 +20,19 @@ const getDocsUrl = pkgJson => `https://knodescommunity.github.io/typedoc-plugins
  * }} ProtoHandler
  */
 
-const readProjectPackageJson = projectPath => {
+const readProjectPackageJson = async projectPath => {
 	const projectPkgPath = resolve( projectPath, 'package.json' );
-	try {
+	const content = await tryReadFile( projectPkgPath );
+	if( content ){
 		return {
-			packageContent: require( projectPkgPath ),
+			packageContent: JSON.parse( content ),
 			path: projectPkgPath,
 		};
-	} catch( e ){
-		if( e.code === 'MODULE_NOT_FOUND' ){
-			return {
-				packageContent: undefined,
-				path: projectPkgPath,
-			};
-		} else {
-			throw e;
-		}
+	} else {
+		return {
+			packageContent: undefined,
+			path: projectPkgPath,
+		};
 	}
 };
 
@@ -57,7 +54,7 @@ const packageJson = () => {
 	const getProtoPkg = memoize( proto => readFile( resolve( proto, 'package.json' ), 'utf-8' ) );
 	return {
 		run: async ( proto, { path: projectPath } ) => {
-			const { packageContent = {}, path: packagePath } = readProjectPackageJson( projectPath ) ?? {};
+			const { packageContent = {}, path: packagePath } = await readProjectPackageJson( projectPath ) ?? {};
 			const protoPkgContent = await getProtoPkg( proto );
 			const protoPkg = JSON.parse( protoPkgContent
 				.replace( /\{projectRelDir\}/g, projectPath )
@@ -134,6 +131,7 @@ const syncFs = () => {
 	} );
 	const conflicting = [];
 	return {
+		name: 'syncFs',
 		run: async ( proto, { path: projectPath }, handlers ) => {
 			const { dirs, files } = await protoFs( proto, handlers );
 			for( const dir of dirs ){
@@ -205,7 +203,7 @@ const readme = () => {
 	 */
 	const replaceHeader = async ( readmeFile, projectPath ) => {
 		const readmeContent = ( await tryReadFile( readmeFile, 'utf-8' ) ) ?? '';
-		const { packageContent } = readProjectPackageJson( projectPath );
+		const { packageContent } = await readProjectPackageJson( projectPath );
 		if( !packageContent ){
 			throw new Error();
 		}
@@ -225,12 +223,21 @@ ${shield( 'CircleCI', '/circleci/build/github/KnodesCommunity/typedoc-plugins/ma
 ${shield( 'Code Climate coverage', '/codeclimate/coverage-letter/KnodesCommunity/typedoc-plugins', 'https://codeclimate.com/github/KnodesCommunity/typedoc-plugins' )}
 ${shield( 'Code Climate maintainability', '/codeclimate/maintainability/KnodesCommunity/typedoc-plugins', 'https://codeclimate.com/github/KnodesCommunity/typedoc-plugins' )}`;
 		const typedocVer = packageContent.dependencies?.['typedoc'] ?? packageContent.peerDependencies?.['typedoc'];
+		const devTypedocVer = packageContent.devDependencies?.['typedoc'];
+		if( typedocVer || devTypedocVer ){
+			newHeader += `
+
+## Compatibility`;
+		}
 		if( typedocVer ){
 			newHeader += `
 
-## Compatibility
-
 This plugin version should match TypeDoc \`${typedocVer}\` for compatibility.`;
+		}
+		if( devTypedocVer ){
+			newHeader += `
+
+> **Note**: this plugin version was released by testing against \`${devTypedocVer}\`.`;
 		}
 		newHeader += `
 
@@ -253,6 +260,7 @@ ${newHeader}
 		await writeFile( readmeFile, newReadme );
 	};
 	return {
+		name: 'readme',
 		run: async ( _proto, { path: projectPath } ) => {
 			const readmeFiles = await globAsync( `${projectPath}/@(readme|README).@(md|MD)` );
 			if( readmeFiles.length > 1 ){
@@ -286,13 +294,17 @@ if( require.main === module ){
 			readme(),
 		];
 		for( const { setup } of handlers ){
-			await setup?.( protoDir, projects, handlers );
+			if( setup ){
+				await setup( protoDir, projects, handlers );
+			}
 		}
 		for( const { run } of handlers ){
 			await Promise.all( projects.map( p => run( protoDir, p, handlers ) ) );
 		}
 		for( const { tearDown } of handlers ){
-			await tearDown?.( protoDir, projects, handlers );
+			if( tearDown ){
+				await tearDown( protoDir, projects, handlers );
+			}
 		}
 	} )();
 }
