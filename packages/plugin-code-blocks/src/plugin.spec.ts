@@ -51,6 +51,10 @@ describe( 'Behavior', () => {
 		const text = 'Hello world' ;
 		expect( markdownReplacerTestbed.runMarkdownReplace( text ) ).toEqual( text );
 	} );
+	it( 'should transform correctly escaped code block', () => {
+		const text = '{\\@codeblock example}';
+		expect( markdownReplacerTestbed.runMarkdownReplace( text ) ).toEqual( '{@codeblock example}' );
+	} );
 	describe( 'Code block generation', ()=> {
 		const file = 'foo/qux.txt';
 		const code = `Content of ${file}`;
@@ -108,6 +112,7 @@ describe( 'Behavior', () => {
 			expect( () => markdownReplacerTestbed.runMarkdownReplace( '{@codeblock foo/bar.txt#nope}' ) ).toThrowWithMessage( Error, /^Missing block nope/m );
 		} );
 		it( 'should throw if invalid mode', () => {
+			setVirtualFs( { foo: { 'bar.txt': '' }} );
 			setup( uuid => JSX.createElement( 'p', {}, uuid ) );
 			readCodeSampleMock.mockReturnValue( new Map( [[ DEFAULT_BLOCK_NAME, { code, ...defaultBlock } ]] ) );
 			expect( () => markdownReplacerTestbed.runMarkdownReplace( '{@codeblock foo/bar.txt asdasd}' ) ).toThrowWithMessage( Error, /^Invalid block mode "asdasd"/m );

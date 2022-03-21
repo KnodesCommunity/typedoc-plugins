@@ -26,6 +26,14 @@ interface ISourceMapContainer {
 	readonly plugin: ABasePlugin;
 	readonly regex: RegExp;
 }
+interface IMapSource {
+	line: number;
+	column: number;
+	expansions: ISourceMapContainer[];
+	index: number;
+	source: string;
+}
+
 const spitArgs = ( ...args: Parameters<Parameters<typeof String.prototype.replace>[1]> ) => {
 	const indexIdx = args.findIndex( isNumber );
 	if( isNil( indexIdx ) ){
@@ -105,6 +113,29 @@ export class MarkdownReplacer {
 		this.plugin.application.renderer.on( MarkdownEvent.PARSE, this._processMarkdown.bind( this, regex, callback, label ), undefined, 100 );
 	}
 
+	/**
+	 * Bind {@link MarkdownEvent} to replace every occurences of the jsdoc tags whose body is matched by the {@link bodyRegex}. The tag is replaced with the {@link callback} result.
+	 * Note that tags must have the following syntax: `{@tagname some params here}`. The {@link bodyRegex} should __only__ match `tagname some params here`
+	 *
+	 * @param bodyRegex - The tag body regex.
+	 * @param callback - The callback to execute with fullMatch, captures, & a source hint.
+	 * @param label - The replacer name.
+	 */
+	public bindTag( bodyRegex: RegExp, callback: MarkdownReplacer.ReplaceCallback, label = `${this.plugin.name}: Unnamed markdown tag replace` ){
+		assert( bodyRegex.flags.includes( 'g' ) );
+		const tagRegex = new RegExp( `\\{\\\\?@${bodyRegex.source}\\s*\\}`, bodyRegex.flags );
+		this.bindReplace( tagRegex, ( { fullMatch, captures }, sourceHint ) => {
+			// Support escaped tags
+			if( fullMatch.startsWith( '{\\@' ) ){
+				this.plugin.logger.verbose( () => `Found an escaped tag "${fullMatch}" in "${sourceHint()}"` );
+				return fullMatch.replace( '{\\@', '{@' );
+			}
+			// Remove `{@` & `}`
+			const newFullMatch = fullMatch.slice( 2 ).slice( 0, -1 );
+			return callback( { fullMatch: newFullMatch, captures }, sourceHint );
+		}, label );
+	}
+
 
 	/**
 	 * Match every strings for {@link regex} & replace them with the return value of the {@link callback}. This method mutates the {@link event}.
@@ -121,11 +152,51 @@ export class MarkdownReplacer {
 		event: MarkdownEvent,
 	) {
 		const mapContainers = MarkdownReplacer._getEventMapContainers( event );
+		const originalText = event.parsedText;
+		const getMapSource = last( mapContainers )?.getEditionContext ??
+			( pos => ( { ...textUtils.getCoordinates( originalText, pos ), source: originalText, index: pos, expansions: [] } as IMapSource ) );
+
 		const sourceFile = this._currentPageMemo.hasCurrent ? reflectionSourceUtils.getReflectionSourceFileName( this._currentPageMemo.currentReflection ) : undefined;
 		const relativeSource = sourceFile ? this.plugin.relativeToRoot( sourceFile ) : undefined;
-		const originalText = event.parsedText;
-		const getCtxInParent = last( mapContainers )?.getEditionContext ??
-			( pos => ( { ...textUtils.getCoordinates( originalText, pos ), source: originalText, index: pos, expansions: [] } ) );
+		const thisContainer: ISourceMapContainer = this._generateSourceMapContainer( regex, label, getMapSource );
+		event.parsedText = originalText.replace(
+			regex,
+			( ...args ) => {
+				const { captures, fullMatch, index } = spitArgs( ...args );
+				const getSourceHint = () => {
+					if( !relativeSource ){
+						return 'UNKNOWN SOURCE';
+					}
+					const { line, column, expansions } = getMapSource( index );
+					const posStr = line && column ? `:${line}:${column}` : '';
+					const expansionContext = ` (in expansion of ${expansions.concat( [ thisContainer ] ).map( e => e.label ).join( ' ⇒ ' )})`;
+					return relativeSource + posStr + expansionContext;
+				};
+				const replacement = catchWrap(
+					() => callback( { fullMatch, captures }, getSourceHint ),
+					e => wrapError( `Error in ${getSourceHint()}`, e ) );
+				if( isNil( replacement ) ){
+					return fullMatch;
+				}
+				const replacementStr = typeof replacement === 'string' ? replacement : JSX.renderElement( replacement );
+				thisContainer.editions.push( { from: index, to: index + fullMatch.length, replacement: replacementStr, source: fullMatch } );
+				return replacementStr;
+			} );
+		MarkdownReplacer._mapContainers.set( event, [
+			...mapContainers,
+			thisContainer,
+		] );
+	}
+
+	/**
+	 * Create a new source map container for the given {@link regex} & {@link label}, that will chain with {@link getMapSource} to get location in the actual original source.
+	 *
+	 * @param regex - The regex used for replacement.
+	 * @param label - The replacement label.
+	 * @param getMapSource - The method to get the position before previous replacement.
+	 * @returns a new map container.
+	 */
+	private _generateSourceMapContainer( regex: RegExp, label: string, getMapSource: ( pos: number ) => IMapSource ): ISourceMapContainer {
 		const thisContainer: ISourceMapContainer = {
 			regex,
 			editions: [],
@@ -147,40 +218,14 @@ export class MarkdownReplacer {
 						};
 					},
 					{ offsetedPos: pos, didEdit: false } );
-				const parentCtx = getCtxInParent( offsetedPos );
+				const source = getMapSource( offsetedPos );
 				if( didEdit ){
-					parentCtx.expansions = [ ...parentCtx.expansions, thisContainer ];
+					source.expansions = [ ...source.expansions, thisContainer ];
 				}
-				return parentCtx;
+				return source;
 			},
 		};
-		event.parsedText = originalText.replace(
-			regex,
-			( ...args ) => {
-				const { captures, fullMatch, index } = spitArgs( ...args );
-				const getSourceHint = () => {
-					if( !relativeSource ){
-						return 'UNKNOWN SOURCE';
-					}
-					const { line, column, expansions } = getCtxInParent( index );
-					const posStr = line && column ? `:${line}:${column}` : '';
-					const expansionContext = ` (in expansion of ${expansions.concat( [ thisContainer ] ).map( e => e.label ).join( ' ⇒ ' )})`;
-					return relativeSource + posStr + expansionContext;
-				};
-				const replacement = catchWrap(
-					() => callback( { fullMatch, captures }, getSourceHint ),
-					e => wrapError( `Error in ${getSourceHint()}`, e ) );
-				if( isNil( replacement ) ){
-					return fullMatch;
-				}
-				const replacementStr = typeof replacement === 'string' ? replacement : JSX.renderElement( replacement );
-				thisContainer.editions.push( { from: index, to: index + fullMatch.length, replacement: replacementStr, source: fullMatch } );
-				return replacementStr;
-			} );
-		MarkdownReplacer._mapContainers.set( event, [
-			...mapContainers,
-			thisContainer,
-		] );
+		return thisContainer;
 	}
 }
 export namespace MarkdownReplacer {

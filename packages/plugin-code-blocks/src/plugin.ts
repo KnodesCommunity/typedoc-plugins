@@ -12,7 +12,7 @@ import { buildOptions } from './options';
 import { CodeBlockReflection } from './reflections';
 import { EBlockMode } from './types';
 
-const EXTRACT_CODE_BLOCKS_REGEX = /\{\\?@codeblock\s+(\S+?\w+?)(?:#(.+?))?(?:\s+(\w+))?(?:\s*\|\s*(.*?))?\s*\}/g;
+const EXTRACT_CODE_BLOCKS_REGEX = /codeblock\s+(\S+?\w+?)(?:#(.+?))?(?:\s+(\w+))?(?:\s*\|\s*(.*?))?\s*/g;
 const EXTRACT_INLINE_CODE_BLOCKS_REGEX = /\{\\?@inline-codeblock\s+(\S+?\w+?)(?:\s+(\w+))?\s*}\n(\s*)(```.*?```)/gs;
 /**
  * Pages plugin for integrating your own pages into documentation output
@@ -36,7 +36,7 @@ export class CodeBlockPlugin extends ABasePlugin {
 	 */
 	public initialize(): void {
 		// Hook over each markdown events to replace code blocks
-		this._markdownReplacer.bindReplace( EXTRACT_CODE_BLOCKS_REGEX, this._replaceCodeBlock.bind( this ), '{@codeblock}' );
+		this._markdownReplacer.bindTag( EXTRACT_CODE_BLOCKS_REGEX, this._replaceCodeBlock.bind( this ), '{@codeblock}' );
 		this._markdownReplacer.bindReplace( EXTRACT_INLINE_CODE_BLOCKS_REGEX, this._replaceInlineCodeBlock.bind( this ), '{@inline-codeblock}' );
 		this._currentPageMemo.initialize();
 		EventsExtra.for( this.application )
@@ -64,9 +64,6 @@ export class CodeBlockPlugin extends ABasePlugin {
 		}
 		// Extract informations
 		const [ fileName, blockModeStr, blockIndent, markdownCodeSource ] = captures;
-		const blockMode = blockModeStr ?
-			EBlockMode[blockModeStr.toUpperCase() as keyof typeof EBlockMode] ?? assert.fail( `Invalid block mode "${blockModeStr}".` ) :
-			this.pluginOptions.getValue().defaultBlockMode ?? EBlockMode.EXPANDED;
 		assert.ok( fileName );
 		assert.ok( markdownCodeSource );
 		assert.ok( isString( blockIndent ) );
@@ -76,7 +73,7 @@ export class CodeBlockPlugin extends ABasePlugin {
 		const rendered = this._codeBlockRenderer().renderInlineCodeBlock( {
 			fileName,
 			markdownCode,
-			mode: blockMode,
+			mode: this._getBlockMode( blockModeStr ),
 		} );
 		if( typeof rendered === 'string' ){
 			return rendered;
@@ -98,18 +95,10 @@ export class CodeBlockPlugin extends ABasePlugin {
 	): ReturnType<MarkdownReplacer.ReplaceCallback> {
 		// Avoid recursion in code blocks
 		if( this._currentPageMemo.currentReflection instanceof CodeBlockReflection ){
-			return fullMatch;
-		}
-		// Support escaped tags
-		if( fullMatch.startsWith( '{\\@' ) ){
-			this.logger.verbose( () => `Found an escaped tag "${fullMatch}" in "${sourceHint()}"` );
-			return fullMatch.replace( '{\\@', '{@' );
+			return `{@${fullMatch}}`;
 		}
 		// Extract informations
 		const [ file, block, blockModeStr, fakedFileName ] = captures;
-		const blockMode = blockModeStr ?
-			EBlockMode[blockModeStr.toUpperCase() as keyof typeof EBlockMode] ?? assert.fail( `Invalid block mode "${blockModeStr}".` ) :
-			this.pluginOptions.getValue().defaultBlockMode ?? EBlockMode.EXPANDED;
 		assert.ok( file );
 		const defaultedBlock = block ?? DEFAULT_BLOCK_NAME; // TODO: Use ??= once on node>14
 		const useWholeFile = defaultedBlock === DEFAULT_BLOCK_NAME;
@@ -146,7 +135,7 @@ export class CodeBlockPlugin extends ABasePlugin {
 			const rendered = this._codeBlockRenderer().renderCodeBlock( {
 				asFile: headerFileName,
 				content: codeSample.code,
-				mode: blockMode,
+				mode: this._getBlockMode( blockModeStr ),
 				sourceFile: resolvedFile,
 				url,
 			} );
@@ -156,6 +145,18 @@ export class CodeBlockPlugin extends ABasePlugin {
 				return JSX.renderElement( rendered );
 			}
 		} );
+	}
+
+	/**
+	 * Parse the mode string to a valid enum member {@link EBlockMode}. If the mode string is null, empty or undefined, returns the default block mode.
+	 *
+	 * @param modeStr - The raw input block mode.
+	 * @returns the {@link EBlockMode} infered from input.
+	 */
+	private _getBlockMode( modeStr?: string | null ) {
+		return modeStr ?
+			EBlockMode[modeStr.toUpperCase() as keyof typeof EBlockMode] ?? assert.fail( `Invalid block mode "${modeStr}".` ) :
+			this.pluginOptions.getValue().defaultBlockMode ?? EBlockMode.EXPANDED;
 	}
 
 	/**

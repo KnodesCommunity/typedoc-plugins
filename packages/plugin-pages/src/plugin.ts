@@ -9,7 +9,7 @@ import { buildOptions } from './options';
 import { NodeReflection } from './reflections';
 import { initThemePlugins } from './theme-plugins';
 
-const EXTRACT_PAGE_LINK_REGEX = /{\\?@page\s+(\S+?\w+?)(?:\s+([^}]+?))?\s*}/g;
+const EXTRACT_PAGE_LINK_REGEX = /page\s+(\S+?\w+?)(?:\s+([^}]+?))?\s*/g;
 export class PagesPlugin extends ABasePlugin {
 	public readonly pluginOptions = buildOptions( this );
 	private readonly _pageTreeBuilder = once( () => initThemePlugins( this.application, this ) );
@@ -32,7 +32,7 @@ export class PagesPlugin extends ABasePlugin {
 		EventsExtra.for( this.application )
 			.beforeOptionsFreeze( () => {
 				if( this.pluginOptions.getValue().enablePageLinks ){
-					this._markdownReplacer.bindReplace( EXTRACT_PAGE_LINK_REGEX, this._replacePageLink.bind( this ), '{@page}' );
+					this._markdownReplacer.bindTag( EXTRACT_PAGE_LINK_REGEX, this._replacePageLink.bind( this ), '{@page}' );
 				}
 			} )
 			.onThemeReady( this._pageTreeBuilder.bind( this ) )
@@ -63,10 +63,6 @@ export class PagesPlugin extends ABasePlugin {
 		{ captures, fullMatch }: Parameters<MarkdownReplacer.ReplaceCallback>[0],
 		sourceHint: Parameters<MarkdownReplacer.ReplaceCallback>[1],
 	): ReturnType<MarkdownReplacer.ReplaceCallback> {
-		if( fullMatch.startsWith( '{\\@' ) ){
-			this.logger.verbose( () => `Found an escaped tag "${fullMatch}" in "${sourceHint()}"` );
-			return fullMatch.replace( '{\\@', '{@' );
-		}
 		const [ page, label ] = captures;
 		assert( isString( page ) );
 		const resolvedFile = this._pathReflectionResolver.resolveNamedPath(
