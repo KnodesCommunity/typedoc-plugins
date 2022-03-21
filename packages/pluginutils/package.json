@@ -36,7 +36,7 @@
     "test": "jest --config jest.config.js"
   },
   "dependencies": {
-    "pkg-up": "^3.1.0",
+    "pkg-up": "^4.0.0",
     "semver": "^7.3.5"
   },
   "peerDependencies": {
