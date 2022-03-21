@@ -45,7 +45,6 @@
   },
   "devDependencies": {
     "@knodes/eslint-config": "^1.6.3",
-    "@knodes/typedoc-plugintestbed": "~0.22.2",
     "@testing-library/jest-dom": "^5.16.2",
     "@types/jest": "^27.4.1",
     "@types/jsdom": "^16.2.14",

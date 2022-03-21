@@ -1,4 +1,4 @@
-import { restoreFs, setVirtualFs } from '@knodes/typedoc-plugintestbed';
+import { restoreFs, setVirtualFs } from '#plugintestbed';
 
 import { DEFAULT_BLOCK_NAME, readCodeSample } from './code-sample-file';
 

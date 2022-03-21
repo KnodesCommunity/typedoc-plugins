@@ -8,7 +8,7 @@ import { Application, ArgumentsReader, TSConfigReader, TypeDocOptions, TypeDocRe
 export const runPlugin = async (
 	testDir: string,
 	pluginPaths: Many<string>,
-	{ options, output = resolve( testDir, './docs' ) }: {options?: Record<string, any>; output?: string}= {},
+	{ options, output = resolve( testDir, './docs' ) }: {options?: Record<string, any>; output?: string} = {},
 ) => {
 	const app = new Application();
 	app.options.addReader( new ArgumentsReader( 0, [] ) );
@@ -30,3 +30,8 @@ export const runPlugin = async (
 	app.validate( project );
 	await app.generateDocs( project, output );
 };
+export const runPluginBeforeAll = (
+	testDir: string,
+	pluginPaths: Many<string>,
+	opts?: {options?: Record<string, any>; output?: string},
+) => beforeAll( () => runPlugin( testDir, pluginPaths, opts ), ( process.env.CI === 'true' ? 120 : 30 ) * 1000 );

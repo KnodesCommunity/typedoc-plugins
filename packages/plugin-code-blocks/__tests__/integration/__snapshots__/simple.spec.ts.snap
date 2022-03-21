@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`Real behavior should render correctly 1`] = `
+exports[`Code block \`modules.html\` should have correct contents 1`] = `
 "<!DOCTYPE html>
 <html class=\\"default\\">
 

@@ -4,7 +4,7 @@ import { isString } from 'lodash';
 import { Class } from 'type-fest';
 import { Application, DeclarationReflection, DefaultTheme, JSX, ProjectReflection, Reflection, ReflectionKind, RendererEvent, SourceFile, UrlMapping } from 'typedoc';
 
-import { restoreFs, setVirtualFs } from '@knodes/typedoc-plugintestbed';
+import { restoreFs, setVirtualFs } from '#plugintestbed';
 
 import { IPageNode } from '../../options';
 import { PagesPlugin } from '../../plugin';

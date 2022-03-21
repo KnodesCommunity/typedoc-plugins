@@ -20,4 +20,4 @@ Plugins versions should match TypeDoc `major.minor.x` for compatibility.
 ### Utilities
 
 * [@knodes/typedoc-pluginutils](./packages/pluginutils/)
-* [@knodes/typedoc-plugintestbed](./packages/plugintestbed/)
+* [@knodes/typedoc-plugintestbed](./packages/plugintestbed/) (not published)

@@ -27,3 +27,5 @@ npm install --save-dev @knodes/typedoc-plugintestbed typedoc@^0.22.0
 
 For more infos, please refer to [the documentation](https://knodescommunity.github.io/typedoc-plugins/modules/_knodes_typedoc_plugintestbed.html)
 <!-- HEADER end -->
+
+Please note that this package is GitHub only; it is not published on NPM.

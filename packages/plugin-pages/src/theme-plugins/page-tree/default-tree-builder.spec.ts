@@ -1,6 +1,6 @@
 import { Application, DeclarationReflection, DefaultTheme, ProjectReflection, RendererEvent, UrlMapping } from 'typedoc';
 
-import { restoreFs, setVirtualFs } from '@knodes/typedoc-plugintestbed';
+import { restoreFs, setVirtualFs } from '#plugintestbed';
 
 import { PagesPlugin } from '../../plugin';
 import { MenuReflection, NodeReflection, PageReflection, PagesPluginReflectionKind } from '../../reflections';

@@ -1,3 +1,5 @@
+const { resolve } = require( 'path' );
+
 /** @type {import('ts-jest/dist/types').InitialOptionsTsJest} */
 const baseConfig = {
 	preset: 'ts-jest',
@@ -6,6 +8,9 @@ const baseConfig = {
 		'ts-jest': {
 			tsconfig: '<rootDir>/tsconfig.spec.json',
 		},
+	},
+	moduleNameMapper: {
+		'^#plugintestbed$': resolve( __dirname, './packages/plugintestbed' ),
 	},
 	setupFilesAfterEnv: [ 'jest-extended/all' ],
 	watchPathIgnorePatterns: [ '<rootDir>/__tests__/mock-fs/' ],

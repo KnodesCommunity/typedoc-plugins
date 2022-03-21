@@ -37,7 +37,7 @@
     "projects:patch": "node ./tools/typedoc-patcher --no-stash",
     "projects:test": "jest",
     "release": "./tools/release.sh",
-    "test:ci": "JEST_JUNIT_OUTPUT_NAME=junit.xml jest --all --ci --reporters=default --reporters=jest-junit",
+    "test:ci": "JEST_JUNIT_OUTPUT_NAME=junit.xml jest --config jest.config.ci.js --all --ci --reporters=default --reporters=jest-junit",
     "test:ci:coverage": "npm run test:ci -- --collectCoverage",
     "tools:bump-versions": "NODE_NO_WARNINGS=1 node tools/bump-versions",
     "tools:infer-next-version": "NODE_NO_WARNINGS=1 node tools/infer-next-version",

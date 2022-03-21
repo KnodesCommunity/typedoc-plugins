@@ -4,7 +4,7 @@ import { resolve } from 'path';
 import { identity } from 'lodash';
 import { Application, DeclarationReflection, JSX, ReflectionKind } from 'typedoc';
 
-import { restoreFs, setVirtualFs, setupMockMarkdownReplacer, setupMockPageMemo } from '@knodes/typedoc-plugintestbed';
+import { restoreFs, setVirtualFs, setupMockMarkdownReplacer, setupMockPageMemo } from '#plugintestbed';
 
 /* eslint-disable @typescript-eslint/no-var-requires */
 jest.mock( './code-blocks' );

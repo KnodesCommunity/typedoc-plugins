@@ -1,5 +1,6 @@
 {
   "name": "@knodes/typedoc-plugintestbed",
+  "private": true,
   "version": "0.22.2",
   "description": "A set of utilities to test TypeDoc plugins",
   "license": "MIT",

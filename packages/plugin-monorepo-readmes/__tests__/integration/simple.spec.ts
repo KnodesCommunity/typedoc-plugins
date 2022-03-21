@@ -2,17 +2,13 @@ import { resolve } from 'path';
 
 import { JSDOM } from 'jsdom';
 
-import { formatHtml, runPlugin } from '@knodes/typedoc-plugintestbed';
-
-import { checkFile } from '../helpers';
+import { checkDocsFile, formatHtml, runPluginBeforeAll } from '#plugintestbed';
 
 const rootDir = resolve( __dirname, '../mock-fs/simple' );
-const docsDir = resolve( rootDir, './docs' );
 process.chdir( rootDir );
-jest.setTimeout( process.env.CI === 'true' ? 60000 : 30000 );
-beforeAll( () => runPlugin( rootDir, resolve( __dirname, '../../src/index' ) ) );
+runPluginBeforeAll( rootDir, resolve( __dirname, '../../src/index' ) );
 describe( 'Root module', () => {
-	it( '`index.html` should be correct', () => checkFile( docsDir, 'index.html', c => {
+	it( '`index.html` should be correct', checkDocsFile( rootDir, 'index.html', c => {
 		const dom = new JSDOM( c );
 		const heading = dom.window.document.querySelectorAll( '.tsd-panel h1' );
 		expect( heading ).toHaveLength( 1 );
@@ -21,7 +17,7 @@ describe( 'Root module', () => {
 	} ) );
 } );
 describe( 'packages/a module', () => {
-	it( '`modules/_example_package_a.html` should be correct', () => checkFile( docsDir, 'modules/_example_package_a.html', c => {
+	it( '`modules/_example_package_a.html` should be correct', checkDocsFile( rootDir, 'modules/_example_package_a.html', c => {
 		const dom = new JSDOM( c );
 		const heading = dom.window.document.querySelectorAll( '.tsd-panel h1' );
 		expect( heading ).toHaveLength( 1 );
@@ -30,7 +26,7 @@ describe( 'packages/a module', () => {
 	} ) );
 } );
 describe( 'packages/b module', () => {
-	it( '`modules/_example_package_b.html` should be correct', () => checkFile( docsDir, 'modules/_example_package_b.html', c => {
+	it( '`modules/_example_package_b.html` should be correct', checkDocsFile( rootDir, 'modules/_example_package_b.html', c => {
 		const dom = new JSDOM( c );
 		const heading = dom.window.document.querySelectorAll( '.tsd-panel h1' );
 		expect( heading ).toHaveLength( 1 );

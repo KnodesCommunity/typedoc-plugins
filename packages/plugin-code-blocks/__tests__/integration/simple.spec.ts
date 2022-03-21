@@ -1,21 +1,16 @@
-import { readFile } from 'fs/promises';
 import { resolve } from 'path';
 
 import { JSDOM } from 'jsdom';
 
-import { formatHtml, runPlugin } from '@knodes/typedoc-plugintestbed';
+import { checkDocsFile, formatHtml, runPluginBeforeAll } from '#plugintestbed';
 
 import { checkDef, formatExpanded } from '../helpers';
 
 const rootDir = resolve( __dirname, '../mock-fs/simple' );
-jest.setTimeout( process.env.CI === 'true' ? 60000 : 30000 );
-beforeEach( () => {
-	process.chdir( rootDir );
-} );
-describe( 'Real behavior', () => {
-	it( 'should render correctly', async () => {
-		await runPlugin( rootDir, resolve( __dirname, '../../src/index' ) );
-		const c = await readFile( resolve( rootDir, 'docs/modules.html' ), 'utf-8' );
+process.chdir( rootDir );
+runPluginBeforeAll( rootDir, resolve( __dirname, '../../src/index' ) );
+describe( 'Code block', () => {
+	it( '`modules.html` should have correct contents', checkDocsFile( rootDir, 'modules.html', c => {
 		const dom = new JSDOM( c );
 		const testJson = '<pre><code class="language-json">'+
 		'<span class="hl-0">{</span><span class="hl-1">"Hello"</span><span class="hl-0">: </span><span class="hl-2">"World"</span><span class="hl-0">}</span>\n'+
@@ -28,5 +23,5 @@ describe( 'Real behavior', () => {
 		checkDef( dom, 'testRel', formatExpanded( './src/test.json', testJsonFooBar ) );
 		expect( c ).toMatch( /<link\s+rel="stylesheet"\s+href="([^"]*?\/)?assets\/code-blocks\.css"\s*\/>/ );
 		expect( formatHtml( c ) ).toMatchSnapshot();
-	} );
+	} ) );
 } );

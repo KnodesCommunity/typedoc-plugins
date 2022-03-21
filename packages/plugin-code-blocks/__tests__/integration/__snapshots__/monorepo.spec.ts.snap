@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`Real behavior should render correctly 1`] = `
+exports[`Code block \`modules/pkg_a.html\` should have correct contents 1`] = `
 "<!DOCTYPE html>
 <html class=\\"default\\">
 
@@ -261,7 +261,7 @@ exports[`Real behavior should render correctly 1`] = `
 </html>"
 `;
 
-exports[`Real behavior should render correctly 2`] = `
+exports[`Code block \`modules/pkg_b.html\` should have correct contents 1`] = `
 "<!DOCTYPE html>
 <html class=\\"default\\">
 
