@@ -2,7 +2,7 @@ import assert from 'assert';
 import { relative } from 'path';
 
 import { escapeRegExp, isString, once } from 'lodash';
-import { Application, JSX, LogLevel, PageEvent, Reflection } from 'typedoc';
+import { Application, JSX, LogLevel } from 'typedoc';
 
 import { ABasePlugin, CurrentPageMemo, EventsExtra, MarkdownReplacer, PathReflectionResolver } from '@knodes/typedoc-pluginutils';
 
@@ -53,10 +53,7 @@ export class CodeBlockPlugin extends ABasePlugin {
 	 * @param sourceHint - The best guess to the source of the match,
 	 * @returns the replaced content.
 	 */
-	private _replaceInlineCodeBlock(
-		{ captures, fullMatch }: Parameters<MarkdownReplacer.ReplaceCallback>[0],
-		sourceHint: Parameters<MarkdownReplacer.ReplaceCallback>[1],
-	): ReturnType<MarkdownReplacer.ReplaceCallback> {
+	private _replaceInlineCodeBlock( { captures, fullMatch }: MarkdownReplacer.ReplaceMatch, sourceHint: MarkdownReplacer.SourceHint ) {
 		// Support escaped tags
 		if( fullMatch.startsWith( '{\\@' ) ){
 			this.logger.verbose( () => `Found an escaped tag "${fullMatch}" in "${sourceHint()}"` );
@@ -89,10 +86,7 @@ export class CodeBlockPlugin extends ABasePlugin {
 	 * @param sourceHint - The best guess to the source of the match,
 	 * @returns the replaced content.
 	 */
-	private _replaceCodeBlock(
-		{ captures, fullMatch }: Parameters<MarkdownReplacer.ReplaceCallback>[0],
-		sourceHint: Parameters<MarkdownReplacer.ReplaceCallback>[1],
-	): ReturnType<MarkdownReplacer.ReplaceCallback> {
+	private _replaceCodeBlock( { captures, fullMatch }: MarkdownReplacer.ReplaceMatch, sourceHint: MarkdownReplacer.SourceHint ) {
 		// Avoid recursion in code blocks
 		if( this._currentPageMemo.currentReflection instanceof CodeBlockReflection ){
 			return `{@${fullMatch}}`;
@@ -100,8 +94,44 @@ export class CodeBlockPlugin extends ABasePlugin {
 		// Extract informations
 		const [ file, block, blockModeStr, fakedFileName ] = captures;
 		assert.ok( file );
+		const codeSampleInfos = this._getCodeSampleInfos( file, block, sourceHint );
+		if( codeSampleInfos === null ){
+			return fullMatch;
+		}
+		const { codeSample, resolvedFile } = codeSampleInfos;
+
+		// Render
+		const headerFileName = fakedFileName ?? `./${relative( this.rootDir, resolvedFile )}${codeSample.region === DEFAULT_BLOCK_NAME ? '' : `#${codeSample.startLine}~${codeSample.endLine}`}`;
+		const url = this._resolveCodeSampleUrl( resolvedFile, codeSample.region === DEFAULT_BLOCK_NAME ? null : codeSample );
+		return this._currentPageMemo.fakeWrapPage(
+			codeSample.file,
+			new CodeBlockReflection( codeSample.region, codeSample.file, codeSample.code, codeSample.startLine, codeSample.endLine ),
+			() => {
+				const rendered = this._codeBlockRenderer().renderCodeBlock( {
+					asFile: headerFileName,
+					content: codeSample.code,
+					mode: this._getBlockMode( blockModeStr ),
+					sourceFile: resolvedFile,
+					url,
+				} );
+				if( typeof rendered === 'string' ){
+					return rendered;
+				} else {
+					return JSX.renderElement( rendered );
+				}
+			} );
+	}
+
+	/**
+	 * Find the {@link block} in the {@link file}, and returns the sample along with search resolution infos.
+	 *
+	 * @param file - The file to look for {@link block}.
+	 * @param block - The name of the block in the {@link file}.
+	 * @param sourceHint - The best guess to the source of the match,
+	 * @returns the code sample & its path if found, null if the file is not found.
+	 */
+	private _getCodeSampleInfos( file: string, block: string | null, sourceHint: MarkdownReplacer.SourceHint ){
 		const defaultedBlock = block ?? DEFAULT_BLOCK_NAME; // TODO: Use ??= once on node>14
-		const useWholeFile = defaultedBlock === DEFAULT_BLOCK_NAME;
 		const resolvedFile = this._pathReflectionResolver.resolveNamedPath(
 			this._currentPageMemo.currentReflection.project,
 			file,
@@ -111,7 +141,7 @@ export class CodeBlockPlugin extends ABasePlugin {
 			} );
 		if( !resolvedFile ){
 			this.logger.error( () => `In "${sourceHint()}", could not resolve file "${file}" from ${this._currentPageMemo.currentReflection.name}` );
-			return fullMatch;
+			return null;
 		} else {
 			this.logger.verbose( () => `Created a code block to ${this.relativeToRoot( resolvedFile )} from "${sourceHint()}"` );
 		}
@@ -122,29 +152,8 @@ export class CodeBlockPlugin extends ABasePlugin {
 		// eslint-disable-next-line @typescript-eslint/no-non-null-assertion -- Set above
 		const fileSample = this._fileSamples.get( resolvedFile )!;
 		const codeSample = fileSample?.get( defaultedBlock );
-		if( !codeSample ){
-			throw new Error( `Missing block ${defaultedBlock} in ${resolvedFile}` );
-		}
-
-		// Render
-		const headerFileName = fakedFileName ?? `./${relative( this.rootDir, resolvedFile )}${useWholeFile ? '' : `#${codeSample.startLine}~${codeSample.endLine}`}`;
-		const url = this._resolveCodeSampleUrl( resolvedFile, useWholeFile ? null : codeSample );
-		const fakePage = new PageEvent<Reflection>( codeSample.file );
-		fakePage.model = new CodeBlockReflection( codeSample.region, codeSample.file, codeSample.code, codeSample.startLine, codeSample.endLine );
-		return this._currentPageMemo.fakeWrapPage( fakePage, () => {
-			const rendered = this._codeBlockRenderer().renderCodeBlock( {
-				asFile: headerFileName,
-				content: codeSample.code,
-				mode: this._getBlockMode( blockModeStr ),
-				sourceFile: resolvedFile,
-				url,
-			} );
-			if( typeof rendered === 'string' ){
-				return rendered;
-			} else {
-				return JSX.renderElement( rendered );
-			}
-		} );
+		assert( codeSample, new Error( `Missing block ${defaultedBlock} in ${resolvedFile}` ) );
+		return { codeSample, resolvedFile };
 	}
 
 	/**

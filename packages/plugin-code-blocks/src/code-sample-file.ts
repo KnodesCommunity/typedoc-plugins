@@ -1,3 +1,4 @@
+import assert from 'assert';
 import { readFileSync } from 'fs';
 
 import { textUtils } from '@knodes/typedoc-pluginutils';
@@ -29,45 +30,31 @@ interface IEndRegionMarker extends IRegionMarkerBase{
 type RegionMarker = IStartRegionMarker | IEndRegionMarker
 
 const parseRegionMarker = ( fileContent: string ) => ( match: RegExpMatchArray ): RegionMarker => {
-	if( typeof match.index !== 'number' ){
-		throw new Error( 'Missing index' );
-	}
+	assert( typeof match.index === 'number', new Error( 'Missing index' ) );
 	const type = match[1].toLocaleLowerCase() === 'region' ? 'start' : 'end';
 	const name = match[2];
-	if( type === 'start' && !name ){
-		throw new Error( 'Missing name of #region' );
-	}
+	assert( type !== 'start' || name, new Error( 'Missing name of start `#region`' ) );
 	const location = textUtils.getCoordinates( fileContent, match.index );
 	return { ...location, type, name, fullMatch: match[0] };
 };
 
 const assembleStartEndMarkers = ( prevMarkers: Array<{open?: IStartRegionMarker; close?: IEndRegionMarker; name: string}>, marker: RegionMarker ) => {
 	if( marker.type === 'start' ){
-		if( prevMarkers.find( r => r.name === marker.name ) ) {
-			throw new Error( `Region ${marker.name} already exists` );
-		}
+		assert( !prevMarkers.find( r => r.name === marker.name ), new Error( `Region ${marker.name} already exists` ) );
 		prevMarkers.push( {
 			open: marker,
 			name: marker.name,
 		} );
-	} else {
+	} else { // End marker
 		if( marker.name ){
 			const openRegion = prevMarkers.find( r => r.name === marker.name );
-			if( !openRegion ) {
-				throw new Error( `Missing region ${marker.name} explicitly closed` );
-			}
-			if( openRegion.close ) {
-				throw new Error( `Region ${marker.name} already closed` );
-			}
+			assert( openRegion, new Error( `Missing region ${marker.name} explicitly closed` ) );
+			assert( !openRegion.close, new Error( `Region ${marker.name} already closed` ) );
 			openRegion.close = marker;
 		} else {
 			const lastNotClosed = prevMarkers.concat().reverse().find( r => !r.close );
-			if( !lastNotClosed ){
-				throw new Error( 'Missing implicitly closed region' );
-			}
-			if( lastNotClosed.close ) {
-				throw new Error( `Region ${lastNotClosed.name} already closed` );
-			}
+			assert( lastNotClosed, new Error( 'Missing implicitly closed region' ) );
+			assert( !lastNotClosed.close, new Error( `Region ${lastNotClosed.name} already closed` ) );
 			lastNotClosed.close = marker;
 		}
 	}
@@ -113,10 +100,9 @@ export const readCodeSample = ( file: string ): Map<string, ICodeSample> => {
 		.map( parseRegionMarker( content ) )
 		.reduce( assembleStartEndMarkers, [] )
 		// Check validity of regions
-		.map( r => {
-			if( !r.open || !r.close || r.open.line > r.close.line ){
-				throw new SyntaxError( `Invalid region ${r.name}` );
-			}
+		.map<IRegion>( r => {
+			assert( r.open && r.close, new SyntaxError( `Region ${r.name} is not properly opened & closed` ) );
+			assert( r.open.line < r.close.line, new SyntaxError( `Region ${r.name} is closed before being opened. Opened at line ${r.open.line}, closed at line ${r.close.line}` ) );
 			return r as IRegion;
 		} )
 		.reduce( addRegionInSet( file, lines ), new Map<string, ICodeSample>() );

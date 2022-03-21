@@ -174,7 +174,7 @@ export class MarkdownReplacer {
 				};
 				const replacement = catchWrap(
 					() => callback( { fullMatch, captures }, getSourceHint ),
-					e => wrapError( `Error in ${getSourceHint()}`, e ) );
+					e => wrapError( `In ${getSourceHint()}`, e ) );
 				if( isNil( replacement ) ){
 					return fullMatch;
 				}
@@ -229,5 +229,7 @@ export class MarkdownReplacer {
 	}
 }
 export namespace MarkdownReplacer {
-	export type ReplaceCallback = ( match: {fullMatch: string; captures: Array<string | null>}, sourceHint: () => string ) => string | JSX.Element | undefined;
+	export type ReplaceMatch = {fullMatch: string; captures: Array<string | null>};
+	export type SourceHint = () => string;
+	export type ReplaceCallback = ( match: ReplaceMatch, sourceHint: SourceHint ) => string | JSX.Element | undefined;
 }

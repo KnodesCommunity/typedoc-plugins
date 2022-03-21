@@ -109,7 +109,7 @@ describe( 'Behavior', () => {
 			setVirtualFs( { foo: { 'bar.txt': '' }} );
 			setup( uuid => JSX.createElement( 'p', {}, uuid ) );
 			readCodeSampleMock.mockReturnValue( new Map( [[ DEFAULT_BLOCK_NAME, { code, ...defaultBlock } ]] ) );
-			expect( () => markdownReplacerTestbed.runMarkdownReplace( '{@codeblock foo/bar.txt#nope}' ) ).toThrowWithMessage( Error, /^Missing block nope/m );
+			expect( () => markdownReplacerTestbed.runMarkdownReplace( '{@codeblock foo/bar.txt#nope}' ) ).toThrowWithMessage( Error, /Missing block nope/m );
 		} );
 		it( 'should throw if invalid mode', () => {
 			setVirtualFs( { foo: { 'bar.txt': '' }} );

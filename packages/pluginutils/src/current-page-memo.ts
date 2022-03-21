@@ -51,12 +51,22 @@ export class CurrentPageMemo {
 	 * @param callback - The function to execute.
 	 * @returns the {@link callback} return value.
 	 */
-	public fakeWrapPage<T>( newPage: PageEvent<Reflection>, callback: () => T ){
+	public fakeWrapPage<T>( newPage: PageEvent<Reflection>, callback: () => T ): T
+	public fakeWrapPage<T>( name: string, model: Reflection, callback: () => T ): T
+	public fakeWrapPage<T>( ...args: [newPage: PageEvent<Reflection>, callback: () => T] | [name: string, model: Reflection, callback: () => T] ){
+		let newPage: PageEvent<Reflection>;
+		if( args.length === 3 ){
+			newPage = new PageEvent( args[0] );
+			newPage.model = args[1];
+		} else {
+			newPage = args[0];
+		}
+		const callback = args[args.length - 1] as () => T;
 		const bck = this._currentPage;
 		this._currentPage = newPage;
-		try{
+		try {
 			return callback();
-		}finally{
+		} finally {
 			this._currentPage = bck;
 		}
 	}
