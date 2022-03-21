@@ -1,6 +1,6 @@
 {
   "name": "@knodes/typedoc-plugin-monorepo-readmes",
-  "version": "0.22.2",
+  "version": "0.22.3",
   "description": "A TypeDoc plugin to prepend modules indexes with readmes",
   "license": "MIT",
   "repository": {
@@ -35,7 +35,7 @@
     "test": "jest --config jest.config.js"
   },
   "dependencies": {
-    "@knodes/typedoc-pluginutils": "~0.22.2",
+    "@knodes/typedoc-pluginutils": "~0.22.3",
     "pkg-up": "^3.1.0"
   },
   "peerDependencies": {

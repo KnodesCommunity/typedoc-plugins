@@ -1,3 +1,12 @@
+## [0.22.3](https://github.com/KnodesCommunity/typedoc-plugins/compare/v0.22.2...v0.22.3) (2022-03-21)
+
+
+### Bug Fixes
+
+* **plugin-monorepo-readmes:** properly resolve README.md from module source ([186e361](https://github.com/KnodesCommunity/typedoc-plugins/commit/186e3616f8e42dae7d6c74631daee44e214568cb)), closes [#21](https://github.com/KnodesCommunity/typedoc-plugins/issues/21)
+
+
+
 ## [0.22.2](https://github.com/KnodesCommunity/typedoc-plugins/compare/v0.22.1...v0.22.2) (2022-03-06)
 
 
