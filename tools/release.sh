@@ -11,7 +11,7 @@ npm install
 git add package-lock.json
 # Update readmes
 npm run tools:packages-sync -- --no-stash
-find . -name README.md -not -path '*/node_modules/*' -not -path './typedoc/*' -not -path '*/__tests__/*' -exec git add {} \;
+find . \( -name README.md -or -name package.json \) -not -path '*/node_modules/*' -not -path './typedoc/*' -not -path '*/__tests__/*' -exec git add {} \;
 # Run build & tests
 npm run projects:build:clean
 npm run projects:build
@@ -38,4 +38,4 @@ cd "${PWD_SV}"
 # Print publish script
 # BRANCH="$(git rev-parse --abbrev-ref HEAD)"
 echo "All is OK so far. To finish publishing, enter the following command:"
-echo "( cd ${TEMP_DIR} && git push ) && git merge --ff-only main && git push develop main --follow-tags && npm publish --access public --workspaces"
+echo "( cd ${TEMP_DIR} && git push ) && git checkout main && git merge --ff-only develop && git checkout develop && git push origin develop main --follow-tags && npm publish --access public --workspaces"
