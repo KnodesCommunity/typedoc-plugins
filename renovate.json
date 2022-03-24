@@ -4,5 +4,25 @@
     "npm:unpublishSafe"
   ],
   "baseBranches": ["develop"],
-  "rangeStrategy": "update-lockfile"
+  "rangeStrategy": "update-lockfile",
+  "packageRules": [
+    {
+      "matchDepTypes": [
+        "peerDependencies"
+      ],
+      "rangeStrategy": "auto"
+    },
+    { // ESM modules
+      "matchPackagePatterns": ["chalk", "pkg-up"],
+      "enabled": false
+    },
+    {
+      "matchUpdateTypes": ["minor", "patch", "pin", "digest"],
+      "automerge": true
+    },
+    {
+      "matchDatasources": ["npm"],
+      "stabilityDays": 3
+    },
+  ]
 }
