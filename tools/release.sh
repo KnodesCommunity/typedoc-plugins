@@ -1,5 +1,14 @@
 #! /bin/zsh
 set -e
+if [ "$(git -C "$(pwd)" rev-parse --abbrev-ref HEAD)" != "main" ]; then
+    echo "Should be ran on main only"
+    exit 1
+fi
+if ! [ -z "$(git update-index --refresh && git diff-index --quiet HEAD --)" ]; then
+    echo "Unstaged changes"
+    exit 1
+fi
+
 VERSION=$(node tools/infer-next-version)
 echo "Will publish version '${VERSION}'"
 if ! read -q "REPLY?Are you sure? "; then
