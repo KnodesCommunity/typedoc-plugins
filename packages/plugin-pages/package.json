@@ -1,6 +1,6 @@
 {
   "name": "@knodes/typedoc-plugin-pages",
-  "version": "0.22.3",
+  "version": "0.22.4",
   "description": "A TypeDoc plugin that lets you integrate your own pages into the documentation output",
   "license": "MIT",
   "repository": {
@@ -37,7 +37,7 @@
     "test": "jest --config jest.config.js"
   },
   "dependencies": {
-    "@knodes/typedoc-pluginutils": "~0.22.3"
+    "@knodes/typedoc-pluginutils": "~0.22.4"
   },
   "peerDependencies": {
     "lodash": "^4.17.0",
