@@ -36,12 +36,8 @@ export class CurrentPageMemo {
 			return;
 		}
 		this._initialized = true;
-		this.plugin.application.renderer.on( Renderer.EVENT_BEGIN_PAGE, ( e: PageEvent<Reflection> ) => {
-			this._currentPage = e;
-		} );
-		this.plugin.application.renderer.on( Renderer.EVENT_END_PAGE, ( _e: PageEvent<Reflection> ) => {
-			this._currentPage = undefined;
-		} );
+		this.plugin.application.renderer.on( Renderer.EVENT_BEGIN_PAGE, ( e: PageEvent<Reflection> ) => this._currentPage = e );
+		this.plugin.application.renderer.on( Renderer.EVENT_END_PAGE, () => this._currentPage = undefined );
 	}
 
 	/**
