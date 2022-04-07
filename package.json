@@ -69,7 +69,7 @@
     "jest-junit": "^13.1.0",
     "lodash": "^4.17.21",
     "semver": "^7.3.6",
-    "strip-ansi": "^6.0.1",
+    "strip-ansi": "^7.0.0",
     "typedoc": "^0.22.14",
     "typescript": "^4.6.3"
   }
