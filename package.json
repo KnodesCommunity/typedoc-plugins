@@ -64,7 +64,7 @@
     "eslint-plugin-prefer-arrow": "^1.2.3",
     "eslint-plugin-sort-export-all": "^1.2.2",
     "format-package": "^7.0.0",
-    "glob": "^7.2.0",
+    "glob": "^8.0.0",
     "husky": "^7.0.4",
     "jest-junit": "^13.1.0",
     "lodash": "^4.17.21",
