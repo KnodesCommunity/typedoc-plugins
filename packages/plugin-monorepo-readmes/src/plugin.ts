@@ -2,8 +2,8 @@ import assert from 'assert';
 import { readFileSync, readdirSync } from 'fs';
 import { dirname, resolve } from 'path';
 
-import { sync as pkgUpSync } from 'pkg-up';
-import { Application, DeclarationReflection, DefaultTheme, JSX, PageEvent, ProjectReflection, ReflectionKind, RendererEvent, SourceFile, UrlMapping } from 'typedoc';
+import { sync as findUpSync } from 'find-up';
+import { Application, DeclarationReflection, DefaultTheme, JSX, PageEvent, ParameterType, ProjectReflection, ReflectionKind, RendererEvent, SourceFile, UrlMapping } from 'typedoc';
 
 import { ABasePlugin } from '@knodes/typedoc-pluginutils';
 
@@ -27,6 +27,13 @@ export class MonorepoReadmePlugin extends ABasePlugin {
 	 * @see {@link import('@knodes/typedoc-pluginutils').autoload}.
 	 */
 	public initialize(): void {
+		this.application.options.addDeclaration({
+				name: "readmeTargets",
+				help: "The files that the README.md might be close to. The order is important since the first README.md found will be used. Default: [\"package.json\"]",
+				type: ParameterType.Array,
+				defaultValue: ["package.json"],
+		});
+
 		this.application.renderer.on( RendererEvent.BEGIN, ( event: RendererEvent ) => {
 			assert( this.application.renderer.theme );
 			assert( this.application.renderer.theme instanceof DefaultTheme );
@@ -88,11 +95,18 @@ export class MonorepoReadmePlugin extends ABasePlugin {
 		if( !src ){
 			return;
 		}
-		const pkgFile = pkgUpSync( { cwd: dirname( src ) } );
-		if( !pkgFile ){
+		const readmeTargets = this.application.options.getValue('readmeTargets') as string[];
+		let targetFile;
+		for (const target of readmeTargets) {
+			targetFile = findUpSync( target, { cwd: dirname( src ) } );
+			if ( targetFile ){
+				break;
+			}
+		}
+		if( !targetFile ){
 			return;
 		}
-		const pkgDir = dirname( pkgFile );
+		const pkgDir = dirname( targetFile );
 		const readmeFile = readdirSync( pkgDir ).find( f => f.toLowerCase() === 'readme.md' );
 		if( !readmeFile ){
 			return;
