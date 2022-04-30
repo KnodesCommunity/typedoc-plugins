@@ -49,7 +49,7 @@ exports[`Code block \`modules.html\` should have correct contents 1`] = `
 		</div>
 		<div class=\\"tsd-page-title\\">
 			<div class=\\"container\\">
-				<h1>@knodes/typedoc-plugin-code-blocks</h1>
+				<h1>@knodes/typedoc-plugin-code-blocks </h1>
 			</div>
 		</div>
 	</header>

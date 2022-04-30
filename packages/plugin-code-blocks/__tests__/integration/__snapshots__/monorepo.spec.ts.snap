@@ -53,7 +53,7 @@ exports[`Code block \`modules/pkg_a.html\` should have correct contents 1`] = `
 					<li><a href=\\"../modules.html\\">@knodes/typedoc-plugin-code-blocks</a></li>
 					<li><a href=\\"pkg_a.html\\">pkg-a</a></li>
 				</ul>
-				<h1>Module pkg-a</h1>
+				<h1>Module pkg-a </h1>
 			</div>
 		</div>
 	</header>
@@ -314,7 +314,7 @@ exports[`Code block \`modules/pkg_b.html\` should have correct contents 1`] = `
 					<li><a href=\\"../modules.html\\">@knodes/typedoc-plugin-code-blocks</a></li>
 					<li><a href=\\"pkg_b.html\\">pkg-b</a></li>
 				</ul>
-				<h1>Module pkg-b</h1>
+				<h1>Module pkg-b </h1>
 			</div>
 		</div>
 	</header>
