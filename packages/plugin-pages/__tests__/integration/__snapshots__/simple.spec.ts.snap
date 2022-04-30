@@ -53,7 +53,7 @@ exports[`Documentation \`classes/Test.html\` should be correct 1`] = `
 					<li><a href=\\"../modules.html\\">@knodes/typedoc-plugin-pages</a></li>
 					<li><a href=\\"Test.html\\">Test</a></li>
 				</ul>
-				<h1>Class Test</h1>
+				<h1>Class Test </h1>
 			</div>
 		</div>
 	</header>
@@ -210,7 +210,7 @@ exports[`Pages \`pages/additional-resources/some-cool-docs.html\` should be corr
 					<li><span>Additional resources</span></li>
 					<li><a href=\\"some-cool-docs.html\\">Some cool docs</a></li>
 				</ul>
-				<h1> Some cool docs</h1>
+				<h1> Some cool docs </h1>
 			</div>
 		</div>
 	</header>
@@ -319,7 +319,7 @@ exports[`Pages \`pages/getting-started/configuration.html\` should be correct 1`
 					<li><a href=\\"index.html\\">Getting started</a></li>
 					<li><a href=\\"configuration.html\\">Configuration</a></li>
 				</ul>
-				<h1> Configuration</h1>
+				<h1> Configuration </h1>
 			</div>
 		</div>
 	</header>
@@ -427,7 +427,7 @@ exports[`Pages \`pages/getting-started/index.html\` should be correct 1`] = `
 					<li><a href=\\"../../modules.html\\">@knodes/typedoc-plugin-pages</a></li>
 					<li><a href=\\"index.html\\">Getting started</a></li>
 				</ul>
-				<h1> Getting started</h1>
+				<h1> Getting started </h1>
 			</div>
 		</div>
 	</header>
