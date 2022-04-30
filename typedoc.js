@@ -13,6 +13,9 @@ module.exports = {
 			{ title: '@knodes/typedoc-plugin-code-blocks', source: 'readme-extras.md', children: [
 				{ title: 'Using options', source: 'options.md' },
 			] },
+			{ title: '@knodes/typedoc-plugin-monorepo-readmes', children: [
+				{ title: 'Using options', source: 'options.md' },
+			] },
 			{ title: '@knodes/typedoc-plugin-pages', source: 'readme-extras.md', children: [
 				{ title: 'Using options', source: 'options.md' },
 				{ title: 'Pages tree', source: 'pages-tree.md' },
