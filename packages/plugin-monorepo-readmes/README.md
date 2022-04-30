@@ -37,7 +37,13 @@ For more infos, please refer to [the documentation](https://knodescommunity.gith
 ## Usage
 
 Simply create `README.md` files next to your `package.json` in your monorepo projects/workspaces. You can configure different files so the plugin find
-the README.md next to them. Example: If you have a NX Monorepo, you might have only one `package.json` in the root and the libraries would use a `project.json`
-file. In this case you would set the configuration `"readmeTargets": ["project.json", "package.json"]` and we would look for README.md near `project.json`
-and if none is found, we would fallback to `package.json`. Therefore you can see that the order of the files defined in the array is importante. You can pass
-any file in the array, so you could even use `"readmeTargets": ["README.md"]` and this would find the closest README.md to your module source. 
+the README.md next to them.
+
+> Example: If you have a NX Monorepo, you might have only one `package.json` in the root and the libraries would use a `project.json`
+file. In this case you would set the configuration `"pluginMonorepoReadmes:rootFiles": ["project.json", "package.json"]` and we would look for README.md near `project.json`
+and if none is found, we would fallback to `package.json`. Therefore you can see that the order of the files defined in the array is important. You can pass
+any file in the array, so you could even use `"pluginMonorepoReadmes:rootFiles": ["README.md"]` and this would find the closest README.md to your module source.
+>
+> Note that `rootFiles` are case-sensitive.
+
+For more information on configuration, please refer to [the *options* documentation page](https://knodescommunity.github.io/typedoc-plugins/_knodes_typedoc_plugin_monorepo_readmes/pages/options.html)
