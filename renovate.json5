@@ -13,7 +13,7 @@
       "rangeStrategy": "auto"
     },
     { // ESM modules
-      "matchPackagePatterns": ["chalk", "pkg-up", "find-up"],
+      "matchPackagePatterns": ["chalk", "pkg-up", "find-up", "strip-ansi"],
       "enabled": false
     },
     {
