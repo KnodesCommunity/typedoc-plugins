@@ -1,3 +1,17 @@
+## [0.22.5](https://github.com/KnodesCommunity/typedoc-plugins/compare/v0.22.4...v0.22.5) (2022-04-30)
+
+
+### Bug Fixes
+
+* **deps:** update dependency semver to v7.3.7 ([42fbe4a](https://github.com/KnodesCommunity/typedoc-plugins/commit/42fbe4a60fd5e008c4d80bc269a4cc2e060c126a))
+
+
+### Features
+
+* **plugin-monorepo-readmes:** add option to pass different targets to find the closest README.md near to them ([2dc6806](https://github.com/KnodesCommunity/typedoc-plugins/commit/2dc6806fffbb1b2bbaae4554fedafdff55ac1203))
+
+
+
 ## [0.22.4](https://github.com/KnodesCommunity/typedoc-plugins/compare/v0.22.3...v0.22.4) (2022-04-07)
 
 
