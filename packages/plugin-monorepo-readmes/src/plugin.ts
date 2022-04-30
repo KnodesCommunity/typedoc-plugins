@@ -1,22 +1,15 @@
 import assert from 'assert';
-import { readFileSync, readdirSync } from 'fs';
-import { dirname, resolve } from 'path';
+import { readFileSync } from 'fs';
 
-import { sync as findUpSync } from 'find-up';
-import { Application, DeclarationReflection, DefaultTheme, JSX, PageEvent, ParameterType, ProjectReflection, ReflectionKind, RendererEvent, SourceFile, UrlMapping } from 'typedoc';
+import { Application, DeclarationReflection, DefaultTheme, JSX, LogLevel, PageEvent, ProjectReflection, ReflectionKind, RendererEvent, SourceFile, UrlMapping } from 'typedoc';
 
-import { ABasePlugin } from '@knodes/typedoc-pluginutils';
+import { ABasePlugin, EventsExtra } from '@knodes/typedoc-pluginutils';
 
-const getModuleReflectionSource = ( reflection: DeclarationReflection ) => {
-	for( const source of reflection.sources ?? [] ) {
-		if( source.file ){
-			return source.file?.fullFileName;
-		}
-	}
-	return undefined;
-};
+import { findReadmeFile } from './find-readme-file';
+import { buildOptions } from './options';
 
 export class MonorepoReadmePlugin extends ABasePlugin {
+	public readonly pluginOptions = buildOptions( this );
 	public constructor( application: Application ){
 		super( application, __filename );
 	}
@@ -27,13 +20,6 @@ export class MonorepoReadmePlugin extends ABasePlugin {
 	 * @see {@link import('@knodes/typedoc-pluginutils').autoload}.
 	 */
 	public initialize(): void {
-		this.application.options.addDeclaration({
-				name: "readmeTargets",
-				help: "The files that the README.md might be close to. The order is important since the first README.md found will be used. Default: [\"package.json\"]",
-				type: ParameterType.Array,
-				defaultValue: ["package.json"],
-		});
-
 		this.application.renderer.on( RendererEvent.BEGIN, ( event: RendererEvent ) => {
 			assert( this.application.renderer.theme );
 			assert( this.application.renderer.theme instanceof DefaultTheme );
@@ -42,6 +28,10 @@ export class MonorepoReadmePlugin extends ABasePlugin {
 			const modulesUrls = event.urls.filter( ( u ): u is UrlMapping<DeclarationReflection> => u.model instanceof DeclarationReflection && u.model.kindOf( ReflectionKind.Module ) );
 			modulesUrls.forEach( u => this._modifyModuleIndexPage( theme, u ) );
 		}, null, -1000 ); // priority is set to be ran before @knodes/typedoc-plugin-pages
+		EventsExtra.for( this.application )
+			.onSetOption( `${this.optionsPrefix}:logLevel`, v => {
+				this.logger.level = v as LogLevel;
+			} );
 	}
 
 	/**
@@ -51,7 +41,7 @@ export class MonorepoReadmePlugin extends ABasePlugin {
 	 * @param moduleMapping - The module URL mapping to modify
 	 */
 	private _modifyModuleIndexPage( theme: DefaultTheme, moduleMapping: UrlMapping<DeclarationReflection> ){
-		const readme = this._findReadmeFile( moduleMapping );
+		const readme = findReadmeFile( this.pluginOptions.getValue().rootFiles, moduleMapping );
 		if( !readme ){
 			return;
 		}
@@ -81,40 +71,6 @@ export class MonorepoReadmePlugin extends ABasePlugin {
 				JSX.createElement( 'hr', null ),
 				base,
 			] );
-		};
-	}
-
-	/**
-	 * Try to resoluve the README file in the directory of the module's `package.json`.
-	 *
-	 * @param moduleMapping - The module URL mapping.
-	 * @returns the relative & absolute path of the readme.
-	 */
-	private _findReadmeFile( moduleMapping: UrlMapping<DeclarationReflection> ){
-		const src = getModuleReflectionSource( moduleMapping.model );
-		if( !src ){
-			return;
-		}
-		const readmeTargets = this.application.options.getValue('readmeTargets') as string[];
-		let targetFile;
-		for (const target of readmeTargets) {
-			targetFile = findUpSync( target, { cwd: dirname( src ) } );
-			if ( targetFile ){
-				break;
-			}
-		}
-		if( !targetFile ){
-			return;
-		}
-		const pkgDir = dirname( targetFile );
-		const readmeFile = readdirSync( pkgDir ).find( f => f.toLowerCase() === 'readme.md' );
-		if( !readmeFile ){
-			return;
-		}
-		const absReadmeFile = resolve( pkgDir, readmeFile );
-		return {
-			relative: readmeFile,
-			absolute: absReadmeFile,
 		};
 	}
 }
