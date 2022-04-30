@@ -56,3 +56,7 @@ Syntax:
 * `[ link label]`: allow to specify the text in the link.
 
 Module/workspace/project resolution first tries to search in the `pages` subfolder. You can customize this setting with the `source` option.
+
+## Configuration
+
+For more information on configuration, please refer to [the *options* documentation page](https://knodescommunity.github.io/typedoc-plugins/_knodes_typedoc_plugin_pages/pages/options.html)

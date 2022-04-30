@@ -69,3 +69,7 @@ Syntax:
 
 * `<custom-file-name>`: The file name to set in the header
 * `[mode]`: optional. Can be any valid {@link EBlockMode}, to override the default settings.
+
+## Configuration
+
+For more information on configuration, please refer to [the *options* documentation page](https://knodescommunity.github.io/typedoc-plugins/_knodes_typedoc_plugin_code_blocks/pages/options.html)
