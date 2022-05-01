@@ -17,5 +17,12 @@ export interface IPluginOptions {
 	 * @default application.logger.level
 	 */
 	logLevel: LogLevel;
+
+	/**
+	 * The name of the readme files
+	 * 
+	 * @default `[]`
+	 */
+	readme: string[];
 }
 
