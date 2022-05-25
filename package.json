@@ -65,7 +65,7 @@
     "eslint-plugin-sort-export-all": "^1.2.2",
     "format-package": "^7.0.0",
     "glob": "^8.0.0",
-    "husky": "^7.0.4",
+    "husky": "^8.0.0",
     "jest-junit": "^13.1.0",
     "lodash": "^4.17.21",
     "semver": "^7.3.6",
