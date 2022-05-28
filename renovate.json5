@@ -24,5 +24,9 @@
       "matchDatasources": ["npm"],
       "stabilityDays": 3
     },
+    { // Prevent automerge for typedoc updates
+      "matchPackagePatterns": ["typedoc"], 
+      "automerge": false
+    },
   ]
 }
