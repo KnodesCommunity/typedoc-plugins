@@ -21,7 +21,7 @@ export class PagesPlugin extends ABasePlugin {
 	}
 
 	/**
-	 * This method is called after the plugin has been instanciated.
+	 * This method is called after the plugin has been instantiated.
 	 */
 	public override initialize(){
 		const opts = this.pluginOptions.getValue();
