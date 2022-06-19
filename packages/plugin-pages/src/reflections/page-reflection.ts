@@ -25,5 +25,7 @@ export class PageReflection extends ANodeReflection {
 			{ character: 0, fileName: sourceFilePath, line: 1, url, file: new SourceFile( sourceFilePath ) },
 		];
 		this.comment = new Comment( undefined, this.content );
+
+		this.relevanceBoost = 5;
 	}
 }
