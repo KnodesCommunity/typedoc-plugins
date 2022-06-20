@@ -46,21 +46,22 @@ const restoreSourceFiles = files => files.length > 0 ?
 const formatFiles = files => files.length > 0 ?
 	spawn(
 		'./node_modules/.bin/eslint',
-		[ '--no-ignore', '--config', './.eslintrc-typedoc.js', '--fix', ...files ],
+		[ '--cache-location', './.eslintcache-patch', '--no-ignore', '--config', './.eslintrc-typedoc.js', '--fix', ...files ],
 		{ stdio: [] } ).catch( () => Promise.resolve() ) :
 	Promise.resolve();
 
 
-const { explicitProjects, command, noStash } = process.argv.slice( 2 )
+// Parse args
+const { explicitProjects, command, stash } = process.argv.slice( 2 )
 	.reduce( ( acc, arg ) => {
 		if( arg === '--no-stash' ){
-			return { ...acc, noStash: true };
+			return { ...acc, stash: false };
 		} else if( arg === 'diff' || arg === 'apply' ){
 			return { ...acc, command: arg };
 		} else {
 			return { ...acc, explicitProjects: [ ...acc.explicitProjects, arg ] };
 		}
-	}, { explicitProjects: [], command: '', noStash: false } );
+	}, { explicitProjects: [], command: '', stash: true } );
 const projects = selectProjects( explicitProjects );
 const generatedPattern = '**/*.GENERATED?(.*)';
 const generatePattern = () => {
@@ -74,11 +75,15 @@ const generatePattern = () => {
 		return pattern;
 	}
 };
+
+
+
+
 ( async () => {
 	const pattern = generatePattern();
 	switch( command ){
 		case 'diff': {
-			if( !noStash ){
+			if( stash ){
 				await createStash( 'typedoc-patcher: diff' );
 			}
 			const generatedFiles = await globAsync( pattern, { ignore: [ '**/dist/**', '**/node_modules/**', getPatchName( generatedPattern ) ] } );
@@ -110,19 +115,27 @@ const generatePattern = () => {
 		} break;
 
 		case 'apply': {
-			if( !noStash ){
+			if( stash ){
 				await createStash( 'typedoc-patcher: apply' );
 			}
 			const patchFiles = await globAsync( getPatchName( pattern ), { ignore: [ '**/dist/**', '**/node_modules/**' ] } );
 			console.log( `Applying patches from ${patchFiles}` );
 			const patchesWithSources = await Promise.all( patchFiles.map( async patch => ( { patch, source: await getSourceFromPatch( patch ) } ) ) );
 			await formatFiles( patchesWithSources.map( ( { source } ) => source ) );
+
 			try {
-				await Promise.all( patchesWithSources.map( async ( { patch, source } ) => {
-					await spawn( 'git', [ 'apply', patch ] );
+				for( const { patch, source } of patchesWithSources ){
+					const errStream = captureStream();
 					const file = patch.replace( /\.patch$/, '' );
-					console.log( `Applied patch from ${bold( red( relative( process.cwd(), source ) ) )} to ${bold( green( file ) )}` );
-				} ) );
+					try {
+						await spawn( 'git', [ 'apply', patch ], { stdio: [ null, 'pipe', errStream ] }  );
+						console.log( `Applied patch from ${bold( red( relative( process.cwd(), source ) ) )} to ${bold( green( file ) )}` );
+					} catch( e ){
+						console.error( `Failed to apply patch from ${bold( red( relative( process.cwd(), source ) ) )} to ${bold( green( file ) )}: \n${e}` );
+						console.error( errStream.read().split( '\n' ).map( v => `> ${v}` ).join( '\n' ) );
+						throw e;
+					}
+				}
 			} finally {
 				await restoreSourceFiles( patchesWithSources.map( ( { source } ) => source ) );
 			}
