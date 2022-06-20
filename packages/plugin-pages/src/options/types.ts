@@ -85,13 +85,6 @@ export interface IPluginOptions {
 	enableSearch: boolean;
 
 	/**
-	 * The score multiplier for pages in search.
-	 *
-	 * @default 10
-	 */
-	searchBoost: number;
-
-	/**
 	 * The kind of error to throw in case of an invalid page link.
 	 *
 	 * @default {@link EInvalidPageLinkHandling.LOG_ERROR}

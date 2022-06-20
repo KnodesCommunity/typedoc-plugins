@@ -42,11 +42,6 @@ export const buildOptions = ( plugin: PagesPlugin ) => OptionGroup.factory<IPlug
 		type: ParameterType.Boolean,
 		defaultValue: true,
 	} )
-	.add( 'searchBoost', {
-		help: 'The score multiplier for pages in search.',
-		type: ParameterType.Number,
-		defaultValue: 10,
-	} )
 	.add( 'invalidPageLinkHandling', {
 		help: 'The kind of error to throw in case of an invalid page link.',
 		type: ParameterType.Map,
