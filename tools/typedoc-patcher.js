@@ -15,7 +15,7 @@ const assertWritable = memoize( async filePath => {
 } );
 const getSourceFromGenerated = memoize( async filePath => {
 	const content = await readFile( filePath, 'utf-8' );
-	const header = content.match( /^.*?Edit of <(.+)>.*?\n/ );
+	const header = content.match( /^.*?Edit of <(.+)>.*?\r?\n/ );
 	if( !header ){
 		console.error( `Can't extract header from ${filePath}` );
 	}
@@ -24,8 +24,8 @@ const getSourceFromGenerated = memoize( async filePath => {
 	return assertWritable( sourceFile );
 } );
 const getSourceFromPatch = memoize( async patchPath => {
-	const match = ( await readFile( patchPath, 'utf-8' ) ).match( /^.*\n.*\n--- a\/(.+)\n/ );
-	assert( match && match[1] );
+	const match = ( await readFile( patchPath, 'utf-8' ) ).match( /^.*\r?\n.*\r?\n--- a\/(.+)\r?\n/ );
+	assert( match && match[1], `Invalid patch header in ${patchPath}` );
 	return assertWritable( resolve( match[1] ) );
 } );
 const restoreSourceFiles = files => files.length > 0 ?
@@ -45,9 +45,9 @@ const restoreSourceFiles = files => files.length > 0 ?
 	Promise.resolve();
 const formatFiles = files => files.length > 0 ?
 	spawn(
-		'./node_modules/.bin/eslint',
+		process.platform === 'win32' ? '.\\node_modules\\.bin\\eslint.cmd' : './node_modules/.bin/eslint',
 		[ '--cache-location', './.eslintcache-patch', '--no-ignore', '--config', './.eslintrc-typedoc.js', '--fix', ...files ],
-		{ stdio: [] } ).catch( () => Promise.resolve() ) :
+		{ stdio: [] } ).catch( err => err.message.startsWith( 'Exit code ' ) ? Promise.resolve() : Promise.reject( err ) ) :
 	Promise.resolve();
 
 
@@ -94,7 +94,7 @@ const generatePattern = () => {
 			await formatFiles( filesWithSource.map( ( { source } ) => source ) );
 			try {
 				await Promise.all( filesWithSource.map( async ( { file, source } ) => {
-					const sourceRel = relative( process.cwd(), source );
+					const sourceRel = relative( process.cwd(), source ).replace( /\\/g, '/' );
 					// eslint-disable-next-line no-bitwise -- Binary mask mode
 					const patchHandle = await open( getPatchName( file ), constants.O_WRONLY | constants.O_CREAT );
 					const patchFileStream = patchHandle.createWriteStream();
@@ -107,7 +107,7 @@ const generatePattern = () => {
 			} finally {
 				await restoreSourceFiles( filesWithSource.map( ( { source } ) => source ) );
 			}
-			const stagedFiles = stagedPatchesOutput.read().split( '\n' )
+			const stagedFiles = stagedPatchesOutput.read().split( /\r?\n/ )
 				.filter( staged => generatedFiles.some( f => getPatchName( f ) === staged ) );
 			if( stagedFiles.length > 0 ){
 				await spawn( 'git', [ 'add', ...stagedFiles ] );
@@ -128,7 +128,7 @@ const generatePattern = () => {
 					const errStream = captureStream();
 					const file = patch.replace( /\.patch$/, '' );
 					try {
-						await spawn( 'git', [ 'apply', patch ], { stdio: [ null, 'pipe', errStream ] }  );
+						await spawn( 'git', [ 'apply', '--ignore-space-change', '--ignore-whitespace', '--whitespace=fix', patch ], { stdio: [ null, 'pipe', errStream ] }  );
 						console.log( `Applied patch from ${bold( red( relative( process.cwd(), source ) ) )} to ${bold( green( file ) )}` );
 					} catch( e ){
 						console.error( `Failed to apply patch from ${bold( red( relative( process.cwd(), source ) ) )} to ${bold( green( file ) )}: \n${e}` );
