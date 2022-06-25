@@ -2,7 +2,7 @@ import assert from 'assert';
 import { relative } from 'path';
 
 import { escapeRegExp, isString, once } from 'lodash';
-import { Application, JSX, LogLevel } from 'typedoc';
+import { Application, JSX, LogLevel, normalizePath } from 'typedoc';
 
 import { ABasePlugin, CurrentPageMemo, EventsExtra, MarkdownReplacer, PathReflectionResolver } from '@knodes/typedoc-pluginutils';
 
@@ -101,7 +101,7 @@ export class CodeBlockPlugin extends ABasePlugin {
 		const { codeSample, resolvedFile } = codeSampleInfos;
 
 		// Render
-		const headerFileName = fakedFileName ?? `./${relative( this.rootDir, resolvedFile )}${codeSample.region === DEFAULT_BLOCK_NAME ? '' : `#${codeSample.startLine}~${codeSample.endLine}`}`;
+		const headerFileName = fakedFileName ?? this._getHeaderFileName( resolvedFile, codeSample );
 		const url = this._resolveCodeSampleUrl( resolvedFile, codeSample.region === DEFAULT_BLOCK_NAME ? null : codeSample );
 		return this._currentPageMemo.fakeWrapPage(
 			codeSample.file,
@@ -120,6 +120,19 @@ export class CodeBlockPlugin extends ABasePlugin {
 					return JSX.renderElement( rendered );
 				}
 			} );
+	}
+
+	/**
+	 * Generate the code block header file name.
+	 *
+	 * @param file - The path to the code sample file.
+	 * @param codeSample - The code sample infos.
+	 * @returns the file name to show in the header.
+	 */
+	private _getHeaderFileName( file: string, codeSample: ICodeSample ): string {
+		const filePath = normalizePath( relative( this.rootDir, file ) );
+		const regionMarker = codeSample.region === DEFAULT_BLOCK_NAME ? '' : `#${codeSample.startLine}~${codeSample.endLine}`;
+		return `./${filePath}${regionMarker}`;
 	}
 
 	/**

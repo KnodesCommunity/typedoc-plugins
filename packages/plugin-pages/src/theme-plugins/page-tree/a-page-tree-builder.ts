@@ -1,6 +1,6 @@
 import assert from 'assert';
 
-import { DeclarationReflection, ProjectReflection, Reflection, ReflectionKind, RenderTemplate, RendererEvent, Theme, UrlMapping } from 'typedoc';
+import { DeclarationReflection, ProjectReflection, Reflection, ReflectionKind, RenderTemplate, RendererEvent, Theme, UrlMapping, normalizePath } from 'typedoc';
 
 import { PathReflectionResolver, catchWrap } from '@knodes/typedoc-pluginutils';
 
@@ -190,7 +190,7 @@ export abstract class APageTreeBuilder implements IPageTreeBuilder {
 					module,
 					parent,
 					filename,
-					join( io.output, getNodeUrl( node ) ) ),
+					normalizePath( join( io.output, getNodeUrl( node ) ) ) ),
 				`Could not generate a page reflection for ${getNodePath( node, parent )}` );
 		}
 		return new MenuReflection(

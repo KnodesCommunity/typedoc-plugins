@@ -6,7 +6,7 @@ import { camelCase, once } from 'lodash';
 import { sync as pkgUpSync } from 'pkg-up';
 import { satisfies } from 'semver';
 import { PackageJson, ReadonlyDeep, SetRequired } from 'type-fest';
-import { Application } from 'typedoc';
+import { Application, normalizePath } from 'typedoc';
 
 import { PluginLogger } from './plugin-logger';
 
@@ -75,7 +75,7 @@ export abstract class ABasePlugin {
 	 * @returns the relative path.
 	 */
 	public relativeToRoot( path: string ){
-		return relative( this.rootDir, path );
+		return normalizePath( relative( this.rootDir, path ) );
 	}
 	/**
 	 * Resolve the path to a plugin file (resolved from the plugin `package.json`).
@@ -84,6 +84,6 @@ export abstract class ABasePlugin {
 	 * @returns the resolved path.
 	 */
 	public resolvePackageFile( path: string ){
-		return resolve( this.pluginDir, path );
+		return normalizePath( resolve( this.pluginDir, path ) );
 	}
 }
