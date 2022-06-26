@@ -96,12 +96,12 @@ const generatePattern = () => {
 				await Promise.all( filesWithSource.map( async ( { file, source } ) => {
 					const sourceRel = relative( process.cwd(), source ).replace( /\\/g, '/' );
 					// eslint-disable-next-line no-bitwise -- Binary mask mode
-					const patchHandle = await open( getPatchName( file ), constants.O_WRONLY | constants.O_CREAT );
+					const patchHandle = await open( getPatchName( file ), constants.O_WRONLY | constants.O_CREAT | constants.O_TRUNC );
 					const patchFileStream = patchHandle.createWriteStream();
 					await spawn(
 						'git', [ 'diff', '--no-renames', '--no-index', '--relative', sourceRel, file ],
 						{ stdio: [ null, patchFileStream, process.stderr ] } ).catch( () => Promise.resolve() );
-					patchFileStream.close();
+					patchFileStream.end();
 					console.log( `Generated patch from ${bold( red( sourceRel ) )} to ${bold( green( file ) )}` );
 				} ) );
 			} finally {

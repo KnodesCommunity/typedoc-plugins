@@ -1,5 +1,5 @@
 diff --git a/typedoc/src/lib/output/plugins/JavascriptIndexPlugin.ts b/packages/plugin-pages/src/theme-plugins/search/default-pages-javascript-index-plugin.GENERATED.ts
-index 35698789..180d3658 100755
+index 3569878..180d365 100644
 --- a/typedoc/src/lib/output/plugins/JavascriptIndexPlugin.ts
 +++ b/packages/plugin-pages/src/theme-plugins/search/default-pages-javascript-index-plugin.GENERATED.ts
 @@ -1,29 +1,64 @@
@@ -156,23 +156,6 @@ index 35698789..180d3658 100755
  
  		const jsonData = JSON.stringify( {
 @@ -122,9 +157,10 @@ export class JavascriptIndexPlugin extends RendererComponent {
- 			index,
- 		} );
- 
-+		mkdirSync( Path.dirname( jsonFileName ), { recursive: true } );
- 		writeFileSync(
- 			jsonFileName,
--			`window.searchData = JSON.parse(${JSON.stringify( jsonData )});`
-+			`window.searchData = JSON.parse(${JSON.stringify( jsonData )});`,
- 		);
- 	}
- }
-rse(${JSON.stringify( jsonData )});`
-+			`window.searchData = JSON.parse(${JSON.stringify( jsonData )});`,
- 		);
- 	}
- }
-t class JavascriptIndexPlugin extends RendererComponent {
  			index,
  		} );
  
