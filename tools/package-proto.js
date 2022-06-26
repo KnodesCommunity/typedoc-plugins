@@ -1,13 +1,15 @@
 const assert = require( 'assert' );
 const { createHash } = require( 'crypto' );
 const { readFile, writeFile, mkdir, copyFile, access, unlink } = require( 'fs/promises' );
-const { resolve, join } = require( 'path' );
+const { EOL } = require( 'os' );
+const { resolve, join, normalize } = require( 'path' );
 
 const { bold, yellow } = require( 'chalk' );
 const { defaultsDeep, partition, memoize, isString, cloneDeep, uniq } = require( 'lodash' );
 
 const { spawn, globAsync, selectProjects, createStash } = require( './utils' );
 
+const normalizePath = path => normalize( path ).replace( /\\/g, '/' );
 const getDocsUrl = pkgJson => `https://knodescommunity.github.io/typedoc-plugins/modules/${( pkgJson.name ?? assert.fail( 'No name' ) ).replace( /[^a-z0-9]/gi, '_' )}.html`;
 /**
  * @typedef {import('./utils').Project} Project
@@ -69,14 +71,16 @@ const packageJson = () => {
 			await writeFile( packagePath, JSON.stringify( newProjectPkg, null, 2 ) );
 		},
 		tearDown: async( proto, projects ) => {
-			await spawn( 'npx', [ 'format-package', '--write', ...projects.map( p => resolve( p.path, 'package.json' ) ) ] );
+			await spawn(
+				process.platform === 'win32' ? '.\\node_modules\\.bin\\format-package.cmd' : './node_modules/.bin/format-package',
+				[ '--write', ...projects.map( p => normalizePath( resolve( p.path, 'package.json' ) ) ) ] );
 		},
 		handleFile: filename => /(\/|^)package\.json$/.test( filename ),
 	};
 };
 
 const checksum = async file => createHash( 'md5' )
-	.update( await readFile( file, 'utf-8' ), 'utf-8' )
+	.update( ( await readFile( file, 'utf-8' ) ).replace( /\r?\n/g, '\n' ), 'utf-8' )
 	.digest( 'hex' );
 
 /**
@@ -88,7 +92,7 @@ const syncFs = () => {
 		try {
 			const cacheContent = ( await tryReadFile( cacheFile, 'utf-8' ) ) ?? '';
 			return cacheContent
-				.split( '\n' )
+				.split( /\r?\n/ )
 				.filter( v => v.trim() )
 				.reduce( ( acc, line ) => {
 					const parts = line.split( '::' ).map( p => p.trim() );
@@ -209,10 +213,10 @@ const readme = () => {
 		}
 		let newHeader = `# ${packageContent.name}`;
 		if( packageContent.description ){
-			newHeader += `\n\n> ${packageContent.description}`;
+			newHeader += `${EOL}${EOL}> ${packageContent.description}`;
 		}
 		const shield = ( label, suffix, link ) => `[![${label}](https://img.shields.io${suffix}?style=for-the-badge)](${link})`;
-		newHeader += `\n
+		newHeader += `${EOL}
 ${shield( 'npm version', `/npm/v/${packageContent.name}`, `https://www.npmjs.com/package/${packageContent.name}` )}
 ${shield( 'npm downloads', `/npm/dm/${packageContent.name}`, `https://www.npmjs.com/package/${packageContent.name}` )}
 [![Compatible with TypeDoc](https://img.shields.io/badge/For%20typedoc-${packageContent.peerDependencies.typedoc}-green?logo=npm&style=for-the-badge)](https://www.npmjs.com/package/typedoc)
@@ -252,11 +256,11 @@ For more infos, please refer to [the documentation](${getDocsUrl( packageContent
 ${newHeader}
 <!-- HEADER end -->
 `;
-		const headerRegex = /^<!-- HEADER -->(.*?)<!-- HEADER end -->\n/s;
+		const headerRegex = /^<!-- HEADER -->(.*?)<!-- HEADER end -->\r?\n/s;
 		if( !headerRegex.test( readmeContent ) ){
 			console.log( yellow( `Header not found in ${readmeFile}` ) );
 		}
-		const newReadme = newHeader + readmeContent.replace( /^<!-- HEADER -->(.*?)<!-- HEADER end -->(\n|$)/s, '' );
+		const newReadme = newHeader + readmeContent.replace( /^<!-- HEADER -->(.*?)<!-- HEADER end -->(\r?\n|$)/s, '' );
 		await writeFile( readmeFile, newReadme );
 	};
 	return {
@@ -283,7 +287,7 @@ if( require.main === module ){
 			}
 		}, { explicitProjects: [], noStash: false } );
 	const projects = selectProjects( explicitProjects );
-	const protoDir = resolve( __dirname, 'proto' );
+	const protoDir = normalizePath( resolve( __dirname, 'proto' ) );
 	( async () => {
 		if( !noStash ){
 			await createStash( `Sync packages ${projects.map( p => p.name ).join( ' ' )}` );
