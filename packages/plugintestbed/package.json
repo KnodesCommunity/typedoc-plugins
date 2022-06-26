@@ -33,11 +33,11 @@
     "test": "jest --config jest.config.js"
   },
   "dependencies": {
+    "lodash": "^4.17.21",
     "memfs": "^3.4.1",
     "unionfs": "^4.4.0"
   },
   "peerDependencies": {
-    "lodash": "^4.17.0",
     "typedoc": "^0.22.0",
     "@knodes/typedoc-pluginutils": "~0.22.5"
   },
