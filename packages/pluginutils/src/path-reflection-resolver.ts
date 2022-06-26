@@ -5,7 +5,7 @@ import { dirname, isAbsolute, join, resolve } from 'path';
 import { isString, uniq } from 'lodash';
 import { sync as pkgUpSync } from 'pkg-up';
 import { LiteralUnion } from 'type-fest';
-import { DeclarationReflection, ProjectReflection, Reflection, ReflectionKind } from 'typedoc';
+import { DeclarationReflection, ProjectReflection, Reflection, ReflectionKind, normalizePath } from 'typedoc';
 
 import type { ABasePlugin } from './base-plugin';
 
@@ -99,6 +99,7 @@ export class PathReflectionResolver {
 		path: NamedPath,
 		{ containerFolder, currentReflection }: {containerFolder?: string; currentReflection?: Reflection} = {},
 	){
+		path = normalizePath( path );
 		const pathSv = path;
 		const pathsToTry = [];
 		let canLookupModule = false;

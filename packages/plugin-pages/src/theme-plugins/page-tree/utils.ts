@@ -3,12 +3,12 @@ import { join as _join } from 'path';
 
 import { isObject, isString } from 'lodash';
 import { PascalCase } from 'type-fest';
-import { Reflection } from 'typedoc';
+import { Reflection, normalizePath } from 'typedoc';
 
 import { IPageNode } from '../../options';
 import { ANodeReflection } from '../../reflections/a-node-reflection';
 
-export const join = ( ...segments: Array<string | undefined> ) => _join( ...segments.filter( isString ) );
+export const join = ( ...segments: Array<string | undefined> ) => normalizePath( _join( ...segments.filter( isString ) ) );
 export const traverseDeep = ( reflections: readonly Reflection[], cb: ( reflection: Reflection ) => void | boolean  ) => reflections.forEach( r => traverseSingle( r, cb ) );
 const traverseSingle = ( reflection: Reflection, cb: ( reflection: Reflection ) => void | boolean ) => {
 	cb( reflection );
