@@ -5,15 +5,15 @@
 </li>
 <li>as a path to a configuration file exporting options (<code>require</code>able files are supported, so, by default, <code>.json</code> &amp; <code>.js</code>)<pre><code class="language-sh"><span class="hl-0">typedoc --&lt;pluginOptionsPrefix&gt; plugin-configuration.json</span>
 </code></pre>
-<details class="code-block" open><summary><p>From typedoc.json</p></summary><pre><code class="language-json"><span class="hl-0">{</span><br/><span class="hl-0">    </span><span class="hl-2">// ...</span><br/><span class="hl-0">    </span><span class="hl-9">&quot;&lt;pluginOptionsPrefix&gt;&quot;</span><span class="hl-0">: </span><span class="hl-1">&quot;plugin-configuration.json&quot;</span><br/><span class="hl-0">}</span>
+<details class="code-block" open><summary><p>From typedoc.json</p></summary><pre><code class="language-json"><span class="hl-0">{</span><br/><span class="hl-0">    </span><span class="hl-2">// ...</span><br/><span class="hl-0">    </span><span class="hl-7">&quot;&lt;pluginOptionsPrefix&gt;&quot;</span><span class="hl-0">: </span><span class="hl-1">&quot;plugin-configuration.json&quot;</span><br/><span class="hl-0">}</span>
 </code></pre>
 </details></li>
 <li>as individual options (prefixed with <code>&lt;pluginOptionsPrefix&gt;:</code>)<pre><code class="language-sh"><span class="hl-0">typedoc --&lt;pluginOptionsPrefix&gt;:source my-source</span>
 </code></pre>
-<details class="code-block" open><summary><p>From typedoc.json</p></summary><pre><code class="language-json"><span class="hl-0">{</span><br/><span class="hl-0">    </span><span class="hl-2">// ...</span><br/><span class="hl-0">    </span><span class="hl-9">&quot;&lt;pluginOptionsPrefix&gt;:source&quot;</span><span class="hl-0">: </span><span class="hl-1">&quot;my-source&quot;</span><br/><span class="hl-0">}</span>
+<details class="code-block" open><summary><p>From typedoc.json</p></summary><pre><code class="language-json"><span class="hl-0">{</span><br/><span class="hl-0">    </span><span class="hl-2">// ...</span><br/><span class="hl-0">    </span><span class="hl-7">&quot;&lt;pluginOptionsPrefix&gt;:source&quot;</span><span class="hl-0">: </span><span class="hl-1">&quot;my-source&quot;</span><br/><span class="hl-0">}</span>
 </code></pre>
 </details></li>
-<li>or as an object (for config file only)<details class="code-block" open><summary><p>From typedoc.json</p></summary><pre><code class="language-json"><span class="hl-0">{</span><br/><span class="hl-0">    </span><span class="hl-2">// ...</span><br/><span class="hl-0">    </span><span class="hl-9">&quot;&lt;pluginOptionsPrefix&gt;&quot;</span><span class="hl-0">: {</span><br/><span class="hl-0">        </span><span class="hl-9">&quot;source&quot;</span><span class="hl-0">: </span><span class="hl-1">&quot;my-source&quot;</span><br/><span class="hl-0">    }</span><br/><span class="hl-0">}</span>
+<li>or as an object (for config file only)<details class="code-block" open><summary><p>From typedoc.json</p></summary><pre><code class="language-json"><span class="hl-0">{</span><br/><span class="hl-0">    </span><span class="hl-2">// ...</span><br/><span class="hl-0">    </span><span class="hl-7">&quot;&lt;pluginOptionsPrefix&gt;&quot;</span><span class="hl-0">: {</span><br/><span class="hl-0">        </span><span class="hl-7">&quot;source&quot;</span><span class="hl-0">: </span><span class="hl-1">&quot;my-source&quot;</span><br/><span class="hl-0">    }</span><br/><span class="hl-0">}</span>
 </code></pre>
 </details></li>
 </ul>
