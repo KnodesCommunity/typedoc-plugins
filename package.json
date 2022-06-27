@@ -24,28 +24,28 @@
     "./packages/*"
   ],
   "scripts": {
+    "build": "npm run tools:patch -- apply && node ./tools/s-projects \"npm run build -- --pretty\"",
+    "build:clean": "npm run build:clean --workspaces",
+    "build:watch": "npm run build && node ./tools/p-projects \"npm run build -- --watch --preserveWatchOutput --pretty\"",
     "changelog": "conventional-changelog -p angular -i CHANGELOG.md -s",
     "docs": "typedoc",
-    "format:pkg": "format-package --write",
+    "format:pkg": "format-package --write \"./package.json\" \"./packages/*/package.json\"",
     "lint": "eslint --ignore-path ./.eslintignore \"**/?(.)*.?([cm])[tj]s?(x)\"",
-    "precommit": "npm run projects:patch -- diff && npm run lint -- --cache && npm run projects:build && npm run projects:test -- --onlyChanged && npm run docs",
-    "prepare": "npm run prepare:husky",
+    "precommit": "npm run tools:patch -- diff && npm run lint -- --cache && npm run build && npm run test -- --onlyChanged && npm run docs",
+    "prepare": "npm run prepare:husky && git submodule update --init --recursive",
     "prepare:husky": "run-script-os",
     "prepare:husky:default": "[ -d ./node_modules/husky ] && husky install || true",
     "prepare:husky:windows": "if exist './node_modules/husky' { husky install }",
-    "projects:build": "npm run projects:patch -- apply && node ./tools/s-projects \"npm run build -- --pretty\"",
-    "projects:build:clean": "npm run build:clean --workspaces",
-    "projects:build:watch": "npm run projects:build && node ./tools/p-projects \"npm run build -- --watch --preserveWatchOutput --pretty\"",
-    "projects:patch": "node ./tools/typedoc-patcher --no-stash",
-    "projects:test": "jest",
     "release": "run-script-os",
     "release:default": "./tools/release.sh",
     "release:windows": "echo \"Unsupported platform for release. Run this command only from an UNIX-like environment.\"",
+    "test": "jest",
     "test:ci": "cross-env JEST_JUNIT_OUTPUT_NAME=junit.xml jest --config jest.config.ci.js --all --ci --reporters=default --reporters=jest-junit",
     "test:ci:coverage": "npm run test:ci -- --collectCoverage",
     "tools:bump-versions": "cross-env NODE_NO_WARNINGS=1 node tools/bump-versions",
     "tools:infer-next-version": "cross-env NODE_NO_WARNINGS=1 node tools/infer-next-version",
-    "tools:packages-sync": "cross-env NODE_NO_WARNINGS=1 node tools/package-proto"
+    "tools:patch": "node ./tools/typedoc-patcher --no-stash",
+    "tools:sync-proto": "cross-env NODE_NO_WARNINGS=1 node tools/package-proto"
   },
   "commitlint": {
     "extends": [

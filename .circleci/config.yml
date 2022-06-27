@@ -108,7 +108,7 @@ jobs:
           at: .
       - attach_workspace:
           at: /tmp
-      - run: npm run projects:patch -- apply --no-stash
+      - run: npm run tools:patch -- apply --no-stash
       - run:
           name: Send report
           command: /tmp/cc-test-reporter after-build --coverage-input-type lcov --exit-code $(cat ./TEST_STATUS)
@@ -118,7 +118,7 @@ jobs:
     steps:
       - attach_workspace:
           at: .
-      - run: npm run projects:patch -- apply --no-stash
+      - run: npm run tools:patch -- apply --no-stash
       - run: npm run lint
       - run:
           command: |
@@ -142,7 +142,7 @@ jobs:
     steps:
       - attach_workspace:
           at: .
-      - run: npm run projects:patch -- apply --no-stash
+      - run: npm run tools:patch -- apply --no-stash
       - run: npm run lint
       - run:
           command: npm run test:ci
@@ -157,7 +157,7 @@ jobs:
     steps:
       - attach_workspace:
           at: .
-      - run: npm run projects:build
+      - run: npm run build
       - store_artifacts:
           path: ./packages/**/dist
       - persist_to_workspace:
