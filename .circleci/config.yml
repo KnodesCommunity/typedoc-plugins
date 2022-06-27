@@ -1,9 +1,29 @@
 # This config is equivalent to both the '.circleci/extended/orb-free.yml' and the base '.circleci/config.yml'
 version: 2.1
+
+# Orbs are reusable packages of CircleCI configuration that you may share across projects, enabling you to create encapsulated, parameterized commands, jobs, and executors that can be used across multiple projects.
+# See: https://circleci.com/docs/2.0/orb-intro/
+orbs:
+  node: circleci/node@5.0.2
+
 executors:
   node:
     docker:
       - image: cimg/node:lts
+  linux: # a Linux VM running Ubuntu 20.04
+    machine:
+      image: ubuntu-2004:202107-02
+    resource_class: medium
+  macos: # macos executor running Xcode
+    macos:
+      xcode: 12.5.1
+    resource_class: medium
+  windows:
+    machine:
+      image: windows-server-2019-vs2019:stable
+      shell: bash.exe
+    resource_class: windows.medium
+
   default:
     docker:
       - image: cimg/base:stable
@@ -11,10 +31,18 @@ executors:
     docker:
       - image: alpine/git
 
-# Orbs are reusable packages of CircleCI configuration that you may share across projects, enabling you to create encapsulated, parameterized commands, jobs, and executors that can be used across multiple projects.
-# See: https://circleci.com/docs/2.0/orb-intro/
-orbs:
-  node: circleci/node@5.0.2
+x-params:
+  test-matrix: &params-test-matrix
+    parameters:
+      os: [&test-matrix-main-os linux, macos, windows]
+      node-version: ["14.19.3", "16.15.1", &test-matrix-main-version "18.4.0"]
+x-steps:
+  npm-install-cache: &step-npm-install-cache
+    restore_cache:
+      keys:
+        - v1--npm--install--{{ .Branch }}--{{ checksum "package-lock.json" }}
+        - v1--npm--install--{{ .Branch }}
+        - v1--npm--install
 
 jobs:
   checkout:
@@ -28,46 +56,26 @@ jobs:
           root: .
           paths:
             - '*'
-  npm-ci-install:
-    executor: node
-    resource_class: small
-    steps:
-      - attach_workspace:
-          at: .
-      - restore_cache:
-          keys:
-            - v1--npm-ci--{{ .Branch }}--{{ checksum "package-lock.json" }}
-            - v1--npm-ci--{{ .Branch }}
-            - v1--npm-ci
-      - run: npm ci
-      - save_cache:
-          key: v1--npm-ci--{{ .Branch }}--{{ checksum "package-lock.json" }}
-          paths:
-            - ~/.npm
-      - persist_to_workspace:
-          root: .
-          paths:
-            - 'node_modules'
-            - 'packages/*/node_modules'
   npm-install:
+    parameters:
+      install-type:
+        type: string
+        default: clean-install
     executor: node
     resource_class: small
     steps:
       - attach_workspace:
           at: .
-      - restore_cache:
-          keys:
-            - v1--npm-i--{{ .Branch }}--{{ checksum "package-lock.json" }}
-            - v1--npm-i--{{ .Branch }}
-            - v1--npm-i
-      - run: npm install && npm install --workspaces
+      - *step-npm-install-cache
+      - run: npm run ci:<< parameters.install-type >>
       - save_cache:
-          key: v1--npm-i--{{ .Branch }}--{{ checksum "package-lock.json" }}
+          key: v1--npm--install--{{ .Branch }}--{{ checksum "package-lock.json" }}
           paths:
             - ~/.npm
       - persist_to_workspace:
           root: .
           paths:
+            - 'package-lock.json'
             - 'node_modules'
             - 'packages/*/node_modules'
   clone-typedoc:
@@ -95,7 +103,7 @@ jobs:
             chmod +x /tmp/cc-test-reporter
       - persist_to_workspace:
           root: /tmp
-          paths: 
+          paths:
             - cc-test-reporter
       - run:
           name: Run Code Climate test-reporter `before-build`
@@ -112,48 +120,69 @@ jobs:
       - run:
           name: Send report
           command: /tmp/cc-test-reporter after-build --coverage-input-type lcov --exit-code $(cat ./TEST_STATUS)
-  test-coverage:
+  lint:
     executor: node
-    resource_class: medium+
+    resource_class: small
     steps:
       - attach_workspace:
           at: .
-      - run: npm run tools:patch -- apply --no-stash
       - run: npm run lint
-      - run:
-          command: |
-            npm run test:ci:coverage
-            echo $? > TEST_STATUS
-          when: always
+  test:
+    parameters:
+      os:
+        type: string
+      node-version:
+        type: string
+      coverage:
+        type: boolean
+        default: false
+    executor: << parameters.os >>
+    steps:
+      - node/install:
+          node-version: << parameters.node-version >>
+      - attach_workspace:
+          at: .
+      - when:
+          condition: { equal: ["linux", << parameters.os >>] }
+          steps:
+            - *step-npm-install-cache
+      - run: npm run ci:clean-install
+      - when:
+          condition: &test-matrix-coverage-condition
+            and:
+              - << parameters.coverage >>
+              - { equal: [<< parameters.os >>, *test-matrix-main-os ] }
+              - { equal: [<< parameters.node-version >>, *test-matrix-main-version ] }
+          steps:
+          - run:
+              command: |
+                npm run test:ci:coverage
+                echo $? > TEST_STATUS
+                exit $(cat TEST_STATUS)
+              when: always
+      - unless:
+          condition: *test-matrix-coverage-condition
+          steps:
+          - run:
+              command: npm run test:ci
+              when: always
       - store_artifacts:
           path: ./junit.xml
       - store_test_results:
           path: ./junit.xml
       - store_artifacts:
           path: ./coverage
-      - persist_to_workspace:
-          root: .
-          paths: 
-            - coverage
-            - TEST_STATUS
-  test:
-    executor: node
-    resource_class: medium+
-    steps:
-      - attach_workspace:
-          at: .
-      - run: npm run tools:patch -- apply --no-stash
-      - run: npm run lint
-      - run:
-          command: npm run test:ci
-          when: always
-      - store_artifacts:
-          path: ./junit.xml
-      - store_test_results:
-          path: ./junit.xml
+      - when:
+          condition: *test-matrix-coverage-condition
+          steps:
+            - persist_to_workspace:
+                root: .
+                paths:
+                  - coverage
+                  - TEST_STATUS
   build:
     executor: node
-    resource_class: small
+    resource_class: medium
     steps:
       - attach_workspace:
           at: .
@@ -163,7 +192,7 @@ jobs:
       - persist_to_workspace:
           root: .
           paths:
-            - ./packages/**/dist
+            - ./packages/**
   infer-version:
     executor: node
     resource_class: small
@@ -191,9 +220,9 @@ jobs:
       - run:
           name: Config git
           command: |
-            git config --global user.email "Scitizen-publish-bot@users.noreply.github.com"
-            git config --global user.name "Scitizen-publish-bot"
-      - run: 
+            git config --global user.email "Knodes-publish-bot@users.noreply.github.com"
+            git config --global user.name "Knodes-publish-bot"
+      - run:
           name: Run standard-version
           command: |
             release_type="$(cat ./RELEASE_TYPE)"
@@ -226,8 +255,8 @@ jobs:
       - run:
           name: Config git
           command: |
-            git config --global user.email "Scitizen-publish-bot@users.noreply.github.com"
-            git config --global user.name "Scitizen-publish-bot"
+            git config --global user.email "Knodes-publish-bot@users.noreply.github.com"
+            git config --global user.name "Knodes-publish-bot"
       - run:
           name: Push branch & tag
           command: |
@@ -332,16 +361,17 @@ jobs:
       - run:
           name: Config git
           command: |
-            git config --global user.email "Scitizen-autosync-bot@users.noreply.github.com"
-            git config --global user.name "Scitizen-autosync-bot"
+            git config --global user.email "Knodes-autosync-bot@users.noreply.github.com"
+            git config --global user.name "Knodes-autosync-bot"
       - run:
           name: Merge to develop
           command: |
             git remote set-url origin https://$CIRCLE_PROJECT_USERNAME:$GITHUB_AUTH_SECRET@github.com/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME
             git merge $CIRCLE_BRANCH origin/develop -m "ci(auto-merge): auto merge $CIRCLE_BRANCH
-            
+
             [skip ci]"
             git push --set-upstream origin develop
+
 
 
 # Invoke jobs via workflows
@@ -363,7 +393,11 @@ workflows:
           requires:
             - npm-install
             - clone-typedoc
+      - lint:
+          requires:
+            - build
       - test:
+          matrix: *params-test-matrix
           requires:
             - build
 
@@ -379,7 +413,8 @@ workflows:
         - matches: { pattern: "^renovate/.+$", value: << pipeline.git.branch >> }
     jobs:
       - checkout
-      - npm-ci-install:
+      - npm-install:
+          install-type: install
           requires:
             - checkout
       - clone-typedoc:
@@ -389,15 +424,21 @@ workflows:
 
       - build:
           requires:
-            - npm-ci-install
+            - npm-install
             - clone-typedoc
-      - test-coverage:
+      - lint:
+          requires:
+            - build
+      - test:
+          coverage: true
+          matrix: *params-test-matrix
           requires:
             - build
             - codeclimate-before
       - codeclimate-after:
           requires:
-            - test-coverage
+            - lint
+            - test
   # publish: # Workflow ran only on `main` & `develop`
   #   when:
   #     or:
@@ -429,7 +470,7 @@ workflows:
   #     - do-release:
   #         requires:
   #           - Confirm new release
-      
+
   #     - npm-publish:
   #         requires:
   #           - do-release
