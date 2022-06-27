@@ -121,6 +121,13 @@ describe( APageTreeBuilder.name, () => {
 			matchReflection( PageReflection, { name: 'Baz', depth: 0, module: testHost.project, sourceFilePath: 'baz.md', content: 'Baz content', url: 'baz.html' } ),
 		] );
 	} );
+	it( 'should map hidden item', () => {
+		setVirtualFs( {
+			'foo.md': 'Foo content'
+		} );
+		const out = testHost.mapPagesToReflections( [ { title: 'HIDDEN', source: 'foo.md' } ] );
+		expect( out ).toHaveLength( 1 );
+	} );
 	it( 'should map page with children', () => {
 		setVirtualFs( {
 			'foo.md': 'Foo content',

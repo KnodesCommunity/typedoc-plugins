@@ -145,6 +145,12 @@ export abstract class APageTreeBuilder implements IPageTreeBuilder {
 		}
 		this.project.registerReflection( nodeReflection );
 		this.addNodeToProjectAsChild( nodeReflection );
+    // strip a hidden node, but *after* adding its source to the project as a child
+		if( node.title === 'HIDDEN' ){
+			return node.children ?
+				this._mapPagesToReflections( node.children, parent, childrenIO ) :
+				[];
+		}
 		const children = node.children ?
 			this._mapPagesToReflections(
 				node.children,

@@ -1,6 +1,6 @@
 {
   "name": "@knodes/typedoc-plugins",
-  "version": "0.22.5",
+  "version": "0.22.7",
   "description": "A monorepo containing all knodes-published TypeDoc plugins",
   "license": "MIT",
   "private": true,
@@ -24,6 +24,8 @@
     "./packages/*"
   ],
   "scripts": {
+    "postinstall": "git submodule update --init --recursive && npm i --workspaces && npm run projects:build",
+    "build": "npm run projects:build",
     "changelog": "conventional-changelog -p angular -i CHANGELOG.md -s",
     "docs": "typedoc",
     "format:pkg": "format-package --write",
