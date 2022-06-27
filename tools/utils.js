@@ -4,6 +4,7 @@ const { promisify } = require( 'util' );
 
 const glob = require( 'glob' );
 const { once, isArray } = require( 'lodash' );
+const { normalizePath } = require( 'typedoc' );
 
 const globAsync = promisify( glob );
 module.exports.globAsync = globAsync;
@@ -141,4 +142,23 @@ module.exports.selectProjects = explicitProjects => {
 	return explicitProjects.length === 0 ?
 		allProjects :
 		allProjects.filter( p => explicitProjects.includes( p.name ) );
+};
+
+/**
+ * @param {string[]} packages
+ */
+module.exports.formatPackages = ( ...packages ) => spawn(
+	process.platform === 'win32' ? '.\\node_modules\\.bin\\format-package.cmd' : './node_modules/.bin/format-package',
+	[ '--write', ...packages.map( p => normalizePath( p ) ) ] );
+
+/**
+ * @param {string[]} filesList
+ */
+module.exports.getStagedFiles = async ( ...filesList ) => {
+	const stagedPatchesOutput = captureStream();
+	if( filesList && filesList.length > 0 ){
+		filesList.unshift( '--' );
+	}
+	await spawn( 'git', [ 'diff', '--name-only', '--cached', ...filesList ], { stdio: [ null, stagedPatchesOutput, null ] } );
+	return stagedPatchesOutput.read().split( /\r?\n/ ).filter( v => v );
 };

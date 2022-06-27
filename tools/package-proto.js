@@ -2,14 +2,14 @@ const assert = require( 'assert' );
 const { createHash } = require( 'crypto' );
 const { readFile, writeFile, mkdir, copyFile, access, unlink } = require( 'fs/promises' );
 const { EOL } = require( 'os' );
-const { resolve, join, normalize } = require( 'path' );
+const { resolve, join } = require( 'path' );
 
 const { bold, yellow } = require( 'chalk' );
 const { defaultsDeep, partition, memoize, isString, cloneDeep, uniq } = require( 'lodash' );
+const { normalizePath } = require( 'typedoc' );
 
-const { spawn, globAsync, selectProjects, createStash } = require( './utils' );
+const { formatPackages, globAsync, selectProjects, createStash } = require( './utils' );
 
-const normalizePath = path => normalize( path ).replace( /\\/g, '/' );
 const getDocsUrl = pkgJson => `https://knodescommunity.github.io/typedoc-plugins/modules/${( pkgJson.name ?? assert.fail( 'No name' ) ).replace( /[^a-z0-9]/gi, '_' )}.html`;
 /**
  * @typedef {import('./utils').Project} Project
@@ -71,9 +71,7 @@ const packageJson = () => {
 			await writeFile( packagePath, JSON.stringify( newProjectPkg, null, 2 ) );
 		},
 		tearDown: async( proto, projects ) => {
-			await spawn(
-				process.platform === 'win32' ? '.\\node_modules\\.bin\\format-package.cmd' : './node_modules/.bin/format-package',
-				[ '--write', ...projects.map( p => normalizePath( resolve( p.path, 'package.json' ) ) ) ] );
+			await formatPackages( ...projects.map( p => normalizePath( resolve( p.path, 'package.json' ) ) ) );
 		},
 		handleFile: filename => /(\/|^)package\.json$/.test( filename ),
 	};
@@ -329,6 +327,8 @@ if( require.main === module ){
 				await tearDown( protoDir, projects, handlers );
 			}
 		}
+
+		await require( './merge-projects-deps' )();
 	} )();
 }
 
