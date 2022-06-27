@@ -3,7 +3,7 @@ import { resolve } from 'path';
 
 import { Many, castArray } from 'lodash';
 
-import { Application, ArgumentsReader, TSConfigReader, TypeDocOptions, TypeDocReader } from 'typedoc';
+import { Application, ArgumentsReader, LogLevel, TSConfigReader, TypeDocOptions, TypeDocReader } from 'typedoc';
 
 export const runPlugin = async (
 	testDir: string,
@@ -35,3 +35,12 @@ export const runPluginBeforeAll = (
 	pluginPaths: Many<string>,
 	opts?: {options?: Record<string, any>; output?: string},
 ) => beforeAll( () => runPlugin( testDir, pluginPaths, opts ), ( process.env.CI === 'true' ? 120 : 30 ) * 1000 );
+
+export const setupTypedocApplication = ( options?: Partial<TypeDocOptions> | undefined, logLevel = LogLevel.Error ) => {
+	const app = new Application();
+	app.bootstrap( {
+		logLevel,
+		...options,
+	} );
+	return app;
+};

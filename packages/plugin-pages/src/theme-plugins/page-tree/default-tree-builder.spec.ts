@@ -1,6 +1,6 @@
 import { Application, DeclarationReflection, DefaultTheme, ProjectReflection, RendererEvent, UrlMapping } from 'typedoc';
 
-import { restoreFs, setVirtualFs } from '#plugintestbed';
+import { restoreFs, setVirtualFs, setupTypedocApplication } from '#plugintestbed';
 
 import { PagesPlugin } from '../../plugin';
 import { MenuReflection, NodeReflection, PageReflection, PagesPluginReflectionKind } from '../../reflections';
@@ -26,7 +26,7 @@ let plugin: PagesPlugin;
 let testHost: TestHost;
 let project: ProjectReflection;
 beforeEach( () => {
-	application = new Application();
+	application = setupTypedocApplication();
 	theme = new DefaultTheme( application.renderer );
 	plugin = new PagesPlugin( application );
 	testHost = new TestHost();

@@ -4,7 +4,7 @@ import { isString } from 'lodash';
 import { Class } from 'type-fest';
 import { Application, DeclarationReflection, DefaultTheme, JSX, ProjectReflection, Reflection, ReflectionKind, RendererEvent, SourceFile, UrlMapping } from 'typedoc';
 
-import { restoreFs, setVirtualFs } from '#plugintestbed';
+import { restoreFs, setVirtualFs, setupTypedocApplication } from '#plugintestbed';
 
 import { IPageNode } from '../../options';
 import { PagesPlugin } from '../../plugin';
@@ -45,7 +45,7 @@ let theme: DefaultTheme;
 let plugin: PagesPlugin;
 let testHost: TestHost;
 beforeEach( () => {
-	application = new Application();
+	application = setupTypedocApplication();
 	theme = new DefaultTheme( application.renderer );
 	plugin = new PagesPlugin( application );
 	testHost = new TestHost();

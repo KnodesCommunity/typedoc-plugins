@@ -4,7 +4,7 @@ import { resolve } from 'path';
 import { identity } from 'lodash';
 import { Application, DeclarationReflection, JSX, ReflectionKind } from 'typedoc';
 
-import { restoreFs, setVirtualFs, setupMockMarkdownReplacer, setupMockPageMemo } from '#plugintestbed';
+import { restoreFs, setVirtualFs, setupMockMarkdownReplacer, setupMockPageMemo, setupTypedocApplication } from '#plugintestbed';
 
 /* eslint-disable @typescript-eslint/no-var-requires */
 jest.mock( './code-blocks' );
@@ -31,7 +31,7 @@ const pageMemoTestbed = setupMockPageMemo();
 beforeEach( () => {
 	process.chdir( rootDir );
 	jest.clearAllMocks();
-	application = new Application();
+	application = setupTypedocApplication();
 	plugin = new CodeBlockPlugin( application );
 } );
 afterEach( restoreFs );
