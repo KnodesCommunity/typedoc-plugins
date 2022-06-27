@@ -20,7 +20,7 @@ export interface IPluginOptions {
 
 	/**
 	 * The name of the readme files
-	 * 
+	 *
 	 * @default `[]`
 	 */
 	readme: string[];
