@@ -41,7 +41,7 @@ export class MonorepoReadmePlugin extends ABasePlugin {
 	 * @param moduleMapping - The module URL mapping to modify
 	 */
 	private _modifyModuleIndexPage( theme: DefaultTheme, moduleMapping: UrlMapping<DeclarationReflection> ){
-		const readme = findReadmeFile( this.pluginOptions.getValue().rootFiles, moduleMapping );
+		const readme = findReadmeFile( this.pluginOptions.getValue().rootFiles, moduleMapping, this.pluginOptions.getValue().readme );
 		if( !readme ){
 			return;
 		}

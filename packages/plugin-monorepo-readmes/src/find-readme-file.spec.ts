@@ -30,11 +30,16 @@ describe( 'Readme file location', () => {
 				},
 				'package.json': '',
 				'README.md': 'hello',
+				'OTHER.md': 'yellow',
 			},
 		} );
-		expect( findReadmeFile( [ 'package.json' ], buildMapping( 'foo/src/index.ts' ) ) ).toEqual( {
+		expect( findReadmeFile( [ 'package.json' ], buildMapping( 'foo/src/index.ts' ), [] ) ).toEqual( {
 			relative: 'README.md',
 			absolute: resolve( rootDir, 'foo/README.md' ),
+		} );
+		expect( findReadmeFile( [ 'package.json' ], buildMapping( 'foo/src/index.ts' ), [ 'OTHER.md' ] ) ).toEqual( {
+			relative: 'OTHER.md',
+			absolute: resolve( rootDir, 'foo/OTHER.md' ),
 		} );
 	} );
 	it( 'should return "undefined" if no readme is found along with the "package.json" file', () => {
@@ -47,7 +52,8 @@ describe( 'Readme file location', () => {
 				'package.json': '',
 			},
 		} );
-		expect( findReadmeFile( [ 'package.json' ], buildMapping( 'foo/src/index.ts' ) ) ).toEqual( undefined );
+		expect( findReadmeFile( [ 'package.json' ], buildMapping( 'foo/src/index.ts' ), [] ) ).toEqual( undefined );
+		expect( findReadmeFile( [ 'package.json' ], buildMapping( 'foo/src/index.ts' ), [ 'OTHER.md' ] ) ).toEqual( undefined );
 	} );
 	it( 'should fallback on each readme targets', () => {
 		setVirtualFs( {
@@ -61,11 +67,16 @@ describe( 'Readme file location', () => {
 				},
 				'project.json': '',
 				'readme.md': '',
+				'other.md': '',
 			},
 		} );
-		expect( findReadmeFile( [ 'package.json', 'project.json' ], buildMapping( 'foo/bar/src/index.ts' ) ) ).toEqual( {
+		expect( findReadmeFile( [ 'package.json', 'project.json' ], buildMapping( 'foo/bar/src/index.ts' ), [] ) ).toEqual( {
 			relative: 'readme.md',
 			absolute: resolve( rootDir, 'foo/readme.md' ),
+		} );
+		expect( findReadmeFile( [ 'package.json', 'project.json' ], buildMapping( 'foo/bar/src/index.ts' ), [ 'other.md' ] ) ).toEqual( {
+			relative: 'other.md',
+			absolute: resolve( rootDir, 'foo/other.md' ),
 		} );
 	} );
 } );

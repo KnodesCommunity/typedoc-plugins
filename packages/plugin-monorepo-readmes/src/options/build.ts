@@ -17,4 +17,9 @@ export const buildOptions = ( plugin: MonorepoReadmePlugin ) => OptionGroup.fact
 		map: LogLevel,
 		defaultValue: plugin.application.logger.level,
 	} )
+	.add( 'readme', {
+		help: 'Specify name of readme files',
+		type: ParameterType.Array,
+		defaultValue: [],
+	} )
 	.build();
