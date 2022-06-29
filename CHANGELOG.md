@@ -1,3 +1,13 @@
+## [0.22.7](https://github.com/KnodesCommunity/typedoc-plugins/compare/v0.22.6...v0.22.7) (2022-06-29)
+
+
+### Bug Fixes
+
+* **deps:** update dependency memfs to v3.4.7 ([f9acee2](https://github.com/KnodesCommunity/typedoc-plugins/commit/f9acee29c68c7525a95f40c0982b7b4981f69ab7))
+* **plugin-pages:** include GENERATED files in package ([88ff876](https://github.com/KnodesCommunity/typedoc-plugins/commit/88ff876631b4fa1d97f50ede3eeba30e69fc47ff))
+
+
+
 ## [0.22.6](https://github.com/KnodesCommunity/typedoc-plugins/compare/v0.22.5...v0.22.6) (2022-06-27)
 
 

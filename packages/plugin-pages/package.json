@@ -1,6 +1,6 @@
 {
   "name": "@knodes/typedoc-plugin-pages",
-  "version": "0.22.6",
+  "version": "0.22.7",
   "description": "A TypeDoc plugin that lets you integrate your own pages into the documentation output",
   "license": "MIT",
   "repository": {
@@ -25,11 +25,11 @@
   ],
   "main": "dist/index.js",
   "files": [
+    "!**/*.generated.*.patch",
+    "**/*.generated.*",
     "dist",
     "src",
-    "static",
-    "**/*.GENERATED.*",
-    "!**/*.GENERATED.*.patch"
+    "static"
   ],
   "scripts": {
     "build": "tsc --project tsconfig.build.json",
@@ -40,7 +40,7 @@
   },
   "dependencies": {
     "lodash": "^4.17.21",
-    "@knodes/typedoc-pluginutils": "~0.22.6"
+    "@knodes/typedoc-pluginutils": "~0.22.7"
   },
   "peerDependencies": {
     "typedoc": "^0.22.0",

@@ -1,6 +1,6 @@
 {
   "name": "@knodes/typedoc-plugin-monorepo-readmes",
-  "version": "0.22.6",
+  "version": "0.22.7",
   "description": "A TypeDoc plugin to prepend modules indexes with readmes",
   "license": "MIT",
   "repository": {
@@ -36,7 +36,7 @@
   },
   "dependencies": {
     "lodash": "^4.17.21",
-    "@knodes/typedoc-pluginutils": "~0.22.6",
+    "@knodes/typedoc-pluginutils": "~0.22.7",
     "find-up": "^4.1.0"
   },
   "peerDependencies": {
