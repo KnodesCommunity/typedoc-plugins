@@ -27,7 +27,9 @@
   "files": [
     "dist",
     "src",
-    "static"
+    "static",
+    "**/*.GENERATED.*",
+    "!**/*.GENERATED.*.patch"
   ],
   "scripts": {
     "build": "tsc --project tsconfig.build.json",
