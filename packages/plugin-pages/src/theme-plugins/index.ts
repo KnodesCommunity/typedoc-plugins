@@ -4,7 +4,6 @@ import type { PagesPlugin } from '../plugin';
 import { isPagesPluginTheme } from '../theme';
 import { DefaultTreeBuilder } from './page-tree/default-tree-builder';
 import { IPageTreeBuilder } from './page-tree/types';
-import { DefaultPagesJavascriptIndexPlugin } from './search';
 
 export * from './page-tree/types';
 export const initThemePlugins = ( application: Application, plugin: PagesPlugin ): IPageTreeBuilder => {
@@ -14,7 +13,6 @@ export const initThemePlugins = ( application: Application, plugin: PagesPlugin 
 	}
 	if( !isPagesPluginTheme( theme ) ){
 		if( theme instanceof DefaultTheme ){
-			new DefaultPagesJavascriptIndexPlugin( plugin ).initialize();
 			return new DefaultTreeBuilder( theme, plugin );
 		} else {
 			throw new Error( 'Unhandled theme not compatible nor extending the default theme.' );

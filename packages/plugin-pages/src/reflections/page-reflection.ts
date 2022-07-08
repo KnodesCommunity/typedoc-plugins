@@ -1,7 +1,7 @@
 import { readFileSync } from 'fs';
 import { relative } from 'path';
 
-import { Comment, DeclarationReflection, ProjectReflection, ReflectionKind, SourceFile } from 'typedoc';
+import { Comment, DeclarationReflection, ProjectReflection, ReflectionKind, SourceReference } from 'typedoc';
 
 import { catchWrap } from '@knodes/typedoc-pluginutils';
 
@@ -22,9 +22,9 @@ export class PageReflection extends ANodeReflection {
 			() => readFileSync( sourceFilePath, 'utf-8' ),
 			`Could not read ${relative( process.cwd(), sourceFilePath )}` );
 		this.sources = [
-			{ character: 0, fileName: sourceFilePath, line: 1, url, file: new SourceFile( sourceFilePath ) },
+			new SourceReference( sourceFilePath, 1, 1 ),
 		];
-		this.comment = new Comment( undefined, this.content );
+		this.comment = new Comment( [ { kind: 'text', text: this.content } ] );
 
 		this.relevanceBoost = 5;
 	}

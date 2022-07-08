@@ -16,13 +16,13 @@ export const menuItemMatcher = ( text: string, current: boolean, link: string | 
 	const reg = new RegExp( `^${escapeRegExp( text )}$` );
 	return expect.toSatisfy( setName(
 		passes( ( x: HTMLLIElement ) => {
-			expect( x ).toHaveTextContent( reg, { normalizeWhitespace: true } );
 			if( current ){
 				expect( x ).toHaveClass( 'current' );
 			} else {
 				expect( x ).not.toHaveClass( 'current' );
 			}
 			const a = x.querySelector( 'a' );
+			expect( a ).toHaveTextContent( reg, { normalizeWhitespace: true } );
 			expect( a ).toBeTruthy();
 			if( link === null ){
 				expect( a ).not.toHaveAttribute( 'href' );
@@ -31,4 +31,20 @@ export const menuItemMatcher = ( text: string, current: boolean, link: string | 
 			}
 		} ),
 		`menuItemMatcher(text: ${JSON.stringify( text )}, current: ${JSON.stringify( current )}, link: ${JSON.stringify( link )})` ) );
+};
+export const elementMatcher = ( elemDescriptor: {textContent?: string; attrs?: Record<string, any>} ) => {
+	const textContentRegex = elemDescriptor.textContent ? new RegExp( `^${escapeRegExp( elemDescriptor.textContent )}$` ) : undefined;
+	return expect.toSatisfy( setName(
+		passes( ( x: HTMLLIElement ) => {
+			if( textContentRegex ) {
+				expect( x ).toHaveTextContent( textContentRegex, { normalizeWhitespace: true } );
+			}
+			if( elemDescriptor.attrs ){
+				Object.entries( elemDescriptor.attrs )
+					.forEach( ( [ k, v ] ) => {
+						expect( x ).toHaveAttribute( k, v );
+					} );
+			}
+		} ),
+		`elementMatcher(elemDescriptor: ${JSON.stringify( elemDescriptor )}` ) );
 };

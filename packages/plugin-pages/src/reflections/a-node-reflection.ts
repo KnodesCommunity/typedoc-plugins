@@ -4,8 +4,8 @@ export class ANodeReflection extends DeclarationReflection {
 	public get depth(): number {
 		return this.parent instanceof ANodeReflection ? this.parent.depth + 1 : 0;
 	}
-	public get isModuleRoot(): boolean {
-		return this.module === this.parent;
+	public get isModuleAppendix(): boolean {
+		return this.module === this.parent && this.name === this.module.name;
 	}
 	public constructor(
 		name: string,

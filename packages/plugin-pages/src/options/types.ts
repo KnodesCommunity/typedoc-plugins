@@ -44,13 +44,21 @@ export interface IPageNode {
 	/**
 	 * The title of the page/menu.
 	 *
-	 * For monorepos, you can set it to the name of the module/package/workspace to attach children to. Pages are prepended to the module index.
+	 * If setting {@link IRootPageNode.moduleRoot} to `true`, the title is used to lookup the module/package/workspace to attach children to. When a {@link source} is
+	 * also provided, the source is prepended to the target module index page.
 	 *
 	 * If set to `'VIRTUAL'`, the node itself is omitted and children are flattened while cumulating the node's source & output.
 	 *
 	 * @see {@page pages-tree.md} for details.
 	 */
 	title: LiteralUnion<'VIRTUAL', string>;
+}
+
+export interface IRootPageNode extends IPageNode {
+	/**
+	 * A flag to enable module lookup.
+	 */
+	moduleRoot?: boolean;
 }
 
 export enum EInvalidPageLinkHandling{
@@ -68,7 +76,7 @@ export interface IPluginOptions {
 	 *
 	 * @see {@page pages-tree.md} for details.
 	 */
-	pages: IPageNode[];
+	pages: IRootPageNode[];
 
 	/**
 	 * Whether or not @page and @pagelink tags should be parsed.

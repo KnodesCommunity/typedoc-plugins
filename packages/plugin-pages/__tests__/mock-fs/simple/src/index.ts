@@ -1,7 +1,7 @@
 /**
  * A test class
  *
- * {@page ~~/getting-started/configuration.md}
+ * See the {@page ~~/getting-started/configuration.md} page for infos.
  */
 export class Test {
 

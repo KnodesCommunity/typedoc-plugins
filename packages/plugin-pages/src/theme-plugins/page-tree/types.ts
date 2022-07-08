@@ -1,7 +1,7 @@
-import { RenderTemplate, RendererEvent, UrlMapping } from 'typedoc';
+import { ProjectReflection, RenderTemplate, RendererEvent, UrlMapping } from 'typedoc';
 
 import { IPluginOptions } from '../../options';
-import { PageReflection } from '../../reflections';
+import { NodeReflection, PageReflection } from '../../reflections';
 import { RenderPageLinkProps } from '../../theme';
 
 export interface IPageTreeBuilder {
@@ -12,6 +12,6 @@ export interface IPageTreeBuilder {
 	 * @param event - The render event to affect.
 	 * @param options - The plugin options.
 	 */
-	appendToProject( renderEvent: RendererEvent, options: IPluginOptions ): void;
-	get mappings(): Array<UrlMapping<PageReflection>>;
+	generateMappings( renderEvent: RendererEvent, tree: NodeReflection[] ): Array<UrlMapping<PageReflection>>;
+	buildPagesTree( project: ProjectReflection, options: IPluginOptions ): NodeReflection[];
 }

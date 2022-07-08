@@ -1,0 +1,6 @@
+{
+    "name": "demo",
+    "scripts": {
+        "docs": "typedoc"
+    }
+}

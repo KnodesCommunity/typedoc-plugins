@@ -1,1 +1,1 @@
-## Some content for the root
+Some content for the root

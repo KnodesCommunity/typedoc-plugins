@@ -1,9 +1,9 @@
 import assert from 'assert';
 import { join as _join } from 'path';
 
-import { isObject, isString } from 'lodash';
+import { isObject, isString, uniq } from 'lodash';
 import { PascalCase } from 'type-fest';
-import { Reflection, normalizePath } from 'typedoc';
+import { ContainerReflection, DeclarationReflection, ProjectReflection, Reflection, normalizePath } from 'typedoc';
 
 import { IPageNode } from '../../options';
 import { ANodeReflection } from '../../reflections/a-node-reflection';
@@ -73,3 +73,41 @@ const iterateNodeTitle = ( node?: NodeOrRef ): string[] => {
 		return [];
 	}
 };
+
+export const popReflectionFromProject = ( reflection: ContainerReflection, project: ProjectReflection ) => {
+	popReflection( reflection );
+	project.removeReflection( reflection );
+};
+
+export const popReflection = ( reflection: ContainerReflection ) => {
+	const { parent } = reflection;
+	assert( parent );
+	const parentIsContainerReflection = parent instanceof ContainerReflection;
+	const originalParentChildren = ( parentIsContainerReflection ? parent.children : undefined ) ?? [];
+	if( parentIsContainerReflection ){
+		parent.children = [];
+	}
+	linkReflections( parent, [
+		...originalParentChildren,
+		...( reflection.children ?? [] ),
+	].filter( c => c !== reflection ) );
+	reflection.parent = undefined;
+	reflection.children = undefined;
+};
+
+export const linkReflections = ( parent: Reflection, children: DeclarationReflection[], prepend = false ) => {
+	children.forEach( c => c.parent = parent );
+	assert( parent instanceof ContainerReflection );
+	( prepend ? prependChildren : appendChildren )( parent, ...children );
+};
+
+export const appendChildren = ( reflection: ContainerReflection, ...children: DeclarationReflection[] ) => {
+	reflection.children = uniq( [ ...( reflection.children ?? [] ), ...children ] );
+};
+export const prependChildren = ( reflection: ContainerReflection, ...children: DeclarationReflection[] ) => {
+	reflection.children = uniq( [ ...children, ...( reflection.children ?? [] ) ] );
+};
+
+export const instanceOf = <T>( ctor: abstract new ( ...args: any[] ) => T ) => ( v: any ): v is T => v instanceof ctor;
+
+export const formatReflectionDebug = ( reflection: Reflection ) => `"${reflection.name} ${reflection.id}"`;

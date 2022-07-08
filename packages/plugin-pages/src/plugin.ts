@@ -1,21 +1,23 @@
 import assert from 'assert';
 
 import { isString, once } from 'lodash';
-import { Application, JSX, LogLevel, RendererEvent } from 'typedoc';
+import { Application, JSX, LogLevel, RendererEvent, UrlMapping } from 'typedoc';
 
 import { ABasePlugin, CurrentPageMemo, EventsExtra, MarkdownReplacer, PathReflectionResolver } from '@knodes/typedoc-pluginutils';
 
 import { buildOptions } from './options';
-import { NodeReflection } from './reflections';
+import { ANodeReflection, NodeReflection, PageReflection } from './reflections';
 import { initThemePlugins } from './theme-plugins';
 
-const EXTRACT_PAGE_LINK_REGEX = /page\s+(\S+?\w+?)(?:\s+([^}]+?))?\s*/g;
+const EXTRACT_PAGE_LINK_REGEX = /(\S+?\w+?)(?:\s+([^}]+?))?\s*/g;
 export class PagesPlugin extends ABasePlugin {
 	public readonly pluginOptions = buildOptions( this );
 	private readonly _pageTreeBuilder = once( () => initThemePlugins( this.application, this ) );
 	private readonly _currentPageMemo = CurrentPageMemo.for( this );
 	private readonly _markdownReplacer = new MarkdownReplacer( this );
 	private readonly _pathReflectionResolver = new PathReflectionResolver( this );
+	private _pagesTree?: ANodeReflection[];
+	private _mappings?: Array<UrlMapping<PageReflection>>;
 	public constructor( application: Application ){
 		super( application, __filename );
 	}
@@ -27,12 +29,12 @@ export class PagesPlugin extends ABasePlugin {
 		const opts = this.pluginOptions.getValue();
 		this.logger.level = opts.logLevel;
 		this._currentPageMemo.initialize();
-		this.application.renderer.on( RendererEvent.BEGIN, this._addPagesToProject.bind( this ) );
+		this.application.renderer.on( RendererEvent.BEGIN, this._addPagesToProject.bind( this ), null, 1000 );
 
 		EventsExtra.for( this.application )
 			.beforeOptionsFreeze( () => {
 				if( this.pluginOptions.getValue().enablePageLinks ){
-					this._markdownReplacer.bindTag( EXTRACT_PAGE_LINK_REGEX, this._replacePageLink.bind( this ), '{@page}' );
+					this._markdownReplacer.registerInlineTag( '@page', EXTRACT_PAGE_LINK_REGEX, this._replacePageLink.bind( this ) );
 				}
 			} )
 			.onThemeReady( this._pageTreeBuilder.bind( this ) )
@@ -47,9 +49,11 @@ export class PagesPlugin extends ABasePlugin {
 	 * @param event - The renderer event emitted at {@link RendererEvent.BEGIN}.
 	 */
 	private _addPagesToProject( event: RendererEvent ){
-		const opts = this.pluginOptions.getValue();
-		this._pageTreeBuilder().appendToProject( event, opts );
-		this.application.logger.info( `Generating ${this._pageTreeBuilder().mappings.length} pages` );
+		this._pagesTree = this._pageTreeBuilder().buildPagesTree( event.project, this.pluginOptions.getValue() );
+		const treeBuilder = this._pageTreeBuilder();
+		this._mappings = treeBuilder.generateMappings( event, this._pagesTree );
+		this.application.logger.info( `Generating ${this._mappings.length} pages` );
+		event.urls = [ ...( event.urls ?? [] ), ...this._mappings ];
 	}
 
 	/**
@@ -63,6 +67,9 @@ export class PagesPlugin extends ABasePlugin {
 		{ captures, fullMatch }: Parameters<MarkdownReplacer.ReplaceCallback>[0],
 		sourceHint: Parameters<MarkdownReplacer.ReplaceCallback>[1],
 	): ReturnType<MarkdownReplacer.ReplaceCallback> {
+		assert( this._mappings );
+		const mappings = this._mappings;
+
 		const [ page, label ] = captures;
 		assert( isString( page ) );
 		const resolvedFile = this._pathReflectionResolver.resolveNamedPath(
@@ -76,8 +83,6 @@ export class PagesPlugin extends ABasePlugin {
 			this.logger.error( () => `In "${sourceHint()}", could not resolve page "${page}" from reflection ${this._currentPageMemo.currentReflection.name}` );
 			return fullMatch;
 		}
-		const builder = this._pageTreeBuilder();
-		const { mappings } = builder;
 		const mapping = mappings.find( m => m.model.sourceFilePath === resolvedFile );
 		if( !mapping ){
 			this.logger.error( () => `In "${sourceHint()}", could not find a page for "${page}" (resolved as "${this.relativeToRoot( resolvedFile )}"). Known pages are ${JSON.stringify( mappings
@@ -86,7 +91,7 @@ export class PagesPlugin extends ABasePlugin {
 		} else {
 			this.logger.verbose( () => `Created a link from "${sourceHint()}" to "${mapping.model.name}" (resolved as "${this.relativeToRoot( resolvedFile )}")` );
 		}
-		const link = builder.renderPageLink( { label: label ?? undefined, mapping } );
+		const link = this._pageTreeBuilder().renderPageLink( { label: label ?? undefined, mapping } );
 		if( typeof link === 'string' ){
 			return link;
 		} else {
