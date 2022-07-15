@@ -17,7 +17,7 @@
 
 This plugin version should match TypeDoc `^0.23.0` for compatibility.
 
-> **Note**: this plugin version was released by testing against `^0.23.6`.
+> **Note**: this plugin version was released by testing against `^0.23.7`.
 
 ## Quick start
 
