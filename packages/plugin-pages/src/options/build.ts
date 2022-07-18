@@ -1,9 +1,9 @@
 import assert, { AssertionError } from 'assert';
 
-import { difference, isArray, isNil, isObject, isString } from 'lodash';
+import { difference, groupBy, isArray, isNil, isObject, isString, uniq } from 'lodash';
 import { LogLevel, ParameterType } from 'typedoc';
 
-import { OptionGroup, catchWrap } from '@knodes/typedoc-pluginutils';
+import { OptionGroup, miscUtils } from '@knodes/typedoc-pluginutils';
 
 import type { PagesPlugin } from '../plugin';
 import { EInvalidPageLinkHandling, IPageNode, IPluginOptions, IRootPageNode } from './types';
@@ -22,11 +22,11 @@ const checkPageFactory = <T extends IPageNode>( allowedKeys: Array<keyof T> ) =>
 	const _page = page as Record<string, unknown>;
 	assert( 'title' in _page && isString( _page.title ), 'Page should have a title' );
 	const extraProps = difference( Object.keys( _page ), allowedKeys as string[] );
-	assert( extraProps.length === 0, `Page ${[ ...path, _page.title ].map( p => `"${p}"` ).join( ' ⇒ ' )} have extra properties ${JSON.stringify( extraProps )}` );
+	assert.equal( extraProps.length, 0, `Page ${[ ...path, _page.title ].map( p => `"${p}"` ).join( ' ⇒ ' )} have extra properties ${JSON.stringify( extraProps )}` );
 	if( 'children' in _page && !isNil( _page.children ) ){
 		assert( isArray( _page.children ), 'Page children should be an array' );
 		const thisPath = [ ...path, _page.title as string ];
-		_page.children.forEach( ( c, i ) => catchWrap(
+		_page.children.forEach( ( c, i ) => miscUtils.catchWrap(
 			() => checkPage( c, thisPath ),
 			wrapPageError( thisPath, i ) ) );
 	}
@@ -56,9 +56,14 @@ export const buildOptions = ( plugin: PagesPlugin ) => OptionGroup.factory<IPlug
 		validate: v => {
 			if( v ){
 				assert( isArray( v ), 'Pages should be an array' );
-				v.forEach( ( p, i ) => catchWrap(
+				v.forEach( ( p, i ): asserts p is IRootPageNode => miscUtils.catchWrap(
 					() => checkRootPage( p, [] ),
 					wrapPageError( [], i ) ) );
+				const rootFlags = groupBy( v, p => !!p.moduleRoot );
+				assert.equal( Object.keys( rootFlags ).length, 1, 'Every root pages should set `moduleRoot` to true, or none' );
+				if( rootFlags.true ) {
+					assert.equal( uniq( v.map( p => p.title ) ).length, v.length, 'Every root pages should have a different title' );
+				}
 			}
 		},
 	}, v => {

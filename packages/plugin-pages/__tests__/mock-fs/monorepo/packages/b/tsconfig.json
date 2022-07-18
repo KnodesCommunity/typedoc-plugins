@@ -3,5 +3,6 @@
         "target": "ESNext",
         "module": "CommonJS"
     },
-    "include": ["**/*.ts"]
+    "include": ["**/*.ts"],
+    "exclude": ["**/node_modules"]
 }

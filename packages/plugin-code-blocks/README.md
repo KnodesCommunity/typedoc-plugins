@@ -37,7 +37,7 @@ For more infos, please refer to [the documentation](https://knodescommunity.gith
 
 ## Usage
 
-In any markdown content, you can use the `{@codeblock ...}` & `{@inline-codeblock ...}` macros to use code blocks.
+In any markdown content, you can use the `{@codeblock ...}` & `{@inlineCodeblock ...}` macros to use code blocks.
 
 ### Reference a file
 
@@ -61,7 +61,7 @@ Module/workspace/project resolution first tries to search in the `examples` subf
 
 Syntax:
 ````md
-{@inline-codeblock <custom-file-name> [mode]}
+{@inlineCodeblock <custom-file-name> [mode]}
 ```
 ....
 ```

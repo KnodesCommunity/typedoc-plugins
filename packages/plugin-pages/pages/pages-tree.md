@@ -14,7 +14,7 @@ By default, pages with children are renamed to `{source-without-extensions}/inde
 
 Assuming you have the following configuration:
 
-{@codeblock __tests__/mock-fs/simple/typedoc.js}
+{@codeblock simple/typedoc.js}
 
 Here is your input/output tree:
 

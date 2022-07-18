@@ -8,7 +8,7 @@ Options can be set in the following ways:
   ```sh
   typedoc --<pluginOptionsPrefix> plugin-configuration.json
   ```
-  {@inline-codeblock typedoc.json}
+  {@inlineCodeblock typedoc.json}
   ```json
   {
       // ...
@@ -19,7 +19,7 @@ Options can be set in the following ways:
   ```sh
   typedoc --<pluginOptionsPrefix>:source my-source
   ```
-  {@inline-codeblock typedoc.json}
+  {@inlineCodeblock typedoc.json}
   ```json
   {
       // ...
@@ -27,7 +27,7 @@ Options can be set in the following ways:
   }
   ```
 * or as an object (for config file only)
-  {@inline-codeblock typedoc.json}
+  {@inlineCodeblock typedoc.json}
   ```json
   {
       // ...

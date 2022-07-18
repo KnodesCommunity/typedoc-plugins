@@ -59,7 +59,11 @@ export class OptionGroup<
 	): Builder<T2, TDecs> {
 		return {
 			add: ( name: Exclude<keyof T2, keyof TDecs>, dec: _DecOpt, ...[ mapper ]: [mapper?: any] ) =>
-				OptionGroup._build( plugin, { ...decs, [name]: { ...dec, name }}, { ...mappers, [name]: mapper ?? identity } ),
+				OptionGroup._build(
+					plugin,
+					{ ...decs, [name]: { ...dec, name }},
+					{ ...mappers, [name]: mapper ?? identity },
+				),
 			build: () => new OptionGroup( plugin, decs, mappers as any ),
 		} as any as Builder<T2, TDecs>;
 	}
@@ -75,7 +79,8 @@ export class OptionGroup<
 					...v,
 					name: k,
 				};
-				return [ k, new Option( plugin, this, fullDec, mappers[k] ) ];
+				const opt = new Option( plugin, this, fullDec, mappers[k] );
+				return [ k, opt ];
 			} ) ) as any;
 		const linkAppendix = 'documentation' in this.plugin.package ?
 			` See \u001b[96m${( this.plugin.package as any ).documentation}\u001b[0m for more informations.` : // Cyan
@@ -90,12 +95,14 @@ export class OptionGroup<
 			.beforeOptionsFreeze( () => {
 				const defaultOpts = this.getValue();
 				// Try read default files
-				const generalOpts = this.plugin.application.options.getValue( this.plugin.optionsPrefix ) ?? `./typedoc-${kebabCase( this.plugin.optionsPrefix )}` as any;
+				const generalOpts = this.plugin.application.options.getValue( this.plugin.optionsPrefix ) as any;
 				if( generalOpts ){
+					this._setValue( generalOpts );
+				} else {
 					try {
-						this._setValue( generalOpts );
-						// eslint-disable-next-line no-empty -- Autoload errors allowed.
-					} catch( _e ){}
+						this._setValueFromFile( `./typedoc-${kebabCase( this.plugin.optionsPrefix )}` );
+					// eslint-disable-next-line no-empty -- No-op error
+					} catch( _err ){}
 				}
 				this.setValue( defaultsDeep( this.getValue(), defaultOpts ) );
 			} );
@@ -136,6 +143,26 @@ export class OptionGroup<
 	}
 
 	/**
+	 * Load the given file as being the full plugin options.
+	 *
+	 * @param filename - The file containing options. Any `require`able file can be provided.
+	 */
+	private _setValueFromFile( filename: string ){
+		const [ filePath, objPath, ...left ] = filename.split( '#' );
+		assert( left.length === 0 );
+		this.plugin.logger.verbose( `Reading config file @ ${filePath}` );
+		const optsDirFile = this.plugin.application.options.getValue( 'options' );
+		const resolved = require.resolve( filePath, { paths: [ process.cwd(), optsDirFile, dirname( optsDirFile ) ] } );
+		// eslint-disable-next-line @typescript-eslint/no-var-requires -- Rely in node require
+		const result = require( resolved );
+		if( objPath ){
+			this._setValue( get( result, objPath ) );
+		} else {
+			this._setValue( result );
+		}
+	}
+
+	/**
 	 * Set the raw values.
 	 *
 	 * @param value - The value to set. Paths, JSON & partial options are authorized
@@ -146,32 +173,19 @@ export class OptionGroup<
 				const parsedValue = JSON.parse( value ) as OptionGroupSetValue<TDeclarations>;
 				this._setValue( parsedValue );
 			} else {
-				const [ filePath, objPath, ...left ] = value.split( '#' );
-				assert( left.length === 0 );
-				this.plugin.logger.verbose( `Reading config file @ ${filePath}` );
-				const optsDirFile = this.plugin.application.options.getValue( 'options' );
-				const paths = [ process.cwd(), optsDirFile, dirname( optsDirFile ) ];
-				const resolved = require.resolve( filePath, { paths } );
-				// eslint-disable-next-line @typescript-eslint/no-var-requires -- Rely in node require
-				const result = require( resolved );
-				if( objPath ){
-					this._setValue( get( result, objPath ) );
-				} else {
-					this._setValue( result );
-				}
+				this._setValueFromFile( value );
 			}
 		} else {
 			const newOpts = this._mapOptions( ( k, o ) => {
 				if( k in value ) {
-					o.setValue( value[k] as any );
+					try {
+						o.setValue( value[k] as any );
+					} catch( err: any ){
+						throw new Error( `Could not set option "${o.fullName}": ${err.message ?? err}`, { cause: err } );
+					}
 				}
 				return o.getValue();
 			} );
-			for( const k in value ){
-				if( !( k in newOpts ) ){
-					this.plugin.application.options.setValue( `${this.plugin.optionsPrefix}:${k}`, value[k] );
-				}
-			}
 			this.plugin.application.options.setValue( this.plugin.optionsPrefix, newOpts );
 		}
 	}

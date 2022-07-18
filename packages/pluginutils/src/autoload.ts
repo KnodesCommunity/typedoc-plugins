@@ -14,5 +14,4 @@ export const autoload = <T extends ABasePlugin>( type: new( application: Applica
 	( application: Application ) => {
 		const plugin = new type( application );
 		plugin.initialize();
-		return plugin;
 	};

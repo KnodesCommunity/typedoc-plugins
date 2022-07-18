@@ -89,9 +89,11 @@ exports[`Documentation \`classes/Test.html\` should have constant content 1`] = 
 								<path d=\\"M14 10a3.5 3.5 0 0 0 -5 0l-4 4a3.5 3.5 0 0 0 5 5l.5 -.5\\" id=\\"icon-anchor-c\\"></path>
 							</svg></a></h3>
 					<ul class=\\"tsd-signatures tsd-kind-constructor tsd-parent-kind-class\\">
-						<li class=\\"tsd-signature\\" id=\\"constructor.new_Test\\">new <wbr />Test<span class=\\"tsd-signature-symbol\\">(</span><span class=\\"tsd-signature-symbol\\">)</span><span class=\\"tsd-signature-symbol\\">: </span><a href=\\"Test.html\\" class=\\"tsd-signature-type\\" data-tsd-kind=\\"Class\\">Test</a></li>
-					</ul>
-					<ul class=\\"tsd-descriptions\\">
+						<li class=\\"tsd-signature tsd-anchor-link\\" id=\\"constructor.new_Test\\">new <wbr />Test<span class=\\"tsd-signature-symbol\\">(</span><span class=\\"tsd-signature-symbol\\">)</span><span class=\\"tsd-signature-symbol\\">: </span><a href=\\"Test.html\\" class=\\"tsd-signature-type\\" data-tsd-kind=\\"Class\\">Test</a><a href=\\"#constructor.new_Test\\" aria-label=\\"Permalink\\" class=\\"tsd-anchor-icon\\"><svg class=\\"icon icon-tabler icon-tabler-link\\" viewBox=\\"0 0 24 24\\" stroke-width=\\"2\\" stroke=\\"currentColor\\" fill=\\"none\\" stroke-linecap=\\"round\\" stroke-linejoin=\\"round\\">
+									<use href=\\"#icon-anchor-a\\"></use>
+									<use href=\\"#icon-anchor-b\\"></use>
+									<use href=\\"#icon-anchor-c\\"></use>
+								</svg></a></li>
 						<li class=\\"tsd-description\\">
 							<h4 class=\\"tsd-returns-title\\">Returns <a href=\\"Test.html\\" class=\\"tsd-signature-type\\" data-tsd-kind=\\"Class\\">Test</a></h4>
 						</li>
@@ -152,14 +154,14 @@ exports[`Documentation \`classes/Test.html\` should have constant content 1`] = 
 						<ul>
 							<li><a href=\\"../modules.html\\">@knodes/typedoc-<wbr />plugin-<wbr />pages</a>
 								<ul>
-									<li class=\\"pages-entry pages-entry-page pages-entry-depth-0\\"><a href=\\"../pages/getting-started/index.html\\">Getting started</a>
+									<li class=\\"pages-entry pages-entry-page pages-entry-depth-1\\"><a href=\\"../pages/getting-started/index.html\\">Getting started</a>
 										<ul>
-											<li class=\\"pages-entry pages-entry-page pages-entry-depth-1\\"><a href=\\"../pages/getting-started/configuration.html\\">Configuration</a></li>
+											<li class=\\"pages-entry pages-entry-page pages-entry-depth-2\\"><a href=\\"../pages/getting-started/configuration.html\\">Configuration</a></li>
 										</ul>
 									</li>
-									<li class=\\"pages-entry pages-entry-menu pages-entry-depth-0\\"><a>Additional resources</a>
+									<li class=\\"pages-entry pages-entry-menu pages-entry-depth-1\\"><a>Additional resources</a>
 										<ul>
-											<li class=\\"pages-entry pages-entry-page pages-entry-depth-1\\"><a href=\\"../pages/additional-resources/some-cool-docs.html\\">Some cool docs</a></li>
+											<li class=\\"pages-entry pages-entry-page pages-entry-depth-2\\"><a href=\\"../pages/additional-resources/some-cool-docs.html\\">Some cool docs</a></li>
 										</ul>
 									</li>
 								</ul>
@@ -302,14 +304,14 @@ exports[`Pages \`pages/additional-resources/some-cool-docs.html\` should have co
 						<ul>
 							<li class=\\"current\\"><a href=\\"../../modules.html\\">@knodes/typedoc-<wbr />plugin-<wbr />pages</a>
 								<ul>
-									<li class=\\"pages-entry pages-entry-page pages-entry-depth-0\\"><a href=\\"../getting-started/index.html\\">Getting started</a>
+									<li class=\\"pages-entry pages-entry-page pages-entry-depth-1\\"><a href=\\"../getting-started/index.html\\">Getting started</a>
 										<ul>
-											<li class=\\"pages-entry pages-entry-page pages-entry-depth-1\\"><a href=\\"../getting-started/configuration.html\\">Configuration</a></li>
+											<li class=\\"pages-entry pages-entry-page pages-entry-depth-2\\"><a href=\\"../getting-started/configuration.html\\">Configuration</a></li>
 										</ul>
 									</li>
-									<li class=\\"current pages-entry pages-entry-menu pages-entry-depth-0\\"><a>Additional resources</a>
+									<li class=\\"current pages-entry pages-entry-menu pages-entry-depth-1\\"><a>Additional resources</a>
 										<ul>
-											<li class=\\"current selected pages-entry pages-entry-page pages-entry-depth-1\\"><a href=\\"some-cool-docs.html\\">Some cool docs</a></li>
+											<li class=\\"current selected pages-entry pages-entry-page pages-entry-depth-2\\"><a href=\\"some-cool-docs.html\\">Some cool docs</a></li>
 										</ul>
 									</li>
 								</ul>
@@ -445,14 +447,14 @@ exports[`Pages \`pages/getting-started/configuration.html\` should have constant
 						<ul>
 							<li class=\\"current\\"><a href=\\"../../modules.html\\">@knodes/typedoc-<wbr />plugin-<wbr />pages</a>
 								<ul>
-									<li class=\\"current pages-entry pages-entry-page pages-entry-depth-0\\"><a href=\\"index.html\\">Getting started</a>
+									<li class=\\"current pages-entry pages-entry-page pages-entry-depth-1\\"><a href=\\"index.html\\">Getting started</a>
 										<ul>
-											<li class=\\"current selected pages-entry pages-entry-page pages-entry-depth-1\\"><a href=\\"configuration.html\\">Configuration</a></li>
+											<li class=\\"current selected pages-entry pages-entry-page pages-entry-depth-2\\"><a href=\\"configuration.html\\">Configuration</a></li>
 										</ul>
 									</li>
-									<li class=\\"pages-entry pages-entry-menu pages-entry-depth-0\\"><a>Additional resources</a>
+									<li class=\\"pages-entry pages-entry-menu pages-entry-depth-1\\"><a>Additional resources</a>
 										<ul>
-											<li class=\\"pages-entry pages-entry-page pages-entry-depth-1\\"><a href=\\"../additional-resources/some-cool-docs.html\\">Some cool docs</a></li>
+											<li class=\\"pages-entry pages-entry-page pages-entry-depth-2\\"><a href=\\"../additional-resources/some-cool-docs.html\\">Some cool docs</a></li>
 										</ul>
 									</li>
 								</ul>
@@ -587,14 +589,14 @@ exports[`Pages \`pages/getting-started/index.html\` should have constant content
 						<ul>
 							<li class=\\"current\\"><a href=\\"../../modules.html\\">@knodes/typedoc-<wbr />plugin-<wbr />pages</a>
 								<ul>
-									<li class=\\"current selected pages-entry pages-entry-page pages-entry-depth-0\\"><a href=\\"index.html\\">Getting started</a>
+									<li class=\\"current selected pages-entry pages-entry-page pages-entry-depth-1\\"><a href=\\"index.html\\">Getting started</a>
 										<ul>
-											<li class=\\"pages-entry pages-entry-page pages-entry-depth-1\\"><a href=\\"configuration.html\\">Configuration</a></li>
+											<li class=\\"pages-entry pages-entry-page pages-entry-depth-2\\"><a href=\\"configuration.html\\">Configuration</a></li>
 										</ul>
 									</li>
-									<li class=\\"pages-entry pages-entry-menu pages-entry-depth-0\\"><a>Additional resources</a>
+									<li class=\\"pages-entry pages-entry-menu pages-entry-depth-1\\"><a>Additional resources</a>
 										<ul>
-											<li class=\\"pages-entry pages-entry-page pages-entry-depth-1\\"><a href=\\"../additional-resources/some-cool-docs.html\\">Some cool docs</a></li>
+											<li class=\\"pages-entry pages-entry-page pages-entry-depth-2\\"><a href=\\"../additional-resources/some-cool-docs.html\\">Some cool docs</a></li>
 										</ul>
 									</li>
 								</ul>

@@ -1,3 +1,4 @@
-export * from './misc';
-export { default as reflectionSourceUtils } from './reflection-source';
-export { default as textUtils } from './text';
+export * as miscUtils from './misc';
+export * as reflectionKindUtils from './reflection-kind';
+export * as reflectionSourceUtils from './reflection-source';
+export * as textUtils from './text';

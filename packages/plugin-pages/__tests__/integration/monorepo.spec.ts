@@ -12,18 +12,28 @@ describe( 'Root module', () => {
 	describe( '`index.html`', describeDocsFile( rootDir, 'index.html', it => {
 		it( 'should have correct content', ( _content, dom ) => {
 			const content = dom.window.document.querySelectorAll( '.col-content > .tsd-panel' );
-			expect( content ).toHaveLength( 1 );
+			expect( content ).toHaveLength( 2 );
+
+			expect( content[0] ).toHaveTextContent( 'This is appended to the root module See stubA, stubA, stubB or stubB' );
+			const links = content[0].querySelectorAll( 'a' );
+			expect( links ).toHaveLength( 2 );
+			expect( links[0] ).not.toHaveAttribute( 'href', links[1].href );
+
+			expect( content[1] ).toHaveTextContent( 'Test root readme. stubA stubB' );
+			expect( content[1].querySelectorAll( 'a' ) ).toHaveLength( 2 );
 		} );
 		it( 'should have correct primary navigation', ( _content, dom ) => {
 			const primaryNavItems = Array.from( dom.window.document.querySelectorAll( '.tsd-navigation.primary li.pages-entry' ) );
-			expect( primaryNavItems ).toHaveLength( 1 );
-			expect( primaryNavItems[0] ).toEqual( menuItemMatcher( 'Root doc', false, 'pages/root-doc.html' ) );
+			expect( primaryNavItems ).toEqual( [
+				menuItemMatcher( 'Root doc', false, 'pages/root-doc/index.html' ),
+				menuItemMatcher( 'Root doc child', false, 'pages/root-doc/child.html' ),
+			] );
 		} );
 		it( 'should have constant content', ( content, _dom ) => {
 			expect( formatHtml( content ) ).toMatchSnapshot();
 		} );
 	} ) );
-	describe( '`pages/root-doc.html`', describeDocsFile( rootDir, 'pages/root-doc.html', it => {
+	describe( '`pages/root-doc/index.html`', describeDocsFile( rootDir, 'pages/root-doc/index.html', it => {
 		it( 'should have correct content', ( _content, dom ) => {
 			const content = dom.window.document.querySelectorAll( '.col-content > .tsd-panel' );
 			expect( content ).toHaveLength( 1 );
@@ -31,15 +41,50 @@ describe( 'Root module', () => {
 		} );
 		it( 'should have correct primary navigation', ( _content, dom ) => {
 			const primaryNavItems = Array.from( dom.window.document.querySelectorAll( '.tsd-navigation.primary li.pages-entry' ) );
-			expect( primaryNavItems ).toHaveLength( 1 );
-			expect( primaryNavItems[0] ).toEqual( menuItemMatcher( 'Root doc', true, 'root-doc.html' ) );
+			expect( primaryNavItems ).toHaveLength( 2 );
+			expect( primaryNavItems ).toEqual( [
+				menuItemMatcher( 'Root doc', true, 'index.html' ),
+				menuItemMatcher( 'Root doc child', false, 'child.html' ),
+			] );
 		} );
 		it( 'should have correct breadcrumb', ( _content, dom ) => {
 			const breadcrumb = getBreadcrumb( dom );
 			expect( breadcrumb ).toHaveLength( 2 );
-			expect( breadcrumb ).toIncludeSameMembers( [
-				{ href: '../modules.html', text: packageName },
-				{ href: 'root-doc.html', text: 'Root doc' },
+			expect( breadcrumb ).toEqual( [
+				{ href: '../../modules.html', text: packageName },
+				{ href: 'index.html', text: 'Root doc' },
+			] );
+		} );
+		it( 'should have constant content', ( content, _dom ) => {
+			expect( formatHtml( content ) ).toMatchSnapshot();
+		} );
+	} ) );
+	describe( '`pages/root-doc/child.html`', describeDocsFile( rootDir, 'pages/root-doc/child.html', it => {
+		it( 'should have correct content', ( _content, dom ) => {
+			const content = dom.window.document.querySelectorAll( '.col-content > .tsd-panel' );
+			expect( content ).toHaveLength( 1 );
+			expect( content[0] ).toHaveTextContent( 'Some content for the root child with a link to Using pkg-a' );
+
+			const links = content[0].querySelectorAll( 'a' );
+			expect( links ).toHaveLength( 1 );
+			expect( links[0] ).toHaveTextContent( 'Using pkg-a' );
+			expect( links[0] ).toHaveAttribute( 'href', '../../pkg_a/pages/using-pkg-a.html' );
+		} );
+		it( 'should have correct primary navigation', ( _content, dom ) => {
+			const primaryNavItems = Array.from( dom.window.document.querySelectorAll( '.tsd-navigation.primary li.pages-entry' ) );
+			expect( primaryNavItems ).toHaveLength( 2 );
+			expect( primaryNavItems ).toEqual( [
+				menuItemMatcher( 'Root doc', true, 'index.html' ),
+				menuItemMatcher( 'Root doc child', true, 'child.html' ),
+			] );
+		} );
+		it( 'should have correct breadcrumb', ( _content, dom ) => {
+			const breadcrumb = getBreadcrumb( dom );
+			expect( breadcrumb ).toHaveLength( 3 );
+			expect( breadcrumb ).toEqual( [
+				{ href: '../../modules.html', text: packageName },
+				{ href: 'index.html', text: 'Root doc' },
+				{ href: 'child.html', text: 'Root doc child' },
 			] );
 		} );
 		it( 'should have constant content', ( content, _dom ) => {
@@ -55,13 +100,20 @@ describe( 'pkg-a', () => {
 			// Check if doc content prepended to the module index
 			const sep = content[0].querySelectorAll( 'hr' );
 			expect( sep ).toHaveLength( 1 );
-			expect( sep[0].previousElementSibling ).toHaveTextContent( 'This is appended to the readme of pkg-a' );
+			expect( sep[0].previousElementSibling ).toHaveTextContent( 'This is appended to the readme of pkg-a See stubA, stubA, stubB or stubB' );
+			const links = sep[0].previousElementSibling!.querySelector( ':scope > p' )!.querySelectorAll( 'a' );
+			expect( links ).toHaveLength( 3 );
+			expect( links[0] ).toHaveAttribute( 'href', links[1].href );
+			expect( links[1] ).not.toHaveAttribute( 'href', links[2].href );
 		} );
 		it( 'should have correct primary navigation', ( _content, dom ) => {
 			const primaryNavItems = Array.from( dom.window.document.querySelectorAll( '.tsd-navigation.primary li.pages-entry' ) );
-			expect( primaryNavItems ).toHaveLength( 2 );
-			expect( primaryNavItems[0] ).toEqual( menuItemMatcher( 'Root doc', false, '../pages/root-doc.html' ) );
-			expect( primaryNavItems[1] ).toEqual( menuItemMatcher( 'Using pkg-a', false, '../pkg_a/pages/using-pkg-a.html' ) );
+			expect( primaryNavItems ).toHaveLength( 3 );
+			expect( primaryNavItems ).toEqual( [
+				menuItemMatcher( 'Root doc', false, '../pages/root-doc/index.html' ),
+				menuItemMatcher( 'Root doc child', false, '../pages/root-doc/child.html' ),
+				menuItemMatcher( 'Using pkg-a', false, '../pkg_a/pages/using-pkg-a.html' ),
+			] );
 		} );
 		it( 'should have correct secondary navigation', ( _content, dom ) => {
 			const secondaryNavItems = Array.from( dom.window.document.querySelectorAll<HTMLAnchorElement>( '.tsd-navigation.secondary li a' ) );
@@ -71,7 +123,7 @@ describe( 'pkg-a', () => {
 		it( 'should have correct breadcrumb', ( _content, dom ) => {
 			const breadcrumb = getBreadcrumb( dom );
 			expect( breadcrumb ).toHaveLength( 2 );
-			expect( breadcrumb ).toIncludeSameMembers( [
+			expect( breadcrumb ).toEqual( [
 				{ href: '../modules.html', text: packageName },
 				{ href: 'pkg_a.html', text: 'pkg-a' },
 			] );
@@ -88,9 +140,12 @@ describe( 'pkg-a', () => {
 		} );
 		it( 'should have correct primary navigation', ( _content, dom ) => {
 			const primaryNavItems = Array.from( dom.window.document.querySelectorAll( '.tsd-navigation.primary li.pages-entry' ) );
-			expect( primaryNavItems ).toHaveLength( 2 );
-			expect( primaryNavItems[0] ).toEqual( menuItemMatcher( 'Root doc', false, '../../pages/root-doc.html' ) );
-			expect( primaryNavItems[1] ).toEqual( menuItemMatcher( 'Using pkg-a', true, 'using-pkg-a.html' ) );
+			expect( primaryNavItems ).toHaveLength( 3 );
+			expect( primaryNavItems ).toEqual( [
+				menuItemMatcher( 'Root doc', false, '../../pages/root-doc/index.html' ),
+				menuItemMatcher( 'Root doc child', false, '../../pages/root-doc/child.html' ),
+				menuItemMatcher( 'Using pkg-a', true, 'using-pkg-a.html' ),
+			] );
 		} );
 		it( 'should have correct secondary navigation', ( _content, dom ) => {
 			const secondaryNavItems = Array.from( dom.window.document.querySelectorAll<HTMLAnchorElement>( '.tsd-navigation.secondary li a' ) );
@@ -100,7 +155,7 @@ describe( 'pkg-a', () => {
 		it( 'should have correct breadcrumb', ( _content, dom ) => {
 			const breadcrumb = getBreadcrumb( dom );
 			expect( breadcrumb ).toHaveLength( 3 );
-			expect( breadcrumb ).toIncludeSameMembers( [
+			expect( breadcrumb ).toEqual( [
 				{ href: '../../modules.html', text: packageName },
 				{ href: '../../modules/pkg_a.html', text: 'pkg-a' },
 				{ href: 'using-pkg-a.html', text: 'Using pkg-a' },
@@ -115,14 +170,17 @@ describe( 'pkg-a', () => {
 			const link = dom.window.document.querySelector( '.tsd-comment a' );
 			expect( link ).toBeTruthy();
 			expect( link ).toHaveTextContent( /^the root doc page$/ );
-			expect( link ).toHaveAttribute( 'href', '../pages/root-doc.html' );
-			expect( link?.parentElement ).toHaveTextContent( 'See also the root doc page.' );
+			expect( link ).toHaveAttribute( 'href', '../pages/root-doc/index.html' );
+			expect( link!.closest( '.tsd-comment' ) ).toHaveTextContent( 'See also the root doc page. stubB' );
 		} );
 		it( 'should have correct primary navigation', ( _content, dom ) => {
 			const primaryNavItems = Array.from( dom.window.document.querySelectorAll( '.tsd-navigation.primary li.pages-entry' ) );
-			expect( primaryNavItems ).toHaveLength( 2 );
-			expect( primaryNavItems[0] ).toEqual( menuItemMatcher( 'Root doc', false, '../pages/root-doc.html' ) );
-			expect( primaryNavItems[1] ).toEqual( menuItemMatcher( 'Using pkg-a', false, '../pkg_a/pages/using-pkg-a.html' ) );
+			expect( primaryNavItems ).toHaveLength( 3 );
+			expect( primaryNavItems ).toEqual( [
+				menuItemMatcher( 'Root doc', false, '../pages/root-doc/index.html' ),
+				menuItemMatcher( 'Root doc child', false, '../pages/root-doc/child.html' ),
+				menuItemMatcher( 'Using pkg-a', false, '../pkg_a/pages/using-pkg-a.html' ),
+			] );
 		} );
 		it( 'should have constant content', ( content, _dom ) => {
 			expect( formatHtml( content ) ).toMatchSnapshot();
@@ -141,10 +199,13 @@ describe( 'pkg-b', () => {
 		} );
 		it( 'should have correct primary navigation', ( _content, dom ) => {
 			const primaryNavItems = Array.from( dom.window.document.querySelectorAll( '.tsd-navigation.primary li.pages-entry' ) );
-			expect( primaryNavItems ).toHaveLength( 3 );
-			expect( primaryNavItems[0] ).toEqual( menuItemMatcher( 'Root doc', false, '../pages/root-doc.html' ) );
-			expect( primaryNavItems[1] ).toEqual( menuItemMatcher( 'Using pkg-b', false, '../pkg_b/pages/using-pkg-b/index.html' ) );
-			expect( primaryNavItems[2] ).toEqual( menuItemMatcher( 'pkg-b details', false, '../pkg_b/pages/using-pkg-b/details.html' ) );
+			expect( primaryNavItems ).toHaveLength( 4 );
+			expect( primaryNavItems ).toEqual( [
+				menuItemMatcher( 'Root doc', false, '../pages/root-doc/index.html' ),
+				menuItemMatcher( 'Root doc child', false, '../pages/root-doc/child.html' ),
+				menuItemMatcher( 'Using pkg-b', false, '../pkg_b/pages/using-pkg-b/index.html' ),
+				menuItemMatcher( 'pkg-b details', false, '../pkg_b/pages/using-pkg-b/details.html' ),
+			] );
 		} );
 		it( 'should have correct secondary navigation', ( _content, dom ) => {
 			const secondaryNavItems = Array.from( dom.window.document.querySelectorAll<HTMLAnchorElement>( '.tsd-navigation.secondary li a' ) );
@@ -154,7 +215,7 @@ describe( 'pkg-b', () => {
 		it( 'should have correct breadcrumb', ( _content, dom ) => {
 			const breadcrumb = getBreadcrumb( dom );
 			expect( breadcrumb ).toHaveLength( 2 );
-			expect( breadcrumb ).toIncludeSameMembers( [
+			expect( breadcrumb ).toEqual( [
 				{ href: '../modules.html', text: packageName },
 				{ href: 'pkg_b.html', text: 'pkg-b' },
 			] );
@@ -168,14 +229,21 @@ describe( 'pkg-b', () => {
 		it( 'should have correct content', ( _content, dom ) => {
 			const content = dom.window.document.querySelectorAll( '.col-content > .tsd-panel' );
 			expect( content ).toHaveLength( 1 );
-			expect( content[0] ).toHaveTextContent( 'Some content for pkg-b' );
+			expect( content[0] ).toHaveTextContent( 'Some content for pkg-b See stubA, stubA, stubB or stubB' );
+			const links = content[0].querySelector( ':scope > p' )!.querySelectorAll( 'a' );
+			expect( links ).toHaveLength( 3 );
+			expect( links[0] ).not.toHaveAttribute( 'href', links[1].href );
+			expect( links[1] ).toHaveAttribute( 'href', links[2].href );
 		} );
 		it( 'should have correct primary navigation', ( _content, dom ) => {
 			const primaryNavItems = Array.from( dom.window.document.querySelectorAll( '.tsd-navigation.primary li.pages-entry' ) );
-			expect( primaryNavItems ).toHaveLength( 3 );
-			expect( primaryNavItems[0] ).toEqual( menuItemMatcher( 'Root doc', false, '../../../pages/root-doc.html' ) );
-			expect( primaryNavItems[1] ).toEqual( menuItemMatcher( 'Using pkg-b', true, 'index.html' ) );
-			expect( primaryNavItems[2] ).toEqual( menuItemMatcher( 'pkg-b details', false, 'details.html' ) );
+			expect( primaryNavItems ).toHaveLength( 4 );
+			expect( primaryNavItems ).toEqual( [
+				menuItemMatcher( 'Root doc', false, '../../../pages/root-doc/index.html' ),
+				menuItemMatcher( 'Root doc child', false, '../../../pages/root-doc/child.html' ),
+				menuItemMatcher( 'Using pkg-b', true, 'index.html' ),
+				menuItemMatcher( 'pkg-b details', false, 'details.html' ),
+			] );
 		} );
 		it( 'should have correct secondary navigation', ( _content, dom ) => {
 			const secondaryNavItems = Array.from( dom.window.document.querySelectorAll<HTMLAnchorElement>( '.tsd-navigation.secondary li a' ) );
@@ -185,7 +253,7 @@ describe( 'pkg-b', () => {
 		it( 'should have correct breadcrumb', ( _content, dom ) => {
 			const breadcrumb = getBreadcrumb( dom );
 			expect( breadcrumb ).toHaveLength( 3 );
-			expect( breadcrumb ).toIncludeSameMembers( [
+			expect( breadcrumb ).toEqual( [
 				{ href: '../../../modules.html', text: packageName },
 				{ href: '../../../modules/pkg_b.html', text: 'pkg-b' },
 				{ href: 'index.html', text: 'Using pkg-b' },
@@ -204,10 +272,13 @@ describe( 'pkg-b', () => {
 		} );
 		it( 'should have correct primary navigation', ( _content, dom ) => {
 			const primaryNavItems = Array.from( dom.window.document.querySelectorAll( '.tsd-navigation.primary li.pages-entry' ) );
-			expect( primaryNavItems ).toHaveLength( 3 );
-			expect( primaryNavItems[0] ).toEqual( menuItemMatcher( 'Root doc', false, '../../../pages/root-doc.html' ) );
-			expect( primaryNavItems[1] ).toEqual( menuItemMatcher( 'Using pkg-b', true, 'index.html' ) );
-			expect( primaryNavItems[2] ).toEqual( menuItemMatcher( 'pkg-b details', true, 'details.html' ) );
+			expect( primaryNavItems ).toHaveLength( 4 );
+			expect( primaryNavItems ).toEqual( [
+				menuItemMatcher( 'Root doc', false, '../../../pages/root-doc/index.html' ),
+				menuItemMatcher( 'Root doc child', false, '../../../pages/root-doc/child.html' ),
+				menuItemMatcher( 'Using pkg-b', true, 'index.html' ),
+				menuItemMatcher( 'pkg-b details', true, 'details.html' ),
+			] );
 		} );
 		it( 'should have correct secondary navigation', ( _content, dom ) => {
 			const secondaryNavItems = Array.from( dom.window.document.querySelectorAll<HTMLAnchorElement>( '.tsd-navigation.secondary li a' ) );
@@ -217,7 +288,7 @@ describe( 'pkg-b', () => {
 		it( 'should have correct breadcrumb', ( _content, dom ) => {
 			const breadcrumb = getBreadcrumb( dom );
 			expect( breadcrumb ).toHaveLength( 4 );
-			expect( breadcrumb ).toIncludeSameMembers( [
+			expect( breadcrumb ).toEqual( [
 				{ href: '../../../modules.html', text: packageName },
 				{ href: '../../../modules/pkg_b.html', text: 'pkg-b' },
 				{ href: 'index.html', text: 'Using pkg-b' },
@@ -235,14 +306,17 @@ describe( 'pkg-b', () => {
 			expect( link ).toBeTruthy();
 			expect( link ).toHaveTextContent( /^another link$/ );
 			expect( link ).toHaveAttribute( 'href', '../pkg_a/pages/using-pkg-a.html' );
-			expect( link?.parentElement ).toHaveTextContent( 'See also another link.' );
+			expect( link!.parentElement ).toHaveTextContent( 'See also another link.' );
 		} );
 		it( 'should have correct primary navigation', ( _content, dom ) => {
 			const primaryNavItems = Array.from( dom.window.document.querySelectorAll( '.tsd-navigation.primary li.pages-entry' ) );
-			expect( primaryNavItems ).toHaveLength( 3 );
-			expect( primaryNavItems[0] ).toEqual( menuItemMatcher( 'Root doc', false, '../pages/root-doc.html' ) );
-			expect( primaryNavItems[1] ).toEqual( menuItemMatcher( 'Using pkg-b', false, '../pkg_b/pages/using-pkg-b/index.html' ) );
-			expect( primaryNavItems[2] ).toEqual( menuItemMatcher( 'pkg-b details', false, '../pkg_b/pages/using-pkg-b/details.html' ) );
+			expect( primaryNavItems ).toHaveLength( 4 );
+			expect( primaryNavItems ).toEqual( [
+				menuItemMatcher( 'Root doc', false, '../pages/root-doc/index.html' ),
+				menuItemMatcher( 'Root doc child', false, '../pages/root-doc/child.html' ),
+				menuItemMatcher( 'Using pkg-b', false, '../pkg_b/pages/using-pkg-b/index.html' ),
+				menuItemMatcher( 'pkg-b details', false, '../pkg_b/pages/using-pkg-b/details.html' ),
+			] );
 		} );
 		it( 'should have constant content', ( content, _dom ) => {
 			expect( formatHtml( content ) ).toMatchSnapshot();

@@ -1,12 +1,12 @@
 import assert from 'assert';
 
 import { isNil } from 'lodash';
-import { PageEvent, ProjectReflection, Reflection, RenderTemplate, Renderer, SourceFile } from 'typedoc';
+import { PageEvent, Reflection, RenderTemplate, Renderer, SourceReference } from 'typedoc';
 
 import { setupCaptureEvent } from './capture-event';
 
 export const setupMockPageMemo = () => {
-	const capture = setupCaptureEvent( Renderer, Renderer.EVENT_BEGIN_PAGE );
+	const capture = setupCaptureEvent( Renderer, PageEvent.BEGIN );
 	return {
 		captureEventRegistration: capture.captureEventRegistration,
 		setCurrentPage: <T extends Reflection>(
@@ -14,21 +14,19 @@ export const setupMockPageMemo = () => {
 			source: string,
 			model: T,
 			template: RenderTemplate<PageEvent<T>> = () => '',
-			project = new ProjectReflection( 'Fake' ),
 			listenerIndex?: number,
 		) => {
 			const listeners = capture.getListeners();
-			assert( listeners.length >= 1, `Invalid listeners count for event ${Renderer.EVENT_BEGIN_PAGE}` );
+			assert( listeners.length >= 1, `Invalid listeners count for event ${PageEvent.BEGIN}` );
 			const pageEvent = new PageEvent<T>( PageEvent.BEGIN );
-			pageEvent.project = project;
+			pageEvent.project = model.project;
 			pageEvent.url = url;
 			pageEvent.model = model;
 			pageEvent.template = template ?? ( () => '' );
 			pageEvent.filename = url;
-			Object.defineProperty( model, 'project', { value: project } );
 			model.sources = [
 				...( model.sources ?? [] ),
-				{ fileName: source, character: 1, line: 1, file: new SourceFile( source ) },
+				new SourceReference( source, 1, 1 ),
 			];
 			const listenersToTrigger = isNil( listenerIndex ) ? listeners : [ listeners[listenerIndex] ];
 			listenersToTrigger.forEach( l => l( pageEvent ) );

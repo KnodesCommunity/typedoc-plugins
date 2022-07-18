@@ -1,0 +1,1 @@
+{@codeblock ../.eslintrc.js#jsdoc-config}

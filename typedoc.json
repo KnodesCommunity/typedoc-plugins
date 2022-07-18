@@ -9,26 +9,32 @@
         "pages": [
             {
                 "title": "VIRTUAL",
-                "childrenDir": "../",
+                "moduleRoot": true,
                 "children": [
                     {
                         "title": "Changelog",
-                        "source": "CHANGELOG.md"
+                        "source": "./CHANGELOG.md"
                     }
                 ]
             },
             {
                 "title": "@knodes/typedoc-plugin-code-blocks",
+                "moduleRoot": true,
                 "source": "readme-extras.md",
                 "children": [
                     {
                         "title": "Using options",
                         "source": "options.md"
+                    },
+                    {
+                        "title": "Configuring eslint",
+                        "source": "eslint.md"
                     }
                 ]
             },
             {
                 "title": "@knodes/typedoc-plugin-monorepo-readmes",
+                "moduleRoot": true,
                 "children": [
                     {
                         "title": "Using options",
@@ -38,6 +44,7 @@
             },
             {
                 "title": "@knodes/typedoc-plugin-pages",
+                "moduleRoot": true,
                 "source": "readme-extras.md",
                 "children": [
                     {
@@ -52,6 +59,7 @@
             },
             {
                 "title": "@knodes/typedoc-pluginutils",
+                "moduleRoot": true,
                 "children": [
                     {
                         "title": "Providing options",

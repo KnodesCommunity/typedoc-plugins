@@ -2,11 +2,11 @@ import assert from 'assert';
 
 import { isNil } from 'lodash';
 
-import { PageEvent, Reflection, Renderer } from 'typedoc';
+import { PageEvent, Reflection } from 'typedoc';
 
-import { ABasePlugin } from './base-plugin';
+import { ABasePlugin, IPluginComponent, PluginAccessor, getPlugin } from './base-plugin';
 
-export class CurrentPageMemo {
+export class CurrentPageMemo implements IPluginComponent {
 	private static readonly _plugins = new WeakMap<ABasePlugin, CurrentPageMemo>();
 	private _currentPage?: PageEvent<Reflection>;
 	private _initialized = false;
@@ -17,16 +17,17 @@ export class CurrentPageMemo {
 	/**
 	 * Get the instance for the given plugin.
 	 *
-	 * @param plugin - The plugin to get memo for,
+	 * @param pluginAccessor - The plugin accessor to get memo for.
 	 * @returns the plugin page memo
 	 */
-	public static for( plugin: ABasePlugin ){
+	public static for( pluginAccessor: PluginAccessor ){
+		const plugin = getPlugin( pluginAccessor );
 		const e = this._plugins.get( plugin ) ?? new CurrentPageMemo( plugin );
 		this._plugins.set( plugin, e );
 		return e;
 	}
 
-	private constructor( protected readonly plugin: ABasePlugin ){}
+	private constructor( public readonly plugin: ABasePlugin ){}
 
 	/**
 	 * Start watching for pages event.
@@ -36,8 +37,8 @@ export class CurrentPageMemo {
 			return;
 		}
 		this._initialized = true;
-		this.plugin.application.renderer.on( Renderer.EVENT_BEGIN_PAGE, ( e: PageEvent<Reflection> ) => this._currentPage = e );
-		this.plugin.application.renderer.on( Renderer.EVENT_END_PAGE, () => this._currentPage = undefined );
+		this.plugin.application.renderer.on( PageEvent.BEGIN, ( e: PageEvent<Reflection> ) => this._currentPage = e );
+		this.plugin.application.renderer.on( PageEvent.END, () => this._currentPage = undefined );
 	}
 
 	/**
