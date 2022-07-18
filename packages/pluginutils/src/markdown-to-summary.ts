@@ -6,6 +6,7 @@ import { join } from 'path';
 
 import { Application, Context, Converter, DeclarationReflection, ProjectReflection } from 'typedoc';
 
+import { ApplicationAccessor, getApplication } from './base-plugin';
 import { miscUtils } from './utils';
 
 const tmpFile = ( prefix: string, ext: `.${string}`, content?: string ) => {
@@ -23,10 +24,11 @@ export class MarkdownToSummary {
 	/**
 	 * Get markdown to summary for the given application.
 	 *
-	 * @param application - The application to bind.
+	 * @param applicationAccessor - The application accessor to bind.
 	 * @returns the events extra instance.
 	 */
-	public static for( application: Application ){
+	public static for( applicationAccessor: ApplicationAccessor ){
+		const application = getApplication( applicationAccessor );
 		const e = this._apps.get( application ) ?? new MarkdownToSummary( application );
 		this._apps.set( application, e );
 		return e;

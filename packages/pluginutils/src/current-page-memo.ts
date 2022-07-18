@@ -1,13 +1,12 @@
 import assert from 'assert';
 
 import { isNil } from 'lodash';
+import { Application, PageEvent, Reflection } from 'typedoc';
 
-import { PageEvent, Reflection } from 'typedoc';
+import { ApplicationAccessor, getApplication } from './base-plugin';
 
-import { ABasePlugin, IPluginComponent, PluginAccessor, getPlugin } from './base-plugin';
-
-export class CurrentPageMemo implements IPluginComponent {
-	private static readonly _plugins = new WeakMap<ABasePlugin, CurrentPageMemo>();
+export class CurrentPageMemo {
+	private static readonly _applications = new WeakMap<Application, CurrentPageMemo>();
 	private _currentPage?: PageEvent<Reflection>;
 	private _initialized = false;
 	public get initialized(){
@@ -17,17 +16,17 @@ export class CurrentPageMemo implements IPluginComponent {
 	/**
 	 * Get the instance for the given plugin.
 	 *
-	 * @param pluginAccessor - The plugin accessor to get memo for.
+	 * @param applicationAccessor - The application accessor to get memo for.
 	 * @returns the plugin page memo
 	 */
-	public static for( pluginAccessor: PluginAccessor ){
-		const plugin = getPlugin( pluginAccessor );
-		const e = this._plugins.get( plugin ) ?? new CurrentPageMemo( plugin );
-		this._plugins.set( plugin, e );
+	public static for( applicationAccessor: ApplicationAccessor ){
+		const application = getApplication( applicationAccessor );
+		const e = this._applications.get( application ) ?? new CurrentPageMemo( application );
+		this._applications.set( application, e );
 		return e;
 	}
 
-	private constructor( public readonly plugin: ABasePlugin ){}
+	private constructor( public readonly application: Application ){}
 
 	/**
 	 * Start watching for pages event.
@@ -37,8 +36,8 @@ export class CurrentPageMemo implements IPluginComponent {
 			return;
 		}
 		this._initialized = true;
-		this.plugin.application.renderer.on( PageEvent.BEGIN, ( e: PageEvent<Reflection> ) => this._currentPage = e );
-		this.plugin.application.renderer.on( PageEvent.END, () => this._currentPage = undefined );
+		this.application.renderer.on( PageEvent.BEGIN, ( e: PageEvent<Reflection> ) => this._currentPage = e );
+		this.application.renderer.on( PageEvent.END, () => this._currentPage = undefined );
 	}
 
 	/**

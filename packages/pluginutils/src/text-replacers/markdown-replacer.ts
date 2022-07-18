@@ -70,7 +70,7 @@ export class MarkdownReplacer implements IPluginComponent {
 	public constructor( pluginAccessor: PluginAccessor ){
 		this.plugin = getPlugin( pluginAccessor );
 		this._logger = this.plugin.logger.makeChildLogger( 'MarkdownReplacer' );
-		this._currentPageMemo = CurrentPageMemo.for( this.plugin );
+		this._currentPageMemo = CurrentPageMemo.for( this );
 	}
 
 	/**

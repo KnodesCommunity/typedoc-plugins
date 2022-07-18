@@ -3,12 +3,12 @@ import assert from 'assert';
 import { relative, resolve } from 'path';
 
 import { escapeRegExp, identity } from 'lodash';
-
 import { Application, DeclarationReflection, MarkdownEvent, ReflectionKind, SourceReference } from 'typedoc';
 
 jest.mock( '../base-plugin' );
-const { ABasePlugin, getPlugin } = require( '../base-plugin' ) as jest.Mocked<typeof import( '../base-plugin' )>;
+const { ABasePlugin, getPlugin, getApplication } = require( '../base-plugin' ) as jest.Mocked<typeof import( '../base-plugin' )>;
 getPlugin.mockImplementation( identity );
+getApplication.mockImplementation( jest.requireActual( '../base-plugin' ).getApplication );
 
 import { CurrentPageMemo } from '../current-page-memo';
 import { MarkdownReplacer } from './markdown-replacer';
@@ -17,15 +17,12 @@ class TestPlugin extends ABasePlugin {
 	public override application: jest.MockedObjectDeep<Application>;
 	public constructor(){
 		super( {} as any, __filename );
-		this.application = {
+		this.application = Object.assign( Object.create( Application.prototype ), {
 			renderer: {
 				on: jest.fn(),
 			},
-			converter: {
-				on: jest.fn(),
-			},
 			options: { freeze: jest.fn() },
-		} as any;
+		} ) as any;
 		const pseudoLogger = {
 			makeChildLogger: jest.fn().mockImplementation( () => pseudoLogger ),
 			error: jest.fn().mockImplementation( assert.fail ),

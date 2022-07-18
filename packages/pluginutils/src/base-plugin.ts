@@ -113,5 +113,7 @@ export interface IPluginComponent<T extends ABasePlugin = ABasePlugin> {
 }
 
 export type PluginAccessor<T extends ABasePlugin = ABasePlugin> = IPluginComponent<T> | T
-
 export const getPlugin = <T extends ABasePlugin>( pluginAccessor: PluginAccessor<T> ) => pluginAccessor instanceof ABasePlugin ? pluginAccessor : pluginAccessor.plugin;
+
+export type ApplicationAccessor = PluginAccessor | Application;
+export const getApplication = ( applicationAccessor: ApplicationAccessor ) => applicationAccessor instanceof Application ? applicationAccessor : getPlugin( applicationAccessor ).application;
