@@ -5,7 +5,7 @@ import { join } from 'path';
 import { isString } from 'lodash';
 import { DeclarationReflection, DefaultTheme, IndexEvent, JSX, PageEvent, ProjectReflection, Reflection, ReflectionKind, RendererEvent, UrlMapping } from 'typedoc';
 
-import { IPluginComponent, getReflectionModule } from '@knodes/typedoc-pluginutils';
+import { CurrentPageMemo, IPluginComponent, getReflectionModule } from '@knodes/typedoc-pluginutils';
 
 import { ANodeReflection, PageReflection, PagesPluginReflectionKind } from '../../models/reflections';
 import type { PagesPlugin } from '../../plugin';
@@ -18,6 +18,7 @@ const getFullPageName = ( page: PageReflection ) => getPageNameComponents( page 
 
 const CSS_FILE_NAME = 'assets/pages.css';
 export class DefaultPagesRenderer implements IPagesPluginThemeMethods, IPluginComponent<PagesPlugin> {
+	private readonly _currentPageMemo = CurrentPageMemo.for( this );
 	private readonly _theme: DefaultTheme;
 	private readonly _modulesPages: ANodeReflection[];
 	private readonly _allPages: PageReflection[];
@@ -184,15 +185,16 @@ export class DefaultPagesRenderer implements IPagesPluginThemeMethods, IPluginCo
 			const modulePage = this._modulesPages.find( p => p.module === pageEvent.model );
 			if( modulePage instanceof PageReflection ){
 				const prevTemplate = pageEvent.template;
-				const fakeProject = new ProjectReflection( modulePage.name );
-				fakeProject.readme = modulePage.comment?.summary;
-				fakeProject.sources = modulePage.sources;
-				const fakePageEvent = new PageEvent<ProjectReflection>( modulePage.name );
-				fakePageEvent.project = modulePage.project;
-				fakePageEvent.url = modulePage.url;
-				fakePageEvent.model = fakeProject;
+				const fakeIndexPage: ProjectReflection = Object.assign(
+					new ProjectReflection( modulePage.name ),
+					{ readme: modulePage.comment?.summary, sources: modulePage.sources } );
+				const fakeIndexPageEvent = Object.assign(
+					new PageEvent<ProjectReflection>( PageEvent.BEGIN ),
+					{ project: modulePage.project, url: modulePage.url, model: fakeIndexPage } );
+
+
 				pageEvent.template = props => <>
-					{this._theme.indexTemplate( fakePageEvent )}
+					{this._currentPageMemo.fakeWrapPage( modulePage, () => this._theme.indexTemplate( fakeIndexPageEvent ) )}
 					<hr/>
 					{prevTemplate( props )}
 				</>;

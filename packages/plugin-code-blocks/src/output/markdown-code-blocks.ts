@@ -2,15 +2,19 @@ import assert from 'assert';
 import { relative } from 'path';
 
 import { isString } from 'lodash';
-import { normalizePath } from 'typedoc';
+import { DeclarationReflection, ReflectionKind, SourceReference, normalizePath } from 'typedoc';
 
-import { CurrentPageMemo, IPluginComponent, MarkdownReplacer, resolveNamedPath } from '@knodes/typedoc-pluginutils';
+import { CurrentPageMemo, IPluginComponent, MarkdownReplacer, reflectionKindUtils, resolveNamedPath } from '@knodes/typedoc-pluginutils';
 
 import { DEFAULT_BLOCK_NAME, ICodeSample, readCodeSample } from '../code-sample-file';
 import type { CodeBlockPlugin } from '../plugin';
 import { EBlockMode } from '../types';
 import { ICodeBlocksPluginThemeMethods } from './theme';
 
+// eslint-disable-next-line @typescript-eslint/no-var-requires -- Get name from package
+const { name } = require( '../../package.json' );
+
+const CODEBLOCK_KIND = reflectionKindUtils.addReflectionKind( name, 'CodeBlock' ) as ReflectionKind;
 const EXTRACT_CODE_BLOCKS_REGEX = /(\S+?\w+?)(?:#(.+?))?(?:\s+(\w+))?(?:\s*\|\s*(.*?))?\s*/;
 const EXTRACT_INLINE_CODE_BLOCKS_REGEX = /(\S+?)(?:\s+(\w+))?\s*(```(\w+)?.*?```)/s;
 export class MarkdownCodeBlocks implements IPluginComponent<CodeBlockPlugin>{
@@ -32,6 +36,10 @@ export class MarkdownCodeBlocks implements IPluginComponent<CodeBlockPlugin>{
 	 * @returns the replaced content.
 	 */
 	private _replaceInlineCodeBlock( match: MarkdownReplacer.Match, sourceHint: MarkdownReplacer.SourceHint ) {
+		// Avoid recursion in code blocks
+		if( this._currentPageMemo.currentReflection instanceof DeclarationReflection && this._currentPageMemo.currentReflection.kind === CODEBLOCK_KIND ){
+			return;
+		}
 		if( ( this.plugin.pluginOptions.getValue().excludeMarkdownTags ?? [] ).includes( match.fullMatch ) ){
 			this._logger.verbose( () => `Skipping excluded markup ${JSON.stringify( match.fullMatch )} from "${sourceHint()}"` );
 			return;
@@ -56,6 +64,10 @@ export class MarkdownCodeBlocks implements IPluginComponent<CodeBlockPlugin>{
 	 * @returns the replaced content.
 	 */
 	private _replaceCodeBlock( match: MarkdownReplacer.Match, sourceHint: MarkdownReplacer.SourceHint ) {
+		// Avoid recursion in code blocks
+		if( this._currentPageMemo.currentReflection instanceof DeclarationReflection && this._currentPageMemo.currentReflection.kind === CODEBLOCK_KIND ){
+			return;
+		}
 		if( ( this.plugin.pluginOptions.getValue().excludeMarkdownTags ?? [] ).includes( match.fullMatch ) ){
 			this._logger.verbose( () => `Skipping excluded markup ${JSON.stringify( match.fullMatch )} from "${sourceHint()}"` );
 			return;
@@ -66,13 +78,15 @@ export class MarkdownCodeBlocks implements IPluginComponent<CodeBlockPlugin>{
 			this._logger.verbose( () => `Created a code block to ${this.plugin.relativeToRoot( resolved.file )} from ${sourceHint()}` );
 			const headerFileName = fakedFileName ?? this._getHeaderFileName( resolved.file, resolved.codeSample );
 			const url = this._resolveCodeSampleUrl( resolved.file, resolved.codeSample.region === DEFAULT_BLOCK_NAME ? null : resolved.codeSample );
-			return this._themeMethods.renderCodeBlock( {
+			const fakeReflection = new DeclarationReflection( `${file}#${resolved.codeSample.region}`, CODEBLOCK_KIND, this._currentPageMemo.currentReflection );
+			fakeReflection.sources = [ new SourceReference( resolved.file, resolved.codeSample.startLine, 1 ) ];
+			return this._currentPageMemo.fakeWrapPage( fakeReflection, () => this._themeMethods.renderCodeBlock( {
 				asFile: headerFileName,
 				content: resolved.codeSample.code,
 				mode: this._getBlockMode( blockModeStr ),
 				sourceFile: resolved.file,
 				url,
-			} );
+			} ) );
 		} catch( err ) {
 			this._logger.error( () => `In "${sourceHint()}", failed to render code block from ${this._currentPageMemo.currentReflection.name}: ${err}` );
 			return undefined;

@@ -41,23 +41,20 @@ export class CurrentPageMemo {
 	}
 
 	/**
-	 * Set the current page as being the {@link newPage} while running the {@link callback}. The current page is restored afterwards no matter what.
+	 * Set the current page as being the {@link pageOrModel} while running the {@link callback}. The current page is restored afterwards no matter what.
 	 *
-	 * @param newPage - The page to set.
+	 * @param pageOrModel - The page to set.
 	 * @param callback - The function to execute.
 	 * @returns the {@link callback} return value.
 	 */
-	public fakeWrapPage<T>( newPage: PageEvent<Reflection>, callback: () => T ): T
-	public fakeWrapPage<T>( name: string, model: Reflection, callback: () => T ): T
-	public fakeWrapPage<T>( ...args: [newPage: PageEvent<Reflection>, callback: () => T] | [name: string, model: Reflection, callback: () => T] ){
+	public fakeWrapPage<T, Model extends Reflection>( pageOrModel: PageEvent<Model> | Model, callback: () => T ): T {
 		let newPage: PageEvent<Reflection>;
-		if( args.length === 3 ){
-			newPage = new PageEvent( args[0] );
-			newPage.model = args[1];
+		if( pageOrModel instanceof PageEvent ){
+			newPage = pageOrModel as any;
 		} else {
-			newPage = args[0];
+			newPage = new PageEvent( PageEvent.BEGIN );
+			newPage.model = pageOrModel;
 		}
-		const callback = args[args.length - 1] as () => T;
 		const bck = this._currentPage;
 		this._currentPage = newPage;
 		try {

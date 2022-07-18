@@ -3,15 +3,16 @@ import { readFileSync } from 'fs';
 
 import { Application, DeclarationReflection, DefaultTheme, JSX, PageEvent, ProjectReflection, ReflectionKind, RendererEvent, SourceReference } from 'typedoc';
 
-import { ABasePlugin, EventsExtra, MarkdownToSummary } from '@knodes/typedoc-pluginutils';
+import { ABasePlugin, CurrentPageMemo, EventsExtra, MarkdownToSummary } from '@knodes/typedoc-pluginutils';
 
 import { findReadmeFile } from './find-readme-file';
 import { buildOptions } from './options';
 import { isMonorepoReadmesPluginTheme } from './output/theme';
 
 export class MonorepoReadmePlugin extends ABasePlugin {
-	public readonly markdownToSummary = MarkdownToSummary.for( this.application );
+	public readonly markdownToSummary = MarkdownToSummary.for( this );
 	public readonly pluginOptions = buildOptions( this );
+	private readonly _currentPageMemo = CurrentPageMemo.for( this );
 	public constructor( application: Application ){
 		super( application, __filename );
 	}
@@ -74,7 +75,7 @@ export class MonorepoReadmePlugin extends ABasePlugin {
 			fakePageEvent.project = props.project;
 			fakePageEvent.url = props.url;
 			fakePageEvent.model = fakeProject;
-			const readmeTpl = theme.indexTemplate( fakePageEvent );
+			const readmeTpl = this._currentPageMemo.fakeWrapPage( fakePageEvent, () => theme.indexTemplate( fakePageEvent ) );
 			const base = baseTemplate( props );
 			return JSX.createElement( JSX.Fragment, null, ...[
 				readmeTpl,
