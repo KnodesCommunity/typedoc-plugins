@@ -11,10 +11,10 @@ import type { PagesPlugin } from '../plugin';
 import { IPagesPluginThemeMethods } from './theme';
 
 const EXTRACT_PAGE_LINK_REGEX = /([^}\s]+)(?:\s+([^}]+?))?\s*/g;
-class MarkdownPagesLinksPlugin implements IPluginComponent<PagesPlugin> {
+class MarkdownPagesLinks implements IPluginComponent<PagesPlugin> {
 	private readonly _currentPageMemo = CurrentPageMemo.for( this );
 	private readonly _markdownReplacer = new MarkdownReplacer( this );
-	private readonly _logger = this.plugin.logger.makeChildLogger( 'MarkdownPagesLinks' );
+	private readonly _logger = this.plugin.logger.makeChildLogger( MarkdownPagesLinks.name );
 	private readonly _nodesReflections: PageReflection[];
 	public constructor( public readonly plugin: PagesPlugin, private readonly _themeMethods: IPagesPluginThemeMethods, event: RendererEvent ){
 		const nodeReflections = event.project.getReflectionsByKind( PagesPluginReflectionKind.PAGE as any );
@@ -32,9 +32,13 @@ class MarkdownPagesLinksPlugin implements IPluginComponent<PagesPlugin> {
 	 * @returns the replaced content.
 	 */
 	private _replacePageLink(
-		{ captures }: Parameters<MarkdownReplacer.ReplaceCallback>[0],
+		{ captures, fullMatch }: Parameters<MarkdownReplacer.ReplaceCallback>[0],
 		sourceHint: Parameters<MarkdownReplacer.ReplaceCallback>[1],
 	): ReturnType<MarkdownReplacer.ReplaceCallback> {
+		if( ( this.plugin.pluginOptions.getValue().excludeMarkdownTags ?? [] ).includes( fullMatch ) ){
+			this._logger.verbose( () => `Skipping excluded markup ${JSON.stringify( fullMatch )} from "${sourceHint()}"` );
+			return;
+		}
 		const [ page, label ] = captures;
 
 		const targetPage = this._resolvePageLink( page );
@@ -67,4 +71,4 @@ class MarkdownPagesLinksPlugin implements IPluginComponent<PagesPlugin> {
 		}
 	}
 }
-export const bindReplaceMarkdown = ( plugin: PagesPlugin, themeMethods: IPagesPluginThemeMethods, event: RendererEvent ) => new MarkdownPagesLinksPlugin( plugin, themeMethods, event );
+export const bindReplaceMarkdown = ( plugin: PagesPlugin, themeMethods: IPagesPluginThemeMethods, event: RendererEvent ) => new MarkdownPagesLinks( plugin, themeMethods, event );

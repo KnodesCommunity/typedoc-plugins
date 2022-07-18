@@ -28,9 +28,14 @@ export class MarkdownCodeBlocks implements IPluginComponent<CodeBlockPlugin>{
 	 * Transform the parsed inline code block.
 	 *
 	 * @param match - The match infos.
+	 * @param sourceHint - The best guess to the source of the match,
 	 * @returns the replaced content.
 	 */
-	private _replaceInlineCodeBlock( match: MarkdownReplacer.Match ) {
+	private _replaceInlineCodeBlock( match: MarkdownReplacer.Match, sourceHint: MarkdownReplacer.SourceHint ) {
+		if( ( this.plugin.pluginOptions.getValue().excludeMarkdownTags ?? [] ).includes( match.fullMatch ) ){
+			this._logger.verbose( () => `Skipping excluded markup ${JSON.stringify( match.fullMatch )} from "${sourceHint()}"` );
+			return;
+		}
 		const [ fileName, blockModeStr, markdownCode ] = match.captures;
 		assert.ok( fileName );
 		assert.ok( markdownCode );
@@ -51,6 +56,10 @@ export class MarkdownCodeBlocks implements IPluginComponent<CodeBlockPlugin>{
 	 * @returns the replaced content.
 	 */
 	private _replaceCodeBlock( match: MarkdownReplacer.Match, sourceHint: MarkdownReplacer.SourceHint ) {
+		if( ( this.plugin.pluginOptions.getValue().excludeMarkdownTags ?? [] ).includes( match.fullMatch ) ){
+			this._logger.verbose( () => `Skipping excluded markup ${JSON.stringify( match.fullMatch )} from "${sourceHint()}"` );
+			return;
+		}
 		const [ file, block, blockModeStr, fakedFileName ] = match.captures;
 		try {
 			const resolved = this._resolveCodeBlock( file, block );
