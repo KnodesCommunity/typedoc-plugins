@@ -62,7 +62,7 @@ export class MonorepoReadmePlugin extends ABasePlugin {
 			...( pageEvent.model.sources ?? [] ),
 			source,
 		];
-		this.logger.info( `Setting readme of ${pageEvent.model.name} as ${this.relativeToRoot( absReadme )}` );
+		this.logger.verbose( `Setting readme of ${pageEvent.model.name} as ${this.relativeToRoot( absReadme )}` );
 		const baseTemplate = pageEvent.template;
 		pageEvent.template = props => {
 			const fakeProject = new ProjectReflection( props.name );
