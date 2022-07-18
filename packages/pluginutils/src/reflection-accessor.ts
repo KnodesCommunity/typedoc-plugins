@@ -97,7 +97,7 @@ export const resolveNamedPath: {
 	} else if( path.match( /^~\// ) ){
 		path = path.slice( 2 );
 		reflectionRoots = findModuleRoot( getReflectionModule( currentReflection ) );
-	} else if( path.startsWith( '.' ) ){
+	} else if( path.match( /^\.{1,2}\// ) ){
 		containerFolder = undefined;
 		reflectionRoots = dirname( currentReflection.sources?.[0].fullFileName ?? assert.fail() );
 	}
