@@ -6,9 +6,9 @@ Menu, as they are not pages, are only created in your navigation sidebar, to gro
 
 ## Organizing page trees
 
-### Nested pages behavior
-
 By default, pages with children are renamed to `{source-without-extensions}/index.html` in the output, and children are looked up from the `{source-without-extensions}` directory.
+
+### Single package
 
 #### Example
 
@@ -23,10 +23,14 @@ Here is your input/output tree:
 * Additional resource *(menu only)*
   * Some cool docs: `pages/additional-resources/some-cool-docs.md` ⇒ `pages/additional-resources/some-cool-docs.html`
 
-## Monorepos
+### Monorepos
 
-You can attach pages to monorepo modules (instead of the top-level project) by simply setting their {@link IPageNode.title `title`} to the name of your module (eg. your `package.json` `name` field).
+You can attach pages to monorepo modules (instead of the top-level project) by setting {@link IRootPageNode.moduleRoot `moduleRoot`} to true, and making sure their {@link IPageNode.title `title`} is the name of your module (eg. your `package.json` `name` field).
 
-If a {@link IPageNode.source `source`} file is specified, the content of the file is prepended to the module main page. Just look at the [*Example configuration* section here](../../modules/_knodes_typedoc_plugin_pages.html#example-configuration) !
+#### Example
 
-> **BEWARE !** Behavior of monorepo nodes as children of other nodes is untested and should be considered as errors.
+{@codeblock monorepo/typedoc.js}
+
+### The `moduleRoot` flag
+
+This flag must be set on **all** or **none** of the top-level *page*/*menu*. If the `moduleRoot` is a *page*, the {@link IPageNode.source `source`} is prepended to the module index, pretty much like a README.

@@ -13,11 +13,12 @@
 [![Code Climate coverage](https://img.shields.io/codeclimate/coverage-letter/KnodesCommunity/typedoc-plugins?style=for-the-badge)](https://codeclimate.com/github/KnodesCommunity/typedoc-plugins)
 [![Code Climate maintainability](https://img.shields.io/codeclimate/maintainability/KnodesCommunity/typedoc-plugins?style=for-the-badge)](https://codeclimate.com/github/KnodesCommunity/typedoc-plugins)
 
-## Compatibility
+For more infos, please refer to [the documentation](https://knodescommunity.github.io/typedoc-plugins/modules/_knodes_typedoc_plugintestbed.html)
+<!-- HEADER end -->
 
-This plugin version should match TypeDoc `^0.23.0` for compatibility.
+> Please note that this package is monorepo only; it is not published on NPM.
 
-> **Note**: this plugin version was released by testing against `^0.23.7`.
+<!-- INSTALL -->
 
 ## Quick start
 
@@ -25,7 +26,10 @@ This plugin version should match TypeDoc `^0.23.0` for compatibility.
 npm install --save-dev @knodes/typedoc-plugintestbed typedoc@^0.23.0
 ```
 
-For more infos, please refer to [the documentation](https://knodescommunity.github.io/typedoc-plugins/modules/_knodes_typedoc_plugintestbed.html)
-<!-- HEADER end -->
+## Compatibility
 
-Please note that this package is GitHub only; it is not published on NPM.
+This plugin version should match TypeDoc `^0.23.0` for compatibility.
+
+> **Note**: this plugin version was released by testing against `^0.23.7`.
+
+<!-- INSTALL end -->

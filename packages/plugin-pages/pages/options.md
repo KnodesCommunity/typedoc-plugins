@@ -14,7 +14,7 @@ typedoc --help
 
 * `pages`: The pages definition. Checkout {@page ./pages-tree.md} for more infos on how to set this.\
   Type: {@link IPageNode `IPageNode[]`}
-* `enablePageLinks`: Whether or not @page and @pagelink tags should be parsed.\
+* `enablePageLinks`: Whether or not {@page ...} tags should be parsed.\
   Type: `boolean`\
   Default: `true`
 * `enableSearch`: Whether or not the pages should be added to the search index.\

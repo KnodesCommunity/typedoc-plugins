@@ -21,7 +21,7 @@ export interface IPluginOptions {
 	/**
 	 * The name of the readme files
 	 *
-	 * @default `[]`
+	 * @default `['README.md']`
 	 */
 	readme: string[];
 }

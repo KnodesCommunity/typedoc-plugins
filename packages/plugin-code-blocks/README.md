@@ -13,18 +13,6 @@
 [![Code Climate coverage](https://img.shields.io/codeclimate/coverage-letter/KnodesCommunity/typedoc-plugins?style=for-the-badge)](https://codeclimate.com/github/KnodesCommunity/typedoc-plugins)
 [![Code Climate maintainability](https://img.shields.io/codeclimate/maintainability/KnodesCommunity/typedoc-plugins?style=for-the-badge)](https://codeclimate.com/github/KnodesCommunity/typedoc-plugins)
 
-## Compatibility
-
-This plugin version should match TypeDoc `^0.23.0` for compatibility.
-
-> **Note**: this plugin version was released by testing against `^0.23.7`.
-
-## Quick start
-
-```sh
-npm install --save-dev @knodes/typedoc-plugin-code-blocks typedoc@^0.23.0
-```
-
 For more infos, please refer to [the documentation](https://knodescommunity.github.io/typedoc-plugins/modules/_knodes_typedoc_plugin_code_blocks.html)
 <!-- HEADER end -->
 
@@ -37,7 +25,7 @@ For more infos, please refer to [the documentation](https://knodescommunity.gith
 
 ## Usage
 
-In any markdown content, you can use the `{@codeblock ...}` & `{@inlineCodeblock ...}` macros to use code blocks.
+In any markdown content, (in README, pages, or doc comments), use the `{@codeblock ...}` & `{@inlineCodeblock ...}` macros to use code blocks.
 
 ### Reference a file
 
@@ -46,25 +34,20 @@ Syntax:
 {@codeblock <path-to-file>[#region] [mode] [ | custom-file-name]}
 ```
 
-* `<path-to-file>`: A path to the code file to embed. The file resolution is as follow:
-  * If the path starts with a `.`, search from the current file.
-  * If the path starts with `~~/`, search from the project root.
-  * If the path starts with `~[....]/`, search from the module/workspace with the given name.
-  * Otherwise, the page is searched from the current module/workspace (or the project root).
-* `[#region]`: A named region in the target file. Regions are started with `// #region my-name`, & ended with `// #endregion [my-name]`. Interleaved/nested regions are supported. Note that region markers are not outputted in the generated code block.
+* `<path-to-file>`: A path to the code file to embed. Checkout [this documentation page](https://knodescommunity.github.io/typedoc-plugins/_knodes_typedoc_pluginutils/pages/resolving-paths.html) for more infos on the syntax of the path.
+* `[#<region>]`: A named region in the target file. Regions are started with `// #region my-name`, & ended with `// #endregion [my-name]`. Interleaved/nested regions are supported. Note that region markers are not outputted in the generated code block. The `<region>` parameter can be a glob pattern, or a list of block names/patterns separated by a `+`.
 * `[mode]`: optional. Can be any valid {@link EBlockMode}, to override the default settings.
 * `[ | custom-file-name]`: allow to specify an explicit file name to display in the code block header.
-
-Module/workspace/project resolution first tries to search in the `examples` subfolder. You can customize this setting with the `source` option.
+* 
+`{@codeblock ...}` are by default looked up into your [*workspace*](https://knodescommunity.github.io/typedoc-plugins/_knodes_typedoc_pluginutils/pages/resolving-paths.html) `examples` folder, but you can customize it by using the [`source` option](https://knodescommunity.github.io/typedoc-plugins/_knodes_typedoc_plugin_code_blocks/pages/options.html)
 
 ### Wrap standard markdown content
 
 Syntax:
 ````md
-{@inlineCodeblock <custom-file-name> [mode]}
-```
+{@inlineCodeblock <custom-file-name> [mode] ```
 ....
-```
+```}
 ````
 
 * `<custom-file-name>`: The file name to set in the header
@@ -73,3 +56,19 @@ Syntax:
 ## Configuration
 
 For more information on configuration, please refer to [the *options* documentation page](https://knodescommunity.github.io/typedoc-plugins/_knodes_typedoc_plugin_code_blocks/pages/options.html)
+
+<!-- INSTALL -->
+
+## Quick start
+
+```sh
+npm install --save-dev @knodes/typedoc-plugin-code-blocks typedoc@^0.23.0
+```
+
+## Compatibility
+
+This plugin version should match TypeDoc `^0.23.0` for compatibility.
+
+> **Note**: this plugin version was released by testing against `^0.23.7`.
+
+<!-- INSTALL end -->

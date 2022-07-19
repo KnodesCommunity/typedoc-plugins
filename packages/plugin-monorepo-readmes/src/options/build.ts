@@ -7,7 +7,7 @@ import { IPluginOptions } from './types';
 
 export const buildOptions = ( plugin: MonorepoReadmePlugin ) => OptionGroup.factory<IPluginOptions>( plugin )
 	.add( 'rootFiles', {
-		help: 'A list of file names used to infer packages root.',
+		help: 'A list of file names used to infer packages root. This is case sensitive.',
 		type: ParameterType.Array,
 		defaultValue: [ 'package.json' ],
 	} )
@@ -18,8 +18,8 @@ export const buildOptions = ( plugin: MonorepoReadmePlugin ) => OptionGroup.fact
 		defaultValue: plugin.application.logger.level,
 	} )
 	.add( 'readme', {
-		help: 'Specify name of readme files',
+		help: 'Specify name of readme files. This is case insensitive.',
 		type: ParameterType.Array,
-		defaultValue: [],
+		defaultValue: [ 'README.md' ],
 	} )
 	.build();

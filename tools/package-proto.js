@@ -202,15 +202,10 @@ const syncFs = () => {
  */
 const readme = () => {
 	/**
-	 * @param {string} readmeFile
-	 * @param {string} projectPath
+	 * @param {string} readmeContent
+	 * @param {any} packageContent
 	 */
-	const replaceHeader = async ( readmeFile, projectPath ) => {
-		const readmeContent = ( await tryReadFile( readmeFile, 'utf-8' ) ) ?? '';
-		const { packageContent } = await readProjectPackageJson( projectPath );
-		if( !packageContent ){
-			throw new Error();
-		}
+	const replaceHeader = async ( readmeContent, packageContent ) => {
 		let newHeader = `# ${packageContent.name}`;
 		if( packageContent.description ){
 			newHeader += `${EOL}${EOL}> ${packageContent.description}`;
@@ -225,43 +220,58 @@ ${shield( 'npm downloads', `/npm/dm/${packageContent.name}`, `https://www.npmjs.
 
 ${shield( 'CircleCI', '/circleci/build/github/KnodesCommunity/typedoc-plugins/main', 'https://circleci.com/gh/KnodesCommunity/typedoc-plugins/tree/main' )}
 ${shield( 'Code Climate coverage', '/codeclimate/coverage-letter/KnodesCommunity/typedoc-plugins', 'https://codeclimate.com/github/KnodesCommunity/typedoc-plugins' )}
-${shield( 'Code Climate maintainability', '/codeclimate/maintainability/KnodesCommunity/typedoc-plugins', 'https://codeclimate.com/github/KnodesCommunity/typedoc-plugins' )}`;
-		const typedocVer = packageContent.dependencies?.['typedoc'] ?? packageContent.peerDependencies?.['typedoc'];
-		const devTypedocVer = packageContent.devDependencies?.['typedoc'];
-		if( typedocVer || devTypedocVer ){
-			newHeader += `
-
-## Compatibility`;
-		}
-		if( typedocVer ){
-			newHeader += `
-
-This plugin version should match TypeDoc \`${typedocVer}\` for compatibility.`;
-		}
-		if( devTypedocVer ){
-			newHeader += `
-
-> **Note**: this plugin version was released by testing against \`${devTypedocVer}\`.`;
-		}
-		newHeader += `
-
-## Quick start
-
-\`\`\`sh
-npm install --save-dev ${packageContent.name}${typedocVer ? ` typedoc@${typedocVer}` : ''}
-\`\`\`
+${shield( 'Code Climate maintainability', '/codeclimate/maintainability/KnodesCommunity/typedoc-plugins', 'https://codeclimate.com/github/KnodesCommunity/typedoc-plugins' )}
 
 For more infos, please refer to [the documentation](${getDocsUrl( packageContent )})`;
 		newHeader = `<!-- HEADER -->
 ${newHeader}
 <!-- HEADER end -->
 `;
-		const headerRegex = /^<!-- HEADER -->(.*?)<!-- HEADER end -->\r?\n/s;
+		const headerRegex = /^<!-- HEADER -->(.*)<!-- HEADER end -->(\r?\n|$)/sm;
 		if( !headerRegex.test( readmeContent ) ){
-			console.log( yellow( `Header not found in ${readmeFile}` ) );
+			console.log( yellow( `Header not found in ${readmeContent}` ) );
 		}
-		const newReadme = newHeader + readmeContent.replace( /^<!-- HEADER -->(.*?)<!-- HEADER end -->(\r?\n|$)/s, '' );
-		await writeFile( readmeFile, newReadme );
+		return newHeader + readmeContent.replace( headerRegex, '' );
+	};
+	/**
+	 * @param {string} readmeContent
+	 * @param {any} packageContent
+	 */
+	const replaceInstall = async ( readmeContent, packageContent ) => {
+		const typedocVer = packageContent.dependencies?.['typedoc'] ?? packageContent.peerDependencies?.['typedoc'];
+		const devTypedocVer = packageContent.devDependencies?.['typedoc'];
+		let newInstall = `
+## Quick start
+
+\`\`\`sh
+npm install --save-dev ${packageContent.name}${typedocVer ? ` typedoc@${typedocVer}` : ''}
+\`\`\``;
+		if( typedocVer || devTypedocVer ){
+			newInstall += `
+
+## Compatibility`;
+		}
+		if( typedocVer ){
+			newInstall += `
+
+This plugin version should match TypeDoc \`${typedocVer}\` for compatibility.`;
+		}
+		if( devTypedocVer ){
+			newInstall += `
+
+> **Note**: this plugin version was released by testing against \`${devTypedocVer}\`.`;
+		}
+		newInstall = `<!-- INSTALL -->
+${newInstall}
+
+<!-- INSTALL end -->
+`;
+		const installRegex = /^<!-- INSTALL -->(.*)<!-- INSTALL end -->(\r?\n|$)/sm;
+		if( !installRegex.test( readmeContent ) ){
+			console.log( yellow( `Install not found in ${readmeContent}` ) );
+			return `${readmeContent  }\n\n${newInstall}`;
+		}
+		return readmeContent.replace( installRegex, newInstall );
 	};
 	return {
 		name: 'readme',
@@ -271,7 +281,16 @@ ${newHeader}
 				throw new Error( 'Multiple README files' );
 			}
 			const readmeFile = readmeFiles[0] ?? `${projectPath}/README.md`;
-			await replaceHeader( readmeFile, projectPath );
+			const readmeContent = ( await tryReadFile( readmeFile, 'utf-8' ) ) ?? '';
+			const { packageContent } = await readProjectPackageJson( projectPath );
+			if( !packageContent ){
+				throw new Error();
+			}
+			const result = await [ replaceHeader, replaceInstall ].reduce( async ( content, fn ) => {
+				const c = await content;
+				return fn( c, packageContent );
+			}, Promise.resolve( readmeContent ) );
+			await writeFile( readmeFile, result );
 		},
 		handleFile: filename => /(\/|^)readme\.md$/i.test( filename ),
 	};

@@ -63,7 +63,7 @@ export const getReflectionParentMatching: {
 export const getReflectionModule = ( reflection: Reflection ) => getReflectionParentMatching( reflection, isModule ) ?? reflection.project;
 
 /**
- * Don't worry about typings, it's just a string with special prefixes.
+ * Don't worry about typings, it's just a string with special prefixes. See {@page resolving-paths.md} for details.
  */
 export type NamedPath = LiteralUnion<NamedPath.Project | NamedPath.Module | NamedPath.CurrentModule, string>
 export namespace NamedPath {
@@ -72,8 +72,29 @@ export namespace NamedPath {
 	export type CurrentModule = `~/${string}`
 }
 
+/**
+ * Resolve a named path. See {@page resolving-paths.md} for details.
+ *
+ * @param args - The reflection to resolve from, an optional container folder, and the target path specifier.
+ * @returns the resolved path.
+ */
 export const resolveNamedPath: {
+	/**
+	 * Resolve a named path. See {@page resolving-paths.md} for details.
+	 *
+	 * @param currentReflection - The reflection to resolve from.
+	 * @param containerFolder - An optional container folder.
+	 * @param path - The target path specifier.
+	 * @returns the resolved path.
+	 */
 	( currentReflection: Reflection, containerFolder: string | undefined, path: NamedPath ): string;
+	/**
+	 * Resolve a named path. See {@page resolving-paths.md} for details.
+	 *
+	 * @param currentReflection - The reflection to resolve from.
+	 * @param path - The target path specifier.
+	 * @returns the resolved path.
+	 */
 	( currentReflection: Reflection, path: NamedPath ): string;
 } = ( ...args: [Reflection, string | undefined, NamedPath] | [Reflection, NamedPath] ) => {
 	let [ , containerFolder, path ] = args.length === 3 ? args : [ args[0], undefined, args[1] ];
