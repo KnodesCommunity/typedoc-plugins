@@ -1,9 +1,9 @@
 import assert from 'assert';
 import { readFileSync } from 'fs';
 
-import { Application, DeclarationReflection, DefaultTheme, JSX, PageEvent, ProjectReflection, ReflectionKind, RendererEvent, SourceReference } from 'typedoc';
+import { Application, DeclarationReflection, DefaultTheme, JSX, PageEvent, ProjectReflection, ReflectionKind, RendererEvent } from 'typedoc';
 
-import { ABasePlugin, CurrentPageMemo, EventsExtra, MarkdownToSummary } from '@knodes/typedoc-pluginutils';
+import { ABasePlugin, CurrentPageMemo, EventsExtra, MarkdownToSummary, reflectionSourceUtils } from '@knodes/typedoc-pluginutils';
 
 import { findReadmeFile } from './find-readme-file';
 import { buildOptions } from './options';
@@ -57,10 +57,10 @@ export class MonorepoReadmePlugin extends ABasePlugin {
 			return;
 		}
 		const { absolute: absReadme } = readme;
-		const source = new SourceReference( absReadme, 1, 1 );
+		const source = reflectionSourceUtils.createSourceReference( this, absReadme );
 		pageEvent.model.sources = [
-			...( pageEvent.model.sources ?? [] ),
 			source,
+			...( pageEvent.model.sources ?? [] ),
 		];
 		this.logger.verbose( `Setting readme of ${pageEvent.model.name} as ${this.relativeToRoot( absReadme )}` );
 		const baseTemplate = pageEvent.template;

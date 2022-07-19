@@ -175,8 +175,8 @@ exports[`packages/a module\` should have correct content 1`] = `
 			<hr />
 			<aside class=\\"tsd-sources\\">
 				<ul>
+					<li>Defined in <a href=\\"https://github.com/KnodesCommunity/typedoc-plugins/blob/develop/packages/plugin-monorepo-readmes/__tests__/mock-fs/simple/packages/a/README.md#L1\\">packages/a/README.md:1</a></li>
 					<li>Defined in <a href=\\"https://github.com/KnodesCommunity/typedoc-plugins/blob/develop/packages/plugin-monorepo-readmes/__tests__/mock-fs/simple/packages/a/index.ts#L1\\">a/index.ts:1</a></li>
-					<li>Defined in /home/gerkin/Documents/typedoc-plugins/packages/plugin-monorepo-readmes/__tests__/mock-fs/simple/packages/a/README.md:1</li>
 				</ul>
 			</aside>
 			<section class=\\"tsd-panel-group\\">
@@ -331,8 +331,8 @@ exports[`packages/b module\` should have correct content 1`] = `
 			<hr />
 			<aside class=\\"tsd-sources\\">
 				<ul>
+					<li>Defined in <a href=\\"https://github.com/KnodesCommunity/typedoc-plugins/blob/develop/packages/plugin-monorepo-readmes/__tests__/mock-fs/simple/packages/b/README.md#L1\\">packages/b/README.md:1</a></li>
 					<li>Defined in <a href=\\"https://github.com/KnodesCommunity/typedoc-plugins/blob/develop/packages/plugin-monorepo-readmes/__tests__/mock-fs/simple/packages/b/index.ts#L1\\">b/index.ts:1</a></li>
-					<li>Defined in /home/gerkin/Documents/typedoc-plugins/packages/plugin-monorepo-readmes/__tests__/mock-fs/simple/packages/b/README.md:1</li>
 				</ul>
 			</aside>
 			<section class=\\"tsd-panel-group\\">
