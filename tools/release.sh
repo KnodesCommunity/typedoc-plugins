@@ -36,10 +36,7 @@ TEMP_DIR="$(mktemp -d)"
 echo "Using docs temp dir ${TEMP_DIR}"
 REMOTE_URL="$(git config --get remote.origin.url)"
 cd "${TEMP_DIR}"
-git init .
-git remote add origin "${REMOTE_URL}"
-git fetch
-git checkout --track origin/docs
+git clone --depth 1 --branch develop ${REMOTE_URL} .
 rsync -va --delete --exclude ".git" "${PWD_SV}/docs/" ./
 git add .
 git commit -m "docs: publish docs for v${VERSION}
