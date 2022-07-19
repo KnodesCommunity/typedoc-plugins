@@ -34,8 +34,8 @@ executors:
 x-params:
   test-matrix: &params-test-matrix
     parameters:
-      os: [&test-matrix-main-os linux, macos, windows]
-      node-version: ["14.19.3", "16.15.1", &test-matrix-main-version "18.4.0"]
+      os: [&test-matrix-os-default linux, macos, windows]
+      node-version: &test-matrix-node-versions ["14.19.3", "16.15.1", &test-matrix-node-versions-default "18.4.0"]
 x-steps:
   npm-install-cache: &step-npm-install-cache
     restore_cache:
@@ -151,8 +151,8 @@ jobs:
           condition: &test-matrix-coverage-condition
             and:
               - << parameters.coverage >>
-              - { equal: [<< parameters.os >>, *test-matrix-main-os ] }
-              - { equal: [<< parameters.node-version >>, *test-matrix-main-version ] }
+              - { equal: [<< parameters.os >>, *test-matrix-os-default ] }
+              - { equal: [<< parameters.node-version >>, *test-matrix-node-versions-default ] }
           steps:
           - run:
               command: |
@@ -397,7 +397,10 @@ workflows:
           requires:
             - build
       - test:
-          matrix: *params-test-matrix
+          matrix: 
+            parameters:
+              os: [*test-matrix-os-default]
+              node-version: *test-matrix-node-versions
           requires:
             - build
 
