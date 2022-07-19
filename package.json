@@ -47,7 +47,7 @@
     "tools:bump-versions": "node tools/bump-versions",
     "tools:infer-next-version": "node tools/infer-next-version",
     "tools:patch": "node ./tools/typedoc-patcher --no-stash",
-    "tools:sync-proto": "node tools/package-proto"
+    "tools:sync-proto": "node tools/sync-proto"
   },
   "commitlint": {
     "extends": [
@@ -117,14 +117,14 @@
     "strip-ansi": "^6.0.1",
     "typedoc": "^0.23.8",
     "typescript": "^4.7.4",
+    "ts-jest": "^28.0.5",
+    "@types/minimatch": "^3.0.5",
+    "type-fest": "^2.16.0",
+    "tmp": "^0.2.1",
     "@knodes/typedoc-plugin-code-blocks": "file:./packages/plugin-code-blocks",
     "@knodes/typedoc-plugin-monorepo-readmes": "file:./packages/plugin-monorepo-readmes",
     "@knodes/typedoc-plugin-pages": "file:./packages/plugin-pages",
     "@knodes/typedoc-plugintestbed": "file:./packages/plugintestbed",
-    "@knodes/typedoc-pluginutils": "file:./packages/pluginutils",
-    "ts-jest": "^28.0.5",
-    "@types/minimatch": "^3.0.5",
-    "type-fest": "^2.16.0",
-    "tmp": "^0.2.1"
+    "@knodes/typedoc-pluginutils": "file:./packages/pluginutils"
   }
 }
