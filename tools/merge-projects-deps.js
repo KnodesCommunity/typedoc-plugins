@@ -1,9 +1,10 @@
+const { readFileSync } = require( 'fs' );
 const { writeFile } = require( 'fs/promises' );
 const { resolve } = require( 'path' );
 
 const { normalizePath } = require( 'typedoc' );
 
-const { getProjects, formatPackages } = require( './utils' );
+const { getProjects, formatPackages, checkFormatPackages } = require( './utils' );
 
 const projects = getProjects().map( v => ( {
 	...v,
@@ -11,8 +12,9 @@ const projects = getProjects().map( v => ( {
 } ) );
 
 const packagePath = normalizePath( resolve( __dirname, '../package.json' ) );
-const basePkg = require( packagePath );
-const newPkg = projects.reduce( ( acc, { path, pkgJson } ) => {
+const originalPkgStr = readFileSync( packagePath, 'utf-8' );
+const originalPkg = JSON.parse( originalPkgStr );
+const mergedPkg = projects.reduce( ( acc, { path, pkgJson } ) => {
 	Object.entries( pkgJson )
 		.filter( ( [ k ] ) => k.toLowerCase().includes( 'dependencies' ) )
 		.forEach( ( [ k, v ] ) => {
@@ -36,9 +38,17 @@ const newPkg = projects.reduce( ( acc, { path, pkgJson } ) => {
 			};
 		} );
 	return acc;
-}, basePkg );
+}, originalPkg );
 
-module.exports = async () => {
-	await writeFile( packagePath, JSON.stringify( newPkg ) );
-	await formatPackages( packagePath );
+module.exports = async checkOnly => {
+	await writeFile( packagePath, `${JSON.stringify( mergedPkg, null, 2 )  }\n` );
+	if( checkOnly ){
+		try {
+			await checkFormatPackages( packagePath );
+		} finally {
+			await writeFile( packagePath, originalPkgStr );
+		}
+	} else {
+		await formatPackages( packagePath );
+	}
 };

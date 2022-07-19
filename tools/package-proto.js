@@ -50,9 +50,10 @@ const tryReadFile = async file => {
 };
 
 /**
+ * @param checkOnly
  * @returns {ProtoHandler}
  */
-const packageJson = () => {
+const packageJson = checkOnly => {
 	const getProtoPkg = memoize( proto => readFile( resolve( proto, 'package.json' ), 'utf-8' ) );
 	return {
 		run: async ( proto, { path: projectPath } ) => {
@@ -68,9 +69,16 @@ const packageJson = () => {
 			]
 				.map( k => k.toLowerCase() ) )
 				.sort() );
-			await writeFile( packagePath, JSON.stringify( newProjectPkg, null, 2 ) );
+			if( checkOnly ){
+				assert.deepStrictEqual( newProjectPkg, packageContent );
+			} else {
+				await writeFile( packagePath, JSON.stringify( newProjectPkg, null, 2 ) );
+			}
 		},
 		tearDown: async( proto, projects ) => {
+			if( checkOnly ){
+				return;
+			}
 			await formatPackages( ...projects.map( p => normalizePath( resolve( p.path, 'package.json' ) ) ) );
 		},
 		handleFile: filename => /(\/|^)package\.json$/.test( filename ),
@@ -82,9 +90,10 @@ const checksum = async file => createHash( 'md5' )
 	.digest( 'hex' );
 
 /**
+ * @param checkOnly
  * @returns {ProtoHandler}
  */
-const syncFs = () => {
+const syncFs = checkOnly => {
 	const cacheFile = resolve( __dirname, '.package-proto-cache' );
 	const readCache = memoize( async () => {
 		try {
@@ -140,29 +149,35 @@ const syncFs = () => {
 				await mkdir( resolve( projectPath, dir ), { recursive: true } );
 			}
 			const changedFiles = await getChangedFiles( proto, handlers );
-			await Promise.all( Object.entries( changedFiles ).map( async ( [ file, protoSum ] ) => {
-				const source = resolve( proto, file );
-				const dest = resolve( projectPath, file );
-				if( protoSum ){
-					try{
-						await access( dest );
-						const prevSum = ( await readCache() )[file];
-						if( ( prevSum ?? protoSum ) !== await checksum( dest ) ){
-							conflicting.push( join( projectPath, file ) );
+			if( checkOnly ){
+				const changedFilesNames = Object.keys( changedFiles );
+				assert.equal( changedFilesNames.length, 0, `Some files has changed compared to prototype. ${changedFilesNames.join( ' ' )}` );
+			} else {
+				await Promise.all( Object.entries( changedFiles ).map( async ( [ file, protoSum ] ) => {
+					const source = resolve( proto, file );
+					const dest = resolve( projectPath, file );
+					if( protoSum ){
+						try{
+							await access( dest );
+							const prevSum = ( await readCache() )[file];
+							if( ( prevSum ?? protoSum ) !== await checksum( dest ) ){
+								const projectFile = join( projectPath, file );
+								conflicting.push( projectFile );
+							}
+						} catch( err ){
+							if ( err.code !== 'ENOENT' ) {
+								throw err;
+							}
 						}
-					} catch( err ){
-						if ( err.code !== 'ENOENT' ) {
-							throw err;
-						}
-					}
-					await copyFile( source, dest );
-				} else {
-					try{
-						await unlink( dest );
+						await copyFile( source, dest );
+					} else {
+						try{
+							await unlink( dest );
 						// eslint-disable-next-line no-empty -- No error
-					} catch( e ){}
-				}
-			} ) );
+						} catch( e ){}
+					}
+				} ) );
+			}
 			await Promise.all( files.map( async file => {
 				if( file in changedFiles ){
 					return;
@@ -171,11 +186,17 @@ const syncFs = () => {
 				try{
 					await access( absFile );
 				} catch( e ){
+					if( checkOnly ){
+						assert.fail( `Missing ${absFile}` );
+					}
 					await copyFile( resolve( proto, file ), absFile );
 				}
 			} ) );
 		},
 		tearDown: async ( proto, _projects, handlers ) => {
+			if( checkOnly ){
+				return;
+			}
 			conflicting.forEach( c => {
 				console.error( `File ${bold( c )} has been changed compared to prototype. Please review git changes.` );
 			} );
@@ -196,9 +217,10 @@ const syncFs = () => {
 };
 
 /**
+ * @param checkOnly
  * @returns {ProtoHandler}
  */
-const readme = () => {
+const readme = checkOnly => {
 	/**
 	 * @param {string} readmeContent
 	 * @param {any} packageContent
@@ -288,31 +310,39 @@ ${newInstall}
 				const c = await content;
 				return fn( c, packageContent );
 			}, Promise.resolve( readmeContent ) );
-			await writeFile( readmeFile, result );
+			if( checkOnly ){
+				assert.equal( result, readmeContent, `Readme ${readmeFile} does not match prototype` );
+			} else {
+				await writeFile( readmeFile, result );
+			}
 		},
 		handleFile: filename => /(\/|^)readme\.md$/i.test( filename ),
 	};
 };
 
 if( require.main === module ){
-	const { explicitProjects, noStash } = process.argv.slice( 2 )
+	const { explicitProjects, stash, checkOnly } = process.argv.slice( 2 )
 		.reduce( ( acc, arg ) => {
 			if( arg === '--no-stash' ){
-				return { ...acc, noStash: true };
+				return { ...acc, stash: false };
+			} else if( arg === '--check' ){
+				return { ...acc, checkOnly: true, stash: false };
+			} else if( arg.startsWith( '-' ) ){
+				throw new Error( `Unknown arg ${arg}` );
 			} else {
 				return { ...acc, explicitProjects: [ ...acc.explicitProjects, arg ] };
 			}
-		}, { explicitProjects: [], noStash: false } );
+		}, { explicitProjects: [], stash: true, checkOnly: false } );
 	const projects = selectProjects( explicitProjects );
 	const protoDir = normalizePath( resolve( __dirname, 'proto' ) );
 	( async () => {
-		if( !noStash ){
+		if( stash ){
 			await createStash( `Sync packages ${projects.map( p => p.name ).join( ' ' )}` );
 		}
 		const handlers = [
-			syncFs(),
-			packageJson(),
-			readme(),
+			syncFs( checkOnly ),
+			packageJson( checkOnly ),
+			readme( checkOnly ),
 		];
 		for( const { setup } of handlers ){
 			if( setup ){
@@ -328,7 +358,7 @@ if( require.main === module ){
 			}
 		}
 
-		await require( './merge-projects-deps' )();
+		await require( './merge-projects-deps' )( checkOnly );
 	} )();
 }
 

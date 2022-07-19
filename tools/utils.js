@@ -144,12 +144,15 @@ module.exports.selectProjects = explicitProjects => {
 		allProjects.filter( p => explicitProjects.includes( p.name ) );
 };
 
+const formatPackagesBin = process.platform === 'win32' ? '.\\node_modules\\.bin\\format-package.cmd' : './node_modules/.bin/format-package';
 /**
  * @param {string[]} packages
  */
-module.exports.formatPackages = ( ...packages ) => spawn(
-	process.platform === 'win32' ? '.\\node_modules\\.bin\\format-package.cmd' : './node_modules/.bin/format-package',
-	[ '--write', ...packages.map( p => normalizePath( p ) ) ] );
+module.exports.formatPackages = ( ...packages ) => spawn( formatPackagesBin, [ '--write', ...packages.map( p => normalizePath( p ) ) ] );
+/**
+ * @param {string[]} packages
+ */
+module.exports.checkFormatPackages = ( ...packages ) => spawn( formatPackagesBin, [ '--check', ...packages.map( p => normalizePath( p ) ) ] );
 
 /**
  * @param {string[]} filesList

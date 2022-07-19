@@ -37,7 +37,7 @@
     "postprepare:husky": "run-script-os",
     "postprepare:husky:default": "[ -d ./node_modules/husky ] && husky install || true",
     "postprepare:husky:windows": "if exist './node_modules/husky' { husky install }",
-    "precommit": "npm run tools:patch -- diff && npm run lint -- --cache && npm run build && npm run test -- --onlyChanged && npm run docs",
+    "precommit": "npm run tools:sync-proto -- --check && npm run tools:patch -- diff && npm run lint -- --cache && npm run build && npm run test -- --onlyChanged && npm run docs",
     "release": "run-script-os",
     "release:default": "./tools/release.sh",
     "release:windows": "echo \"Unsupported platform for release. Run this command only from an UNIX-like environment.\"",
