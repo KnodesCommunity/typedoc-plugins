@@ -1,6 +1,4 @@
-const { resolve } = require( 'path' );
-
-const base = require( '../../jest.config.base' );
+const base = require( '../../jest.config.base' )( __dirname );
 /** @type {import('ts-jest/dist/types').InitialOptionsTsJest} */
 module.exports = {
 	...base,
@@ -13,9 +11,5 @@ module.exports = {
 			...base.projects[1],
 			setupFilesAfterEnv: [ ...base.projects[1].setupFilesAfterEnv, '@testing-library/jest-dom' ],
 		},
-	],
-	watchPathIgnorePatterns: [
-		...( base.watchPathIgnorePatterns ?? [] ),
-		resolve( __dirname, '__tests__/integration/mock-fs/.*' ),
 	],
 };
