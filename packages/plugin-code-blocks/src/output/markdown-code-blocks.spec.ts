@@ -1,6 +1,7 @@
 import { resolve } from 'path';
 
-import { DeclarationReflection, ReflectionKind } from 'typedoc';
+import { noop } from 'lodash';
+import { DeclarationReflection, ReflectionKind, RepositoryType } from 'typedoc';
 
 import { MockPlugin, createMockProjectWithPackage, mockPlugin, restoreFs, setVirtualFs, setupMockMarkdownReplacer, setupMockPageMemo } from '#plugintestbed';
 
@@ -98,6 +99,7 @@ describe( 'Behavior', () => {
 		it( 'should not alter content if region does not exists', () => {
 			readCodeSampleMock.mockReturnValue( new Map( [[ DEFAULT_BLOCK_NAME, { code: FILE_CONTENT, ...defaultBlock } ]] ) );
 			const content = '{@codeblock foo/baz.txt#nope}';
+			plugin.logger.error.mockImplementation( noop );
 			expect( markdownReplacerTestbed.runMarkdownReplace( content ) ).toEqual( content );
 		} );
 		it( 'should throw if invalid mode', () => {

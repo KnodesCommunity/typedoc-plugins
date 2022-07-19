@@ -1,6 +1,6 @@
 import { resolve } from 'path';
 
-import { isString, omit } from 'lodash';
+import { isString, noop, omit } from 'lodash';
 import { Class } from 'type-fest';
 import { Comment, DeclarationReflection, LogLevel, ProjectReflection, Reflection, ReflectionKind, SourceReference } from 'typedoc';
 
@@ -77,6 +77,7 @@ describe( 'Project', () => {
 		] );
 	} );
 	it( 'should strip empty menu', () => {
+		plugin.logger.warn.mockImplementation( noop );
 		const out = pageTreeBuilder.buildPagesTree( project, opts( [ { title: 'Foo' } ] ) );
 		expect( out.childrenNodes ).toEqual( [] );
 	} );

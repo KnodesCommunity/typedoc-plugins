@@ -9,8 +9,8 @@ export type MockPlugin<T extends ABasePlugin> = jest.MockedObjectDeep<T>
 export const mockPlugin = <T extends ABasePlugin>( props: Partial<MockPlugin<T>> = {} ): MockPlugin<T> => {
 	const mockLogger = {
 		makeChildLogger: jest.fn(),
-		error: jest.fn(),
-		warn: jest.fn(),
+		error: jest.fn().mockImplementation( v => fail( `Unexpected error log: ${typeof v === 'function' ? v() : v}` ) ),
+		warn: jest.fn().mockImplementation( v => fail( `Unexpected warn log: ${typeof v === 'function' ? v() : v}` ) ),
 		log: jest.fn(),
 		verbose: jest.fn(),
 		info: jest.fn(),
