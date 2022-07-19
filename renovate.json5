@@ -5,6 +5,9 @@
   ],
   "baseBranches": ["develop"],
   "rangeStrategy": "update-lockfile",
+  "git-submodules": {
+    "enabled": true
+  },
   "packageRules": [
     {
       "matchDepTypes": [
