@@ -12,7 +12,7 @@
 <ul class="tsd-breadcrumb">
 <li><a href="../modules.html">Knodes TypeDoc Plugins</a></li>
 <li><a href="_knodes_typedoc_plugin_pages.html">@knodes/typedoc-plugin-pages</a></li></ul>
-<h1>Module @knodes/typedoc-plugin-pages - v0.23.0</h1></div>
+<h1>Module @knodes/typedoc-plugin-pages - v0.23.1</h1></div>
 <div class="tsd-panel tsd-typography"><!-- HEADER -->
 
 <a href="#knodestypedoc-plugin-pages" id="knodestypedoc-plugin-pages" style="color: inherit; text-decoration: none;">
@@ -88,7 +88,7 @@ See <a href="https://knodescommunity.github.io/typedoc-plugins/_knodes_typedoc_p
 </a>
 <p>Here is a samble of this monorepo configuration:</p>
 <details class="code-block" open><summary>
-<p>From <a href="https://github.com/KnodesCommunity/typedoc-plugins/blob/059d5691/typedoc.js#L1-L66">./typedoc.js#1~66</a></p></summary>
+<p>From <a href="https://github.com/KnodesCommunity/typedoc-plugins/blob/05717565/typedoc.js#L1-L66">./typedoc.js#1~66</a></p></summary>
 <pre><code class="language-js"><span class="hl-4">module</span><span class="hl-0">.</span><span class="hl-4">exports</span><span class="hl-0"> = {</span><br/><span class="hl-0">    </span><span class="hl-5">// ...</span><br/><span class="hl-0">    </span><span class="hl-6">name:</span><span class="hl-0"> </span><span class="hl-1">&#39;Knodes TypeDoc Plugins&#39;</span><span class="hl-0">,</span><br/><span class="hl-0">    </span><span class="hl-6">entryPoints:</span><span class="hl-0"> [</span><br/><span class="hl-0">        </span><span class="hl-1">&#39;packages/*&#39;</span><span class="hl-0">,</span><br/><span class="hl-0">    ],</span><br/><span class="hl-0">    </span><span class="hl-6">entryPointStrategy:</span><span class="hl-0"> </span><span class="hl-1">&#39;packages&#39;</span><span class="hl-0">,</span><br/><span class="hl-0">    </span><span class="hl-6">pluginPages:</span><span class="hl-0"> {</span><br/><span class="hl-0">        </span><span class="hl-6">pages:</span><span class="hl-0"> [</span><br/><span class="hl-0">            {</span><br/><span class="hl-0">                </span><span class="hl-6">title:</span><span class="hl-0"> </span><span class="hl-1">&#39;Knodes TypeDoc Plugins&#39;</span><span class="hl-0">, </span><span class="hl-5">// The section containing the monorepo root pages</span><br/><span class="hl-0">                </span><span class="hl-6">moduleRoot:</span><span class="hl-0"> </span><span class="hl-3">true</span><span class="hl-0">,</span><br/><span class="hl-0">                </span><span class="hl-6">children:</span><span class="hl-0"> [</span><br/><span class="hl-0">                    { </span><span class="hl-6">title:</span><span class="hl-0"> </span><span class="hl-1">&#39;Changelog&#39;</span><span class="hl-0">, </span><span class="hl-6">source:</span><span class="hl-0"> </span><span class="hl-1">&#39;./CHANGELOG.md&#39;</span><span class="hl-0"> },</span><br/><span class="hl-0">                ],</span><br/><span class="hl-0">            },</span><br/><span class="hl-0">            {</span><br/><span class="hl-0">                </span><span class="hl-6">title:</span><span class="hl-0"> </span><span class="hl-1">&#39;@knodes/typedoc-plugin-pages&#39;</span><span class="hl-0">, </span><span class="hl-5">// A pages section for the package \`@knodes/typedoc-plugin-pages\`</span><br/><span class="hl-0">                </span><span class="hl-6">moduleRoot:</span><span class="hl-0"> </span><span class="hl-3">true</span><span class="hl-0">,</span><br/><span class="hl-0">                </span><span class="hl-6">source:</span><span class="hl-0"> </span><span class="hl-1">&#39;readme-extras.md&#39;</span><span class="hl-0">, </span><span class="hl-5">// This is a module root page. \`readme-extras.md\` will be appended to the module index</span><br/><span class="hl-0">                </span><span class="hl-6">children:</span><span class="hl-0"> [ </span><span class="hl-5">// Children pages</span><br/><span class="hl-0">                    { </span><span class="hl-6">title:</span><span class="hl-0"> </span><span class="hl-1">&#39;Using options&#39;</span><span class="hl-0">, </span><span class="hl-6">source:</span><span class="hl-0"> </span><span class="hl-1">&#39;options.md&#39;</span><span class="hl-0"> },</span><br/><span class="hl-0">                    { </span><span class="hl-6">title:</span><span class="hl-0"> </span><span class="hl-1">&#39;Pages tree&#39;</span><span class="hl-0">, </span><span class="hl-6">source:</span><span class="hl-0"> </span><span class="hl-1">&#39;pages-tree.md&#39;</span><span class="hl-0"> },</span><br/><span class="hl-0">                ],</span><br/><span class="hl-0">            },</span><br/><span class="hl-0">            </span><span class="hl-5">// ...</span><br/><span class="hl-0">        ],</span><br/><span class="hl-0">        </span><span class="hl-5">// ...</span><br/><span class="hl-0">    },</span><br/><span class="hl-0">    </span><span class="hl-5">// ...</span><br/><span class="hl-0">};</span>
 </code></pre>
 </details>
@@ -96,9 +96,9 @@ See <a href="https://knodescommunity.github.io/typedoc-plugins/_knodes_typedoc_p
 <p>See <a href="../_knodes_typedoc_plugin_pages/pages/options.html">Using options</a> for a detailed list of options, and <a href="../_knodes_typedoc_plugin_pages/pages/pages-tree.html">Pages tree</a> to read more about why the <a href="../interfaces/_knodes_typedoc_plugin_pages.IPluginOptions.html#pages"><code>pluginPages.pages</code> option</a> is structured like this.</p>
 </div><hr/><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/KnodesCommunity/typedoc-plugins/blob/059d5691/packages/plugin-pages/README.md#L1">packages/plugin-pages/README.md:1</a></li>
-<li>Defined in <a href="https://github.com/KnodesCommunity/typedoc-plugins/blob/059d5691/packages/plugin-pages/pages/readme-extras.md#L1">packages/plugin-pages/pages/readme-extras.md:1</a></li>
-<li>Defined in <a href="https://github.com/KnodesCommunity/typedoc-plugins/blob/059d5691/packages/plugin-pages/src/index.ts#L1">packages/plugin-pages/src/index.ts:1</a></li></ul></aside>
+<li>Defined in <a href="https://github.com/KnodesCommunity/typedoc-plugins/blob/05717565/packages/plugin-pages/README.md#L1">packages/plugin-pages/README.md:1</a></li>
+<li>Defined in <a href="https://github.com/KnodesCommunity/typedoc-plugins/blob/05717565/packages/plugin-pages/pages/readme-extras.md#L1">packages/plugin-pages/pages/readme-extras.md:1</a></li>
+<li>Defined in <a href="https://github.com/KnodesCommunity/typedoc-plugins/blob/05717565/packages/plugin-pages/src/index.ts#L1">packages/plugin-pages/src/index.ts:1</a></li></ul></aside>
 <section class="tsd-panel-group">
 <section class="tsd-panel tsd-typography"></section></section>
 <section class="tsd-panel-group tsd-index-group">
@@ -157,15 +157,15 @@ See <a href="https://knodescommunity.github.io/typedoc-plugins/_knodes_typedoc_p
 <li class="current"><a href="../modules.html">Knodes <wbr/>Type<wbr/>Doc <wbr/>Plugins</a>
 <ul>
 <li class="pages-entry pages-entry-page pages-entry-depth-1"><a href="../pages/CHANGELOG.html">Changelog</a></li>
-<li class="tsd-kind-module"><a href="_knodes_typedoc_plugin_code_blocks.html">@knodes/typedoc-<wbr/>plugin-<wbr/>code-<wbr/>blocks -<wbr/> v0.23.0</a></li>
-<li class="tsd-kind-module"><a href="_knodes_typedoc_plugin_monorepo_readmes.html">@knodes/typedoc-<wbr/>plugin-<wbr/>monorepo-<wbr/>readmes -<wbr/> v0.23.0</a></li>
-<li class="current selected tsd-kind-module"><a href="_knodes_typedoc_plugin_pages.html">@knodes/typedoc-<wbr/>plugin-<wbr/>pages -<wbr/> v0.23.0</a>
+<li class="tsd-kind-module"><a href="_knodes_typedoc_plugin_code_blocks.html">@knodes/typedoc-<wbr/>plugin-<wbr/>code-<wbr/>blocks -<wbr/> v0.23.1</a></li>
+<li class="tsd-kind-module"><a href="_knodes_typedoc_plugin_monorepo_readmes.html">@knodes/typedoc-<wbr/>plugin-<wbr/>monorepo-<wbr/>readmes -<wbr/> v0.23.1</a></li>
+<li class="current selected tsd-kind-module"><a href="_knodes_typedoc_plugin_pages.html">@knodes/typedoc-<wbr/>plugin-<wbr/>pages -<wbr/> v0.23.1</a>
 <ul>
 <li class="pages-entry pages-entry-page pages-entry-depth-1"><a href="../_knodes_typedoc_plugin_pages/pages/options.html">Using options</a></li>
 <li class="pages-entry pages-entry-page pages-entry-depth-1"><a href="../_knodes_typedoc_plugin_pages/pages/pages-tree.html">Pages tree</a></li>
 <li class="tsd-kind-namespace tsd-parent-kind-module"><a href="_knodes_typedoc_plugin_pages.ANodeReflection.html">ANode<wbr/>Reflection</a></li></ul></li>
-<li class="tsd-kind-module"><a href="_knodes_typedoc_plugintestbed.html">@knodes/typedoc-<wbr/>plugintestbed -<wbr/> v0.23.0</a></li>
-<li class="tsd-kind-module"><a href="_knodes_typedoc_pluginutils.html">@knodes/typedoc-<wbr/>pluginutils -<wbr/> v0.23.0</a>
+<li class="tsd-kind-module"><a href="_knodes_typedoc_plugintestbed.html">@knodes/typedoc-<wbr/>plugintestbed -<wbr/> v0.23.1</a></li>
+<li class="tsd-kind-module"><a href="_knodes_typedoc_pluginutils.html">@knodes/typedoc-<wbr/>pluginutils -<wbr/> v0.23.1</a>
 <ul>
 <li class="tsd-kind-namespace tsd-parent-kind-module"><a href="_knodes_typedoc_pluginutils.MarkdownReplacer.html">Markdown<wbr/>Replacer</a></li>
 <li class="tsd-kind-namespace tsd-parent-kind-module"><a href="_knodes_typedoc_pluginutils.NamedPath.html">Named<wbr/>Path</a></li>
