@@ -9,7 +9,7 @@ import { Application, Context, Converter, LogLevel, SourceReference, normalizePa
 
 import { EventsExtra } from './events-extra';
 import { PluginLogger } from './plugin-logger';
-import { miscUtils } from './utils';
+import * as miscUtils from './utils/misc';
 
 type RequiredPackageJson = SetRequired<PackageJson, 'name' | 'version'>
 export abstract class ABasePlugin {

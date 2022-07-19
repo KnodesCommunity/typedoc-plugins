@@ -1,6 +1,7 @@
 import { isNumber } from 'lodash';
-import { ProjectReflection, Reflection } from 'typedoc';
+import { ProjectReflection, Reflection, SourceReference } from 'typedoc';
 
+import { PluginAccessor, getApplication, getPlugin } from '../base-plugin';
 import { getCoordinates } from './text';
 
 export const getReflectionSourceFileName = ( reflection?: Reflection ) => {
@@ -36,4 +37,17 @@ export const getSourceLocationBestClue = ( reflection?: Reflection, position?: n
 	} else {
 		return getReflectionSourceFileName( reflection ) ?? 'UNKNOWN SOURCE';
 	}
+};
+
+export const createSourceReference = ( pluginAccessor: PluginAccessor, absoluteFilename: string, line?: number, character?: number ) => {
+	const source = new SourceReference( absoluteFilename, line ?? 1, character ?? 1 );
+	source.fileName = getPlugin( pluginAccessor ).relativeToRoot( absoluteFilename );
+	const repo = ( getApplication( pluginAccessor ).converter.getComponent( 'source' ) as any )?.getRepository( source.fullFileName );
+	source.url = repo?.getURL( source.fullFileName );
+	if ( source.url && repo ) {
+		source.url += `#${repo.getLineNumberAnchor(
+			source.line,
+		)}`;
+	}
+	return source;
 };
