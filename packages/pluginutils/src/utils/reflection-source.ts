@@ -1,5 +1,5 @@
 import { isNumber } from 'lodash';
-import { ProjectReflection, Reflection, SourceReference } from 'typedoc';
+import { ProjectReflection, Reflection, SourceReference, normalizePath } from 'typedoc';
 
 import { PluginAccessor, getApplication, getPlugin } from '../base-plugin';
 import { getCoordinates } from './text';
@@ -40,7 +40,7 @@ export const getSourceLocationBestClue = ( reflection?: Reflection, position?: n
 };
 
 export const createSourceReference = ( pluginAccessor: PluginAccessor, absoluteFilename: string, line?: number, character?: number ) => {
-	const source = new SourceReference( absoluteFilename, line ?? 1, character ?? 1 );
+	const source = new SourceReference( normalizePath( absoluteFilename ), line ?? 1, character ?? 1 );
 	source.fileName = getPlugin( pluginAccessor ).relativeToRoot( absoluteFilename );
 	const repo = ( getApplication( pluginAccessor ).converter.getComponent( 'source' ) as any )?.getRepository( source.fullFileName );
 	source.url = repo?.getURL( source.fullFileName );

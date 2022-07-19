@@ -4,7 +4,7 @@ import { writeFileSync } from 'fs';
 import { tmpdir } from 'os';
 import { join } from 'path';
 
-import { Application, Context, Converter, DeclarationReflection, ProjectReflection } from 'typedoc';
+import { Application, Context, Converter, DeclarationReflection, ProjectReflection, normalizePath } from 'typedoc';
 
 import { ApplicationAccessor, getApplication } from './base-plugin';
 import { miscUtils } from './utils';
@@ -57,8 +57,9 @@ export class MarkdownToSummary {
 
 		const converter = this._application.converter as any;
 		// const converter: InstanceType<( typeof import( '../../../typedoc/src/lib/converter/converter' ).Converter )> = this._application.converter as any;
-		const sourceFile = this._context.programs[0].getSourceFiles().find( src => src.fileName.startsWith( miscUtils.rootDir( this._application ) ) );
-		assert( sourceFile );
+		const rootDir = normalizePath( miscUtils.rootDir( this._application ) );
+		const sourceFile = this._context.programs[0].getSourceFiles().find( src => normalizePath( src.fileName ).startsWith( rootDir ) );
+		assert( sourceFile, `Failed to lookup for a file in root dir ${rootDir}` );
 		// eslint-disable-next-line @typescript-eslint/dot-notation -- Access private
 		const ret: Context = converter['convertExports']( fakeContext as any, { program: fakeContext.program, displayName: 'TEMP', sourceFile, readmeFile }, false );
 		assert( ret.scope instanceof DeclarationReflection );

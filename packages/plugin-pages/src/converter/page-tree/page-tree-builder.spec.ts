@@ -2,7 +2,7 @@ import { resolve } from 'path';
 
 import { isString, noop, omit } from 'lodash';
 import { Class } from 'type-fest';
-import { Comment, DeclarationReflection, LogLevel, ProjectReflection, Reflection, ReflectionKind, SourceReference } from 'typedoc';
+import { Comment, DeclarationReflection, LogLevel, ProjectReflection, Reflection, ReflectionKind, SourceReference, normalizePath } from 'typedoc';
 
 import { MarkdownToSummary } from '@knodes/typedoc-pluginutils';
 
@@ -49,7 +49,7 @@ const matchReflection = <T extends Reflection>( proto: Class<T>, sample: Partial
 	expect( v ).toBeInstanceOf( proto );
 	const s = sample as any;
 	if( 'sourceFilePath' in s && isString( s.sourceFilePath ) ){
-		s.sourceFilePath = resolve( s.sourceFilePath );
+		s.sourceFilePath = normalizePath( resolve( s.sourceFilePath ) );
 	}
 	const cloneValue = Object.keys( omit( sample, 'childrenNodes' ) ).reduce( ( acc, k ) => ( { ...acc, [k]: v[k] } ), {} );
 	expect( cloneValue ).toMatchObject( omit( sample, 'childrenNodes' ) );
