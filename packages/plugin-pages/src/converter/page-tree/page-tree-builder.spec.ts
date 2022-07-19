@@ -2,9 +2,7 @@ import { resolve } from 'path';
 
 import { isString, noop, omit } from 'lodash';
 import { Class } from 'type-fest';
-import { Comment, DeclarationReflection, LogLevel, ProjectReflection, Reflection, ReflectionKind, SourceReference, normalizePath } from 'typedoc';
-
-import { MarkdownToSummary } from '@knodes/typedoc-pluginutils';
+import { DeclarationReflection, LogLevel, ProjectReflection, Reflection, ReflectionKind, SourceReference, normalizePath } from 'typedoc';
 
 import { MockPlugin, createMockProjectWithPackage, mockPlugin, restoreFs, setVirtualFs } from '#plugintestbed';
 
@@ -26,11 +24,7 @@ const opts = ( pages: IRootPageNode[] ) => ( {
 	source: '',
 } as IPluginOptions );
 beforeEach( () => {
-	plugin = mockPlugin<PagesPlugin>( {
-		markdownToSummary: {
-			processFromString: jest.fn().mockImplementation( v => new Comment( [ { kind: 'text', text: v } ] ) ),
-		} as jest.MockedObject<MarkdownToSummary>,
-	} );
+	plugin = mockPlugin<PagesPlugin>();
 	pageTreeBuilder = new PageTreeBuilder( plugin );
 	project = createMockProjectWithPackage();
 } );

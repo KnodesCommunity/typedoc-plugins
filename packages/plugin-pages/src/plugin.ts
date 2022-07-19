@@ -1,6 +1,6 @@
 import { Application, Context, Converter, Reflection, RendererEvent } from 'typedoc';
 
-import { ABasePlugin, EventsExtra, MarkdownToSummary, ReflectionCommentReplacer } from '@knodes/typedoc-pluginutils';
+import { ABasePlugin, EventsExtra, ReflectionCommentReplacer } from '@knodes/typedoc-pluginutils';
 
 import { PageTreeBuilder } from './converter/page-tree';
 import { ANodeReflection } from './models/reflections';
@@ -8,7 +8,6 @@ import { buildOptions } from './options';
 import { IPagesPluginThemeMethods, bindReplaceMarkdown, getPagesPluginThemeMethods } from './output';
 
 export class PagesPlugin extends ABasePlugin {
-	public readonly markdownToSummary = MarkdownToSummary.for( this.application );
 	public readonly pluginOptions = buildOptions( this );
 	private readonly _reflectionCommentReplacer = new ReflectionCommentReplacer( this );
 	private _themeMethods?: IPagesPluginThemeMethods;

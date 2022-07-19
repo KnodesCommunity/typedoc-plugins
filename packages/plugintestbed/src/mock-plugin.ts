@@ -29,6 +29,7 @@ export const mockPlugin = <T extends ABasePlugin>( props: Partial<MockPlugin<T>>
 	};
 	application.converter = new Converter( application );
 	application.renderer = new Renderer( application );
+	application.application = application;
 	const plugin = Object.create( ABasePlugin.prototype, Object.fromEntries( Object.entries( {
 		application,
 		rootDir: process.cwd(),

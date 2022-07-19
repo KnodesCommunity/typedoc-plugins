@@ -1,16 +1,15 @@
 import assert from 'assert';
 import { readFileSync } from 'fs';
 
-import { Application, DeclarationReflection, DefaultTheme, JSX, PageEvent, ProjectReflection, ReflectionKind, RendererEvent } from 'typedoc';
+import { Application, DeclarationReflection, DefaultTheme, JSX, MinimalSourceFile, PageEvent, ProjectReflection, ReflectionKind, RendererEvent } from 'typedoc';
 
-import { ABasePlugin, CurrentPageMemo, EventsExtra, MarkdownToSummary, reflectionSourceUtils } from '@knodes/typedoc-pluginutils';
+import { ABasePlugin, CurrentPageMemo, EventsExtra, reflectionSourceUtils } from '@knodes/typedoc-pluginutils';
 
 import { findReadmeFile } from './find-readme-file';
 import { buildOptions } from './options';
 import { isMonorepoReadmesPluginTheme } from './output/theme';
 
 export class MonorepoReadmePlugin extends ABasePlugin {
-	public readonly markdownToSummary = MarkdownToSummary.for( this );
 	public readonly pluginOptions = buildOptions( this );
 	private readonly _currentPageMemo = CurrentPageMemo.for( this );
 	public constructor( application: Application ){
@@ -70,7 +69,7 @@ export class MonorepoReadmePlugin extends ABasePlugin {
 				source,
 			];
 			const fakePageEvent = new PageEvent<ProjectReflection>( props.name );
-			fakeProject.readme = this.markdownToSummary.processFromString( readFileSync( absReadme, 'utf-8' ) );
+			fakeProject.readme = this.application.converter.parseRawComment( new MinimalSourceFile( readFileSync( absReadme, 'utf-8' ), absReadme ) ).summary;
 			fakePageEvent.filename = props.filename;
 			fakePageEvent.project = props.project;
 			fakePageEvent.url = props.url;

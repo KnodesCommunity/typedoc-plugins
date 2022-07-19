@@ -1,6 +1,6 @@
 import assert from 'assert';
 
-import { Comment, DeclarationReflection, ProjectReflection, Reflection, normalizePath } from 'typedoc';
+import { DeclarationReflection, MinimalSourceFile, ProjectReflection, Reflection, normalizePath } from 'typedoc';
 
 import { IPluginComponent, getWorkspaces, miscUtils, resolveNamedPath } from '@knodes/typedoc-pluginutils';
 
@@ -164,7 +164,7 @@ export class PageTreeBuilder implements IPluginComponent<PagesPlugin> {
 					nodePath,
 					normalizePath( join( io.output, getNodeUrl( node ) ) ) ),
 				`Could not generate a page reflection for ${getNodePath( node, actualParent )}` );
-			page.comment = new Comment(  this.plugin.markdownToSummary.processFromString ( page.content ) ??  [] );
+			page.comment = this.plugin.application.converter.parseRawComment( new MinimalSourceFile( page.content, page.sourceFilePath ) );
 			return page;
 		}
 		return new MenuReflection(

@@ -2,7 +2,6 @@ export * from './autoload';
 export * from './base-plugin';
 export * from './current-page-memo';
 export * from './events-extra';
-export * from './markdown-to-summary';
 export * from './options';
 export * from './plugin-logger';
 export * from './reflection-accessor';
