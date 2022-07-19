@@ -6,7 +6,7 @@ const { resolve, dirname, relative } = require( 'path' );
 const { red, bold, green } = require( 'chalk' );
 const { memoize } = require( 'lodash' );
 
-const { spawn, globAsync, createStash, commonPath, selectProjects, captureStream } = require( './utils' );
+const { spawn, globAsync, createStash, commonPath, selectProjects, captureStream, getStagedFiles } = require( './utils' );
 
 const getPatchName = f => `${f}.patch`;
 const assertWritable = memoize( async filePath => {
@@ -87,8 +87,8 @@ const generatePattern = () => {
 				await createStash( 'typedoc-patcher: diff' );
 			}
 			const generatedFiles = await globAsync( pattern, { ignore: [ '**/dist/**', '**/node_modules/**', getPatchName( generatedPattern ) ] } );
-			const stagedPatchesOutput = captureStream();
-			await spawn( 'git', [ 'diff', '--name-only', '--cached', '--', ...generatedFiles.map( f => getPatchName( f ) ) ], { stdio: [ null, stagedPatchesOutput, null ] } );
+			const stagedFiles = ( await getStagedFiles( ...generatedFiles.map( f => getPatchName( f ) ) ) )
+				.filter( staged => generatedFiles.some( f => getPatchName( f ) === staged ) );
 			console.log( `Generating patches on ${generatedFiles}` );
 			const filesWithSource = await Promise.all( generatedFiles.map( async file => ( { file, source: await getSourceFromGenerated( file ) } ) ) );
 			await formatFiles( filesWithSource.map( ( { source } ) => source ) );
@@ -107,8 +107,6 @@ const generatePattern = () => {
 			} finally {
 				await restoreSourceFiles( filesWithSource.map( ( { source } ) => source ) );
 			}
-			const stagedFiles = stagedPatchesOutput.read().split( /\r?\n/ )
-				.filter( staged => generatedFiles.some( f => getPatchName( f ) === staged ) );
 			if( stagedFiles.length > 0 ){
 				await spawn( 'git', [ 'add', ...stagedFiles ] );
 			}
