@@ -1,4 +1,4 @@
 {
     "name": "@example/package-a",
-    "typedocMain": "./index.ts"
+    "typedoc": {"entryPoint": "./index.ts"}
 }
