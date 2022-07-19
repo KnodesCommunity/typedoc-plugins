@@ -5,7 +5,7 @@ import { join } from 'path';
 import { isString } from 'lodash';
 import { DeclarationReflection, DefaultTheme, IndexEvent, JSX, PageEvent, ProjectReflection, Reflection, ReflectionKind, RendererEvent, UrlMapping } from 'typedoc';
 
-import { CurrentPageMemo, IPluginComponent, getReflectionModule } from '@knodes/typedoc-pluginutils';
+import { CurrentPageMemo, IPluginComponent, getReflectionModule, reflectionSourceUtils } from '@knodes/typedoc-pluginutils';
 
 import { ANodeReflection, PageReflection, PagesPluginReflectionKind } from '../../models/reflections';
 import type { PagesPlugin } from '../../plugin';
@@ -184,6 +184,10 @@ export class DefaultPagesRenderer implements IPagesPluginThemeMethods, IPluginCo
 		} else if( pageEvent.model instanceof ProjectReflection || ( pageEvent.model instanceof Reflection && pageEvent.model.kindOf( ReflectionKind.Module ) ) ){
 			const modulePage = this._modulesPages.find( p => p.module === pageEvent.model );
 			if( modulePage instanceof PageReflection ){
+				pageEvent.model.sources = [
+					reflectionSourceUtils.createSourceReference( this, modulePage.sourceFilePath ),
+					...( pageEvent.model.sources ?? [] ),
+				];
 				const prevTemplate = pageEvent.template;
 				const fakeIndexPage: ProjectReflection = Object.assign(
 					new ProjectReflection( modulePage.name ),
