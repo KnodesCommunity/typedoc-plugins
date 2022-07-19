@@ -1,15 +1,18 @@
 import assert from 'assert';
 import { readFileSync } from 'fs';
 
-import { Application, DeclarationReflection, DefaultTheme, JSX, LogLevel, PageEvent, ProjectReflection, ReflectionKind, RendererEvent, SourceFile, UrlMapping } from 'typedoc';
+import { Application, DeclarationReflection, DefaultTheme, JSX, PageEvent, ProjectReflection, ReflectionKind, RendererEvent, SourceReference } from 'typedoc';
 
-import { ABasePlugin, EventsExtra } from '@knodes/typedoc-pluginutils';
+import { ABasePlugin, CurrentPageMemo, EventsExtra, MarkdownToSummary } from '@knodes/typedoc-pluginutils';
 
 import { findReadmeFile } from './find-readme-file';
 import { buildOptions } from './options';
+import { isMonorepoReadmesPluginTheme } from './output/theme';
 
 export class MonorepoReadmePlugin extends ABasePlugin {
+	public readonly markdownToSummary = MarkdownToSummary.for( this );
 	public readonly pluginOptions = buildOptions( this );
+	private readonly _currentPageMemo = CurrentPageMemo.for( this );
 	public constructor( application: Application ){
 		super( application, __filename );
 	}
@@ -20,17 +23,25 @@ export class MonorepoReadmePlugin extends ABasePlugin {
 	 * @see {@link import('@knodes/typedoc-pluginutils').autoload}.
 	 */
 	public initialize(): void {
-		this.application.renderer.on( RendererEvent.BEGIN, ( event: RendererEvent ) => {
-			assert( this.application.renderer.theme );
-			assert( this.application.renderer.theme instanceof DefaultTheme );
-			const theme = this.application.renderer.theme;
-			assert( event.urls );
-			const modulesUrls = event.urls.filter( ( u ): u is UrlMapping<DeclarationReflection> => u.model instanceof DeclarationReflection && u.model.kindOf( ReflectionKind.Module ) );
-			modulesUrls.forEach( u => this._modifyModuleIndexPage( theme, u ) );
-		}, null, -1000 ); // priority is set to be ran before @knodes/typedoc-plugin-pages
+		this.application.renderer.on( RendererEvent.BEGIN, () => {
+			const { theme } = this.application.renderer;
+			assert( theme );
+			if( theme instanceof DefaultTheme && !isMonorepoReadmesPluginTheme( theme ) ){
+				this.application.renderer.on( PageEvent.BEGIN, ( pageEvent: PageEvent ) => {
+					if( pageEvent.model instanceof DeclarationReflection && pageEvent.model.kindOf( ReflectionKind.Module ) ) {
+						this._modifyModuleIndexPage( theme, pageEvent as PageEvent<DeclarationReflection> );
+					}
+				}, null, -1 ); // priority is set to be ran after @knodes/typedoc-plugin-pages
+			} else {
+				this.logger.warn( 'This plugin is loaded, but you are using a theme that explicitly handles readmes by itself. You probably don\'t need this plugin.' );
+			}
+		} );
 		EventsExtra.for( this.application )
-			.onSetOption( `${this.optionsPrefix}:logLevel`, v => {
-				this.logger.level = v as LogLevel;
+			.beforeOptionsFreeze( () => {
+				const strategy = this.application.options.getValue( 'entryPointStrategy' );
+				if( strategy !== 'packages' ){
+					this.logger.warn( `This plugin is loaded, but the entry point strategy is ${strategy}, not "packages". You probably don't need this plugin.` );
+				}
 			} );
 	}
 
@@ -38,33 +49,33 @@ export class MonorepoReadmePlugin extends ABasePlugin {
 	 * Modify the template of the module to prepend the README.
 	 *
 	 * @param theme - The theme used.
-	 * @param moduleMapping - The module URL mapping to modify
+	 * @param pageEvent - The module URL mapping to modify
 	 */
-	private _modifyModuleIndexPage( theme: DefaultTheme, moduleMapping: UrlMapping<DeclarationReflection> ){
-		const readme = findReadmeFile( this.pluginOptions.getValue().rootFiles, moduleMapping, this.pluginOptions.getValue().readme );
+	private _modifyModuleIndexPage( theme: DefaultTheme, pageEvent: PageEvent<DeclarationReflection> ){
+		const readme = findReadmeFile( this.pluginOptions.getValue().rootFiles, pageEvent, this.pluginOptions.getValue().readme );
 		if( !readme ){
 			return;
 		}
-		const { absolute: absReadme, relative: relReadme } = readme;
-		const source = { character: 1, line: 1, fileName: relReadme, file: new SourceFile( absReadme ) };
-		moduleMapping.model.sources = [
-			...( moduleMapping.model.sources ?? [] ),
+		const { absolute: absReadme } = readme;
+		const source = new SourceReference( absReadme, 1, 1 );
+		pageEvent.model.sources = [
+			...( pageEvent.model.sources ?? [] ),
 			source,
 		];
-		this.logger.info( `Setting readme of ${moduleMapping.model.name} as ${this.relativeToRoot( absReadme )}` );
-		const baseTemplate = moduleMapping.template;
-		moduleMapping.template = props => {
+		this.logger.verbose( `Setting readme of ${pageEvent.model.name} as ${this.relativeToRoot( absReadme )}` );
+		const baseTemplate = pageEvent.template;
+		pageEvent.template = props => {
 			const fakeProject = new ProjectReflection( props.name );
-			fakeProject.readme = readFileSync( absReadme, 'utf-8' );
 			fakeProject.sources = [
 				source,
 			];
 			const fakePageEvent = new PageEvent<ProjectReflection>( props.name );
+			fakeProject.readme = this.markdownToSummary.processFromString( readFileSync( absReadme, 'utf-8' ) );
 			fakePageEvent.filename = props.filename;
 			fakePageEvent.project = props.project;
 			fakePageEvent.url = props.url;
 			fakePageEvent.model = fakeProject;
-			const readmeTpl = theme.indexTemplate( fakePageEvent );
+			const readmeTpl = this._currentPageMemo.fakeWrapPage( fakePageEvent, () => theme.indexTemplate( fakePageEvent ) );
 			const base = baseTemplate( props );
 			return JSX.createElement( JSX.Fragment, null, ...[
 				readmeTpl,

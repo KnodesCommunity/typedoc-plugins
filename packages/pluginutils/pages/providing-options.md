@@ -8,31 +8,30 @@ Options can be set in the following ways:
   ```sh
   typedoc --<pluginOptionsPrefix> plugin-configuration.json
   ```
-  {@inline-codeblock typedoc.json}
-  ```json
+  {@inlineCodeblock typedoc.json ```json
   {
       // ...
       "<pluginOptionsPrefix>": "plugin-configuration.json"
   }
-  ```
+  ```}
+
 * as individual options (prefixed with `<pluginOptionsPrefix>:`)
   ```sh
-  typedoc --<pluginOptionsPrefix>:source my-source
+  typedoc --<pluginOptionsPrefix>:<optionName> <optionValue>
   ```
-  {@inline-codeblock typedoc.json}
-  ```json
+  {@inlineCodeblock typedoc.json ```json
   {
       // ...
-      "<pluginOptionsPrefix>:source": "my-source"
+      "<pluginOptionsPrefix>:<optionName>": "<optionValue>"
   }
-  ```
+  ```}
+
 * or as an object (for config file only)
-  {@inline-codeblock typedoc.json}
-  ```json
+  {@inlineCodeblock typedoc.json ```json
   {
       // ...
       "<pluginOptionsPrefix>": {
-          "source": "my-source"
+          "<optionName>": "<optionValue>"
       }
   }
-  ```
+  ```}

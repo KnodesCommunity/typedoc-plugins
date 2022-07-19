@@ -8,6 +8,7 @@ type Params<T> = T extends Fn ? Parameters<T> : unknown[];
 type Ret<T> = T extends Fn ? ReturnType<T> : unknown;
 export class EventsExtra {
 	private static readonly _apps = new WeakMap<Application, EventsExtra>();
+	private _beforeOptionsFreezeArgs: null | any[] = null;
 
 	/**
 	 * Get events extra for the given application.
@@ -64,7 +65,11 @@ export class EventsExtra {
 	 * @returns this.
 	 */
 	public beforeOptionsFreeze( cb: () => void ){
+		if( this._beforeOptionsFreezeArgs ){
+			cb();
+		}
 		this._hookInstanceBefore( this.application.options, 'freeze', ( ...args ) => {
+			this._beforeOptionsFreezeArgs = args;
 			cb();
 			return args;
 		} );

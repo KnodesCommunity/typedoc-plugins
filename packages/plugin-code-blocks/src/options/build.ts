@@ -1,3 +1,5 @@
+import assert from 'assert';
+
 import { LogLevel, ParameterType } from 'typedoc';
 
 import { OptionGroup } from '@knodes/typedoc-pluginutils';
@@ -30,4 +32,9 @@ export const buildOptions = ( plugin: CodeBlockPlugin ) => OptionGroup.factory<I
 		map: LogLevel,
 		defaultValue: plugin.application.logger.level,
 	} )
+	.add( 'excludeMarkdownTags', {
+		help: 'A list of markdown captures to omit. Includes the tag name, but without the leading `@`.',
+		type: ParameterType.Array,
+		validate: patterns => patterns?.forEach( p => assert( !p.startsWith( '@' ), `Pattern ${JSON.stringify( p )} should not start with a leading '@'` ) ),
+	}, v => v ?? [] )
 	.build();

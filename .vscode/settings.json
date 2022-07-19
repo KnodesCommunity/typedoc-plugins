@@ -1,3 +1,4 @@
 {
     "jest.jestCommandLine": "node_modules/.bin/jest",
+    "jest.autoRun": "off"
 }

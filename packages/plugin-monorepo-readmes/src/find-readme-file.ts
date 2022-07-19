@@ -4,14 +4,7 @@ import { dirname, resolve } from 'path';
 import { sync as findUpSync } from 'find-up';
 import { DeclarationReflection, UrlMapping } from 'typedoc';
 
-const getModuleReflectionSource = ( reflection: DeclarationReflection ) => {
-	for( const source of reflection.sources ?? [] ) {
-		if( source.file ){
-			return source.file?.fullFileName;
-		}
-	}
-	return undefined;
-};
+const getModuleReflectionSource = ( reflection: DeclarationReflection ) => reflection.sources?.[0]?.fullFileName;
 
 const findReadmeInDir = ( dir: string, readmeFile: string[] ) => readdirSync( dir ).find( f => readmeFile.includes( f.toLowerCase() ) );
 

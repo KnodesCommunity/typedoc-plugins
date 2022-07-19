@@ -1,5 +1,5 @@
 module.exports = {
 	entryPoints: [
-		'./src/test.ts',
+		'./src/index.ts',
 	],
 };

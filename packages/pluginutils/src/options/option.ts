@@ -18,8 +18,12 @@ export class Option<
 	T,
 	TDeclaration extends DeclarationOption = DeclarationOption,
 > {
+	public readonly name: string;
 	private readonly _mapper: MapFn<DecOptType<TDeclaration>, T>;
 	private readonly _declaration: TDeclaration;
+	public get fullName(){
+		return this.name === '__' ? this.plugin.optionsPrefix : `${this.plugin.optionsPrefix}:${this.name}`;
+	}
 	/**
 	 * Generate a type-helper factory to constraint the option to be of the given {@link T2 type}.
 	 *
@@ -37,7 +41,7 @@ export class Option<
 		declaration: TDeclaration,
 		...[ mapper ]: MapperPart<T, TDeclaration>
 	){
-		const name = declaration.name === '__' ? plugin.optionsPrefix : `${plugin.optionsPrefix}:${declaration.name}`;
+		this.name = declaration.name;
 		if( !group ){
 			if( declaration.name === '__' ){
 				assert( this.plugin.application.options.getDeclarations().filter( d => d.name.startsWith( `${plugin.optionsPrefix}:` ) ).length === 0 );
@@ -47,7 +51,7 @@ export class Option<
 		}
 		this._declaration = {
 			...( omit( declaration, 'mapper' ) as any as TDeclaration ),
-			name,
+			name: this.fullName,
 			help: `[${this.plugin.package.name}]: ${declaration.help}`,
 		};
 		this.plugin.application.options.addDeclaration( this._declaration );
@@ -61,7 +65,7 @@ export class Option<
 	 * @returns the value.
 	 */
 	public getValue(): T {
-		const rawValue = this.plugin.application.options.getValue( this._declaration.name ) as DecOptType<TDeclaration>;
+		const rawValue = this.plugin.application.options.getValue( this.fullName ) as DecOptType<TDeclaration>;
 		return this._mapper( rawValue );
 	}
 
@@ -71,6 +75,6 @@ export class Option<
 	 * @param value - The value to set.
 	 */
 	public setValue( value: DeclarationOptionToOptionType<TDeclaration> ) {
-		this.plugin.application.options.setValue( this._declaration.name, value );
+		this.plugin.application.options.setValue( this.fullName, value );
 	}
 }

@@ -1,13 +1,12 @@
 import assert from 'assert';
 
 import { isNil } from 'lodash';
+import { Application, PageEvent, Reflection } from 'typedoc';
 
-import { PageEvent, Reflection, Renderer } from 'typedoc';
-
-import { ABasePlugin } from './base-plugin';
+import { ApplicationAccessor, getApplication } from './base-plugin';
 
 export class CurrentPageMemo {
-	private static readonly _plugins = new WeakMap<ABasePlugin, CurrentPageMemo>();
+	private static readonly _applications = new WeakMap<Application, CurrentPageMemo>();
 	private _currentPage?: PageEvent<Reflection>;
 	private _initialized = false;
 	public get initialized(){
@@ -17,16 +16,17 @@ export class CurrentPageMemo {
 	/**
 	 * Get the instance for the given plugin.
 	 *
-	 * @param plugin - The plugin to get memo for,
+	 * @param applicationAccessor - The application accessor to get memo for.
 	 * @returns the plugin page memo
 	 */
-	public static for( plugin: ABasePlugin ){
-		const e = this._plugins.get( plugin ) ?? new CurrentPageMemo( plugin );
-		this._plugins.set( plugin, e );
+	public static for( applicationAccessor: ApplicationAccessor ){
+		const application = getApplication( applicationAccessor );
+		const e = this._applications.get( application ) ?? new CurrentPageMemo( application );
+		this._applications.set( application, e );
 		return e;
 	}
 
-	private constructor( protected readonly plugin: ABasePlugin ){}
+	private constructor( public readonly application: Application ){}
 
 	/**
 	 * Start watching for pages event.
@@ -36,28 +36,25 @@ export class CurrentPageMemo {
 			return;
 		}
 		this._initialized = true;
-		this.plugin.application.renderer.on( Renderer.EVENT_BEGIN_PAGE, ( e: PageEvent<Reflection> ) => this._currentPage = e );
-		this.plugin.application.renderer.on( Renderer.EVENT_END_PAGE, () => this._currentPage = undefined );
+		this.application.renderer.on( PageEvent.BEGIN, ( e: PageEvent<Reflection> ) => this._currentPage = e );
+		this.application.renderer.on( PageEvent.END, () => this._currentPage = undefined );
 	}
 
 	/**
-	 * Set the current page as being the {@link newPage} while running the {@link callback}. The current page is restored afterwards no matter what.
+	 * Set the current page as being the {@link pageOrModel} while running the {@link callback}. The current page is restored afterwards no matter what.
 	 *
-	 * @param newPage - The page to set.
+	 * @param pageOrModel - The page to set.
 	 * @param callback - The function to execute.
 	 * @returns the {@link callback} return value.
 	 */
-	public fakeWrapPage<T>( newPage: PageEvent<Reflection>, callback: () => T ): T
-	public fakeWrapPage<T>( name: string, model: Reflection, callback: () => T ): T
-	public fakeWrapPage<T>( ...args: [newPage: PageEvent<Reflection>, callback: () => T] | [name: string, model: Reflection, callback: () => T] ){
+	public fakeWrapPage<T, Model extends Reflection>( pageOrModel: PageEvent<Model> | Model, callback: () => T ): T {
 		let newPage: PageEvent<Reflection>;
-		if( args.length === 3 ){
-			newPage = new PageEvent( args[0] );
-			newPage.model = args[1];
+		if( pageOrModel instanceof PageEvent ){
+			newPage = pageOrModel as any;
 		} else {
-			newPage = args[0];
+			newPage = new PageEvent( PageEvent.BEGIN );
+			newPage.model = pageOrModel;
 		}
-		const callback = args[args.length - 1] as () => T;
 		const bck = this._currentPage;
 		this._currentPage = newPage;
 		try {

@@ -1,39 +1,33 @@
-import { isFunction, isNumber, isString } from 'lodash';
-import { ReflectionKind } from 'typedoc';
+import { statSync } from 'fs';
+import { dirname } from 'path';
 
-export const addReflectionKind = ( ns: string, name: string, value?: number ) => {
-	const fullname = `${ns}:${name}`;
-
-	value = value ??
-		( Math.max( ...Object.values( { ...ReflectionKind, All: -1 } ).filter( isNumber ) ) * 2 );
-	const kindAny = ReflectionKind as any;
-	kindAny[fullname] = value;
-	kindAny[value] = fullname;
-	return value;
-};
+import { isFunction, isString, memoize } from 'lodash';
+import { Application } from 'typedoc';
 
 export const rethrow = <T>( block: () => T, newErrorFactory: ( err: any ) => string | Error ) => {
 	try {
 		return block();
-	} catch( err ){
+	} catch( err: any ){
 		const newErr = newErrorFactory( err );
 		if( isString( newErr ) ){
-			throw new Error( newErr );
+			throw new Error( newErr, { cause: err } );
 		} else {
 			throw newErr;
 		}
 	}
 };
 
-export const wrapError = ( message: string, err: any, propagateStack = true ) => {
-	const newErr = new Error( `${message}:\n${err?.message || err}` );
-	if( propagateStack ){
-		if( err.stack ){
-			newErr.stack = `${message}\n${err.stack}`;
-		}
-	}
-	return newErr;
-};
-
 export const catchWrap = <T>( block: () => T, contextMessage: string | ( ( err: any ) => any ) ) =>
-	rethrow( block, err => isFunction( contextMessage ) ? contextMessage( err ) : wrapError( contextMessage, err ) );
+	rethrow( block, err => isFunction( contextMessage ) ? contextMessage( err ) : new Error( contextMessage, { cause: err } ) );
+
+export const rootDir = memoize( ( app: Application ) => {
+	const opts = app.options.getValue( 'options' );
+	const stat = statSync( opts );
+	if( stat.isDirectory() ){
+		return opts;
+	} else if( stat.isFile() ){
+		return dirname( opts );
+	} else {
+		throw new Error();
+	}
+} );

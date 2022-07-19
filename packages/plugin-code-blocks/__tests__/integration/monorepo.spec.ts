@@ -1,36 +1,76 @@
 import { resolve } from 'path';
 
-import { JSDOM } from 'jsdom';
+import { describeDocsFile, formatHtml, runPluginBeforeAll } from '#plugintestbed';
 
-import { checkDocsFile, formatHtml, runPluginBeforeAll } from '#plugintestbed';
+import { formatExpanded, simpleJson } from '../helpers';
 
-import { checkDef, formatExpanded } from '../helpers';
+const PKG_A = simpleJson( '"pkg"', '"a"' );
+const PKG_B = simpleJson( '"pkg"', '"b"' );
+const PKG_ROOT = simpleJson( '"pkg"', '"~~"' );
+const PKGS = { a: PKG_A, b: PKG_B };
 
 const rootDir = resolve( __dirname, '../mock-fs/monorepo' );
 process.chdir( rootDir );
-runPluginBeforeAll( rootDir, resolve( __dirname, '../../src/index' ) );
-describe( 'Code block', () => {
-	const testJson = '<pre><code class="language-json">'+
-	'<span class="hl-0">{</span><span class="hl-1">"Hello"</span><span class="hl-0">: </span><span class="hl-2">"World"</span><span class="hl-0">}</span>\n'+
-	'</code></pre>';
-	const testJsonA = testJson.replace( 'Hello', 'pkg' ).replace( 'World', 'a' );
-	const testJsonB = testJson.replace( 'Hello', 'pkg' ).replace( 'World', 'b' );
-	it( '`modules/pkg_a.html` should have correct contents', checkDocsFile( rootDir, 'modules/pkg_a.html', c => {
-		const dom = new JSDOM( c );
-		checkDef( dom, 'testInProjA', formatExpanded( './packages/a/examples/test.json', testJsonA ) );
-		checkDef( dom, 'testInProjB', formatExpanded( './packages/b/examples/test.json', testJsonB ) );
-		checkDef( dom, 'testNoPrefixImplicitInExamples', formatExpanded( './packages/a/examples/test.json', testJsonA ) );
-		checkDef( dom, 'testNoPrefixInExamples', formatExpanded( './packages/a/examples/test.json', testJsonA ) );
-		expect( c ).toMatch( /<link\s+rel="stylesheet"\s+href="([^"]*?\/)?assets\/code-blocks\.css"\s*\/>/ );
-		expect( formatHtml( c ) ).toMatchSnapshot();
+runPluginBeforeAll( rootDir, resolve( __dirname, '../../src/index' ), { options: { gitRemote: 'FAKE' }} );
+describe.each( [ 'a', 'b' ] )( 'Pkg %s', pkg => {
+	describe( `\`classes/pkg_${pkg}.TestNoPrefixExamples.html\``, describeDocsFile( rootDir, `classes/pkg_${pkg}.TestNoPrefixExamples.html`, it => {
+		it( 'should have correct content', ( content, dom ) => {
+			expect( content ).toMatch( /<link\s+rel="stylesheet"\s+href="([^"]*?\/)?assets\/code-blocks\.css"\s*\/>/ );
+
+			const codeblocks = dom.window.document.querySelectorAll( '.code-block' );
+			expect( codeblocks ).toHaveLength( 1 );
+			expect( codeblocks[0].outerHTML ).toEqual( formatExpanded( `./packages/${pkg}/examples/test.json`, PKGS[pkg as keyof typeof PKGS] ) );
+		} );
+		it( 'should have constant content', content => {
+			expect( formatHtml( content ) ).toMatchSnapshot();
+		} );
 	} ) );
-	it( '`modules/pkg_b.html` should have correct contents', checkDocsFile( rootDir, 'modules/pkg_b.html', c => {
-		const dom = new JSDOM( c );
-		checkDef( dom, 'testInProjA', formatExpanded( './packages/a/examples/test.json', testJsonA ) );
-		checkDef( dom, 'testInProjB', formatExpanded( './packages/b/examples/test.json', testJsonB ) );
-		checkDef( dom, 'testNoPrefixImplicitInExamples', formatExpanded( './packages/b/examples/test.json', testJsonB ) );
-		checkDef( dom, 'testNoPrefixInExamples', formatExpanded( './packages/b/examples/test.json', testJsonB ) );
-		expect( c ).toMatch( /<link\s+rel="stylesheet"\s+href="([^"]*?\/)?assets\/code-blocks\.css"\s*\/>/ );
-		expect( formatHtml( c ) ).toMatchSnapshot();
+	describe( `\`classes/pkg_${pkg}.TestInModuleExamples.html\``, describeDocsFile( rootDir, `classes/pkg_${pkg}.TestInModuleExamples.html`, it => {
+		it( 'should have correct content', ( content, dom ) => {
+			expect( content ).toMatch( /<link\s+rel="stylesheet"\s+href="([^"]*?\/)?assets\/code-blocks\.css"\s*\/>/ );
+
+			const codeblocks = dom.window.document.querySelectorAll( '.code-block' );
+			expect( codeblocks ).toHaveLength( 1 );
+			expect( codeblocks[0].outerHTML ).toEqual( formatExpanded( `./packages/${pkg}/examples/test.json`, PKGS[pkg as keyof typeof PKGS] ) );
+		} );
+		it( 'should have constant content', content => {
+			expect( formatHtml( content ) ).toMatchSnapshot();
+		} );
+	} ) );
+	describe( `\`classes/pkg_${pkg}.TestInProjA.html\``, describeDocsFile( rootDir, `classes/pkg_${pkg}.TestInProjA.html`, it => {
+		it( 'should have correct content', ( content, dom ) => {
+			expect( content ).toMatch( /<link\s+rel="stylesheet"\s+href="([^"]*?\/)?assets\/code-blocks\.css"\s*\/>/ );
+
+			const codeblocks = dom.window.document.querySelectorAll( '.code-block' );
+			expect( codeblocks ).toHaveLength( 1 );
+			expect( codeblocks[0].outerHTML ).toEqual( formatExpanded( './packages/a/examples/test.json', PKG_A ) );
+		} );
+		it( 'should have constant content', content => {
+			expect( formatHtml( content ) ).toMatchSnapshot();
+		} );
+	} ) );
+	describe( `\`classes/pkg_${pkg}.TestInProjB.html\``, describeDocsFile( rootDir, `classes/pkg_${pkg}.TestInProjB.html`, it => {
+		it( 'should have correct content', ( content, dom ) => {
+			expect( content ).toMatch( /<link\s+rel="stylesheet"\s+href="([^"]*?\/)?assets\/code-blocks\.css"\s*\/>/ );
+
+			const codeblocks = dom.window.document.querySelectorAll( '.code-block' );
+			expect( codeblocks ).toHaveLength( 1 );
+			expect( codeblocks[0].outerHTML ).toEqual( formatExpanded( './packages/b/examples/test.json', PKG_B ) );
+		} );
+		it( 'should have constant content', content => {
+			expect( formatHtml( content ) ).toMatchSnapshot();
+		} );
+	} ) );
+	describe( `\`classes/pkg_${pkg}.TestInProjRoot.html\``, describeDocsFile( rootDir, `classes/pkg_${pkg}.TestInProjRoot.html`, it => {
+		it( 'should have correct content', ( content, dom ) => {
+			expect( content ).toMatch( /<link\s+rel="stylesheet"\s+href="([^"]*?\/)?assets\/code-blocks\.css"\s*\/>/ );
+
+			const codeblocks = dom.window.document.querySelectorAll( '.code-block' );
+			expect( codeblocks ).toHaveLength( 1 );
+			expect( codeblocks[0].outerHTML ).toEqual( formatExpanded( './examples/test.json', PKG_ROOT ) );
+		} );
+		it( 'should have constant content', content => {
+			expect( formatHtml( content ) ).toMatchSnapshot();
+		} );
 	} ) );
 } );

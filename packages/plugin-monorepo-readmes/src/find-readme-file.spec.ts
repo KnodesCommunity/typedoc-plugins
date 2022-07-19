@@ -1,6 +1,6 @@
-import { basename, resolve } from 'path';
+import { resolve } from 'path';
 
-import { DeclarationReflection, ProjectReflection, ReflectionKind, SourceFile, UrlMapping } from 'typedoc';
+import { DeclarationReflection, ProjectReflection, ReflectionKind, SourceReference, UrlMapping } from 'typedoc';
 
 import { restoreFs, setVirtualFs  } from '#plugintestbed';
 
@@ -16,7 +16,7 @@ afterEach( restoreFs );
 const buildMapping = ( filename: string ) => {
 	const reflection = new DeclarationReflection( 'foo', ReflectionKind.Module, new ProjectReflection( 'test' ) );
 	reflection.sources = [
-		{ file: new SourceFile( resolve( rootDir, filename ) ), character: 0, fileName: basename( filename ), line: 0 },
+		new SourceReference( resolve( rootDir, filename ), 0, 0 ),
 	];
 	return new UrlMapping( 'foo', reflection, jest.fn() );
 };

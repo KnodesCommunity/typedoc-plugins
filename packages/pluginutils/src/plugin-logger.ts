@@ -96,9 +96,16 @@ export class PluginLogger extends Logger {
 		if( this._parent instanceof PluginLogger ){
 			this._parent._logThroughParent( message, level );
 		} else {
+			const loggerMethodMapper = {
+				[LogLevel.Error]: 'error',
+				[LogLevel.Warn]: 'warn',
+				[LogLevel.Info]: 'info',
+				[LogLevel.Verbose]: 'verbose',
+			} as const;
+			const parentMethod = loggerMethodMapper[level];
 			const orignalLevel = this._parent.level;
 			this._parent.level = LogLevel.Verbose;
-			this._parent.log( this._formatMessage( isString( message ) ? message : message() ), level );
+			this._parent[parentMethod]( this._formatMessage( isString( message ) ? message : message() ) );
 			this._parent.level = orignalLevel;
 		}
 	}
