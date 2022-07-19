@@ -5,6 +5,7 @@ const { normalizePath } = require( 'typedoc' );
 const { packageJson } = require( './sync-proto-modules/package-json' );
 const { readme } = require( './sync-proto-modules/readme' );
 const { syncFs } = require( './sync-proto-modules/sync-fs' );
+const { typedocSubmodule } = require( './sync-proto-modules/typedoc-submodule' );
 
 const { selectProjects, createStash } = require( './utils' );
 
@@ -33,6 +34,7 @@ if( require.main === module ){
 			syncFs,
 			packageJson,
 			readme,
+			typedocSubmodule,
 		].reduce(
 			( acc, protoHandlerFactory ) => acc.then( v => Promise.resolve( protoHandlerFactory( checkOnly ) )
 				.then( w => [ ...v, w ] ) ),

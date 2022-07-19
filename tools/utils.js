@@ -3,13 +3,13 @@ const { Writable, Stream, Readable } = require( 'stream' );
 const { promisify } = require( 'util' );
 
 const glob = require( 'glob' );
-const { once, isArray } = require( 'lodash' );
+const { once, isArray, omitBy, isNil } = require( 'lodash' );
 const { normalizePath } = require( 'typedoc' );
 
 const globAsync = promisify( glob );
 module.exports.globAsync = globAsync;
 
-const exec = cmd => new Promise( ( res, rej ) => _exec( cmd, e => e ? rej( e ) : res() ) );
+const exec = promisify( _exec );
 module.exports.exec = exec;
 
 /**
@@ -31,10 +31,14 @@ const spawn = ( cmd, args, opts = {} ) => new Promise( ( res, rej ) => {
 		stdio[1] instanceof Writable && p.stdout.pipe( stdio[1] );
 		stdio[2] instanceof Writable && p.stderr.pipe( stdio[2] );
 	}
-	p.on( 'close', code => code !== 0 ? rej( new Error( `Exit code ${code}: ${JSON.stringify( {
-		cmd: [ cmd, ...args ],
-		cwd: opts.cwd,
-	} )}` ) ) : res() );
+	p.on( 'close', code => code !== 0 ?
+		rej( new Error( `Exit code ${code}: ${JSON.stringify( {
+			cmd: [ cmd, ...args ],
+			cwd: opts.cwd,
+		} )}` ) ) : res( omitBy( {
+			stdout: stdio?.[1]?.CAPTURE === true ? stdio[1].read() : undefined,
+			stderr: stdio?.[2]?.CAPTURE === true ? stdio[2].read() : undefined,
+		}, isNil ) ) );
 } );
 module.exports.spawn = spawn;
 
@@ -53,6 +57,7 @@ const captureStream = () => {
 		stream.end();
 		return data.join( '\n' );
 	};
+	stream.CAPTURE = true;
 	return stream;
 };
 module.exports.captureStream = captureStream;
