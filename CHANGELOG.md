@@ -1,3 +1,30 @@
+# [0.23.0](https://github.com/KnodesCommunity/typedoc-plugins/compare/v0.22.7...v0.23.0) (2022-07-19)
+
+
+### Bug Fixes
+
+* **pluginutils**: use correct Typedoc log methods for colors ([c02d8a](https://github.com/KnodesCommunity/typedoc-plugins/commit/c02d8a0dad05325005257537bdb405a847e875a5))
+* **pluginutils**: avoid considering '.' files as relative paths ([c02d8a](https://github.com/KnodesCommunity/typedoc-plugins/commit/c02d8a0dad05325005257537bdb405a847e875a5))
+
+
+### Features
+
+* **plugin-pages**: add 'excludeMarkdownTags' option ([c02d8a](https://github.com/KnodesCommunity/typedoc-plugins/commit/c02d8a0dad05325005257537bdb405a847e875a5))
+* **plugin-pages**: rework how pages are mapped to modules ([c02d8a](https://github.com/KnodesCommunity/typedoc-plugins/commit/c02d8a0dad05325005257537bdb405a847e875a5))
+* **plugin-pages**: improve `pages` option validation ([c02d8a](https://github.com/KnodesCommunity/typedoc-plugins/commit/c02d8a0dad05325005257537bdb405a847e875a5))
+* **plugin-pages**: implement theme interface properly (still needs demo theme) ([c02d8a](https://github.com/KnodesCommunity/typedoc-plugins/commit/c02d8a0dad05325005257537bdb405a847e875a5))
+* **plugin-code-blocks**: add 'excludeMarkdownTags' option ([c02d8a](https://github.com/KnodesCommunity/typedoc-plugins/commit/c02d8a0dad05325005257537bdb405a847e875a5))
+* **plugin-code-blocks**: allow selecting multiple file regions in a single block ([c02d8a](https://github.com/KnodesCommunity/typedoc-plugins/commit/c02d8a0dad05325005257537bdb405a847e875a5))
+* **plugin-code-blocks**: implement theme interface properly (still needs demo theme) ([c02d8a](https://github.com/KnodesCommunity/typedoc-plugins/commit/c02d8a0dad05325005257537bdb405a847e875a5))
+* **plugin-monorepo-readmes**: implement theme interface properly (still needs demo theme) ([c02d8a](https://github.com/KnodesCommunity/typedoc-plugins/commit/c02d8a0dad05325005257537bdb405a847e875a5))
+* **plugin-code-blocks:** use repository type to infer code block link (bitbucket not implemented) ([d21a7f7](https://github.com/KnodesCommunity/typedoc-plugins/commit/d21a7f7cc53c7b382fc7e14a897b4401f513899e))
+* **plugin-monorepo-readmes:** add properly formatted link to README in  section of workspaces ([e139146](https://github.com/KnodesCommunity/typedoc-plugins/commit/e139146ba31cfe8b40d924ce605cd9fc09b521f3))
+* **plugin-pages:** add properly formatted link in  section of workspace roots ([dee3355](https://github.com/KnodesCommunity/typedoc-plugins/commit/dee33558e72a349d8bbaee2edb35e2952a1c6431))
+* **plugintestbed:** forbid warn/error logger in mock plugin by default ([0081e0d](https://github.com/KnodesCommunity/typedoc-plugins/commit/0081e0d67bf2ab50ad387d2f3352c23d753f2d9e))
+* **pluginutils:** add helper to create sources with repo URL ([d069278](https://github.com/KnodesCommunity/typedoc-plugins/commit/d069278d70398244a5bbf434b27b747c40ef5866))
+
+
+
 ## [0.22.7](https://github.com/KnodesCommunity/typedoc-plugins/compare/v0.22.6...v0.22.7) (2022-06-29)
 
 
