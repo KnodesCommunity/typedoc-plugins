@@ -42,7 +42,9 @@ git fetch
 git checkout --track origin/docs
 rsync -va --delete --exclude ".git" "${PWD_SV}/docs/" ./
 git add .
-git commit -m "docs: publish docs for v${VERSION}"
+git commit -m "docs: publish docs for v${VERSION}
+
+[ci skip]"
 cd "${PWD_SV}"
 # Print publish script
 # BRANCH="$(git rev-parse --abbrev-ref HEAD)"
