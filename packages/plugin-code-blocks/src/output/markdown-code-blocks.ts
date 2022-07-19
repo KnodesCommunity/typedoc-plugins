@@ -1,7 +1,8 @@
 import assert from 'assert';
 import { relative } from 'path';
 
-import { isString } from 'lodash';
+import { isString, uniq } from 'lodash';
+import { filter as filterGlob } from 'minimatch';
 import { DeclarationReflection, ReflectionKind, SourceReference, normalizePath } from 'typedoc';
 
 import { CurrentPageMemo, IPluginComponent, MarkdownReplacer, reflectionKindUtils, resolveNamedPath } from '@knodes/typedoc-pluginutils';
@@ -14,6 +15,13 @@ import { ICodeBlocksPluginThemeMethods } from './theme';
 // eslint-disable-next-line @typescript-eslint/no-var-requires -- Get name from package
 const { name } = require( '../../package.json' );
 
+const comments = Object.entries( {
+	'.?([cm])[tj]s?(x)': '// ...',
+} ).map( ( [ k, v ] ) => {
+	const filter = filterGlob( `**/*${k}` );
+	return { check: ( file: string ) => filter( file, 1, [ file ] ), comment: v };
+} );
+const getFirstLineIndent = ( lines?: string[] ) => ( lines?.filter( l => l.trim() )[0]?.match( /^\s*/ ) ?? [ '' ] )[0];
 const CODEBLOCK_KIND = reflectionKindUtils.addReflectionKind( name, 'CodeBlock' ) as ReflectionKind;
 const EXTRACT_CODE_BLOCKS_REGEX = /(\S+?\w+?)(?:#(.+?))?(?:\s+(\w+))?(?:\s*\|\s*(.*?))?\s*/;
 const EXTRACT_INLINE_CODE_BLOCKS_REGEX = /(\S+?)(?:\s+(\w+))?\s*(```(\w+)?.*?```)/s;
@@ -74,17 +82,21 @@ export class MarkdownCodeBlocks implements IPluginComponent<CodeBlockPlugin>{
 		}
 		const [ file, block, blockModeStr, fakedFileName ] = match.captures;
 		try {
-			const resolved = this._resolveCodeBlock( file, block );
-			this._logger.verbose( () => `Created a code block to ${this.plugin.relativeToRoot( resolved.file )} from ${sourceHint()}` );
-			const headerFileName = fakedFileName ?? this._getHeaderFileName( resolved.file, resolved.codeSample );
-			const url = this._resolveCodeSampleUrl( resolved.file, resolved.codeSample.region === DEFAULT_BLOCK_NAME ? null : resolved.codeSample );
-			const fakeReflection = new DeclarationReflection( `${file}#${resolved.codeSample.region}`, CODEBLOCK_KIND, this._currentPageMemo.currentReflection );
-			fakeReflection.sources = [ new SourceReference( resolved.file, resolved.codeSample.startLine, 1 ) ];
+			const { resolvedFile, fileSample } = this._resolveCodeBlock( file );
+			const codeSamples = this._extractBlockFromFileSample( fileSample, block );
+			this._logger.verbose( () => `Created a code block to ${this.plugin.relativeToRoot( resolvedFile )} from ${sourceHint()}` );
+			const lineRange = codeSamples.some( c => c.region === DEFAULT_BLOCK_NAME ) ?
+				null :
+				[ Math.min( ...codeSamples.map( c => c.startLine ) ), Math.max( ...codeSamples.map( c => c.endLine ) ) ] as const;
+			const headerFileName = fakedFileName ?? this._getHeaderFileName( resolvedFile, lineRange );
+			const url = this._resolveCodeSampleUrl( resolvedFile, lineRange );
+			const fakeReflection = new DeclarationReflection( `${file}#${lineRange ? `#${lineRange[0]}~${lineRange[1]}` : ''}`, CODEBLOCK_KIND, this._currentPageMemo.currentReflection );
+			fakeReflection.sources = [ new SourceReference( resolvedFile, lineRange?.[0] ?? 1, 1 ) ];
 			return this._currentPageMemo.fakeWrapPage( fakeReflection, () => this._themeMethods.renderCodeBlock( {
 				asFile: headerFileName,
-				content: resolved.codeSample.code,
+				content: this._assembleCodeSamples( codeSamples, resolvedFile ),
 				mode: this._getBlockMode( blockModeStr ),
-				sourceFile: resolved.file,
+				sourceFile: resolvedFile,
 				url,
 			} ) );
 		} catch( err ) {
@@ -94,13 +106,12 @@ export class MarkdownCodeBlocks implements IPluginComponent<CodeBlockPlugin>{
 	}
 
 	/**
-	 * Get the code sample for the given file & block.
+	 * Get the sample file for the given file
 	 *
 	 * @param file - The file to get the block from.
-	 * @param block - The optional block name.
-	 * @returns the code sample.
+	 * @returns the file sample.
 	 */
-	private _resolveCodeBlock( file: string | null, block: string | null ){
+	private _resolveCodeBlock( file: string | null ){
 		assert( isString( file ) );
 		const resolvedFile = resolveNamedPath(
 			this._currentPageMemo.currentReflection,
@@ -115,10 +126,57 @@ export class MarkdownCodeBlocks implements IPluginComponent<CodeBlockPlugin>{
 		}
 		// eslint-disable-next-line @typescript-eslint/no-non-null-assertion -- Set above
 		const fileSample = this._fileSamples.get( resolvedFile )!;
-		const defaultedBlock = block ?? DEFAULT_BLOCK_NAME;
-		const codeSample = fileSample?.get( defaultedBlock );
-		assert( codeSample, `Missing block ${defaultedBlock} in ${resolvedFile}` );
-		return { codeSample, file: resolvedFile };
+		return { fileSample, resolvedFile };
+	}
+
+	/**
+	 * Extract code samples from a file sample.
+	 *
+	 * @param fileSample - The file sample to use.
+	 * @param blockStr - The optional block name.
+	 * @returns a list of matched code samples.
+	 */
+	private _extractBlockFromFileSample( fileSample: Map<string, ICodeSample>, blockStr: string | null ){
+		const defaultedBlock = blockStr ?? DEFAULT_BLOCK_NAME;
+		const fileSampleKeys = [ ...fileSample.keys() ];
+		const parts = uniq( defaultedBlock.split( /\+/ ).flatMap( pattern => {
+			const matched = fileSampleKeys.filter( filterGlob( pattern ) );
+			if( matched.length === 0 ){
+				this._logger.warn( `Pattern "${pattern}" did not matched any code block` );
+			}
+			return matched;
+		} ) );
+		const samples = parts.map( p => {
+			const block = fileSample.get( p );
+			assert( block, `Missing block ${p}` );
+			return block;
+		} );
+		assert( samples.length > 0, `Missing block ${defaultedBlock}` );
+		return samples;
+	}
+
+	/**
+	 * Merge code sample files
+	 *
+	 * @param samples - A list of code samples to merge.
+	 * @param sourceFile - The source file name.
+	 * @returns the merged code.
+	 */
+	private _assembleCodeSamples( samples: ICodeSample[], sourceFile: string ) {
+		const comment = comments.find( c => c.check( sourceFile ) )?.comment ?? '...';
+		return samples.flatMap( ( s, i ) => {
+			const current = s.code;
+			const currentLastLineIndent = getFirstLineIndent( current.split( '\n' ).reverse() );
+			const next = samples[i + 1]?.code;
+			const nextFirstLineIndent = getFirstLineIndent( next?.split( '\n' ) );
+			const maxIndent = currentLastLineIndent.startsWith( nextFirstLineIndent ) ? currentLastLineIndent :
+				nextFirstLineIndent.startsWith( currentLastLineIndent ) ? nextFirstLineIndent :
+				( () => {
+					this._logger.warn( `Inconsistent indentation in ${sourceFile}` );
+					return nextFirstLineIndent;
+				} )();
+			return [ current, maxIndent + comment ];
+		} ).slice( 0, -1 ).join( '\n' );
 	}
 
 	/**
@@ -137,12 +195,12 @@ export class MarkdownCodeBlocks implements IPluginComponent<CodeBlockPlugin>{
 	 * Generate the code block header file name.
 	 *
 	 * @param file - The path to the code sample file.
-	 * @param codeSample - The code sample infos.
+	 * @param lineRange - The lines range.
 	 * @returns the file name to show in the header.
 	 */
-	private _getHeaderFileName( file: string, codeSample: ICodeSample ): string {
+	private _getHeaderFileName( file: string, lineRange: readonly [number, number] | null ): string {
 		const filePath = normalizePath( relative( this.plugin.rootDir, file ) );
-		const regionMarker = codeSample.region === DEFAULT_BLOCK_NAME ? '' : `#${codeSample.startLine}~${codeSample.endLine}`;
+		const regionMarker = lineRange ? `#${lineRange[0]}~${lineRange[1]}` : '';
 		return `./${filePath}${regionMarker}`;
 	}
 
@@ -150,10 +208,10 @@ export class MarkdownCodeBlocks implements IPluginComponent<CodeBlockPlugin>{
 	 * Try to get the URL to the given {@link file}, optionally ranging the {@link codeSample}.
 	 *
 	 * @param file - The file to resolve.
-	 * @param codeSample - The code sample containing the lines range to select.
+	 * @param lineRange - The lines range.
 	 * @returns the URL, or `null`.
 	 */
-	private _resolveCodeSampleUrl( file: string, codeSample: ICodeSample | null ): string | undefined {
+	private _resolveCodeSampleUrl( file: string, lineRange: readonly [number, number] | null ): string | undefined {
 		const sourceComponent = this.plugin.application.converter.getComponent( 'source' );
 		if( !sourceComponent ){
 			return undefined;
@@ -162,10 +220,10 @@ export class MarkdownCodeBlocks implements IPluginComponent<CodeBlockPlugin>{
 		if( !url ){
 			return undefined;
 		}
-		if( !codeSample ){
+		if( !lineRange ){
 			return url;
 		}
-		return `${url}#L${codeSample.startLine}-L${codeSample.endLine}`;
+		return `${url}#L${lineRange[0]}-L${lineRange[1]}`;
 	}
 }
 export const bindMarkdownCodeBlocks = ( plugin: CodeBlockPlugin, themeMethods: ICodeBlocksPluginThemeMethods ) => new MarkdownCodeBlocks( plugin, themeMethods );
