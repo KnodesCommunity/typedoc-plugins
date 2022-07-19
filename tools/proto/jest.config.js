@@ -1,4 +1,4 @@
-const base = require( '../../jest.config.base' );
+const base = require( '../../jest.config.base' )( __dirname );
 /** @type {import('ts-jest/dist/types').InitialOptionsTsJest} */
 module.exports = {
 	...base,
