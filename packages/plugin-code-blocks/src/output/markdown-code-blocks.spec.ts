@@ -18,7 +18,11 @@ import { ICodeBlocksPluginThemeMethods } from './theme';
 class FakeSource {
 	public static readonly REPO_URL = 'https://example.repo.com';
 	public static readonly getURL = jest.fn().mockReturnValue( FakeSource.REPO_URL );
-	public static readonly getRepository = jest.fn().mockReturnValue( { getURL: this.getURL } );
+	public static readonly getRepository = jest.fn().mockReturnValue( {
+		getURL: this.getURL,
+		type: RepositoryType.GitHub,
+		getLineNumberAnchor: jest.fn().mockImplementation( v => `L${v}` ),
+	} );
 	public readonly getURL = FakeSource.getURL;
 	public readonly getRepository = FakeSource.getRepository;
 }
@@ -87,9 +91,9 @@ describe( 'Behavior', () => {
 			expect( themeMethods.renderCodeBlock ).toHaveBeenCalledTimes( 1 );
 			expect( themeMethods.renderCodeBlock ).toHaveBeenCalledWith( expect.objectContaining( renderCall ) );
 			if( withGitHub ){
-				expect( FakeSource.getURL ).toHaveBeenCalledTimes( 1 );
+				expect( FakeSource.getURL ).toHaveBeenCalledTimes( 2 );
 				expect( FakeSource.getURL ).toHaveBeenCalledWith( sourceFile );
-				expect( FakeSource.getRepository ).toHaveBeenCalledTimes( 1 );
+				expect( FakeSource.getRepository ).toHaveBeenCalledTimes( 2 );
 				expect( FakeSource.getRepository ).toHaveBeenCalledWith( sourceFile );
 			}
 			expect( callOut ).toEqual( 'renderCodeBlock-0' );

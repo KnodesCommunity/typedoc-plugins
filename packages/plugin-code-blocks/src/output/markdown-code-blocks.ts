@@ -3,9 +3,9 @@ import { relative } from 'path';
 
 import { isString, uniq } from 'lodash';
 import { filter as filterGlob } from 'minimatch';
-import { DeclarationReflection, ReflectionKind, SourceReference, normalizePath } from 'typedoc';
+import { DeclarationReflection, ReflectionKind, RepositoryType, normalizePath } from 'typedoc';
 
-import { CurrentPageMemo, IPluginComponent, MarkdownReplacer, reflectionKindUtils, resolveNamedPath } from '@knodes/typedoc-pluginutils';
+import { CurrentPageMemo, IPluginComponent, MarkdownReplacer, reflectionKindUtils, reflectionSourceUtils, resolveNamedPath } from '@knodes/typedoc-pluginutils';
 
 import { DEFAULT_BLOCK_NAME, ICodeSample, readCodeSample } from '../code-sample-file';
 import type { CodeBlockPlugin } from '../plugin';
@@ -91,7 +91,7 @@ export class MarkdownCodeBlocks implements IPluginComponent<CodeBlockPlugin>{
 			const headerFileName = fakedFileName ?? this._getHeaderFileName( resolvedFile, lineRange );
 			const url = this._resolveCodeSampleUrl( resolvedFile, lineRange );
 			const fakeReflection = new DeclarationReflection( `${file}#${lineRange ? `#${lineRange[0]}~${lineRange[1]}` : ''}`, CODEBLOCK_KIND, this._currentPageMemo.currentReflection );
-			fakeReflection.sources = [ new SourceReference( resolvedFile, lineRange?.[0] ?? 1, 1 ) ];
+			fakeReflection.sources = [ reflectionSourceUtils.createSourceReference( this, resolvedFile, lineRange?.[0] ) ];
 			return this._currentPageMemo.fakeWrapPage( fakeReflection, () => this._themeMethods.renderCodeBlock( {
 				asFile: headerFileName,
 				content: this._assembleCodeSamples( codeSamples, resolvedFile ),
@@ -216,14 +216,25 @@ export class MarkdownCodeBlocks implements IPluginComponent<CodeBlockPlugin>{
 		if( !sourceComponent ){
 			return undefined;
 		}
-		const url: string | null | undefined = ( sourceComponent as any )?.getRepository( file )?.getURL( file );
+		const repository = ( sourceComponent as any )?.getRepository( file );
+		if( !repository ){
+			return;
+		}
+		const url: string | null | undefined = repository?.getURL( file );
 		if( !url ){
 			return undefined;
 		}
 		if( !lineRange ){
 			return url;
 		}
-		return `${url}#L${lineRange[0]}-L${lineRange[1]}`;
+		const anchor = ( {
+			[RepositoryType.GitHub]: `L${lineRange[0]}-L${lineRange[1]}`,
+			[RepositoryType.GitLab]: `L${lineRange[0]}-L${lineRange[1]}`,
+		} as Record<RepositoryType, string | undefined> )[repository.type as RepositoryType];
+		if( anchor ){
+			return `${url}#${anchor}`;
+		}
+		return url;
 	}
 }
 export const bindMarkdownCodeBlocks = ( plugin: CodeBlockPlugin, themeMethods: ICodeBlocksPluginThemeMethods ) => new MarkdownCodeBlocks( plugin, themeMethods );
