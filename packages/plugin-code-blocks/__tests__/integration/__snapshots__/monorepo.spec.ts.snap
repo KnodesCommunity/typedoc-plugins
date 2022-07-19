@@ -66,6 +66,11 @@ exports[`Pkg a \`classes/pkg_a.TestInModuleExamples.html\` should have constant 
 					<li><span class=\\"target\\">TestInModuleExamples</span></li>
 				</ul>
 			</section>
+			<aside class=\\"tsd-sources\\">
+				<ul>
+					<li>Defined in a/src/index.ts:37</li>
+				</ul>
+			</aside>
 			<section class=\\"tsd-panel-group tsd-index-group\\">
 				<section class=\\"tsd-panel tsd-index-panel\\">
 					<details class=\\"tsd-index-content tsd-index-accordion\\" open>
@@ -262,6 +267,11 @@ exports[`Pkg a \`classes/pkg_a.TestInProjA.html\` should have constant content 1
 					<li><span class=\\"target\\">TestInProjA</span></li>
 				</ul>
 			</section>
+			<aside class=\\"tsd-sources\\">
+				<ul>
+					<li>Defined in a/src/index.ts:7</li>
+				</ul>
+			</aside>
 			<section class=\\"tsd-panel-group tsd-index-group\\">
 				<section class=\\"tsd-panel tsd-index-panel\\">
 					<details class=\\"tsd-index-content tsd-index-accordion\\" open>
@@ -458,6 +468,11 @@ exports[`Pkg a \`classes/pkg_a.TestInProjB.html\` should have constant content 1
 					<li><span class=\\"target\\">TestInProjB</span></li>
 				</ul>
 			</section>
+			<aside class=\\"tsd-sources\\">
+				<ul>
+					<li>Defined in a/src/index.ts:14</li>
+				</ul>
+			</aside>
 			<section class=\\"tsd-panel-group tsd-index-group\\">
 				<section class=\\"tsd-panel tsd-index-panel\\">
 					<details class=\\"tsd-index-content tsd-index-accordion\\" open>
@@ -654,6 +669,11 @@ exports[`Pkg a \`classes/pkg_a.TestInProjRoot.html\` should have constant conten
 					<li><span class=\\"target\\">TestInProjRoot</span></li>
 				</ul>
 			</section>
+			<aside class=\\"tsd-sources\\">
+				<ul>
+					<li>Defined in a/src/index.ts:21</li>
+				</ul>
+			</aside>
 			<section class=\\"tsd-panel-group tsd-index-group\\">
 				<section class=\\"tsd-panel tsd-index-panel\\">
 					<details class=\\"tsd-index-content tsd-index-accordion\\" open>
@@ -850,6 +870,11 @@ exports[`Pkg a \`classes/pkg_a.TestNoPrefixExamples.html\` should have constant 
 					<li><span class=\\"target\\">TestNoPrefixExamples</span></li>
 				</ul>
 			</section>
+			<aside class=\\"tsd-sources\\">
+				<ul>
+					<li>Defined in a/src/index.ts:30</li>
+				</ul>
+			</aside>
 			<section class=\\"tsd-panel-group tsd-index-group\\">
 				<section class=\\"tsd-panel tsd-index-panel\\">
 					<details class=\\"tsd-index-content tsd-index-accordion\\" open>
@@ -1046,6 +1071,11 @@ exports[`Pkg b \`classes/pkg_b.TestInModuleExamples.html\` should have constant 
 					<li><span class=\\"target\\">TestInModuleExamples</span></li>
 				</ul>
 			</section>
+			<aside class=\\"tsd-sources\\">
+				<ul>
+					<li>Defined in b/src/index.ts:37</li>
+				</ul>
+			</aside>
 			<section class=\\"tsd-panel-group tsd-index-group\\">
 				<section class=\\"tsd-panel tsd-index-panel\\">
 					<details class=\\"tsd-index-content tsd-index-accordion\\" open>
@@ -1242,6 +1272,11 @@ exports[`Pkg b \`classes/pkg_b.TestInProjA.html\` should have constant content 1
 					<li><span class=\\"target\\">TestInProjA</span></li>
 				</ul>
 			</section>
+			<aside class=\\"tsd-sources\\">
+				<ul>
+					<li>Defined in b/src/index.ts:7</li>
+				</ul>
+			</aside>
 			<section class=\\"tsd-panel-group tsd-index-group\\">
 				<section class=\\"tsd-panel tsd-index-panel\\">
 					<details class=\\"tsd-index-content tsd-index-accordion\\" open>
@@ -1438,6 +1473,11 @@ exports[`Pkg b \`classes/pkg_b.TestInProjB.html\` should have constant content 1
 					<li><span class=\\"target\\">TestInProjB</span></li>
 				</ul>
 			</section>
+			<aside class=\\"tsd-sources\\">
+				<ul>
+					<li>Defined in b/src/index.ts:14</li>
+				</ul>
+			</aside>
 			<section class=\\"tsd-panel-group tsd-index-group\\">
 				<section class=\\"tsd-panel tsd-index-panel\\">
 					<details class=\\"tsd-index-content tsd-index-accordion\\" open>
@@ -1634,6 +1674,11 @@ exports[`Pkg b \`classes/pkg_b.TestInProjRoot.html\` should have constant conten
 					<li><span class=\\"target\\">TestInProjRoot</span></li>
 				</ul>
 			</section>
+			<aside class=\\"tsd-sources\\">
+				<ul>
+					<li>Defined in b/src/index.ts:21</li>
+				</ul>
+			</aside>
 			<section class=\\"tsd-panel-group tsd-index-group\\">
 				<section class=\\"tsd-panel tsd-index-panel\\">
 					<details class=\\"tsd-index-content tsd-index-accordion\\" open>
@@ -1830,6 +1875,11 @@ exports[`Pkg b \`classes/pkg_b.TestNoPrefixExamples.html\` should have constant 
 					<li><span class=\\"target\\">TestNoPrefixExamples</span></li>
 				</ul>
 			</section>
+			<aside class=\\"tsd-sources\\">
+				<ul>
+					<li>Defined in b/src/index.ts:30</li>
+				</ul>
+			</aside>
 			<section class=\\"tsd-panel-group tsd-index-group\\">
 				<section class=\\"tsd-panel tsd-index-panel\\">
 					<details class=\\"tsd-index-content tsd-index-accordion\\" open>

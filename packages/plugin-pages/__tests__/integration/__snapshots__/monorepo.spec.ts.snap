@@ -448,6 +448,11 @@ exports[`pkg-a \`modules/pkg_a.html\` should have constant content 1`] = `
 				<p>See <a href=\\"../variables/pkg_a.stubA.html\\">stubA</a>, <a href=\\"../variables/pkg_a.stubA.html\\">stubA</a>, stubB or <a href=\\"../variables/pkg_b.stubB.html\\">stubB</a></p>
 			</div>
 			<hr />
+			<aside class=\\"tsd-sources\\">
+				<ul>
+					<li>Defined in <a href=\\"https://github.com/KnodesCommunity/typedoc-plugins/blob/develop/packages/plugin-pages/__tests__/mock-fs/monorepo/packages/a/src/index.ts#L6\\">a/src/index.ts:6</a></li>
+				</ul>
+			</aside>
 			<section class=\\"tsd-panel-group\\">
 				<section class=\\"tsd-panel tsd-typography\\"></section>
 			</section>
@@ -895,6 +900,11 @@ exports[`pkg-b \`modules/pkg_b.html\` should have constant content 1`] = `
 				</ul>
 				<h1>Module pkg-b</h1>
 			</div>
+			<aside class=\\"tsd-sources\\">
+				<ul>
+					<li>Defined in <a href=\\"https://github.com/KnodesCommunity/typedoc-plugins/blob/develop/packages/plugin-pages/__tests__/mock-fs/monorepo/packages/b/src/index.ts#L4\\">b/src/index.ts:4</a></li>
+				</ul>
+			</aside>
 			<section class=\\"tsd-panel-group\\">
 				<section class=\\"tsd-panel tsd-typography\\"></section>
 			</section>

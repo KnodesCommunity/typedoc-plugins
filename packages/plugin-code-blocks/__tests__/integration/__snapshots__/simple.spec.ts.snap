@@ -220,6 +220,11 @@ exports[`Codeblock Block tag \`classes/BlockBlock.TestBlockExplicitProject.html\
 					<li><span class=\\"target\\">TestBlockExplicitProject</span></li>
 				</ul>
 			</section>
+			<aside class=\\"tsd-sources\\">
+				<ul>
+					<li>Defined in codeblock/block.ts:23</li>
+				</ul>
+			</aside>
 			<section class=\\"tsd-panel-group tsd-index-group\\">
 				<section class=\\"tsd-panel tsd-index-panel\\">
 					<details class=\\"tsd-index-content tsd-index-accordion\\" open>
@@ -418,6 +423,11 @@ exports[`Codeblock Block tag \`classes/BlockBlock.TestBlockRel.html\` should hav
 					<li><span class=\\"target\\">TestBlockRel</span></li>
 				</ul>
 			</section>
+			<aside class=\\"tsd-sources\\">
+				<ul>
+					<li>Defined in codeblock/block.ts:7</li>
+				</ul>
+			</aside>
 			<section class=\\"tsd-panel-group tsd-index-group\\">
 				<section class=\\"tsd-panel tsd-index-panel\\">
 					<details class=\\"tsd-index-content tsd-index-accordion\\" open>
@@ -616,6 +626,11 @@ exports[`Codeblock Block tag \`classes/BlockBlock.TestBlockRelativeModule.html\`
 					<li><span class=\\"target\\">TestBlockRelativeModule</span></li>
 				</ul>
 			</section>
+			<aside class=\\"tsd-sources\\">
+				<ul>
+					<li>Defined in codeblock/block.ts:16</li>
+				</ul>
+			</aside>
 			<section class=\\"tsd-panel-group tsd-index-group\\">
 				<section class=\\"tsd-panel tsd-index-panel\\">
 					<details class=\\"tsd-index-content tsd-index-accordion\\" open>
@@ -816,6 +831,11 @@ exports[`Codeblock Inline tag \`classes/BlocInline.TestInlineExampleProject.html
 					<li><span class=\\"target\\">TestInlineExampleProject</span></li>
 				</ul>
 			</section>
+			<aside class=\\"tsd-sources\\">
+				<ul>
+					<li>Defined in codeblock/inline.ts:32</li>
+				</ul>
+			</aside>
 			<section class=\\"tsd-panel-group tsd-index-group\\">
 				<section class=\\"tsd-panel tsd-index-panel\\">
 					<details class=\\"tsd-index-content tsd-index-accordion\\" open>
@@ -1014,6 +1034,11 @@ exports[`Codeblock Inline tag \`classes/BlocInline.TestInlineExplicitProject.htm
 					<li><span class=\\"target\\">TestInlineExplicitProject</span></li>
 				</ul>
 			</section>
+			<aside class=\\"tsd-sources\\">
+				<ul>
+					<li>Defined in codeblock/inline.ts:23</li>
+				</ul>
+			</aside>
 			<section class=\\"tsd-panel-group tsd-index-group\\">
 				<section class=\\"tsd-panel tsd-index-panel\\">
 					<details class=\\"tsd-index-content tsd-index-accordion\\" open>
@@ -1212,6 +1237,11 @@ exports[`Codeblock Inline tag \`classes/BlocInline.TestInlineRel.html\` should h
 					<li><span class=\\"target\\">TestInlineRel</span></li>
 				</ul>
 			</section>
+			<aside class=\\"tsd-sources\\">
+				<ul>
+					<li>Defined in codeblock/inline.ts:7</li>
+				</ul>
+			</aside>
 			<section class=\\"tsd-panel-group tsd-index-group\\">
 				<section class=\\"tsd-panel tsd-index-panel\\">
 					<details class=\\"tsd-index-content tsd-index-accordion\\" open>
@@ -1410,6 +1440,11 @@ exports[`Codeblock Inline tag \`classes/BlocInline.TestInlineRelativeModule.html
 					<li><span class=\\"target\\">TestInlineRelativeModule</span></li>
 				</ul>
 			</section>
+			<aside class=\\"tsd-sources\\">
+				<ul>
+					<li>Defined in codeblock/inline.ts:16</li>
+				</ul>
+			</aside>
 			<section class=\\"tsd-panel-group tsd-index-group\\">
 				<section class=\\"tsd-panel tsd-index-panel\\">
 					<details class=\\"tsd-index-content tsd-index-accordion\\" open>
@@ -1608,6 +1643,11 @@ exports[`Inline Codeblock Block tag \`classes/InlineBlock.TestInlineBlock.html\`
 					<li><span class=\\"target\\">TestInlineBlock</span></li>
 				</ul>
 			</section>
+			<aside class=\\"tsd-sources\\">
+				<ul>
+					<li>Defined in inline-codeblock/block.ts:8</li>
+				</ul>
+			</aside>
 			<section class=\\"tsd-panel-group tsd-index-group\\">
 				<section class=\\"tsd-panel tsd-index-panel\\">
 					<details class=\\"tsd-index-content tsd-index-accordion\\" open>
@@ -1808,6 +1848,11 @@ exports[`Inline Codeblock Inline tag \`classes/InlineInline.TestInlineExampleInl
 					<li><span class=\\"target\\">TestInlineExampleInline</span></li>
 				</ul>
 			</section>
+			<aside class=\\"tsd-sources\\">
+				<ul>
+					<li>Defined in inline-codeblock/inline.ts:16</li>
+				</ul>
+			</aside>
 			<section class=\\"tsd-panel-group tsd-index-group\\">
 				<section class=\\"tsd-panel tsd-index-panel\\">
 					<details class=\\"tsd-index-content tsd-index-accordion\\" open>
@@ -2006,6 +2051,11 @@ exports[`Inline Codeblock Inline tag \`classes/InlineInline.TestInlineInline.htm
 					<li><span class=\\"target\\">TestInlineInline</span></li>
 				</ul>
 			</section>
+			<aside class=\\"tsd-sources\\">
+				<ul>
+					<li>Defined in inline-codeblock/inline.ts:7</li>
+				</ul>
+			</aside>
 			<section class=\\"tsd-panel-group tsd-index-group\\">
 				<section class=\\"tsd-panel tsd-index-panel\\">
 					<details class=\\"tsd-index-content tsd-index-accordion\\" open>
