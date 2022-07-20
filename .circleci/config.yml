@@ -5,6 +5,32 @@ version: 2.1
 # See: https://circleci.com/docs/2.0/orb-intro/
 orbs:
   node: circleci/node@5.0.2
+  knodes-typedoc-orb:
+    orbs:
+      node: circleci/node@5.0.2
+    commands:
+      install:
+        parameters:
+          os:
+            type: string
+          type:
+            default: clean-install
+            type: string
+        steps:
+        - when:
+            condition: { equal: [windows, <<parameters.os>>] }
+            steps:
+            - node/install-packages:
+                override-ci-command: npm run ci:<<parameters.type>>
+                cache-path: C:\Users\circleci\AppData\Roaming\npm-cache
+                cache-version: v1-<<parameters.os>>
+        - unless:
+            condition: { equal: [windows, <<parameters.os>>] }
+            steps:
+            - node/install-packages:
+                override-ci-command: npm run ci:<<parameters.type>>
+                cache-version: v1-<<parameters.os>>
+
 
 executors:
   node:
@@ -31,18 +57,13 @@ executors:
     docker:
       - image: alpine/git
 
+
 x-params:
   test-matrix: &params-test-matrix
     parameters:
-      os: [&test-matrix-os-default linux, windows]
-      node-version: &test-matrix-node-versions ["14.19.3", "16.15.1", &test-matrix-node-versions-default "16.16.0"]
-x-steps:
-  npm-install-cache: &step-npm-install-cache
-    restore_cache:
-      keys:
-        - v1--npm--install--{{ .Branch }}--{{ checksum "package-lock.json" }}
-        - v1--npm--install--{{ .Branch }}
-        - v1--npm--install
+      os: [&test-matrix-os-default linux, macos, windows]
+      node-version: &test-matrix-node-versions ["14.19.3", "16.15.1", &test-matrix-node-versions-default "18.4.0"]
+
 
 jobs:
   checkout:
@@ -61,17 +82,16 @@ jobs:
       install-type:
         type: string
         default: clean-install
+      os:
+        type: string
     executor: node
     resource_class: small
     steps:
       - attach_workspace:
           at: .
-      - *step-npm-install-cache
-      - run: npm run ci:<< parameters.install-type >>
-      - save_cache:
-          key: v1--npm--install--{{ .Branch }}--{{ checksum "package-lock.json" }}
-          paths:
-            - ~/.npm
+      - knodes-typedoc-orb/install:
+          type: <<parameters.install-type>>
+          os: <<parameters.os>>
       - persist_to_workspace:
           root: .
           paths:
@@ -136,23 +156,22 @@ jobs:
       coverage:
         type: boolean
         default: false
-    executor: << parameters.os >>
+    executor: <<parameters.os>>
     steps:
       - node/install:
-          node-version: << parameters.node-version >>
+          node-version: <<parameters.node-version>>
       - attach_workspace:
           at: .
-      - when:
-          condition: { equal: ["linux", << parameters.os >>] }
-          steps:
-            - *step-npm-install-cache
-      - run: npm run ci:clean-install
+      - knodes-typedoc-orb/install:
+          type: clean-install
+          os: <<parameters.os>>
+      # Run tests
       - when:
           condition: &test-matrix-coverage-condition
             and:
-              - << parameters.coverage >>
-              - { equal: [<< parameters.os >>, *test-matrix-os-default ] }
-              - { equal: [<< parameters.node-version >>, *test-matrix-node-versions-default ] }
+              - <<parameters.coverage>>
+              - { equal: [<<parameters.os>>, *test-matrix-os-default ] }
+              - { equal: [<<parameters.node-version>>, *test-matrix-node-versions-default ] }
           steps:
           - run:
               command: |
@@ -166,6 +185,13 @@ jobs:
           - run:
               command: npm run ci:test
               when: always
+      # Check tooling
+      - when:
+          condition: 
+            equal: [<<parameters.node-version>>, *test-matrix-node-versions-default ]
+          steps:
+          - run: npm run precommit
+      # Finalize
       - store_artifacts:
           path: ./junit.xml
       - store_test_results:
@@ -379,10 +405,11 @@ jobs:
 workflows:
   renovate: # Workflow ran only on `renovate/*`
     when:
-      matches: { pattern: "^renovate/.+$", value: << pipeline.git.branch >> }
+      matches: { pattern: "^renovate/.+$", value: <<pipeline.git.branch>> }
     jobs:
       - checkout
       - npm-install:
+          os: linux
           requires:
             - checkout
       - clone-typedoc:
@@ -411,13 +438,14 @@ workflows:
   check: # Workflow ran on all branches except `main`, `develop` and `renovate/*`
     unless:
       or:
-      #   - equal: [ main, << pipeline.git.branch >> ]
-      #   - equal: [ develop, << pipeline.git.branch >> ]
-        - matches: { pattern: "^renovate/.+$", value: << pipeline.git.branch >> }
+      #   - equal: [ main, <<pipeline.git.branch>> ]
+      #   - equal: [ develop, <<pipeline.git.branch>> ]
+        - matches: { pattern: "^renovate/.+$", value: <<pipeline.git.branch>> }
     jobs:
       - checkout
       - npm-install:
           install-type: install
+          os: linux
           requires:
             - checkout
       - clone-typedoc:
@@ -445,8 +473,8 @@ workflows:
   # publish: # Workflow ran only on `main` & `develop`
   #   when:
   #     or:
-  #       - equal: [ main, << pipeline.git.branch >> ]
-  #       - equal: [ develop, << pipeline.git.branch >> ]
+  #       - equal: [ main, <<pipeline.git.branch>> ]
+  #       - equal: [ develop, <<pipeline.git.branch>> ]
   #   jobs:
   #     - npm-ci-install
   #     - codeclimate-before
