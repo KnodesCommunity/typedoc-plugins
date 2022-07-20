@@ -2,14 +2,12 @@
 version: 2.1
 
 x-params:
-  test-matrix:
-    parameters:
-      os: [&test-matrix-os-default linux, macos, windows]
-      node-version: &test-matrix-node-versions ["14.19.3", &test-matrix-node-versions-default "16.16.0", "18.4.0"]
-  test-matrix-2: &params-test-matrix
+  test-matrix: &params-test-matrix
     parameters: &test-matrix
-      os: [*test-matrix-os-default]
-      node-version: [*test-matrix-node-versions-default]
+      os: &test-matrix-oss [&test-matrix-os-default linux]
+      # os: &test-matrix-oss [&test-matrix-os-default linux, macos, windows]
+      node-version: &test-matrix-nodeversions [&test-matrix-nodeversion-default "16.16.0"]
+      # node-version: &test-matrix-nodeversions ["14.19.3", &test-matrix-nodeversion-default "16.16.0", "18.4.0"]
 
 # Orbs are reusable packages of CircleCI configuration that you may share across projects, enabling you to create encapsulated, parameterized commands, jobs, and executors that can be used across multiple projects.
 # See: https://circleci.com/docs/2.0/orb-intro/
@@ -49,7 +47,7 @@ orbs:
     #           and:
     #             - <<parameters.coverage>>
     #             - { equal: [<<parameters.os>>, *test-matrix-os-default ] }
-    #             - { equal: [<<parameters.node-version>>, *test-matrix-node-versions-default ] }
+    #             - { equal: [<<parameters.node-version>>, *test-matrix-nodeversion-default ] }
     #         steps:
     #         - codeclimate/with-cc-test-reporter:
     #             after_build_args: '--coverage-input-type lcov'
@@ -153,16 +151,13 @@ jobs:
           node-version: <<parameters.node-version>>
       - attach_workspace:
           at: .
-      - knodes-typedoc-orb/install:
-          type: clean-install
-          os: <<parameters.os>>
       # Run tests
       - when:
           condition: &test-matrix-coverage-condition
             and:
               - <<parameters.coverage>>
               - { equal: [<<parameters.os>>, *test-matrix-os-default ] }
-              - { equal: [<<parameters.node-version>>, *test-matrix-node-versions-default ] }
+              - { equal: [<<parameters.node-version>>, *test-matrix-nodeversion-default ] }
           steps:
           - codeclimate/with-cc-test-reporter:
               after_build_args: '--coverage-input-type lcov'
@@ -174,6 +169,25 @@ jobs:
           - run:
               command: npm run ci:test
               when: always
+      # Finalize
+      - store_artifacts:
+          path: ./junit.xml
+      - store_test_results:
+          path: ./junit.xml
+      - store_artifacts:
+          path: ./coverage
+  check-tools:
+    parameters:
+      os:
+        type: string
+      node-version:
+        type: string
+    executor: <<parameters.os>>
+    steps:
+      - node/install:
+          node-version: <<parameters.node-version>>
+      - attach_workspace:
+          at: .
       # Check tooling
       - run:
           name: Test precommit
@@ -189,13 +203,6 @@ jobs:
               modulePathIgnorePatterns: [ '<rootDir>/.*/__tests__/mock-fs/.*/' ],
             };" > jest.config.js
             npm run precommit
-      # Finalize
-      - store_artifacts:
-          path: ./junit.xml
-      - store_test_results:
-          path: ./junit.xml
-      - store_artifacts:
-          path: ./coverage
   build:
     executor: node
     resource_class: medium
@@ -413,7 +420,7 @@ workflows:
           matrix:
             parameters:
               os: [*test-matrix-os-default]
-              node-version: *test-matrix-node-versions
+              node-version: *test-matrix-nodeversions
           requires:
             - npm-install
 
@@ -428,23 +435,26 @@ workflows:
       - npm-install:
           matrix:
             parameters:
-              <<: *test-matrix
-              node-version:
+              os: *test-matrix-oss
           install-type: install
           requires:
             - checkout
 
-      # - test:
-      #     coverage: true
-      #     matrix: *params-test-matrix
-      #     requires:
-      #       - npm-install-<<matrix.os>>
-      # - build:
-      #     requires:
-      #       - npm-install-linux # !FORMAT - npm-install-<<*test-matrix-os-default>>
-      # - lint:
-      #     requires:
-      #       - npm-install-linux # !FORMAT - npm-install-<<*test-matrix-os-default>>
+      - test:
+          coverage: true
+          matrix: *params-test-matrix
+          requires:
+            - npm-install-<<matrix.os>>
+      - check-tools:
+          matrix: *params-test-matrix
+          requires:
+            - npm-install-<<matrix.os>>
+      - build:
+          requires:
+            - npm-install-linux # !FORMAT - npm-install-<<*test-matrix-os-default>>
+      - lint:
+          requires:
+            - npm-install-linux # !FORMAT - npm-install-<<*test-matrix-os-default>>
       # - test:
       #     coverage: true
       #     matrix: *params-test-matrix
