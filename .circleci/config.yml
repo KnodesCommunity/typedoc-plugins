@@ -1,6 +1,16 @@
 # This config is equivalent to both the '.circleci/extended/orb-free.yml' and the base '.circleci/config.yml'
 version: 2.1
 
+x-params:
+  test-matrix:
+    parameters:
+      os: [&test-matrix-os-default linux, macos, windows]
+      node-version: &test-matrix-node-versions ["14.19.3", &test-matrix-node-versions-default "16.16.0", "18.4.0"]
+  test-matrix-2: &params-test-matrix
+    parameters:
+      os: [*test-matrix-os-default]
+      node-version: [*test-matrix-node-versions-default]
+
 # Orbs are reusable packages of CircleCI configuration that you may share across projects, enabling you to create encapsulated, parameterized commands, jobs, and executors that can be used across multiple projects.
 # See: https://circleci.com/docs/2.0/orb-intro/
 orbs:
@@ -31,6 +41,26 @@ orbs:
             - node/install-packages:
                 override-ci-command: npm run ci:<<parameters.type>>
                 cache-version: v1-<<parameters.os>>
+    # jobs:
+    #   test:
+    #     steps:
+    #     - when:
+    #         condition: &test-matrix-coverage-condition
+    #           and:
+    #             - <<parameters.coverage>>
+    #             - { equal: [<<parameters.os>>, *test-matrix-os-default ] }
+    #             - { equal: [<<parameters.node-version>>, *test-matrix-node-versions-default ] }
+    #         steps:
+    #         - codeclimate/with-cc-test-reporter:
+    #             after_build_args: '--coverage-input-type lcov'
+    #             steps:
+    #             - run: npm run test:ci:coverage
+    #     - unless:
+    #         condition: *test-matrix-coverage-condition
+    #         steps:
+    #         - run:
+    #             command: npm run test:ci
+    #             when: always
 
 
 executors:
@@ -57,17 +87,6 @@ executors:
   git:
     docker:
       - image: alpine/git
-
-
-x-params:
-  test-matrix:
-    parameters:
-      os: [&test-matrix-os-default linux, macos, windows]
-      node-version: &test-matrix-node-versions ["14.19.3", &test-matrix-node-versions-default "16.16.0", "18.4.0"]
-  test-matrix-2: &params-test-matrix
-    parameters:
-      os: [*test-matrix-os-default]
-      node-version: [*test-matrix-node-versions-default]
 
 jobs:
   checkout:
@@ -423,6 +442,11 @@ workflows:
           matrix: *params-test-matrix
           requires:
             - npm-install
+      - test:
+          coverage: true
+          matrix: *params-test-matrix
+          requires:
+            - test-<<matrix.node-version>>-<<matrix.os>>
   # publish: # Workflow ran only on `main` & `develop`
   #   when:
   #     or:
