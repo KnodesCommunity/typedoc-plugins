@@ -80,76 +80,80 @@ const generatePattern = () => {
 
 
 ( async () => {
-	const pattern = generatePattern();
-	switch( command ){
-		case 'diff': {
-			if( stash ){
-				await createStash( 'typedoc-patcher: diff' );
-			}
-			const generatedFiles = await globAsync( pattern, { ignore: [ '**/dist/**', '**/node_modules/**', getPatchName( generatedPattern ) ] } );
-			if( generatedFiles.length === 0 ) {
-				console.log( 'No patches generated.' );
-				return;
-			}
-			console.log( `Generating patches on ${generatedFiles}` );
-			const stagedFiles = ( await getStagedFiles( ...generatedFiles.map( f => getPatchName( f ) ) ) )
-				.filter( staged => generatedFiles.some( f => getPatchName( f ) === staged ) );
-			const filesWithSource = await Promise.all( generatedFiles.map( async file => ( { file, source: await getSourceFromGenerated( file ) } ) ) );
-			await formatFiles( filesWithSource.map( ( { source } ) => source ) );
-			try {
-				await Promise.all( filesWithSource.map( async ( { file, source } ) => {
-					const sourceRel = relative( process.cwd(), source ).replace( /\\/g, '/' );
-					// eslint-disable-next-line no-bitwise -- Binary mask mode
-					const patchHandle = await open( getPatchName( file ), constants.O_WRONLY | constants.O_CREAT | constants.O_TRUNC );
-					const patchFileStream = patchHandle.createWriteStream();
-					await spawn(
-						'git', [ 'diff', '--no-renames', '--no-index', '--relative', sourceRel, file ],
-						{ stdio: [ null, patchFileStream, process.stderr ] } ).catch( () => Promise.resolve() );
-					patchFileStream.end();
-					console.log( `Generated patch from ${bold( red( sourceRel ) )} to ${bold( green( file ) )}` );
-				} ) );
-			} finally {
-				await restoreSourceFiles( filesWithSource.map( ( { source } ) => source ) );
-			}
-			if( stagedFiles.length > 0 ){
-				await spawn( 'git', [ 'add', ...stagedFiles ] );
-			}
-		} break;
-
-		case 'apply': {
-			if( stash ){
-				await createStash( 'typedoc-patcher: apply' );
-			}
-			const patchFiles = await globAsync( getPatchName( pattern ), { ignore: [ '**/dist/**', '**/node_modules/**' ] } );
-			if( patchFiles.length === 0 ) {
-				console.log( 'No patches applied.' );
-				return;
-			}
-			console.log( `Applying patches on ${patchFiles}` );
-			const patchesWithSources = await Promise.all( patchFiles.map( async patch => ( { patch, source: await getSourceFromPatch( patch ) } ) ) );
-			await formatFiles( patchesWithSources.map( ( { source } ) => source ) );
-
-			try {
-				for( const { patch, source } of patchesWithSources ){
-					const errStream = captureStream();
-					const file = patch.replace( /\.patch$/, '' );
-					try {
-						await spawn( 'git', [ 'apply', '--ignore-space-change', '--ignore-whitespace', '--whitespace=fix', patch ], { stdio: [ null, 'pipe', errStream ] }  );
-						console.log( `Applied patch from ${bold( red( relative( process.cwd(), source ) ) )} to ${bold( green( file ) )}` );
-					} catch( e ){
-						console.error( `Failed to apply patch from ${bold( red( relative( process.cwd(), source ) ) )} to ${bold( green( file ) )}: \n${e}` );
-						console.error( errStream.read().split( '\n' ).map( v => `> ${v}` ).join( '\n' ) );
-						throw e;
-					}
+	try {
+		const pattern = generatePattern();
+		switch( command ){
+			case 'diff': {
+				if( stash ){
+					await createStash( 'typedoc-patcher: diff' );
 				}
-			} finally {
-				await restoreSourceFiles( patchesWithSources.map( ( { source } ) => source ) );
+				const generatedFiles = await globAsync( pattern, { ignore: [ '**/dist/**', '**/node_modules/**', getPatchName( generatedPattern ) ] } );
+				if( generatedFiles.length === 0 ) {
+					console.log( 'No patches generated.' );
+					return;
+				}
+				console.log( `Generating patches on ${generatedFiles}` );
+				const stagedFiles = ( await getStagedFiles( ...generatedFiles.map( f => getPatchName( f ) ) ) )
+					.filter( staged => generatedFiles.some( f => getPatchName( f ) === staged ) );
+				const filesWithSource = await Promise.all( generatedFiles.map( async file => ( { file, source: await getSourceFromGenerated( file ) } ) ) );
+				await formatFiles( filesWithSource.map( ( { source } ) => source ) );
+				try {
+					await Promise.all( filesWithSource.map( async ( { file, source } ) => {
+						const sourceRel = relative( process.cwd(), source ).replace( /\\/g, '/' );
+						// eslint-disable-next-line no-bitwise -- Binary mask mode
+						const patchHandle = await open( getPatchName( file ), constants.O_WRONLY | constants.O_CREAT | constants.O_TRUNC );
+						const patchFileStream = patchHandle.createWriteStream();
+						await spawn(
+							'git', [ 'diff', '--no-renames', '--no-index', '--relative', sourceRel, file ],
+							{ stdio: [ null, patchFileStream, process.stderr ] } ).catch( () => Promise.resolve() );
+						patchFileStream.end();
+						console.log( `Generated patch from ${bold( red( sourceRel ) )} to ${bold( green( file ) )}` );
+					} ) );
+				} finally {
+					await restoreSourceFiles( filesWithSource.map( ( { source } ) => source ) );
+				}
+				if( stagedFiles.length > 0 ){
+					await spawn( 'git', [ 'add', ...stagedFiles ] );
+				}
+			} break;
+
+			case 'apply': {
+				if( stash ){
+					await createStash( 'typedoc-patcher: apply' );
+				}
+				const patchFiles = await globAsync( getPatchName( pattern ), { ignore: [ '**/dist/**', '**/node_modules/**' ] } );
+				if( patchFiles.length === 0 ) {
+					console.log( 'No patches applied.' );
+					return;
+				}
+				console.log( `Applying patches on ${patchFiles}` );
+				const patchesWithSources = await Promise.all( patchFiles.map( async patch => ( { patch, source: await getSourceFromPatch( patch ) } ) ) );
+				await formatFiles( patchesWithSources.map( ( { source } ) => source ) );
+
+				try {
+					for( const { patch, source } of patchesWithSources ){
+						const errStream = captureStream();
+						const file = patch.replace( /\.patch$/, '' );
+						try {
+							await spawn( 'git', [ 'apply', '--ignore-space-change', '--ignore-whitespace', '--whitespace=fix', patch ], { stdio: [ null, 'pipe', errStream ] }  );
+							console.log( `Applied patch from ${bold( red( relative( process.cwd(), source ) ) )} to ${bold( green( file ) )}` );
+						} catch( e ){
+							console.error( `Failed to apply patch from ${bold( red( relative( process.cwd(), source ) ) )} to ${bold( green( file ) )}: \n${e}` );
+							console.error( errStream.read().split( '\n' ).map( v => `> ${v}` ).join( '\n' ) );
+							throw e;
+						}
+					}
+				} finally {
+					await restoreSourceFiles( patchesWithSources.map( ( { source } ) => source ) );
+				}
+			} break;
+
+			default: {
+				throw new Error( `Invalid command "${command}"` );
 			}
-		} break;
-
-		default: {
-			throw new Error( `Invalid command "${command}"` );
 		}
+	} catch( e ){
+		console.error( e );
+		process.exit( 1 );
 	}
-
 } )();

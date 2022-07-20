@@ -26,33 +26,38 @@ if( require.main === module ){
 	const projects = selectProjects( explicitProjects );
 	const protoDir = normalizePath( resolve( __dirname, 'proto' ) );
 	( async () => {
-		if( stash ){
-			await createStash( `Sync packages ${projects.map( p => p.name ).join( ' ' )}` );
-		}
-		/** @type Promise<import('./sync-proto-modules/utils').ProtoHandler[]> */
-		const initialValue = Promise.resolve( [] );
-		const handlers = await [
-			syncFs,
-			packageJson,
-			readme,
-			typedocSubmodule,
-			circleCi,
-		].reduce(
-			( acc, protoHandlerFactory ) => acc.then( v => Promise.resolve( protoHandlerFactory( checkOnly ) )
-				.then( w => [ ...v, w ] ) ),
-			initialValue );
-		for( const { setup } of handlers ){
-			if( setup ){
-				await setup( protoDir, projects, handlers );
+		try {
+			if( stash ){
+				await createStash( `Sync packages ${projects.map( p => p.name ).join( ' ' )}` );
 			}
-		}
-		for( const { run } of handlers ){
-			await Promise.all( projects.map( p => run( protoDir, p, projects, handlers ) ) );
-		}
-		for( const { tearDown } of handlers ){
-			if( tearDown ){
-				await tearDown( protoDir, projects, handlers );
+			/** @type Promise<import('./sync-proto-modules/utils').ProtoHandler[]> */
+			const initialValue = Promise.resolve( [] );
+			const handlers = await [
+				syncFs,
+				packageJson,
+				readme,
+				typedocSubmodule,
+				circleCi,
+			].reduce(
+				( acc, protoHandlerFactory ) => acc.then( v => Promise.resolve( protoHandlerFactory( checkOnly ) )
+					.then( w => [ ...v, w ] ) ),
+				initialValue );
+			for( const { setup } of handlers ){
+				if( setup ){
+					await setup( protoDir, projects, handlers );
+				}
 			}
+			for( const { run } of handlers ){
+				await Promise.all( projects.map( p => run( protoDir, p, projects, handlers ) ) );
+			}
+			for( const { tearDown } of handlers ){
+				if( tearDown ){
+					await tearDown( protoDir, projects, handlers );
+				}
+			}
+		} catch( e ){
+			console.error( e );
+			process.exit( 1 );
 		}
 	} )();
 }
