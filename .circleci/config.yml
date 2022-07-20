@@ -161,6 +161,7 @@ jobs:
             } );" > STUB.js
             echo "module.exports = {
               testRegex: [ './STUB.js' ],
+              modulePathIgnorePatterns: [ '<rootDir>/.*/__tests__/mock-fs/.*/' ],
             };" > jest.config.js
             npm run precommit
       # Finalize
