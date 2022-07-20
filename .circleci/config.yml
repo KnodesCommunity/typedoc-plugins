@@ -150,8 +150,8 @@ jobs:
       - attach_workspace:
           at: .
       - run: |
-          echo $(circleci tests glob "./packages/**/*.spec.ts" | circleci tests split --split-by=timings)
-          exit 1;
+          TEST_FILES=$(circleci tests glob "./packages/**/*.spec.ts" | circleci tests split --split-by=timings)
+          echo "Will be ran on ${TEST_FILES}";
       # Run tests
       - when:
           condition: &test-matrix-coverage-condition
@@ -163,12 +163,12 @@ jobs:
           - codeclimate/with-cc-test-reporter:
               after_build_args: '--coverage-input-type lcov'
               steps:
-              - run: npm run test:ci:coverage
+              - run: npm run test:ci:coverage -- ${TEST_FILES}
       - unless:
           condition: *test-matrix-coverage-condition
           steps:
           - run:
-              command: npm run ci:test
+              command: npm run test:ci -- ${TEST_FILES}
               when: always
       # Finalize
       - store_artifacts:
@@ -193,16 +193,9 @@ jobs:
       - run:
           name: Test precommit
           command: |
-            echo "*
-            !jest.config.ci.js
-            " > ./.eslintignore
-            echo "it( 'OK', () => {
-              expect( true ).toBe(true);
-            } );" > STUB.js
-            echo "module.exports = {
-              testRegex: [ './STUB.js' ],
-              modulePathIgnorePatterns: [ '<rootDir>/.*/__tests__/mock-fs/.*/' ],
-            };" > jest.config.js
+            echo "" > ./node_modules/.bin/eslint
+            echo "" > ./node_modules/.bin/jest
+            echo "" > ./node_modules/.bin/typedoc
             npm run precommit
   build:
     executor: node

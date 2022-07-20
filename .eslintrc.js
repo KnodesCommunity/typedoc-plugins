@@ -17,7 +17,7 @@ module.exports = {
 		} ),
 	settings: {
 		jsdoc: {
-			mode: 'typescript',  
+			mode: 'typescript',
 		},
 	},
 	rules: {
