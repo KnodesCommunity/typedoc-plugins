@@ -62,7 +62,7 @@ x-params:
   test-matrix: &params-test-matrix
     parameters:
       os: [&test-matrix-os-default linux, macos, windows]
-      node-version: &test-matrix-node-versions ["14.19.3", "16.15.1", &test-matrix-node-versions-default "18.4.0"]
+      node-version: &test-matrix-node-versions ["14.19.3", &test-matrix-node-versions-default "16.16.0", "18.4.0"]
 
 
 jobs:
@@ -185,12 +185,6 @@ jobs:
           - run:
               command: npm run ci:test
               when: always
-      # Check tooling
-      - when:
-          condition: 
-            equal: [<<parameters.node-version>>, *test-matrix-node-versions-default ]
-          steps:
-          - run: npm run precommit
       # Finalize
       - store_artifacts:
           path: ./junit.xml
