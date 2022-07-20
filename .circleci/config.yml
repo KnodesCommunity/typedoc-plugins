@@ -110,9 +110,6 @@ jobs:
     steps:
       - attach_workspace:
           at: .
-      - run: |
-          echo $(circleci tests glob "**/*.spec.ts" | circleci tests split --split-by=timings)
-          exit 1;
       - knodes-typedoc-orb/install:
           type: <<parameters.install-type>>
           os: <<parameters.os>>
@@ -146,11 +143,15 @@ jobs:
         type: boolean
         default: false
     executor: <<parameters.os>>
+    parallelism: 4
     steps:
       - node/install:
           node-version: <<parameters.node-version>>
       - attach_workspace:
           at: .
+      - run: |
+          echo $(circleci tests glob "**/*.spec.ts" | circleci tests split --split-by=timings)
+          exit 1;
       # Run tests
       - when:
           condition: &test-matrix-coverage-condition
