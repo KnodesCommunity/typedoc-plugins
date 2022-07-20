@@ -150,7 +150,7 @@ jobs:
       - attach_workspace:
           at: .
       - run: |
-          $(circleci tests glob "./packages/**/*.spec.ts" | circleci tests split --split-by=timings) > TEST_FILES
+          circleci tests glob "./packages/**/*.spec.ts" | circleci tests split --split-by=timings > TEST_FILES
           echo "Will be ran on $(cat TEST_FILES)";
       # Run tests
       - when:
