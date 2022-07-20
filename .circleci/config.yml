@@ -89,29 +89,20 @@ jobs:
     steps:
       - attach_workspace:
           at: .
+      - run:
+          name: Update submodule
+          command: git submodule update --init --recursive
       - knodes-typedoc-orb/install:
           type: <<parameters.install-type>>
           os: <<parameters.os>>
       - persist_to_workspace:
           root: .
           paths:
+            - '.git'
+            - 'typedoc'
             - 'package-lock.json'
             - 'node_modules'
             - 'packages/*/node_modules'
-  clone-typedoc:
-    executor: git
-    resource_class: small
-    steps:
-      - attach_workspace:
-          at: .
-      - run:
-          name: Update submodule
-          command: git submodule update --init --recursive
-      - persist_to_workspace:
-          root: .
-          paths:
-            - '.git'
-            - 'typedoc'
   codeclimate-before:
     executor: node
     resource_class: small
@@ -420,29 +411,21 @@ workflows:
           os: linux
           requires:
             - checkout
-      - clone-typedoc:
-          requires:
-            - checkout
 
       - build:
           requires:
             - npm-install
-            - clone-typedoc
       - lint:
           requires:
-            - build
+            - npm-install
       - test:
-          matrix: 
+          matrix:
             parameters:
               os: [*test-matrix-os-default]
               node-version: *test-matrix-node-versions
           requires:
-            - build
+            - npm-install
 
-      # - git-merge-develop:
-      #     requires:
-      #       - test
-      #       - build
   check: # Workflow ran on all branches except `main`, `develop` and `renovate/*`
     unless:
       or:
@@ -456,26 +439,24 @@ workflows:
           os: linux
           requires:
             - checkout
-      - clone-typedoc:
-          requires:
-            - checkout
       - codeclimate-before
 
       - build:
           requires:
             - npm-install
-            - clone-typedoc
       - lint:
           requires:
-            - build
+            - npm-install
       - test:
           coverage: true
           matrix: *params-test-matrix
           requires:
-            - build
+            - npm-install
             - codeclimate-before
+
       - codeclimate-after:
           requires:
+            - build
             - lint
             - test
   # publish: # Workflow ran only on `main` & `develop`
