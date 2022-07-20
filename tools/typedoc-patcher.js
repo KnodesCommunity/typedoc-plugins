@@ -87,9 +87,13 @@ const generatePattern = () => {
 				await createStash( 'typedoc-patcher: diff' );
 			}
 			const generatedFiles = await globAsync( pattern, { ignore: [ '**/dist/**', '**/node_modules/**', getPatchName( generatedPattern ) ] } );
+			if( generatedFiles.length === 0 ) {
+				console.log( 'No patches generated.' );
+				return;
+			}
+			console.log( `Generating patches on ${generatedFiles}` );
 			const stagedFiles = ( await getStagedFiles( ...generatedFiles.map( f => getPatchName( f ) ) ) )
 				.filter( staged => generatedFiles.some( f => getPatchName( f ) === staged ) );
-			console.log( `Generating patches on ${generatedFiles}` );
 			const filesWithSource = await Promise.all( generatedFiles.map( async file => ( { file, source: await getSourceFromGenerated( file ) } ) ) );
 			await formatFiles( filesWithSource.map( ( { source } ) => source ) );
 			try {
@@ -117,7 +121,11 @@ const generatePattern = () => {
 				await createStash( 'typedoc-patcher: apply' );
 			}
 			const patchFiles = await globAsync( getPatchName( pattern ), { ignore: [ '**/dist/**', '**/node_modules/**' ] } );
-			console.log( `Applying patches from ${patchFiles}` );
+			if( patchFiles.length === 0 ) {
+				console.log( 'No patches applied.' );
+				return;
+			}
+			console.log( `Applying patches on ${patchFiles}` );
 			const patchesWithSources = await Promise.all( patchFiles.map( async patch => ( { patch, source: await getSourceFromPatch( patch ) } ) ) );
 			await formatFiles( patchesWithSources.map( ( { source } ) => source ) );
 
