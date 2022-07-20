@@ -66,7 +66,7 @@ orbs:
               paths:
                 - codeclimate.*.json
           - store_artifacts:
-              path: ./coverage/*-summary.json
+              path: coverage/<<parameters.buildId>>-summary.json
 
 
 
@@ -479,32 +479,38 @@ workflows:
           requires:
             - checkout
 
-      - test-sources:
-          coverage: true
-          matrix: *params-test-matrix
-          requires:
-            - npm-install-<<matrix.os>>
-      - test-tools:
-          matrix: *params-test-matrix
-          coverage: true
-          requires:
-            - npm-install-<<matrix.os>>
-      - codeclimate-upload:
-          requires:
-            - test-sources-16.16.0-linux # !FORMAT - test-sources-<<*test-matrix-nodeversion-default>>-<<*test-matrix-os-default>>
-            - test-tools-16.16.0-linux # !FORMAT - test-tools-<<*test-matrix-nodeversion-default>>-<<*test-matrix-os-default>>
-
       - build:
           requires:
             - npm-install-linux # !FORMAT - npm-install-<<*test-matrix-os-default>>
       - lint:
           requires:
             - npm-install-linux # !FORMAT - npm-install-<<*test-matrix-os-default>>
-      # - test:
-      #     coverage: true
-      #     matrix: *params-test-matrix
-      #     requires:
-      #       - test-<<matrix.node-version>>-<<matrix.os>>
+
+      - test-sources:
+          coverage: true
+          matrix: *params-test-matrix
+          requires:
+            - npm-install-<<matrix.os>>
+      - test-tools:
+          matrix:
+            <<: *params-test-matrix
+            exclude:
+              - os: *test-matrix-os-default
+                node-version: *test-matrix-nodeversion-default
+          requires:
+            - npm-install-<<matrix.os>>
+      - test-tools:
+          name: test-tools-16.16.0-linux # !FORMAT name: test-tools-<<*test-matrix-nodeversion-default>>-<<*test-matrix-os-default>>
+          os: *test-matrix-os-default
+          node-version: *test-matrix-nodeversion-default
+          coverage: true
+          requires:
+            - build
+            
+      - codeclimate-upload:
+          requires:
+            - test-sources-16.16.0-linux # !FORMAT - test-sources-<<*test-matrix-nodeversion-default>>-<<*test-matrix-os-default>>
+            - test-tools-16.16.0-linux # !FORMAT - test-tools-<<*test-matrix-nodeversion-default>>-<<*test-matrix-os-default>>
   # publish: # Workflow ran only on `main` & `develop`
   #   when:
   #     or:
