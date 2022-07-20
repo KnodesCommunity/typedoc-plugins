@@ -150,8 +150,8 @@ jobs:
       - attach_workspace:
           at: .
       - run: |
-          TEST_FILES=$(circleci tests glob "./packages/**/*.spec.ts" | circleci tests split --split-by=timings)
-          echo "Will be ran on ${TEST_FILES}";
+          $(circleci tests glob "./packages/**/*.spec.ts" | circleci tests split --split-by=timings) > TEST_FILES
+          echo "Will be ran on ${cat TEST_FILES}";
       # Run tests
       - when:
           condition: &test-matrix-coverage-condition
@@ -163,12 +163,12 @@ jobs:
           - codeclimate/with-cc-test-reporter:
               after_build_args: '--coverage-input-type lcov'
               steps:
-              - run: npm run test:ci:coverage -- ${TEST_FILES}
+              - run: npm run test:ci:coverage -- ${cat TEST_FILES}
       - unless:
           condition: *test-matrix-coverage-condition
           steps:
           - run:
-              command: npm run test:ci -- ${TEST_FILES}
+              command: npm run test:ci -- ${cat TEST_FILES}
               when: always
       # Finalize
       - store_artifacts:
@@ -196,6 +196,7 @@ jobs:
             echo "" > ./node_modules/.bin/eslint
             echo "" > ./node_modules/.bin/jest
             echo "" > ./node_modules/.bin/typedoc
+            echo "" > ./node_modules/.bin/tsc
             npm run precommit
   build:
     executor: node
