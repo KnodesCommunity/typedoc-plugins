@@ -185,6 +185,20 @@ jobs:
           - run:
               command: npm run ci:test
               when: always
+      # Check tooling
+      - run:
+          name: Test precommit
+          command: |
+            echo "
+            STUB.js
+            jest.config.js" >> ./eslintignore
+            echo "it( 'OK', () => {
+              expect( true ).toBe(true);
+            } );" > STUB.js
+            echo "module.exports = {
+              testRegex: [ './STUB.js' ],
+            };" > jest.config.js
+            npm run precommit
       # Finalize
       - store_artifacts:
           path: ./junit.xml
