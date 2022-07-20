@@ -172,7 +172,7 @@ jobs:
           command: |
             echo "
             STUB.js
-            jest.config.js" >> ./eslintignore
+            jest.config.js" >> ./.eslintignore
             echo "it( 'OK', () => {
               expect( true ).toBe(true);
             } );" > STUB.js
