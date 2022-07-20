@@ -89,12 +89,14 @@ jobs:
     steps:
       - attach_workspace:
           at: .
-      - run:
-          name: Update submodule
-          command: git submodule update --init --recursive
       - knodes-typedoc-orb/install:
           type: <<parameters.install-type>>
           os: <<parameters.os>>
+      - run:
+          name: Update submodule & patch
+          command: |
+            git submodule update --init --recursive
+            npm run tools:patch -- apply --no-stash
       - persist_to_workspace:
           root: .
           paths:
@@ -119,18 +121,6 @@ jobs:
       - run:
           name: Run Code Climate test-reporter `before-build`
           command: /tmp/cc-test-reporter before-build
-  codeclimate-after:
-    executor: node
-    resource_class: small
-    steps:
-      - attach_workspace:
-          at: .
-      - attach_workspace:
-          at: /tmp
-      - run: npm run tools:patch -- apply --no-stash
-      - run:
-          name: Send report
-          command: /tmp/cc-test-reporter after-build --coverage-input-type lcov --exit-code $(cat ./TEST_STATUS)
   lint:
     executor: node
     resource_class: small
@@ -200,11 +190,9 @@ jobs:
       - when:
           condition: *test-matrix-coverage-condition
           steps:
-            - persist_to_workspace:
-                root: .
-                paths:
-                  - coverage
-                  - TEST_STATUS
+            - run:
+                name: Send report
+                command: /tmp/cc-test-reporter after-build --coverage-input-type lcov --exit-code $(cat ./TEST_STATUS)
   build:
     executor: node
     resource_class: medium
@@ -453,12 +441,6 @@ workflows:
           requires:
             - npm-install
             - codeclimate-before
-
-      - codeclimate-after:
-          requires:
-            - build
-            - lint
-            - test
   # publish: # Workflow ran only on `main` & `develop`
   #   when:
   #     or:
