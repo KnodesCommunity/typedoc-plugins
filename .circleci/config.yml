@@ -7,7 +7,7 @@ x-params:
       os: [&test-matrix-os-default linux, macos, windows]
       node-version: &test-matrix-node-versions ["14.19.3", &test-matrix-node-versions-default "16.16.0", "18.4.0"]
   test-matrix-2: &params-test-matrix
-    parameters:
+    parameters: &test-matrix
       os: [*test-matrix-os-default]
       node-version: [*test-matrix-node-versions-default]
 
@@ -426,27 +426,30 @@ workflows:
     jobs:
       - checkout
       - npm-install:
+          matrix:
+            parameters:
+              <<: *test-matrix
+              node-version:
           install-type: install
-          os: linux
           requires:
             - checkout
 
-      - build:
-          requires:
-            - npm-install
-      - lint:
-          requires:
-            - npm-install
-      - test:
-          coverage: true
-          matrix: *params-test-matrix
-          requires:
-            - npm-install
-      - test:
-          coverage: true
-          matrix: *params-test-matrix
-          requires:
-            - test-<<matrix.node-version>>-<<matrix.os>>
+      # - test:
+      #     coverage: true
+      #     matrix: *params-test-matrix
+      #     requires:
+      #       - npm-install-<<matrix.os>>
+      # - build:
+      #     requires:
+      #       - npm-install-linux # !FORMAT - npm-install-<<*test-matrix-os-default>>
+      # - lint:
+      #     requires:
+      #       - npm-install-linux # !FORMAT - npm-install-<<*test-matrix-os-default>>
+      # - test:
+      #     coverage: true
+      #     matrix: *params-test-matrix
+      #     requires:
+      #       - test-<<matrix.node-version>>-<<matrix.os>>
   # publish: # Workflow ran only on `main` & `develop`
   #   when:
   #     or:
