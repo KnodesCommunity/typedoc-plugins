@@ -60,11 +60,14 @@ executors:
 
 
 x-params:
-  test-matrix: &params-test-matrix
+  test-matrix:
     parameters:
       os: [&test-matrix-os-default linux, macos, windows]
       node-version: &test-matrix-node-versions ["14.19.3", &test-matrix-node-versions-default "16.16.0", "18.4.0"]
-
+  test-matrix-2: &params-test-matrix
+    parameters:
+      os: [*test-matrix-os-default]
+      node-version: [*test-matrix-node-versions-default]
 
 jobs:
   checkout:
