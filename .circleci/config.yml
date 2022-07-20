@@ -193,9 +193,9 @@ jobs:
       - run:
           name: Test precommit
           command: |
-            echo "
-            *
-            " >> ./.eslintignore
+            echo "*
+            !jest.config.ci.js
+            " > ./.eslintignore
             echo "it( 'OK', () => {
               expect( true ).toBe(true);
             } );" > STUB.js
