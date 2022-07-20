@@ -1,4 +1,5 @@
 const { exec: _exec, spawn: _spawn } = require( 'child_process' );
+const { resolve } = require( 'path' );
 const { Writable, Stream, Readable } = require( 'stream' );
 const { promisify } = require( 'util' );
 
@@ -170,3 +171,5 @@ module.exports.getStagedFiles = async ( ...filesList ) => {
 	await spawn( 'git', [ 'diff', '--name-only', '--cached', ...filesList ], { stdio: [ null, stagedPatchesOutput, null ] } );
 	return stagedPatchesOutput.read().split( /\r?\n/ ).filter( v => v );
 };
+
+module.exports.resolveRoot = ( ...paths ) => resolve( __dirname, '..', ...paths );

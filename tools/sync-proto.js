@@ -2,6 +2,7 @@ const { resolve } = require( 'path' );
 
 const { normalizePath } = require( 'typedoc' );
 
+const { circleCi } = require( './sync-proto-modules/circleci' );
 const { packageJson } = require( './sync-proto-modules/package-json' );
 const { readme } = require( './sync-proto-modules/readme' );
 const { syncFs } = require( './sync-proto-modules/sync-fs' );
@@ -35,6 +36,7 @@ if( require.main === module ){
 			packageJson,
 			readme,
 			typedocSubmodule,
+			circleCi,
 		].reduce(
 			( acc, protoHandlerFactory ) => acc.then( v => Promise.resolve( protoHandlerFactory( checkOnly ) )
 				.then( w => [ ...v, w ] ) ),

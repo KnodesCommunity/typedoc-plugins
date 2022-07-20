@@ -5,7 +5,7 @@ const { resolve } = require( 'path' );
 const { memoize, cloneDeep, defaultsDeep, uniq } = require( 'lodash' );
 const { normalizePath } = require( 'typedoc' );
 
-const { formatPackages, checkFormatPackages } = require( '../utils' );
+const { formatPackages, checkFormatPackages, resolveRoot } = require( '../utils' );
 const { readProjectPackageJson, getDocsUrl } = require( './utils' );
 
 /**
@@ -14,7 +14,7 @@ const { readProjectPackageJson, getDocsUrl } = require( './utils' );
  */
 module.exports.packageJson = async checkOnly => {
 	const getProtoPkg = memoize( proto => readFile( resolve( proto, 'package.json' ), 'utf-8' ) );
-	const rootPackageJsonPath = normalizePath( resolve( __dirname, '../../package.json' ) );
+	const rootPackageJsonPath = resolveRoot( 'package.json' );
 	const rootPackageJsonStr = await readFile( rootPackageJsonPath, 'utf-8' );
 	const rootPackageJson = JSON.parse( rootPackageJsonStr );
 	return {

@@ -7,7 +7,7 @@ import { IPluginOptions, IRootPageNode } from './types';
 
 let application: Application;
 let plugin: PagesPlugin;
-let options: OptionGroup<IPluginOptions>;
+let options: OptionGroup<IPluginOptions, any>;
 beforeEach( () => {
 	application = new Application();
 	plugin = new PagesPlugin( application );

@@ -1,7 +1,6 @@
 const assert = require( 'assert' );
-const { resolve } = require( 'path' );
 
-const { spawn, captureStream } = require( '../utils' );
+const { spawn, captureStream, resolveRoot } = require( '../utils' );
 
 /**
  * @param {boolean} checkOnly
@@ -10,7 +9,7 @@ const { spawn, captureStream } = require( '../utils' );
 module.exports.typedocSubmodule = async checkOnly => ( {
 	run: async () => {},
 	tearDown: async () => {
-		const typedocDir = resolve( __dirname, '../../typedoc' );
+		const typedocDir = resolveRoot( 'typedoc' );
 		const packageTypedoc = require( '../../package.json' ).devDependencies.typedoc.replace( /^\D*/, '' );
 		const submoduleTypedoc = ( await spawn(
 			'git',
