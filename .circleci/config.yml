@@ -5,6 +5,7 @@ version: 2.1
 # See: https://circleci.com/docs/2.0/orb-intro/
 orbs:
   node: circleci/node@5.0.2
+  codeclimate: sue445/codeclimate@0.1.0
   knodes-typedoc-orb:
     orbs:
       node: circleci/node@5.0.2
@@ -105,22 +106,6 @@ jobs:
             - 'package-lock.json'
             - 'node_modules'
             - 'packages/*/node_modules'
-  codeclimate-before:
-    executor: node
-    resource_class: small
-    steps:
-      - run:
-          name: Setup Code Climate test-reporter
-          command: |
-            curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > /tmp/cc-test-reporter
-            chmod +x /tmp/cc-test-reporter
-      - persist_to_workspace:
-          root: /tmp
-          paths:
-            - cc-test-reporter
-      - run:
-          name: Run Code Climate test-reporter `before-build`
-          command: /tmp/cc-test-reporter before-build
   lint:
     executor: node
     resource_class: small
@@ -154,12 +139,10 @@ jobs:
               - { equal: [<<parameters.os>>, *test-matrix-os-default ] }
               - { equal: [<<parameters.node-version>>, *test-matrix-node-versions-default ] }
           steps:
-          - run:
-              command: |
-                npm run ci:test:coverage
-                echo $? > TEST_STATUS
-                exit $(cat TEST_STATUS)
-              when: always
+          - codeclimate/with-cc-test-reporter:
+              after_build_args: '--coverage-input-type lcov'
+              steps:
+              - run: npm run test:ci:coverage
       - unless:
           condition: *test-matrix-coverage-condition
           steps:
@@ -187,12 +170,6 @@ jobs:
           path: ./junit.xml
       - store_artifacts:
           path: ./coverage
-      - when:
-          condition: *test-matrix-coverage-condition
-          steps:
-            - run:
-                name: Send report
-                command: /tmp/cc-test-reporter after-build --coverage-input-type lcov --exit-code $(cat ./TEST_STATUS)
   build:
     executor: node
     resource_class: medium
@@ -427,7 +404,6 @@ workflows:
           os: linux
           requires:
             - checkout
-      - codeclimate-before
 
       - build:
           requires:
@@ -440,7 +416,6 @@ workflows:
           matrix: *params-test-matrix
           requires:
             - npm-install
-            - codeclimate-before
   # publish: # Workflow ran only on `main` & `develop`
   #   when:
   #     or:
