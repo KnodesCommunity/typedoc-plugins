@@ -150,7 +150,7 @@ jobs:
       - attach_workspace:
           at: .
       - run: |
-          echo $(circleci tests glob "**/*.spec.ts" | circleci tests split --split-by=timings)
+          echo $(circleci tests glob "./packages/**/*.spec.ts" | circleci tests split --split-by=timings)
           exit 1;
       # Run tests
       - when:
@@ -194,8 +194,8 @@ jobs:
           name: Test precommit
           command: |
             echo "
-            STUB.js
-            jest.config.js" >> ./.eslintignore
+            *
+            " >> ./.eslintignore
             echo "it( 'OK', () => {
               expect( true ).toBe(true);
             } );" > STUB.js

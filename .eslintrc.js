@@ -20,4 +20,7 @@ module.exports = {
 			mode: 'typescript',
 		},
 	},
+	rules: {
+		'no-shadow': [ 'error', { allow: [ '_' ], ignoreOnInitialization: true } ],
+	},
 };
