@@ -13,7 +13,6 @@ x-params:
 # See: https://circleci.com/docs/2.0/orb-intro/
 orbs:
   node: circleci/node@5.0.2
-  codeclimate: sue445/codeclimate@0.1.0
   knodes-typedoc-orb:
     orbs:
       node: circleci/node@5.0.2
@@ -39,26 +38,36 @@ orbs:
             - node/install-packages:
                 override-ci-command: npm run ci:<<parameters.type>>
                 cache-version: v1-<<parameters.os>>
-    # jobs:
-    #   test:
-    #     steps:
-    #     - when:
-    #         condition: &test-matrix-coverage-condition
-    #           and:
-    #             - <<parameters.coverage>>
-    #             - { equal: [<<parameters.os>>, *test-matrix-os-default ] }
-    #             - { equal: [<<parameters.node-version>>, *test-matrix-nodeversion-default ] }
-    #         steps:
-    #         - codeclimate/with-cc-test-reporter:
-    #             after_build_args: '--coverage-input-type lcov'
-    #             steps:
-    #             - run: npm run test:ci:coverage
-    #     - unless:
-    #         condition: *test-matrix-coverage-condition
-    #         steps:
-    #         - run:
-    #             command: npm run test:ci
-    #             when: always
+      codeclimate-install-only:
+        steps:
+          - run:
+              name: Install Code Climate Test Reporter
+              command: |
+                curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
+                chmod +x ./cc-test-reporter
+      codeclimate-prebuild:
+        steps:
+          - codeclimate-install-only
+          - run:
+              name: Run Code Climate test-reporter `before-build`
+              command: ./cc-test-reporter before-build\
+      codeclimate-format:
+        parameters:
+          buildId:
+            type: string
+        steps:
+          - run: mv coverage/coverage-summary.json coverage/<<parameters.buildId>>-summary.json
+          - run:
+              name: Code Climate Format Test Coverage
+              command: |
+                ./cc-test-reporter format-coverage coverage/lcov.info -t lcov -o "cc-coverage/codeclimate.<<parameters.buildId>>.json"
+          - persist_to_workspace:
+              root: cc-coverage
+              paths:
+                - codeclimate.*.json
+          - store_artifacts:
+              path: ./coverage/*-summary.json
+
 
 
 executors:
@@ -133,7 +142,7 @@ jobs:
       - attach_workspace:
           at: .
       - run: npm run lint
-  test:
+  test-sources:
     parameters:
       os:
         type: string
@@ -151,7 +160,9 @@ jobs:
           at: .
       - run: |
           circleci tests glob "./packages/**/*.spec.ts" | circleci tests split --split-by=timings > TEST_FILES
-          echo "Will be ran on $(cat TEST_FILES)";
+          echo "
+          Will be ran on following files:
+          $(cat TEST_FILES)";
       # Run tests
       - when:
           condition: &test-matrix-coverage-condition
@@ -160,43 +171,59 @@ jobs:
               - { equal: [<<parameters.os>>, *test-matrix-os-default ] }
               - { equal: [<<parameters.node-version>>, *test-matrix-nodeversion-default ] }
           steps:
-          - codeclimate/with-cc-test-reporter:
-              after_build_args: '--coverage-input-type lcov'
-              steps:
-              - run: npm run test:ci:coverage -- $(cat TEST_FILES)
+            - knodes-typedoc-orb/codeclimate-prebuild
+            - run: npm run test:ci:coverage -- $(cat TEST_FILES)
+            - knodes-typedoc-orb/codeclimate-format:
+                buildId: test-sources-${CIRCLE_NODE_INDEX}
       - unless:
           condition: *test-matrix-coverage-condition
           steps:
-          - run:
-              command: npm run test:ci -- $(cat TEST_FILES)
-              when: always
+            - run: npm run test:ci -- $(cat TEST_FILES)
       # Finalize
-      - store_artifacts:
-          path: ./junit.xml
       - store_test_results:
           path: ./junit.xml
-      - store_artifacts:
-          path: ./coverage
-  check-tools:
+  test-tools:
     parameters:
       os:
         type: string
       node-version:
         type: string
+      coverage:
+        type: boolean
+        default: false
     executor: <<parameters.os>>
     steps:
       - node/install:
           node-version: <<parameters.node-version>>
       - attach_workspace:
           at: .
-      # Check tooling
-      - run:
-          name: Test precommit
-          command: |
-            for bin in eslint jest typedoc tsc; do
-              echo "echo \"STUB $bin\"" > ./node_modules/.bin/$bin
-            done
-            npm run precommit
+      - when:
+          condition: *test-matrix-coverage-condition
+          steps: 
+            - run:
+                name: Stub bins (keep real typedoc)
+                command: |
+                  for bin in eslint jest tsc; do
+                    echo "echo \"STUB $bin\"" > ./node_modules/.bin/$bin
+                  done
+            - knodes-typedoc-orb/codeclimate-prebuild
+            - run:
+                name: Run precommit with coverage
+                command: npx nyc --reporter json-summary --reporter lcovonly npm run precommit
+            - knodes-typedoc-orb/codeclimate-format:
+                buildId: test-tools
+      - unless:
+          condition: *test-matrix-coverage-condition
+          steps: 
+            - run:
+                name: Stub bins
+                command: |
+                  for bin in eslint jest typedoc tsc; do
+                    echo "echo \"STUB $bin\"" > ./node_modules/.bin/$bin
+                  done
+            - run:
+                name: Run precommit
+                command: npm run precommit
   build:
     executor: node
     resource_class: medium
@@ -388,8 +415,26 @@ jobs:
 
             [skip ci]"
             git push --set-upstream origin develop
-
-
+  codeclimate-upload:
+    executor: default
+    steps:
+      - attach_workspace:
+          at: .
+      - knodes-typedoc-orb/codeclimate-install-only
+      - run:
+          name: Merge coverages & clean
+          command: |
+            ./cc-test-reporter sum-coverage --output cc-coverage/coverage.json cc-coverage/codeclimate.*.json
+            ./cc-test-reporter upload-coverage --debug --input cc-coverage/coverage.json
+      - store_artifacts:
+          path: cc-coverage/coverage.json
+      - run:
+          name: Generate artifact reports
+          command: |
+            rm cc-coverage/codeclimate.*.json
+            npx nyc report --reporter lcov --reporter json --temp-dir cc-coverage
+      - store_artifacts:
+          path: coverage
 
 # Invoke jobs via workflows
 # See: https://circleci.com/docs/2.0/configuration-reference/#workflows
@@ -410,7 +455,7 @@ workflows:
       - lint:
           requires:
             - npm-install
-      - test:
+      - test-sources:
           matrix:
             parameters:
               os: [*test-matrix-os-default]
@@ -434,15 +479,21 @@ workflows:
           requires:
             - checkout
 
-      - test:
+      - test-sources:
           coverage: true
           matrix: *params-test-matrix
           requires:
             - npm-install-<<matrix.os>>
-      - check-tools:
+      - test-tools:
           matrix: *params-test-matrix
+          coverage: true
           requires:
             - npm-install-<<matrix.os>>
+      - codeclimate-upload:
+          requires:
+            - test-sources-16.16.0-linux # !FORMAT - test-sources-<<*test-matrix-nodeversion-default>>-<<*test-matrix-os-default>>
+            - test-tools-16.16.0-linux # !FORMAT - test-tools-<<*test-matrix-nodeversion-default>>-<<*test-matrix-os-default>>
+
       - build:
           requires:
             - npm-install-linux # !FORMAT - npm-install-<<*test-matrix-os-default>>
