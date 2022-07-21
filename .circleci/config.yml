@@ -181,6 +181,7 @@ jobs:
                 npm run test:ci:coverage -- $(cat TEST_FILES)
                 echo $? > EXIT_CODE
             - knodes-typedoc-orb/coverage-arrange:
+                coverageJson: coverage/coverage-final.json
                 buildId: test-sources-${CIRCLE_NODE_INDEX}
       - unless:
           condition: *test-matrix-coverage-condition
