@@ -35,7 +35,7 @@ const orderedProjects = projects
 		const bDepOfA = isDependencyOf( pkgB, pkgA );
 		if( aDepOfB && bDepOfA ){
 			throw new Error( `Circular dependency between ${pkgA.name} & ${pkgB.name}` );
-		} else if( aDepOfB === bDepOfA ) {
+		} else if( !( aDepOfB || bDepOfA ) ) {
 			return 0;
 		} else if( aDepOfB ){
 			return -1;
