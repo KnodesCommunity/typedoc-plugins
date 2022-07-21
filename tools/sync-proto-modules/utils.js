@@ -6,10 +6,11 @@ const { resolve } = require( 'path' );
  * @typedef {import('../utils').Project} Project
  */
 /**
+ * @template [T=void]
  * @typedef {{
- * 	setup?: (proto: string; projects: Project[], handlers: ProtoHandler[]) => Promise<void>;
- * 	tearDown?: (proto: string; projects: Project[], handlers: ProtoHandler[]) => Promise<void>;
- * 	run: (proto: string; project: Project, projects: Project[], handlers: ProtoHandler[]) => Promise<void>;
+ * 	setup?: (proto: string; projects: Project[], handlers: ProtoHandler[]) => Promise<T>;
+ * 	tearDown?: (proto: string; projects: Project[], handlers: ProtoHandler[], setupRet: T) => Promise<void>;
+ * 	run?: (proto: string; project: Project, projects: Project[], handlers: ProtoHandler[], setupRet: T) => Promise<void>;
  * }} ProtoHandler
  */
 
