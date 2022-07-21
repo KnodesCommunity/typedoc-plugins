@@ -1,10 +1,7 @@
-const assert = require( 'assert' );
-const { writeFile } = require( 'fs/promises' );
-
 const { yellow } = require( 'chalk' );
 
 const { globAsync } = require( '../utils' );
-const { tryReadFile, getDocsUrl, readProjectPackageJson } = require( './utils' );
+const { tryReadFile, getDocsUrl, readProjectPackageJson, syncFile } = require( './utils' );
 
 /**
  * @param {boolean} checkOnly
@@ -92,11 +89,7 @@ ${newInstall}
 				const c = await content;
 				return fn( c, packageContent );
 			}, Promise.resolve( readmeContent ) ) ).replace( /\r\n/g, '\n' );
-			if( checkOnly ){
-				assert.equal( result, readmeContent, `Readme ${readmeFile} does not match prototype` );
-			} else {
-				await writeFile( readmeFile, result );
-			}
+			await syncFile( checkOnly, readmeFile, result );
 		},
 		handleFile: filename => /(\/|^)readme\.md$/i.test( filename ),
 	};

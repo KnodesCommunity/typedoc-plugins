@@ -1,10 +1,11 @@
 const assert = require( 'assert' );
-const { readFile, writeFile } = require( 'fs/promises' );
+const { readFile } = require( 'fs/promises' );
 
 const { once } = require( 'lodash' );
 const { parseDocument: parseYamlDocument, visit, stringify: stringifyYaml, YAMLSeq } = require( 'yaml' );
 
 const { resolveRoot } = require( '../utils' );
+const { syncFile } = require( './utils' );
 
 /**
  * @param {boolean} checkOnly
@@ -47,10 +48,6 @@ module.exports.circleCi = async checkOnly => ( {
 			} );
 			return `${indent}${formatted} ${formatAppendix}`;
 		} );
-		if( checkOnly ){
-			assert( currentCircleCi === cfgFormatted, 'CircleCI config is not up to date' );
-		} else {
-			await writeFile( circleCiPath, cfgFormatted );
-		}
+		await syncFile( checkOnly, circleCiPath, cfgFormatted );
 	} ),
 } );
