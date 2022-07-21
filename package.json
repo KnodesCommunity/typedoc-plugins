@@ -54,17 +54,7 @@
       "@commitlint/config-conventional"
     ]
   },
-  "dependencies": {
-    "find-up": "^4.1.0",
-    "lodash": "^4.17.21",
-    "memfs": "^3.4.1",
-    "pkg-up": "^3.1.0",
-    "semver": "^7.3.5",
-    "unionfs": "^4.4.0"
-  },
   "peerDependencies": {
-    "lunr": "^2.3.0",
-    "minimatch": "^5.1.0",
     "typedoc": "^0.23.0"
   },
   "devDependencies": {
@@ -72,8 +62,14 @@
     "@commitlint/cli": "^17.0.2",
     "@commitlint/config-conventional": "^17.0.2",
     "@knodes/eslint-config": "^1.6.5",
+    "@knodes/typedoc-plugin-code-blocks": "file:./packages/plugin-code-blocks",
+    "@knodes/typedoc-plugin-monorepo-readmes": "file:./packages/plugin-monorepo-readmes",
+    "@knodes/typedoc-plugin-pages": "file:./packages/plugin-pages",
+    "@knodes/typedoc-plugintestbed": "file:./packages/plugintestbed",
+    "@knodes/typedoc-pluginutils": "file:./packages/pluginutils",
     "@testing-library/jest-dom": "^5.16.4",
     "@types/concurrently": "^7.0.0",
+    "@types/diff": "^5.0.2",
     "@types/fs-extra": "^9.0.13",
     "@types/jest": "^28.1.6",
     "@types/js-beautify": "^1.13.3",
@@ -93,6 +89,7 @@
     "concurrently": "^7.2.2",
     "conventional-changelog-cli": "^2.2.2",
     "cross-env": "^7.0.3",
+    "diff": "^5.1.0",
     "eslint": "^8.18.0",
     "eslint-plugin-eslint-comments": "^3.2.0",
     "eslint-plugin-import": "^2.26.0",
@@ -100,6 +97,7 @@
     "eslint-plugin-prefer-arrow": "^1.2.3",
     "eslint-plugin-sort-export-all": "^1.2.2",
     "expect-type": "^0.13.0",
+    "find-up": "^4.1.0",
     "format-package": "^7.0.0",
     "fs-monkey": "^1.0.3",
     "glob": "^8.0.3",
@@ -111,21 +109,22 @@
     "js-beautify": "^1.14.0",
     "jsdom": "^19.0.0",
     "lodash": "^4.17.21",
+    "lunr": "^2.3.0",
     "marked": "^4.0.12",
+    "memfs": "^3.4.1",
+    "minimatch": "^5.1.0",
+    "nyc": "^15.1.0",
+    "pkg-up": "^3.1.0",
     "rimraf": "^3.0.2",
     "run-script-os": "^1.1.6",
-    "semver": "^7.3.7",
+    "semver": "^7.3.5",
     "strip-ansi": "^6.0.1",
     "tmp": "^0.2.1",
     "ts-jest": "^28.0.5",
     "type-fest": "^2.16.0",
     "typedoc": "^0.23.8",
     "typescript": "^4.7.4",
-    "yaml": "^2.1.1",
-    "@knodes/typedoc-plugin-code-blocks": "file:./packages/plugin-code-blocks",
-    "@knodes/typedoc-plugin-monorepo-readmes": "file:./packages/plugin-monorepo-readmes",
-    "@knodes/typedoc-plugin-pages": "file:./packages/plugin-pages",
-    "@knodes/typedoc-plugintestbed": "file:./packages/plugintestbed",
-    "@knodes/typedoc-pluginutils": "file:./packages/pluginutils"
+    "unionfs": "^4.4.0",
+    "yaml": "^2.1.1"
   }
 }
