@@ -64,8 +64,8 @@
   },
   "peerDependencies": {
     "lunr": "^2.3.0",
-    "typedoc": "^0.23.0",
-    "minimatch": "^5.1.0"
+    "minimatch": "^5.1.0",
+    "typedoc": "^0.23.0"
   },
   "devDependencies": {
     "@alex_neo/jest-expect-message": "^1.0.5",
@@ -81,6 +81,7 @@
     "@types/lodash": "^4.14.182",
     "@types/lunr": "^2.3.4",
     "@types/marked": "^4.0.2",
+    "@types/minimatch": "^3.0.5",
     "@types/mock-fs": "^4.13.1",
     "@types/node": "^18.0.0",
     "@types/react": "^18.0.14",
@@ -115,12 +116,12 @@
     "run-script-os": "^1.1.6",
     "semver": "^7.3.7",
     "strip-ansi": "^6.0.1",
+    "tmp": "^0.2.1",
+    "ts-jest": "^28.0.5",
+    "type-fest": "^2.16.0",
     "typedoc": "^0.23.8",
     "typescript": "^4.7.4",
-    "ts-jest": "^28.0.5",
-    "@types/minimatch": "^3.0.5",
-    "type-fest": "^2.16.0",
-    "tmp": "^0.2.1",
+    "yaml": "^2.1.1",
     "@knodes/typedoc-plugin-code-blocks": "file:./packages/plugin-code-blocks",
     "@knodes/typedoc-plugin-monorepo-readmes": "file:./packages/plugin-monorepo-readmes",
     "@knodes/typedoc-plugin-pages": "file:./packages/plugin-pages",

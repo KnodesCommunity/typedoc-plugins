@@ -2,6 +2,7 @@ const assert = require( 'assert' );
 const { readFile, writeFile } = require( 'fs/promises' );
 
 const { once } = require( 'lodash' );
+const { parseDocument: parseYamlDocument, visit, stringify: stringifyYaml, YAMLSeq } = require( 'yaml' );
 
 const { resolveRoot } = require( '../utils' );
 
@@ -14,14 +15,42 @@ module.exports.circleCi = async checkOnly => ( {
 		const circleCiPath = resolveRoot( '.circleci/config.yml' );
 		const currentCircleCi = await readFile( circleCiPath, 'utf-8' );
 		const nvmRc = await readFile( resolveRoot( '.nvmrc' ) );
-		const circleCiConfigVersion = `&test-matrix-node-versions-default "${nvmRc}"`;
+
+		const cfgNvmSet = currentCircleCi.replace( /&test-matrix-node-versions-default "\S+"/, `&test-matrix-node-versions-default "${nvmRc}"` );
+
+		const doc = parseYamlDocument( cfgNvmSet );
+		const ANCHORS_MAP = {};
+		visit( doc, ( _key, node ) => {
+			if( node && node.anchor ){
+				ANCHORS_MAP[node.anchor] = node;
+			}
+		} );
+		const cfgFormatted = cfgNvmSet.replace( /^(\s*).*?(#\s*!FORMAT\s*(.*))$/gm, ( src, indent, formatAppendix, format ) => {
+			const formatted = format.replace( /\$\{\s*(.*?)\*(.*?)\s*\}/g, ( _, operator, alias ) => {
+				const node = ANCHORS_MAP[alias]?.clone() ??
+					assert.fail( `Missing alias "${alias}" in expression "${JSON.stringify( src )}"` );
+				node.anchor = undefined;
+				switch( operator ){
+					case '':
+						return stringifyYaml( node ).trim();
+					case '!':
+						return node.toString();
+
+					case '...': {
+						assert( node instanceof YAMLSeq );
+						return node.items.map( i => stringifyYaml( i ).trim() ).join( ', ' );
+					}
+
+					default:
+						throw new SyntaxError( `Unexpected operator "${operator}"` );
+				}
+			} );
+			return `${indent}${formatted} ${formatAppendix}`;
+		} );
 		if( checkOnly ){
-			assert( currentCircleCi.includes( circleCiConfigVersion ), `CircleCI config does not match nvmrc version ${nvmRc}` );
+			assert( currentCircleCi === cfgFormatted, 'CircleCI config is not up to date' );
 		} else {
-			const regex = /&test-matrix-node-versions-default "\S+"/;
-			assert( regex.test( currentCircleCi ) );
-			const replacedConfig = currentCircleCi.replace( regex, circleCiConfigVersion );
-			await writeFile( circleCiPath, replacedConfig );
+			await writeFile( circleCiPath, cfgFormatted );
 		}
 	} ),
 } );
