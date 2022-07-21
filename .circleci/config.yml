@@ -6,8 +6,8 @@ x-params:
   node-version-default: &test-matrix-nodeversion-default "16.16.0"
   test-matrix: &params-test-matrix
     parameters: &test-matrix
-      # os: &test-matrix-os [&test-matrix-os-default linux]
-      os: &test-matrix-os [&test-matrix-os-default linux, macos, windows]
+      os: &test-matrix-os [&test-matrix-os-default windows]
+      # os: &test-matrix-os [&test-matrix-os-default linux, macos, windows]
       node-version: &test-matrix-nodeversion [ "16.16.0",  ] # !FORMAT node-version: &test-matrix-nodeversion [ ${*test-matrix-nodeversion-default}, ${...*test-matrix-nodeversion-nondefault} ]
       # node-version: &test-matrix-nodeversion ["14.19.3", &test-matrix-nodeversion-default "16.16.0", "18.4.0"]
 
@@ -493,10 +493,10 @@ workflows:
 
       - build:
           requires:
-            - npm-install-linux # !FORMAT - npm-install-${*test-matrix-os-default}
+            - npm-install-windows # !FORMAT - npm-install-${*test-matrix-os-default}
       - lint:
           requires:
-            - npm-install-linux # !FORMAT - npm-install-${*test-matrix-os-default}
+            - npm-install-windows # !FORMAT - npm-install-${*test-matrix-os-default}
 
       - test-sources:
           coverage: true
@@ -523,7 +523,7 @@ workflows:
             
       - codeclimate-upload:
           requires:
-            - test-sources-16.16.0-linux # !FORMAT - test-sources-${!*test-matrix-nodeversion-default}-${*test-matrix-os-default}
+            - test-sources-16.16.0-windows # !FORMAT - test-sources-${!*test-matrix-nodeversion-default}-${*test-matrix-os-default}
             - test-tools-16.16.0-linux # !FORMAT - test-tools-${!*test-matrix-nodeversion-default}-linux
             - test-tools-16.16.0-macos # !FORMAT - test-tools-${!*test-matrix-nodeversion-default}-macos
             - test-tools-16.16.0-windows # !FORMAT - test-tools-${!*test-matrix-nodeversion-default}-windows
