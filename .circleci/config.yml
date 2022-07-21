@@ -53,25 +53,24 @@ orbs:
           - run:
               name: Run Code Climate test-reporter `before-build`
               command: ./cc-test-reporter before-build
-      codeclimate-format:
+      coverage-arrange:
         parameters:
+          coverageJson:
+            type: string
           buildId:
             type: string
         steps:
           - run: |
-              mv coverage/coverage-summary.json coverage/<<parameters.buildId>>-summary.json
-              mv coverage/coverage-final.json coverage/part-<<parameters.buildId>>.json
-          - run:
-              name: Code Climate Format Test Coverage
-              command: |
-                ./cc-test-reporter format-coverage coverage/lcov.info -t lcov -o "cc-coverage/codeclimate.<<parameters.buildId>>.json"
+              mv EXIT_CODE coverage/EXIT_CODE_<<parameters.buildId>>
+              mv coverage/coverage-summary.json coverage/coverage-summary-<<parameters.buildId>>.json
+              mv <<parameters.coverageJson>> coverage/coverage-part-<<parameters.buildId>>.json
           - persist_to_workspace:
               root: .
               paths:
-                - cc-coverage/codeclimate.*.json
-                - coverage/part-*.json
+                - coverage/coverage-part-*.json
+                - coverage/EXIT_CODE_*
           - store_artifacts:
-              path: coverage/<<parameters.buildId>>-summary.json
+              path: coverage
 
 
 
@@ -178,9 +177,10 @@ jobs:
               - { equal: [<<parameters.os>>, *test-matrix-os-default ] }
               - { equal: [<<parameters.node-version>>, *test-matrix-nodeversion-default ] }
           steps:
-            - knodes-typedoc-orb/codeclimate-prebuild
-            - run: npm run test:ci:coverage -- $(cat TEST_FILES)
-            - knodes-typedoc-orb/codeclimate-format:
+            - run: |
+                npm run test:ci:coverage -- $(cat TEST_FILES)
+                echo $? > EXIT_CODE
+            - knodes-typedoc-orb/coverage-arrange:
                 buildId: test-sources-${CIRCLE_NODE_INDEX}
       - unless:
           condition: *test-matrix-coverage-condition
@@ -216,11 +216,13 @@ jobs:
                   for bin in eslint jest tsc; do
                     echo "echo \"STUB $bin\"" > ./node_modules/.bin/$bin
                   done
-            - knodes-typedoc-orb/codeclimate-prebuild
             - run:
                 name: Run precommit with coverage
-                command: npx nyc --reporter json-summary --reporter json --reporter lcovonly npm run precommit
-            - knodes-typedoc-orb/codeclimate-format:
+                command: |
+                  nyc --reporter json-summary --reporter json npm run precommit
+                  echo $? > EXIT_CODE
+            - knodes-typedoc-orb/coverage-arrange:
+                coverageJson: coverage/coverage-final.json
                 buildId: test-tools-<<parameters.os>>
       - unless:
           condition: *test-matrix-coverage-tools-condition
@@ -445,16 +447,13 @@ jobs:
       - run:
           name: Merge coverages & clean
           command: |
-            ./cc-test-reporter sum-coverage --output cc-coverage/coverage.json cc-coverage/codeclimate.*.json
-            ./cc-test-reporter upload-coverage --debug --input cc-coverage/coverage.json
-      - store_artifacts:
-          path: cc-coverage/coverage.json
-      - run:
-          name: Generate artifact reports
-          command: |
+            exit_code=$(cat coverage/EXIT_CODE_* | sort | tail -1)
+            rm coverage/EXIT_CODE_*
             PARTS=$(find coverage -name '*.json')
             echo "Running coverage report by merging ${PARTS}"
-            npx nyc report --reporter lcov --reporter json --temp-dir coverage
+            mv coverage coverate-tmp
+            nyc report --reporter lcov --reporter json-summary --temp-dir coverage-tmp 
+            ./cc-test-reporter after-build --coverage-input-type lcov --exit-code $(cat * | sort | tail -f)
       - store_artifacts:
           path: coverage
 
