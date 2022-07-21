@@ -4,8 +4,8 @@ version: 2.1
 x-params:
   test-matrix: &params-test-matrix
     parameters: &test-matrix
-      os: &test-matrix-oss [&test-matrix-os-default linux]
-      # os: &test-matrix-oss [&test-matrix-os-default linux, macos, windows]
+      # os: &test-matrix-oss [&test-matrix-os-default linux]
+      os: &test-matrix-oss [&test-matrix-os-default linux, macos, windows]
       node-version: &test-matrix-nodeversions [&test-matrix-nodeversion-default "16.16.0"]
       # node-version: &test-matrix-nodeversions ["14.19.3", &test-matrix-nodeversion-default "16.16.0", "18.4.0"]
 
