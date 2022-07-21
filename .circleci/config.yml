@@ -203,7 +203,10 @@ jobs:
       - attach_workspace:
           at: .
       - when:
-          condition: *test-matrix-coverage-condition
+          condition: &test-matrix-coverage-tools-condition
+            and:
+              - <<parameters.coverage>>
+              - { equal: [<<parameters.node-version>>, *test-matrix-nodeversion-default ] }
           steps: 
             - run:
                 name: Stub bins (keep real typedoc)
@@ -216,9 +219,9 @@ jobs:
                 name: Run precommit with coverage
                 command: npx nyc --reporter json-summary --reporter json --reporter lcovonly npm run precommit
             - knodes-typedoc-orb/codeclimate-format:
-                buildId: test-tools
+                buildId: test-tools-<<parameters.os>>
       - unless:
-          condition: *test-matrix-coverage-condition
+          condition: *test-matrix-coverage-tools-condition
           steps: 
             - run:
                 name: Stub bins
