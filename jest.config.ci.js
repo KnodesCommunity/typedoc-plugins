@@ -5,6 +5,7 @@ module.exports = {
 	// See https://jestjs.io/docs/configuration#coveragereporters-arraystring--string-options
 	coverageReporters: [
 		[ 'lcovonly', { projectRoot: __dirname } ],
+		'json',
 		'json-summary',
 		'text',
 	],

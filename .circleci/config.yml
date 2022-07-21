@@ -56,15 +56,18 @@ orbs:
           buildId:
             type: string
         steps:
-          - run: mv coverage/coverage-summary.json coverage/<<parameters.buildId>>-summary.json
+          - run: |
+              mv coverage/coverage-summary.json coverage/<<parameters.buildId>>-summary.json
+              mv coverage/coverage-final.json coverage/part-<<parameters.buildId>>.json
           - run:
               name: Code Climate Format Test Coverage
               command: |
                 ./cc-test-reporter format-coverage coverage/lcov.info -t lcov -o "cc-coverage/codeclimate.<<parameters.buildId>>.json"
           - persist_to_workspace:
-              root: cc-coverage
+              root: .
               paths:
-                - codeclimate.*.json
+                - cc-coverage/codeclimate.*.json
+                - coverage/part-*.json
           - store_artifacts:
               path: coverage/<<parameters.buildId>>-summary.json
 
@@ -209,7 +212,7 @@ jobs:
             - knodes-typedoc-orb/codeclimate-prebuild
             - run:
                 name: Run precommit with coverage
-                command: npx nyc --reporter json-summary --reporter lcovonly npm run precommit
+                command: npx nyc --reporter json-summary --reporter json --reporter lcovonly npm run precommit
             - knodes-typedoc-orb/codeclimate-format:
                 buildId: test-tools
       - unless:
@@ -431,8 +434,9 @@ jobs:
       - run:
           name: Generate artifact reports
           command: |
-            rm cc-coverage/codeclimate.*.json
-            npx nyc report --reporter lcov --reporter json --temp-dir cc-coverage
+            PARTS=$(find coverage -name '*.json')
+            echo "Running coverage report by merging ${PARTS}"
+            npx nyc report --reporter lcov --reporter json --temp-dir coverage
       - store_artifacts:
           path: coverage
 
