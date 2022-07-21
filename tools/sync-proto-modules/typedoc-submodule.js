@@ -7,7 +7,6 @@ const { spawn, captureStream, resolveRoot } = require( '../utils' );
  * @returns {import('./utils').ProtoHandler}
  */
 module.exports.typedocSubmodule = async checkOnly => ( {
-	run: async () => {},
 	tearDown: async () => {
 		const typedocDir = resolveRoot( 'typedoc' );
 		const packageTypedoc = require( '../../package.json' ).devDependencies.typedoc.replace( /^\D*/, '' );

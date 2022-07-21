@@ -42,18 +42,15 @@ if( require.main === module ){
 				( acc, protoHandlerFactory ) => acc.then( v => Promise.resolve( protoHandlerFactory( checkOnly ) )
 					.then( w => [ ...v, w ] ) ),
 				initialValue );
-			for( const { setup } of handlers ){
-				if( setup ){
-					await setup( protoDir, projects, handlers );
-				}
+			const setups = new WeakMap();
+			for( const handler of handlers ){
+				setups.set( handler, await handler.setup?.( protoDir, projects, handlers ) );
 			}
-			for( const { run } of handlers ){
-				await Promise.all( projects.map( p => run( protoDir, p, projects, handlers ) ) );
+			for( const handler of handlers ){
+				await Promise.all( projects.map( p => handler.run?.( protoDir, p, projects, handlers, setups.get( handler ) ) ) );
 			}
-			for( const { tearDown } of handlers ){
-				if( tearDown ){
-					await tearDown( protoDir, projects, handlers );
-				}
+			for( const handler of handlers ){
+				await handler.tearDown?.( protoDir, projects, handlers, setups.get( handler ) );
 			}
 		} catch( e ){
 			console.error( e );

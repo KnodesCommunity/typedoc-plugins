@@ -1,7 +1,6 @@
 const assert = require( 'assert' );
 const { readFile } = require( 'fs/promises' );
 
-const { once } = require( 'lodash' );
 const { parseDocument: parseYamlDocument, visit, stringify: stringifyYaml, YAMLSeq } = require( 'yaml' );
 
 const { resolveRoot } = require( '../utils' );
@@ -12,7 +11,7 @@ const { syncFile } = require( './utils' );
  * @returns {import('./utils').ProtoHandler}
  */
 module.exports.circleCi = async checkOnly => ( {
-	run: once( async() => {
+	tearDown: async() => {
 		const circleCiPath = resolveRoot( '.circleci/config.yml' );
 		const currentCircleCi = await readFile( circleCiPath, 'utf-8' );
 		const nvmRc = await readFile( resolveRoot( '.nvmrc' ) );
@@ -49,5 +48,5 @@ module.exports.circleCi = async checkOnly => ( {
 			return `${indent}${formatted} ${formatAppendix}`;
 		} );
 		await syncFile( checkOnly, circleCiPath, cfgFormatted );
-	} ),
+	},
 } );
