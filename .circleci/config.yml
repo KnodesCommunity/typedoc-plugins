@@ -2,12 +2,14 @@
 version: 2.1
 
 x-params:
+  node-version-non-default: &test-matrix-nodeversion-nondefault []
+  node-version-default: &test-matrix-nodeversion-default "16.16.0"
   test-matrix: &params-test-matrix
     parameters: &test-matrix
-      # os: &test-matrix-oss [&test-matrix-os-default linux]
-      os: &test-matrix-oss [&test-matrix-os-default linux, macos, windows]
-      node-version: &test-matrix-nodeversions [&test-matrix-nodeversion-default "16.16.0"]
-      # node-version: &test-matrix-nodeversions ["14.19.3", &test-matrix-nodeversion-default "16.16.0", "18.4.0"]
+      # os: &test-matrix-os [&test-matrix-os-default linux]
+      os: &test-matrix-os [&test-matrix-os-default linux, macos, windows]
+      node-version: &test-matrix-nodeversion [ "16.16.0",  ] # !FORMAT node-version: &test-matrix-nodeversion [ ${*test-matrix-nodeversion-default}, ${...*test-matrix-nodeversion-nondefault} ]
+      # node-version: &test-matrix-nodeversion ["14.19.3", &test-matrix-nodeversion-default "16.16.0", "18.4.0"]
 
 # Orbs are reusable packages of CircleCI configuration that you may share across projects, enabling you to create encapsulated, parameterized commands, jobs, and executors that can be used across multiple projects.
 # See: https://circleci.com/docs/2.0/orb-intro/
@@ -469,7 +471,7 @@ workflows:
           matrix:
             parameters:
               os: [*test-matrix-os-default]
-              node-version: *test-matrix-nodeversions
+              node-version: *test-matrix-nodeversion
           requires:
             - npm-install
 
@@ -484,17 +486,17 @@ workflows:
       - npm-install:
           matrix:
             parameters:
-              os: *test-matrix-oss
+              os: *test-matrix-os
           install-type: install
           requires:
             - checkout
 
       - build:
           requires:
-            - npm-install-linux # !FORMAT - npm-install-<<*test-matrix-os-default>>
+            - npm-install-linux # !FORMAT - npm-install-${*test-matrix-os-default}
       - lint:
           requires:
-            - npm-install-linux # !FORMAT - npm-install-<<*test-matrix-os-default>>
+            - npm-install-linux # !FORMAT - npm-install-${*test-matrix-os-default}
 
       - test-sources:
           coverage: true
@@ -503,14 +505,16 @@ workflows:
             - npm-install-<<matrix.os>>
       - test-tools:
           matrix:
-            <<: *params-test-matrix
-            exclude:
-              - os: *test-matrix-os-default
-                node-version: *test-matrix-nodeversion-default
+            parameters:
+              os: *test-matrix-os
+              node-version: *test-matrix-nodeversion-nondefault
           requires:
             - npm-install-<<matrix.os>>
       - test-tools:
-          name: test-tools-16.16.0-linux # !FORMAT name: test-tools-<<*test-matrix-nodeversion-default>>-<<*test-matrix-os-default>>
+          matrix:
+            parameters:
+              os: *test-matrix-os
+          name: test-tools-16.16.0-<<matrix.os>> # !FORMAT name: test-tools-${!*test-matrix-nodeversion-default}-<<matrix.os>>
           os: *test-matrix-os-default
           node-version: *test-matrix-nodeversion-default
           coverage: true
@@ -519,8 +523,10 @@ workflows:
             
       - codeclimate-upload:
           requires:
-            - test-sources-16.16.0-linux # !FORMAT - test-sources-<<*test-matrix-nodeversion-default>>-<<*test-matrix-os-default>>
-            - test-tools-16.16.0-linux # !FORMAT - test-tools-<<*test-matrix-nodeversion-default>>-<<*test-matrix-os-default>>
+            - test-sources-16.16.0-linux # !FORMAT - test-sources-${!*test-matrix-nodeversion-default}-${*test-matrix-os-default}
+            - test-tools-16.16.0-linux # !FORMAT - test-tools-${!*test-matrix-nodeversion-default}-linux
+            - test-tools-16.16.0-macos # !FORMAT - test-tools-${!*test-matrix-nodeversion-default}-macos
+            - test-tools-16.16.0-windows # !FORMAT - test-tools-${!*test-matrix-nodeversion-default}-windows
   # publish: # Workflow ran only on `main` & `develop`
   #   when:
   #     or:
