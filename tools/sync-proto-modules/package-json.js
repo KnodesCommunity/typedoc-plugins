@@ -6,7 +6,7 @@ const { memoize, cloneDeep, defaultsDeep, uniq } = require( 'lodash' );
 const semver = require( 'semver' );
 const { normalizePath } = require( 'typedoc' );
 
-const { formatPackages, checkFormatPackages, resolveRoot } = require( '../utils' );
+const { formatPackages, resolveRoot } = require( '../utils' );
 const { readProjectPackageJson, getDocsUrl, assertDiffFile } = require( './utils' );
 
 /**
@@ -72,7 +72,7 @@ module.exports.packageJson = async checkOnly => ( {
 		await writeFile( rootPath, `${JSON.stringify( rootJson, null, 2 )  }\n` );
 		if( checkOnly ){
 			try {
-				await checkFormatPackages( rootPath );
+				await formatPackages( rootPath );
 				await assertDiffFile( rootPath, rootJsonStr, true );
 			} finally {
 				await writeFile( rootPath, rootJsonStr );

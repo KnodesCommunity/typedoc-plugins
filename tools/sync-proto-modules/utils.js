@@ -35,7 +35,7 @@ const formatNl = fn => ( str, newLine = true ) => fn( str === '' && newLine ? 'â
 module.exports.assertDiffFile = async ( filename, expectedContent, invert = false ) => {
 	const actualContent = await readFile( filename, 'utf-8' );
 
-	const diff = Diff.diffChars( expectedContent, actualContent );
+	const diff = Diff.diffWords( expectedContent, actualContent );
 	if( diff.length === 1 ){
 		return;
 	}

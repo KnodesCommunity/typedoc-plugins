@@ -25,7 +25,7 @@ find . \( -name README.md -or -name package.json \) -not -path '*/node_modules/*
 npm run build:clean
 npm run build
 npm run lint
-npm run test:ci
+npm run ci:test
 # Commit
 git commit -m "chore: bump to version ${VERSION}" --no-verify
 git tag "v${VERSION}"
