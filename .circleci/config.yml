@@ -267,9 +267,15 @@ jobs:
                 name: Run precommit
                 command: npm run precommit
   build:
-    executor: node
-    resource_class: medium
+    parameters:
+      os:
+        type: string
+      node-version:
+        type: string
+    executor: <<parameters.os>>
     steps:
+      - node/install:
+          node-version: <<parameters.node-version>>
       - attach_workspace:
           at: .
       - run: |
@@ -280,7 +286,6 @@ jobs:
             mkdir -p dists-content/$(basename $file .tgz)
             tar -xzf $file -C dists-content/$(basename $file .tgz)
           done
-
       - store_artifacts:
           path: ./dists
       - store_artifacts:
@@ -533,8 +538,12 @@ workflows:
             - checkout
 
       - build:
+          matrix:
+            parameters:
+              os: *test-matrix-os
+          node-version: *test-matrix-nodeversion-default
           requires:
-            - npm-install-linux # !FORMAT - npm-install-${*test-matrix-os-default}
+            - npm-install-<<matrix.os>> # !FORMAT - npm-install-${*test-matrix-os-default}
       - lint:
           requires:
             - npm-install-linux # !FORMAT - npm-install-${*test-matrix-os-default}
@@ -560,7 +569,7 @@ workflows:
           coverage: true
           requires:
             - npm-install-<<matrix.os>>
-            - build
+            - build-<<matrix.os>>
 
       - codeclimate-upload:
           requires:
