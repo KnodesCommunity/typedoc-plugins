@@ -556,10 +556,10 @@ workflows:
             parameters:
               os: *test-matrix-os
           name: test-tools-16.16.0-<<matrix.os>> # !FORMAT name: test-tools-${!*test-matrix-nodeversion-default}-<<matrix.os>>
-          os: *test-matrix-os-default
           node-version: *test-matrix-nodeversion-default
           coverage: true
           requires:
+            - npm-install-<<matrix.os>>
             - build
 
       - codeclimate-upload:
