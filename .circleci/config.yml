@@ -88,6 +88,23 @@ orbs:
                 - coverage/EXIT_CODE_*
           - store_artifacts:
               path: coverage
+      stub-bins:
+        parameters:
+          bins:
+            type: string
+        steps:
+          - run:
+              name: Stub bins
+              command: |
+                for bin in <<parameters.bins>>; do
+                  if [ -z "$HOMEDRIVE" ]; then
+                    echo "#!bash.exe
+                    echo \"STUB $bin\"" > $(npx which $bin)
+                  else
+                    echo "#!bash.exe
+                    echo \"STUB $bin\"" > $(npx which $bin)
+                  fi
+                done
 
 
 
@@ -233,12 +250,8 @@ jobs:
       - when:
           condition: &test-matrix-coverage-tools-condition <<parameters.coverage>>
           steps:
-            - run:
-                name: Stub bins (keep real typedoc)
-                command: |
-                  for bin in eslint jest tsc; do
-                    echo "echo \"STUB $bin\"" > ./node_modules/.bin/$bin$( [ -z "$HOMEDRIVE" ] || echo '.cmd' )
-                  done
+            - knodes-typedoc-orb/stub-bins:
+                bins: eslint jest tsc
             - run:
                 name: Run precommit with coverage
                 command: |
@@ -252,12 +265,8 @@ jobs:
       - unless:
           condition: *test-matrix-coverage-tools-condition
           steps:
-            - run:
-                name: Stub bins
-                command: |
-                  for bin in eslint jest typedoc tsc; do
-                    echo "echo \"STUB $bin\"" > ./node_modules/.bin/$bin$( [ -z $HOMEDRIVE ] || echo '.cmd' )
-                  done
+            - knodes-typedoc-orb/stub-bins:
+                bins: eslint jest tsc typedoc
             - run:
                 name: Run precommit
                 command: npm run precommit
@@ -547,6 +556,7 @@ workflows:
           requires:
             - npm-install-<<matrix.os>>
       - test-tools:
+          name: test-tools-<<matrix.os>>-STUB
           matrix:
             parameters: 
               os: *test-matrix-os
@@ -555,7 +565,7 @@ workflows:
           requires:
             - npm-install-<<matrix.os>>
       - test-tools:
-          name: test-tools-16.16.0-linux # !FORMAT name: test-tools-${!*test-matrix-nodeversion-default}-${!*test-matrix-os-default}
+          name: test-tools-linux-coverage # !FORMAT name: test-tools-${!*test-matrix-os-default}-coverage
           os: *test-matrix-os-default
           coverage: true
           requires:
@@ -565,7 +575,7 @@ workflows:
       - codeclimate-upload:
           requires:
             - test-sources-16.16.0-linux # !FORMAT - test-sources-${!*test-matrix-nodeversion-default}-${*test-matrix-os-default}
-            - test-tools-16.16.0-linux # !FORMAT - test-tools-${!*test-matrix-nodeversion-default}-linux
+            - test-tools-linux-coverage # !FORMAT - test-tools-${!*test-matrix-os-default}-coverage
             # - test-tools-16.16.0-macos # !FORMAT # - test-tools-${!*test-matrix-nodeversion-default}-macos
             # - test-tools-16.16.0-windows # !FORMAT # - test-tools-${!*test-matrix-nodeversion-default}-windows
   # publish: # Workflow ran only on `main` & `develop`
