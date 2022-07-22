@@ -69,14 +69,10 @@ orbs:
                 - run:
                     name: Normalize windows report
                     command: |
-                      echo 'Performing replaces: '"'"'s|C:\\\\\\\\Users\\\\\\\\circleci\\\\\\\\project|/home/circleci/project|g'"'"' '"'"'s|\\\\\\\\|/|g'"'"''
-
                       for file in "coverage/coverage-summary.json" "<<parameters.coverageJson>>"; do
-                        cat $file | head -n 2
-                        cat $file | sed 's|C:\\\\\\\\Users\\\\\\\\circleci\\\\\\\\project|/home/circleci/project|g' > $file
-                        cat $file | head -n 2
-                        cat $file | sed 's|\\\\\\\\|/|g' > $file
-                        cat $file | head -n 2
+                        cat $file |
+                          sed 's|C:\\\\\\\\Users\\\\\\\\circleci\\\\\\\\project|/home/circleci/project|g' |
+                          sed 's|\\\\\\\\|/|g' > $file
                       done
           - run: |
               mv EXIT_CODE coverage/EXIT_CODE_<<parameters.buildId>>
@@ -177,7 +173,7 @@ jobs:
         type: boolean
         default: false
     executor: <<parameters.os>>
-    parallelism: 1
+    parallelism: 4
     steps:
       - node/install:
           node-version: <<parameters.node-version>>
@@ -195,7 +191,6 @@ jobs:
             echo "
             Will be ran on following files:
             $(cat TEST_FILES)";
-            echo "packages/pluginutils/src/options/option.spec.ts" > TEST_FILES
       # Run tests
       - when:
           condition: &test-matrix-coverage-condition
@@ -534,9 +529,9 @@ workflows:
           requires:
             - checkout
 
-      # - build:
-      #     requires:
-      #       - npm-install-windows # !FORMAT - npm-install-${*test-matrix-os-default}
+      - build:
+          requires:
+            - npm-install-windows # !FORMAT - npm-install-${*test-matrix-os-default}
       - lint:
           requires:
             - npm-install-windows # !FORMAT - npm-install-${*test-matrix-os-default}
@@ -546,30 +541,30 @@ workflows:
           matrix: *params-test-matrix
           requires:
             - npm-install-<<matrix.os>>
-      # - test-tools:
-      #     matrix:
-      #       parameters:
-      #         os: *test-matrix-os
-      #         node-version: *test-matrix-nodeversion-nondefault
-      #     requires:
-      #       - npm-install-<<matrix.os>>
-      # - test-tools:
-      #     matrix:
-      #       parameters:
-      #         os: *test-matrix-os
-      #     name: test-tools-16.16.0-<<matrix.os>> # !FORMAT name: test-tools-${!*test-matrix-nodeversion-default}-<<matrix.os>>
-      #     os: *test-matrix-os-default
-      #     node-version: *test-matrix-nodeversion-default
-      #     coverage: true
-      #     requires:
-      #       - build
+      - test-tools:
+          matrix:
+            parameters:
+              os: *test-matrix-os
+              node-version: *test-matrix-nodeversion-nondefault
+          requires:
+            - npm-install-<<matrix.os>>
+      - test-tools:
+          matrix:
+            parameters:
+              os: *test-matrix-os
+          name: test-tools-16.16.0-<<matrix.os>> # !FORMAT name: test-tools-${!*test-matrix-nodeversion-default}-<<matrix.os>>
+          os: *test-matrix-os-default
+          node-version: *test-matrix-nodeversion-default
+          coverage: true
+          requires:
+            - build
 
       - codeclimate-upload:
           requires:
             - test-sources-16.16.0-windows # !FORMAT - test-sources-${!*test-matrix-nodeversion-default}-${*test-matrix-os-default}
             # - test-tools-16.16.0-linux # !FORMAT # - test-tools-${!*test-matrix-nodeversion-default}-linux
             # - test-tools-16.16.0-macos # !FORMAT # - test-tools-${!*test-matrix-nodeversion-default}-macos
-            # - test-tools-16.16.0-windows # !FORMAT - test-tools-${!*test-matrix-nodeversion-default}-windows
+            - test-tools-16.16.0-windows # !FORMAT - test-tools-${!*test-matrix-nodeversion-default}-windows
   # publish: # Workflow ran only on `main` & `develop`
   #   when:
   #     or:
