@@ -191,7 +191,7 @@ jobs:
                 echo $? > EXIT_CODE
             - knodes-typedoc-orb/coverage-arrange:
                 coverageJson: coverage/coverage-final.json
-                buildId: test-sources-${CIRCLE_NODE_INDEX}
+                buildId: test-sources-${CIRCLE_NODE_INDEX}-<<parameters.os>>
       - unless:
           condition: *test-matrix-coverage-condition
           steps:
