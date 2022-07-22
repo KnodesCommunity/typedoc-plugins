@@ -99,22 +99,12 @@ orbs:
                 for bin in <<parameters.bins>>; do
                   bin_path=$(npx which $bin)
                   if ! [ -z "$HOMEDRIVE" ]; then
-                    bin_path=${bin_path}
-                  else
                     echo "Unsupported Windows"
                     exit 1
                   fi
                   echo "Stubbing ${bin_path}"
-                  if [ -z "$HOMEDRIVE" ]; then
-                    echo "echo \"STUB $bin\"" > ${bin_path}
-                    chmod +x ${bin_path}
-                  else
-                    echo "#!bash.exe
-                    echo \"STUB $bin\"" > ${bin_path}
-                    chmod +x ${bin_path}
-                    cp ${bin_path} ${bin_path}.cmd
-                    cp ${bin_path} ${bin_path}.ps1
-                  fi
+                  echo "echo \"STUB $bin\"" > ${bin_path}
+                  chmod +x ${bin_path}
                 done
 
 
