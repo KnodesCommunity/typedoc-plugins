@@ -121,7 +121,6 @@ jobs:
       node-version:
         type: string
     executor: <<parameters.os>>
-    resource_class: small
     steps:
       - node/install:
           node-version: <<parameters.node-version>>
