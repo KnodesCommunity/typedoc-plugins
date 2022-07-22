@@ -73,9 +73,9 @@ orbs:
 
                       for file in "coverage/coverage-summary.json" "<<parameters.coverageJson>>"; do
                         cat $file | head -n 2
-                        cat $file | sed 's|C:\\\\Users\\\\circleci\\\\project|/home/circleci/project|g' > $file
+                        cat $file | sed 's|C:\\\\\\Users\\\\\\circleci\\\\\\project|/home/circleci/project|g' > $file
                         cat $file | head -n 2
-                        cat $file | sed 's|\\\\|/|g' > $file
+                        cat $file | sed 's|\\\\\\|/|g' > $file
                         cat $file | head -n 2
                       done
           - run: |
