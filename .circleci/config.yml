@@ -242,7 +242,7 @@ jobs:
                 name: Stub bins (keep real typedoc)
                 command: |
                   for bin in eslint jest tsc; do
-                    echo "echo \"STUB $bin\"" > ./node_modules/.bin/$bin$( [ -z $HOMEDRIVE ] && echo '.cmd' )
+                    echo "echo \"STUB $bin\"" > ./node_modules/.bin/$bin$( [ -z "$HOMEDRIVE" ] || echo '.cmd' )
                   done
             - run:
                 name: Run precommit with coverage
@@ -261,7 +261,7 @@ jobs:
                 name: Stub bins
                 command: |
                   for bin in eslint jest typedoc tsc; do
-                    echo "echo \"STUB $bin\"" > ./node_modules/.bin/$bin$( [ -z $HOMEDRIVE ] && echo '.cmd' )
+                    echo "echo \"STUB $bin\"" > ./node_modules/.bin/$bin$( [ -z $HOMEDRIVE ] || echo '.cmd' )
                   done
             - run:
                 name: Run precommit
