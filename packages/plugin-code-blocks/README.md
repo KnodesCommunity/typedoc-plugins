@@ -58,7 +58,6 @@ Syntax:
 For more information on configuration, please refer to [the *options* documentation page](https://knodescommunity.github.io/typedoc-plugins/_knodes_typedoc_plugin_code_blocks/pages/options.html)
 
 <!-- INSTALL -->
-
 ## Quick start
 
 ```sh
@@ -70,5 +69,4 @@ npm install --save-dev @knodes/typedoc-plugin-code-blocks typedoc@^0.23.0
 This plugin version should match TypeDoc `^0.23.0` for compatibility.
 
 > **Note**: this plugin version was released by testing against `^0.23.8`.
-
 <!-- INSTALL end -->

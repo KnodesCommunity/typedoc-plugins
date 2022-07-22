@@ -1,11 +1,7 @@
-const assert = require( 'assert' );
-const { writeFile } = require( 'fs/promises' );
-const { EOL } = require( 'os' );
-
 const { yellow } = require( 'chalk' );
 
 const { globAsync } = require( '../utils' );
-const { tryReadFile, getDocsUrl, readProjectPackageJson } = require( './utils' );
+const { tryReadFile, getDocsUrl, readProjectPackageJson, syncFile } = require( './utils' );
 
 /**
  * @param {boolean} checkOnly
@@ -19,10 +15,10 @@ module.exports.readme = checkOnly => {
 	const replaceHeader = async ( readmeContent, packageContent ) => {
 		let newHeader = `# ${packageContent.name}`;
 		if( packageContent.description ){
-			newHeader += `${EOL}${EOL}> ${packageContent.description}`;
+			newHeader += `\n\n> ${packageContent.description}`;
 		}
 		const shield = ( label, suffix, link ) => `[![${label}](https://img.shields.io${suffix}?style=for-the-badge)](${link})`;
-		newHeader += `${EOL}
+		newHeader += `\n
 ${shield( 'npm version', `/npm/v/${packageContent.name}`, `https://www.npmjs.com/package/${packageContent.name}` )}
 ${shield( 'npm downloads', `/npm/dm/${packageContent.name}`, `https://www.npmjs.com/package/${packageContent.name}` )}
 [![Compatible with TypeDoc](https://img.shields.io/badge/For%20typedoc-${packageContent.peerDependencies.typedoc}-green?logo=npm&style=for-the-badge)](https://www.npmjs.com/package/typedoc)
@@ -51,30 +47,22 @@ ${newHeader}
 	const replaceInstall = async ( readmeContent, packageContent ) => {
 		const typedocVer = packageContent.dependencies?.['typedoc'] ?? packageContent.peerDependencies?.['typedoc'];
 		const devTypedocVer = packageContent.devDependencies?.['typedoc'];
-		let newInstall = `
-## Quick start
+		let newInstall = `## Quick start
 
 \`\`\`sh
 npm install --save-dev ${packageContent.name}${typedocVer ? ` typedoc@${typedocVer}` : ''}
 \`\`\``;
 		if( typedocVer || devTypedocVer ){
-			newInstall += `
-
-## Compatibility`;
+			newInstall += '\n\n## Compatibility';
 		}
 		if( typedocVer ){
-			newInstall += `
-
-This plugin version should match TypeDoc \`${typedocVer}\` for compatibility.`;
+			newInstall += `\n\nThis plugin version should match TypeDoc \`${typedocVer}\` for compatibility.`;
 		}
 		if( devTypedocVer ){
-			newInstall += `
-
-> **Note**: this plugin version was released by testing against \`${devTypedocVer}\`.`;
+			newInstall += `\n\n> **Note**: this plugin version was released by testing against \`${devTypedocVer}\`.`;
 		}
 		newInstall = `<!-- INSTALL -->
 ${newInstall}
-
 <!-- INSTALL end -->
 `;
 		const installRegex = /^<!-- INSTALL -->(.*)<!-- INSTALL end -->(\r?\n|$)/sm;
@@ -97,15 +85,11 @@ ${newInstall}
 			if( !packageContent ){
 				throw new Error();
 			}
-			const result = await [ replaceHeader, replaceInstall ].reduce( async ( content, fn ) => {
+			const result = ( await [ replaceHeader, replaceInstall ].reduce( async ( content, fn ) => {
 				const c = await content;
 				return fn( c, packageContent );
-			}, Promise.resolve( readmeContent ) );
-			if( checkOnly ){
-				assert.equal( result, readmeContent, `Readme ${readmeFile} does not match prototype` );
-			} else {
-				await writeFile( readmeFile, result );
-			}
+			}, Promise.resolve( readmeContent ) ) ).replace( /\r\n/g, '\n' );
+			await syncFile( checkOnly, readmeFile, result );
 		},
 		handleFile: filename => /(\/|^)readme\.md$/i.test( filename ),
 	};

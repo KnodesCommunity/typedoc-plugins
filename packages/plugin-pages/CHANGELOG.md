@@ -22,9 +22,10 @@ No notable changes were done in this version.
 ### Features
 
 * add 'excludeMarkdownTags' option ([c02d8a](https://github.com/KnodesCommunity/typedoc-plugins/commit/c02d8a0dad05325005257537bdb405a847e875a5))
-* allow selecting multiple file regions in a single block ([c02d8a](https://github.com/KnodesCommunity/typedoc-plugins/commit/c02d8a0dad05325005257537bdb405a847e875a5))
+* rework how pages are mapped to modules ([c02d8a](https://github.com/KnodesCommunity/typedoc-plugins/commit/c02d8a0dad05325005257537bdb405a847e875a5))
+* improve `pages` option validation ([c02d8a](https://github.com/KnodesCommunity/typedoc-plugins/commit/c02d8a0dad05325005257537bdb405a847e875a5))
 * implement theme interface properly (still needs demo theme) ([c02d8a](https://github.com/KnodesCommunity/typedoc-plugins/commit/c02d8a0dad05325005257537bdb405a847e875a5))
-* use repository type to infer code block link (bitbucket not implemented) ([d21a7f7](https://github.com/KnodesCommunity/typedoc-plugins/commit/d21a7f7cc53c7b382fc7e14a897b4401f513899e))
+* add properly formatted link in  section of workspace roots ([dee3355](https://github.com/KnodesCommunity/typedoc-plugins/commit/dee33558e72a349d8bbaee2edb35e2952a1c6431))
 * **dep: @knodes/typedoc-pluginutils**: add helper to create sources with repo URL ([d069278](https://github.com/KnodesCommunity/typedoc-plugins/commit/d069278d70398244a5bbf434b27b747c40ef5866))
 
 
@@ -37,6 +38,7 @@ No notable changes were done in this version.
 ### Bug Fixes
 
 * **deps**: update dependency memfs to v3.4.7 ([f9acee2](https://github.com/KnodesCommunity/typedoc-plugins/commit/f9acee29c68c7525a95f40c0982b7b4981f69ab7))
+* include GENERATED files in package ([88ff876](https://github.com/KnodesCommunity/typedoc-plugins/commit/88ff876631b4fa1d97f50ede3eeba30e69fc47ff))
 
 
 ## [0.22.6](https://github.com/KnodesCommunity/typedoc-plugins/compare/v0.22.5...v0.22.6) (2022-06-27)
@@ -85,6 +87,11 @@ No notable changes were done in this version.
 No notable changes were done in this version.
 
 
+### Bug Fixes
+
+* include missing `static` folder in package files ([1889d89](https://github.com/KnodesCommunity/typedoc-plugins/commit/1889d8919b90bb8716bd9b6d97962bab5ad17132))
+
+
 ## 0.22.1 (2022-03-04)
 
 
@@ -99,10 +106,15 @@ No notable changes were done in this version.
 
 ### Features
 
-* add [@inline-codeblock](https://github.com/inline-codeblock) macro ([6d5dff4](https://github.com/KnodesCommunity/typedoc-plugins/commit/6d5dff450bc7e467ed95e88578af75ccbb8c6949))
-* use new plugin format & tools ([f1d52ba](https://github.com/KnodesCommunity/typedoc-plugins/commit/f1d52bac0340bf15e65baecee46c022789dffba3))
-* use pluginutils ABasePlugin, use new options format ([33b1700](https://github.com/KnodesCommunity/typedoc-plugins/commit/33b17004f75a06495931405b08e093768bf3f50c))
-* use theme-like approach for code blocks rendering, add projects path alias ([37521ed](https://github.com/KnodesCommunity/typedoc-plugins/commit/37521ed38ab651bf2f5389fd7a6b0c092555caa7))
+* add plugin ([2434d33](https://github.com/KnodesCommunity/typedoc-plugins/commit/2434d33399ec66e3c876e2a54cfa8a66bae77966))
+* add search support ([08242d4](https://github.com/KnodesCommunity/typedoc-plugins/commit/08242d4449c84dd9bdf3af7c9c98dee496c15d59))
+* add support for plugin-scoped log level ([48984d5](https://github.com/KnodesCommunity/typedoc-plugins/commit/48984d5aa67bde7c660e731200a0171b11f8e5a6))
+* allow relative resolution of pages, add `~~` alias, change render link signature ([8676ae4](https://github.com/KnodesCommunity/typedoc-plugins/commit/8676ae47f068a1b6ec76f4dd245e80f5e08e2d09))
+* fallback default theme: add css file, stylize menu entries ([4bc43f0](https://github.com/KnodesCommunity/typedoc-plugins/commit/4bc43f011496c971f73ae5230f79f30c806a66d0))
+* remove `workspace` node field (attach to module by name), various tweaks & fixes ([31e906a](https://github.com/KnodesCommunity/typedoc-plugins/commit/31e906abeba79a39d6d31b4c2fd3686d2e0f15a0))
+* strip empty groups with a warning message ([3a7733d](https://github.com/KnodesCommunity/typedoc-plugins/commit/3a7733d0a0f07f374ef367ecc723390d7d0550df))
+* use new option format, fix issue with pages ordering, rework theme plugins ([0afdf9d](https://github.com/KnodesCommunity/typedoc-plugins/commit/0afdf9deb168f3330d3ee7e8c5ffdba81dc4f2ba))
+* validate pages option ([1634a2e](https://github.com/KnodesCommunity/typedoc-plugins/commit/1634a2ee40b97dfff9c81f4574e9ca72c8df47fc))
 * **dep: @knodes/typedoc-pluginutils**: add `name` getter on plugin ([335095a](https://github.com/KnodesCommunity/typedoc-plugins/commit/335095a976ecedab7d1cbb64a2a1de0e4e5e7b79))
 * **dep: @knodes/typedoc-pluginutils**: add better support for modules in path reflection resolution ([ff0f7c7](https://github.com/KnodesCommunity/typedoc-plugins/commit/ff0f7c790c627a8308c00c8d5426d402657d11fa))
 * **dep: @knodes/typedoc-pluginutils**: add option group, add resolvePackageFile ([878baf8](https://github.com/KnodesCommunity/typedoc-plugins/commit/878baf8f713cd1f307bcde2a909ae0257d835d73))

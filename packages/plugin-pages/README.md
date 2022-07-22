@@ -54,7 +54,6 @@ Syntax:
 * `[ link label]`: allow to specify the text in the link. If not set, the target page title is used.
 
 <!-- INSTALL -->
-
 ## Quick start
 
 ```sh
@@ -66,7 +65,6 @@ npm install --save-dev @knodes/typedoc-plugin-pages typedoc@^0.23.0
 This plugin version should match TypeDoc `^0.23.0` for compatibility.
 
 > **Note**: this plugin version was released by testing against `^0.23.8`.
-
 <!-- INSTALL end -->
 
 > **NOTE:** This plugin is based on [typedoc-plugin-loopingz-pages](https://github.com/loopingz/typedoc-plugin-loopingz-pages), which is in turn a fork of [typedoc-plugin-pages](https://github.com/mipatterson/typedoc-plugin-pages). Integrating it in this monorepo should (I hope) make easier maintenance.<!-- INSTALL -->

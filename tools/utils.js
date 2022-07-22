@@ -1,4 +1,5 @@
 const { exec: _exec, spawn: _spawn } = require( 'child_process' );
+const { resolve, relative } = require( 'path' );
 const { Writable, Stream, Readable } = require( 'stream' );
 const { promisify } = require( 'util' );
 
@@ -63,7 +64,14 @@ const captureStream = () => {
 module.exports.captureStream = captureStream;
 
 /**
- * @typedef {{name: string, path: string}} Project
+ * @typedef {{
+ * 	id: string,
+ * 	name: string,
+ * 	path: string,
+ * 	absPath: string,
+ * 	pkgName: string,
+ * 	pkgJon: any
+ * }} Project
  */
 /**
  * @returns {Project[]}
@@ -77,10 +85,17 @@ const getProjects = once( () => {
 		names = names.map( n => n.slice( 1 ) );
 	}
 	return packages
-		.map( ( p, i ) => ( {
-			path: p,
-			name: names[i],
-		} ) );
+		.map( ( p, i ) => {
+			const pkgJson = require( resolve( __dirname, '..', p, 'package.json' ) );
+			return {
+				id: relative( './packages', p ),
+				path: p,
+				absPath: this.resolveRoot( p ),
+				name: names[i],
+				pkgJson,
+				pkgName: pkgJson.name,
+			};
+		} );
 } );
 module.exports.getProjects = getProjects;
 /**
@@ -170,3 +185,5 @@ module.exports.getStagedFiles = async ( ...filesList ) => {
 	await spawn( 'git', [ 'diff', '--name-only', '--cached', ...filesList ], { stdio: [ null, stagedPatchesOutput, null ] } );
 	return stagedPatchesOutput.read().split( /\r?\n/ ).filter( v => v );
 };
+
+module.exports.resolveRoot = ( ...paths ) => resolve( __dirname, '..', ...paths );

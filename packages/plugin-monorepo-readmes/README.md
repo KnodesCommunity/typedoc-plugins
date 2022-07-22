@@ -37,7 +37,6 @@ You can configure file names to search to get the workspace root with the [`plug
 For more information on configuration, please refer to [the *options* documentation page](https://knodescommunity.github.io/typedoc-plugins/_knodes_typedoc_plugin_monorepo_readmes/pages/options.html)
 
 <!-- INSTALL -->
-
 ## Quick start
 
 ```sh
@@ -49,5 +48,4 @@ npm install --save-dev @knodes/typedoc-plugin-monorepo-readmes typedoc@^0.23.0
 This plugin version should match TypeDoc `^0.23.0` for compatibility.
 
 > **Note**: this plugin version was released by testing against `^0.23.8`.
-
 <!-- INSTALL end -->

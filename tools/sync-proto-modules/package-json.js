@@ -3,84 +3,83 @@ const { readFile, writeFile } = require( 'fs/promises' );
 const { resolve } = require( 'path' );
 
 const { memoize, cloneDeep, defaultsDeep, uniq } = require( 'lodash' );
+const semver = require( 'semver' );
 const { normalizePath } = require( 'typedoc' );
 
-const { formatPackages, checkFormatPackages } = require( '../utils' );
-const { readProjectPackageJson, getDocsUrl } = require( './utils' );
+const { formatPackages, resolveRoot } = require( '../utils' );
+const { readProjectPackageJson, getDocsUrl, assertDiffFile } = require( './utils' );
 
 /**
  * @param {boolean} checkOnly
- * @returns {import('./utils').ProtoHandler}
+ * @returns {import('./utils').ProtoHandler<{getProtoPkg: (v: string) => string, rootJson: any, rootJsonStr: string, rootPath: string}}
  */
-module.exports.packageJson = async checkOnly => {
-	const getProtoPkg = memoize( proto => readFile( resolve( proto, 'package.json' ), 'utf-8' ) );
-	const rootPackageJsonPath = normalizePath( resolve( __dirname, '../../package.json' ) );
-	const rootPackageJsonStr = await readFile( rootPackageJsonPath, 'utf-8' );
-	const rootPackageJson = JSON.parse( rootPackageJsonStr );
-	return {
-		run: async ( proto, { path: projectPath }, projects ) => {
-			const { packageContent = {}, path: packagePath } = await readProjectPackageJson( projectPath ) ?? {};
-			const protoPkgContent = await getProtoPkg( proto );
-			const protoPkg = JSON.parse( protoPkgContent
-				.replace( /\{projectRelDir\}/g, projectPath )
-				.replace( /\{projectTypeDocUrl\}/g, getDocsUrl( packageContent ) ) );
-			const newProjectPkg = defaultsDeep( cloneDeep( protoPkg ), packageContent );
-			[ 'keywords', 'files' ].forEach( prop => newProjectPkg[prop] = uniq( [
-				...( protoPkg[prop] ?? [] ),
-				...( packageContent[prop] ?? [] ),
-			]
-				.map( k => k.toLowerCase() ) )
-				.sort() );
-			if( checkOnly ){
-				assert.deepStrictEqual( newProjectPkg, packageContent );
-			} else {
-				await writeFile( packagePath, JSON.stringify( newProjectPkg, null, 2 ) );
-			}
+module.exports.packageJson = async checkOnly => ( {
+	setup: async () => {
+		const getProtoPkg = memoize( proto => readFile( resolve( proto, 'package.json' ), 'utf-8' ) );
+		const rootPath = resolveRoot( 'package.json' );
+		const rootJsonStr = await readFile( rootPath, 'utf-8' );
+		const rootJson = JSON.parse( rootJsonStr );
+		return { getProtoPkg, rootJson, rootJsonStr, rootPath };
+	},
+	run: async ( proto, { path: projectPath }, projects, _, { getProtoPkg, rootJson: rootPackageJson } ) => {
+		const { packageContent = {}, path: packagePath } = await readProjectPackageJson( projectPath ) ?? {};
+		const protoPkgContent = await getProtoPkg( proto );
+		const protoPkg = JSON.parse( protoPkgContent
+			.replace( /\{projectRelDir\}/g, projectPath )
+			.replace( /\{projectTypeDocUrl\}/g, getDocsUrl( packageContent ) ) );
+		const newProjectPkg = defaultsDeep( cloneDeep( protoPkg ), packageContent );
+		[ 'keywords', 'files' ].forEach( prop => newProjectPkg[prop] = uniq( [
+			...( protoPkg[prop] ?? [] ),
+			...( packageContent[prop] ?? [] ),
+		]
+			.map( k => k.toLowerCase() ) )
+			.sort() );
+		if( checkOnly ){
+			assert.deepStrictEqual( newProjectPkg, packageContent );
+		} else {
+			await writeFile( packagePath, JSON.stringify( newProjectPkg, null, 2 ) );
+		}
 
-			Object.entries( packageContent )
-				.filter( ( [ k ] ) => k.toLowerCase().includes( 'dependencies' ) )
-				.forEach( ( [ k, v ] ) => {
-					const rootPkgDeps = rootPackageJson[k] ?? {};
-					const filteredDeps = Object.fromEntries( Object.entries( v )
-						.filter( ( [ depName, depV ] ) => {
-							if( depName in rootPkgDeps && rootPkgDeps[depName] !== depV ){
-								console.warn( `Mismatching dependency ${depName} from ${projectPath}: ${rootPkgDeps[depName]} so far vs ${depV}` );
-								rootPkgDeps[depName] = depV;
-							} else if( !projects.some( p => require( resolve( p.path, 'package.json' ) ).name === depName ) ){
-								return [ depName, depV ];
-							}
-						} ) );
-					rootPackageJson[k] = {
-						...rootPkgDeps,
-						...filteredDeps,
-					};
-				} );
-		},
-		tearDown: async( proto, projects ) => {
-			Object.entries( rootPackageJson )
-				.filter( ( [ k ] ) => k.toLowerCase().includes( 'dependencies' ) )
-				.forEach( ( [ , v ] ) => {
-					projects.forEach( p => {
-						const projectName = require( resolve( p.path, 'package.json' ) ).name;
-						delete v[projectName];
-					} );
-				} );
-			rootPackageJson.devDependencies = {
-				...rootPackageJson.devDependencies,
-				...Object.fromEntries( projects.map( p => [ require( resolve( p.path, 'package.json' ) ).name, `file:${p.path}` ] ) ),
-			};
-			await writeFile( rootPackageJsonPath, `${JSON.stringify( rootPackageJson, null, 2 )  }\n` );
-			if( checkOnly ){
-				try {
-					await checkFormatPackages( rootPackageJsonPath );
-					assert.equal( await readFile( rootPackageJsonPath, 'utf-8' ), rootPackageJsonStr, 'Root package.json changed' );
-				} finally {
-					await writeFile( rootPackageJsonPath, rootPackageJsonStr );
-				}
-			} else {
-				await formatPackages( rootPackageJsonPath, ...projects.map( p => normalizePath( resolve( p.path, 'package.json' ) ) ) );
+		rootPackageJson['devDependencies'] = rootPackageJson['devDependencies'] ?? {};
+		Object.entries( packageContent )
+			.filter( ( [ k ] ) => k.toLowerCase().includes( 'dependencies' ) )
+			.forEach( ( [ k, v ] ) => {
+				const rootPkgDeps = rootPackageJson['devDependencies'] ?? {};
+				const filteredDeps = Object.fromEntries( Object.entries( v )
+					.filter( ( [ depName, depV ] ) => {
+						if( projects.some( p => p.pkgName === depName ) ){
+							return false;
+						}
+						if( k === 'peerDependencies' && semver.satisfies( semver.minVersion( rootPkgDeps[depName] ), depV ) ){
+							return false;
+						}
+						if( depName in rootPkgDeps && rootPkgDeps[depName] !== depV ){
+							console.warn( `Mismatching ${k} ${depName} from ${projectPath}: ${rootPkgDeps[depName]} in root vs ${depV} in pkg` );
+						}
+						return true;
+					} ) );
+				rootPackageJson['devDependencies'] = {
+					...rootPkgDeps,
+					...filteredDeps,
+				};
+			} );
+	},
+	tearDown: async( proto, projects, _, { rootJson: rootJson, rootJsonStr: rootJsonStr, rootPath } ) => {
+		rootJson['devDependencies'] = {
+			...rootJson['devDependencies'],
+			...Object.fromEntries( projects.map( p => [ p.pkgName, `file:${p.path}` ] ) ),
+		};
+		await writeFile( rootPath, `${JSON.stringify( rootJson, null, 2 )  }\n` );
+		if( checkOnly ){
+			try {
+				await formatPackages( rootPath );
+				await assertDiffFile( rootPath, rootJsonStr, true );
+			} finally {
+				await writeFile( rootPath, rootJsonStr );
 			}
-		},
-		handleFile: filename => /(\/|^)package\.json$/.test( filename ),
-	};
-};
+		} else {
+			await formatPackages( rootPath, ...projects.map( p => normalizePath( resolve( p.path, 'package.json' ) ) ) );
+		}
+	},
+	handleFile: filename => /(\/|^)package\.json$/.test( filename ),
+} );

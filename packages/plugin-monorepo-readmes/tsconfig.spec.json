@@ -6,7 +6,11 @@
       "jest-extended",
       "@testing-library/jest-dom",
       "node"
-    ]
+    ],
+    "paths": {
+      "#plugintestbed": ["packages/plugintestbed/src"],
+      "@knodes/typedoc-*": ["packages/*/src"],
+    }
   },
   "include": ["src", "__tests__", "types/test.d.ts"],
   "exclude": []

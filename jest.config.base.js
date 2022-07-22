@@ -1,4 +1,8 @@
-const { resolve, relative } = require( 'path' );
+const { relative } = require( 'path' );
+
+const { escapeRegExp } = require( 'lodash' );
+
+const { resolveRoot } = require( './tools/utils' );
 
 /**
  * @param package - Package name
@@ -10,11 +14,14 @@ const baseConfig = package => ( {
 	globals: {
 		'ts-jest': {
 			tsconfig: `<rootDir>/packages/${package}/tsconfig.spec.json`,
+			diagnostics: {
+				pathRegex: new RegExp( `^${escapeRegExp( __dirname )}/packages/${package}/.*` ),
+			},
 		},
 	},
 	moduleNameMapper: {
-		'^@knodes/typedoc-(plugin.*)$': resolve( __dirname, './packages/$1/src' ),
-		'^#plugintestbed$': resolve( __dirname, './packages/plugintestbed/src' ),
+		'^@knodes/typedoc-(plugin.*)$': resolveRoot( __dirname, './packages/$1/src' ),
+		'^#plugintestbed$': resolveRoot( './packages/plugintestbed/src' ),
 	},
 	setupFilesAfterEnv: [ 'jest-extended/all' ],
 	watchPathIgnorePatterns: [ '<rootDir>/.*/__tests__/mock-fs/.*/docs' ],
@@ -23,10 +30,10 @@ const baseConfig = package => ( {
 const anyExt = '.{c,m,}{t,j}s{x,}';
 /** @type {import('ts-jest/dist/types').InitialOptionsTsJest[]} */
 module.exports = projectDir => {
-	const package = relative( resolve( __dirname, 'packages' ), projectDir );
+	const package = relative( resolveRoot( 'packages' ), projectDir );
 	const base = baseConfig( package );
 	return {
-		rootDir: resolve( __dirname, 'packages', package ),
+		rootDir: resolveRoot( 'packages', package ),
 		projects: [
 			{
 				...base,
