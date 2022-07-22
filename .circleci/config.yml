@@ -467,29 +467,29 @@ jobs:
 # Invoke jobs via workflows
 # See: https://circleci.com/docs/2.0/configuration-reference/#workflows
 workflows:
-  renovate: # Workflow ran only on `renovate/*`
-    when:
-      matches: { pattern: "^renovate/.+$", value: <<pipeline.git.branch>> }
-    jobs:
-      - checkout
-      - npm-install:
-          os: linux
-          requires:
-            - checkout
+  # renovate: # Workflow ran only on `renovate/*`
+  #   when:
+  #     matches: { pattern: "^renovate/.+$", value: <<pipeline.git.branch>> }
+  #   jobs:
+  #     - checkout
+  #     - npm-install:
+  #         os: linux
+  #         requires:
+  #           - checkout
 
-      - build:
-          requires:
-            - npm-install
-      - lint:
-          requires:
-            - npm-install
-      - test-sources:
-          matrix:
-            parameters:
-              os: [*test-matrix-os-default]
-              node-version: *test-matrix-nodeversion
-          requires:
-            - npm-install
+  #     - build:
+  #         requires:
+  #           - npm-install
+  #     - lint:
+  #         requires:
+  #           - npm-install
+  #     - test-sources:
+  #         matrix:
+  #           parameters:
+  #             os: [*test-matrix-os-default]
+  #             node-version: *test-matrix-nodeversion
+  #         requires:
+  #           - npm-install
 
   check: # Workflow ran on all branches except `main`, `develop` and `renovate/*`
     unless:
