@@ -464,7 +464,7 @@ jobs:
             echo "Running coverage report by merging ${PARTS}"
             mv coverage coverage-tmp
             npx nyc report --reporter lcov --reporter json-summary --temp-dir coverage-tmp
-            ./cc-test-reporter after-build --coverage-input-type lcov --exit-code $(cat * | sort | tail -f)
+            ./cc-test-reporter after-build --coverage-input-type lcov --exit-code $(echo ${exit_code} | sort | tail -f)
       - store_artifacts:
           path: coverage
 
