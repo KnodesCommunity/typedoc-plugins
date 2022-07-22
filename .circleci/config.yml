@@ -34,7 +34,7 @@ executors:
 x-params:
   test-matrix: &params-test-matrix
     parameters:
-      os: [&test-matrix-os-default linux, macos, windows]
+      os: [&test-matrix-os-default linux, windows]
       node-version: &test-matrix-node-versions ["14.19.3", "16.15.1", &test-matrix-node-versions-default "16.16.0"]
 x-steps:
   npm-install-cache: &step-npm-install-cache
