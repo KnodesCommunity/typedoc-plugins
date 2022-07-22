@@ -543,7 +543,7 @@ workflows:
               os: *test-matrix-os
           node-version: *test-matrix-nodeversion-default
           requires:
-            - npm-install-<<matrix.os>> # !FORMAT - npm-install-${*test-matrix-os-default}
+            - npm-install-<<matrix.os>>
       - lint:
           requires:
             - npm-install-linux # !FORMAT - npm-install-${*test-matrix-os-default}
