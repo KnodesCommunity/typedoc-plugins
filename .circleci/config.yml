@@ -118,9 +118,13 @@ jobs:
         default: clean-install
       os:
         type: string
-    executor: node
+      node-version:
+        type: string
+    executor: <<parameters.os>>
     resource_class: small
     steps:
+      - node/install:
+          node-version: <<parameters.node-version>>
       - attach_workspace:
           at: .
       - knodes-typedoc-orb/install:
@@ -178,6 +182,7 @@ jobs:
               - { equal: [<<parameters.node-version>>, *test-matrix-nodeversion-default ] }
           steps:
             - run: |
+                set -eo pipefail
                 npm run test:ci:coverage -- $(cat TEST_FILES)
                 echo $? > EXIT_CODE
             - knodes-typedoc-orb/coverage-arrange:
@@ -220,6 +225,7 @@ jobs:
             - run:
                 name: Run precommit with coverage
                 command: |
+                  set -eo pipefail
                   nyc --reporter json-summary --reporter json npm run precommit
                   echo $? > EXIT_CODE
             - knodes-typedoc-orb/coverage-arrange:
@@ -498,6 +504,7 @@ workflows:
             parameters:
               os: *test-matrix-os
           install-type: install
+          node-version: *test-matrix-nodeversion-default
           requires:
             - checkout
 
