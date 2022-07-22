@@ -35,7 +35,7 @@ x-params:
   test-matrix: &params-test-matrix
     parameters:
       os: [&test-matrix-os-default linux, macos, windows]
-      node-version: &test-matrix-node-versions ["14.19.3", "16.15.1", &test-matrix-node-versions-default "18.4.0"]
+      node-version: &test-matrix-node-versions ["14.19.3", "16.15.1", &test-matrix-node-versions-default "16.16.0"]
 x-steps:
   npm-install-cache: &step-npm-install-cache
     restore_cache:
@@ -156,7 +156,7 @@ jobs:
           steps:
           - run:
               command: |
-                npm run test:ci:coverage
+                npm run ci:test:coverage
                 echo $? > TEST_STATUS
                 exit $(cat TEST_STATUS)
               when: always
@@ -164,7 +164,7 @@ jobs:
           condition: *test-matrix-coverage-condition
           steps:
           - run:
-              command: npm run test:ci
+              command: npm run ci:test
               when: always
       - store_artifacts:
           path: ./junit.xml
