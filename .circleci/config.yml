@@ -221,22 +221,17 @@ jobs:
     parameters:
       os:
         type: string
-      node-version:
-        type: string
       coverage:
         type: boolean
         default: false
     executor: <<parameters.os>>
     steps:
       - node/install:
-          node-version: <<parameters.node-version>>
+          node-version: *test-matrix-nodeversion-default
       - attach_workspace:
           at: .
       - when:
-          condition: &test-matrix-coverage-tools-condition
-            and:
-              - <<parameters.coverage>>
-              - { equal: [<<parameters.node-version>>, *test-matrix-nodeversion-default ] }
+          condition: &test-matrix-coverage-tools-condition <<parameters.coverage>>
           steps:
             - run:
                 name: Stub bins (keep real typedoc)
@@ -538,12 +533,10 @@ workflows:
             - checkout
 
       - build:
-          matrix:
-            parameters:
-              os: *test-matrix-os
+          os: *test-matrix-os-default
           node-version: *test-matrix-nodeversion-default
           requires:
-            - npm-install-<<matrix.os>>
+            - npm-install-linux
       - lint:
           requires:
             - npm-install-linux # !FORMAT - npm-install-${*test-matrix-os-default}
@@ -555,28 +548,26 @@ workflows:
             - npm-install-<<matrix.os>>
       - test-tools:
           matrix:
-            parameters:
+            parameters: 
               os: *test-matrix-os
-              node-version: *test-matrix-nodeversion-nondefault
+            exclude:
+              - os: *test-matrix-os-default
           requires:
             - npm-install-<<matrix.os>>
       - test-tools:
-          matrix:
-            parameters:
-              os: *test-matrix-os
-          name: test-tools-16.16.0-<<matrix.os>> # !FORMAT name: test-tools-${!*test-matrix-nodeversion-default}-<<matrix.os>>
-          node-version: *test-matrix-nodeversion-default
+          name: test-tools-16.16.0-linux # !FORMAT name: test-tools-${!*test-matrix-nodeversion-default}-${!*test-matrix-os-default}
+          os: *test-matrix-os-default
           coverage: true
           requires:
-            - npm-install-<<matrix.os>>
-            - build-<<matrix.os>>
+            - npm-install-linux # !FORMAT - npm-install-${!*test-matrix-os-default}
+            - build
 
       - codeclimate-upload:
           requires:
             - test-sources-16.16.0-linux # !FORMAT - test-sources-${!*test-matrix-nodeversion-default}-${*test-matrix-os-default}
             - test-tools-16.16.0-linux # !FORMAT - test-tools-${!*test-matrix-nodeversion-default}-linux
             # - test-tools-16.16.0-macos # !FORMAT # - test-tools-${!*test-matrix-nodeversion-default}-macos
-            - test-tools-16.16.0-windows # !FORMAT - test-tools-${!*test-matrix-nodeversion-default}-windows
+            # - test-tools-16.16.0-windows # !FORMAT # - test-tools-${!*test-matrix-nodeversion-default}-windows
   # publish: # Workflow ran only on `main` & `develop`
   #   when:
   #     or:
