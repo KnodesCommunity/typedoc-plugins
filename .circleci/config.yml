@@ -70,10 +70,13 @@ orbs:
                     name: Normalize windows report
                     command: |
                       echo 'Performing replaces: '"'"'s|C:\\\\Users\\\\circleci\\\\project|/home/circleci/project|g'"'"' '"'"'s|\\\\|/|g'"'"''
+
                       for file in "coverage/coverage-summary.json" "<<parameters.coverageJson>>"; do
-                        cat $file |
-                          sed 's|C:\\\\Users\\\\circleci\\\\project|/home/circleci/project|g' |
-                          sed 's|\\\\|/|g' > $file
+                        cat $file | head -n 2
+                        cat $file | sed 's|C:\\\\Users\\\\circleci\\\\project|/home/circleci/project|g' > $file
+                        cat $file | head -n 2
+                        cat $file | sed 's|\\\\|/|g' > $file
+                        cat $file | head -n 2
                       done
           - run: |
               mv EXIT_CODE coverage/EXIT_CODE_<<parameters.buildId>>
@@ -174,7 +177,7 @@ jobs:
         type: boolean
         default: false
     executor: <<parameters.os>>
-    parallelism: 4
+    parallelism: 1
     steps:
       - node/install:
           node-version: <<parameters.node-version>>
@@ -192,6 +195,7 @@ jobs:
             echo "
             Will be ran on following files:
             $(cat TEST_FILES)";
+            echo "packages/pluginutils/src/options/option.spec.ts" > TEST_FILES
       # Run tests
       - when:
           condition: &test-matrix-coverage-condition
