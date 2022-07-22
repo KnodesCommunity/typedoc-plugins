@@ -97,12 +97,16 @@ orbs:
               name: Stub bins
               command: |
                 for bin in <<parameters.bins>>; do
+                  bin_path=$(npx which $bin)
+                  if ! [ -z "$HOMEDRIVE" ]; then
+                    bin_path=${bin_path}.cmd
+                  fi
+                  echo "Stubbing ${bin_path}"
                   if [ -z "$HOMEDRIVE" ]; then
-                    echo "#!bash.exe
-                    echo \"STUB $bin\"" > $(npx which $bin)
+                    echo "echo \"STUB $bin\"" > ${bin_path}
                   else
                     echo "#!bash.exe
-                    echo \"STUB $bin\"" > $(npx which $bin)
+                    echo \"STUB $bin\"" > ${bin_path}
                   fi
                 done
 
