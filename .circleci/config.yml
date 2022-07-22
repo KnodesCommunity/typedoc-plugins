@@ -55,11 +55,25 @@ orbs:
               command: ./cc-test-reporter before-build
       coverage-arrange:
         parameters:
+          os:
+            type: string
           coverageJson:
             type: string
           buildId:
             type: string
         steps:
+          - when:
+              condition:
+                equal: [<<parameters.os>>, "windows"]
+              steps:
+                - run:
+                    name: Normalize windows report
+                    command: |
+                      for file in "coverage/coverage-summary.json" "<<parameters.coverageJson>>"; do
+                        cat $file |
+                          sed 's|C:\\\\Users\\\\circleci\\\\project|/home/circleci/project|g' |
+                          sed 's|\\\\|/|g' > $file
+                      done
           - run: |
               mv EXIT_CODE coverage/EXIT_CODE_<<parameters.buildId>>
               mv coverage/coverage-summary.json coverage/coverage-summary-<<parameters.buildId>>.json
@@ -190,8 +204,9 @@ jobs:
                 npm run ci:test:coverage -- $(cat TEST_FILES)
                 echo $? > EXIT_CODE
             - knodes-typedoc-orb/coverage-arrange:
+                os: <<parameters.os>>
                 coverageJson: coverage/coverage-final.json
-                buildId: test-sources-${CIRCLE_NODE_INDEX}-<<parameters.os>>
+                buildId: test-sources-${CIRCLE_NODE_INDEX}
       - unless:
           condition: *test-matrix-coverage-condition
           steps:
@@ -233,6 +248,7 @@ jobs:
                   npx nyc --reporter json-summary --reporter json npm run precommit
                   echo $? > EXIT_CODE
             - knodes-typedoc-orb/coverage-arrange:
+                os: <<parameters.os>>
                 coverageJson: coverage/coverage-final.json
                 buildId: test-tools-<<parameters.os>>
       - unless:
@@ -460,12 +476,6 @@ jobs:
           command: |
             exit_code=$(cat coverage/EXIT_CODE_* | sort | tail -1)
             rm coverage/EXIT_CODE_*
-
-            for winFile in "$(find ./coverage -name '*-windows.json')"; do
-              cat $winFile |
-                sed 's|C:\\\\Users\\\\circleci\\\\project|/home/circleci/project|g' |
-                sed 's|\\\\|/|g' > $winFile
-            done
 
             PARTS=$(find coverage -name '*.json')
             echo "Running coverage report by merging ${PARTS}"
