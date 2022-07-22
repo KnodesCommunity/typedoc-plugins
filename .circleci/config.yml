@@ -465,6 +465,7 @@ jobs:
               cat $winFile |
                 sed 's|C:\\\\Users\\\\circleci\\\\project|/home/circleci/project|g' |
                 sed 's|\\\\|/|g' > $winFile
+            done
 
             PARTS=$(find coverage -name '*.json')
             echo "Running coverage report by merging ${PARTS}"
