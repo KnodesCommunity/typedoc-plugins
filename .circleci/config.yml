@@ -511,29 +511,41 @@ jobs:
 # Invoke jobs via workflows
 # See: https://circleci.com/docs/2.0/configuration-reference/#workflows
 workflows:
-  # renovate: # Workflow ran only on `renovate/*`
-  #   when:
-  #     matches: { pattern: "^renovate/.+$", value: <<pipeline.git.branch>> }
-  #   jobs:
-  #     - checkout
-  #     - npm-install:
-  #         os: linux
-  #         requires:
-  #           - checkout
+  renovate: # Workflow ran only on `renovate/*`
+    when:
+      matches: { pattern: "^renovate/.+$", value: <<pipeline.git.branch>> }
+    jobs:
+      - checkout
+      - npm-install:
+          matrix:
+            parameters:
+              os: *test-matrix-os
+          node-version: *test-matrix-nodeversion-default
+          requires:
+            - checkout
 
-  #     - build:
-  #         requires:
-  #           - npm-install
-  #     - lint:
-  #         requires:
-  #           - npm-install
-  #     - test-sources:
-  #         matrix:
-  #           parameters:
-  #             os: [*test-matrix-os-default]
-  #             node-version: *test-matrix-nodeversion
-  #         requires:
-  #           - npm-install
+      - build:
+          os: *test-matrix-os-default
+          node-version: *test-matrix-nodeversion-default
+          requires:
+            - npm-install-linux # !FORMAT - npm-install-${*test-matrix-os-default}
+      - lint:
+          requires:
+            - npm-install-linux # !FORMAT - npm-install-${*test-matrix-os-default}
+
+      - test-sources:
+          matrix: *params-test-matrix
+          requires:
+            - npm-install-<<matrix.os>>
+      - test-tools:
+          name: test-tools-<<matrix.os>>
+          matrix:
+            parameters: 
+              os: *test-matrix-os
+            exclude:
+              - os: windows
+          requires:
+            - npm-install-<<matrix.os>>
 
   check: # Workflow ran on all branches except `main`, `develop` and `renovate/*`
     unless:
@@ -556,7 +568,7 @@ workflows:
           os: *test-matrix-os-default
           node-version: *test-matrix-nodeversion-default
           requires:
-            - npm-install-linux
+            - npm-install-linux # !FORMAT - npm-install-${*test-matrix-os-default}
       - lint:
           requires:
             - npm-install-linux # !FORMAT - npm-install-${*test-matrix-os-default}
