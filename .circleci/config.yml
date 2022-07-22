@@ -69,13 +69,13 @@ orbs:
                 - run:
                     name: Normalize windows report
                     command: |
-                      echo 'Performing replaces: '"'"'s|C:\\\\Users\\\\circleci\\\\project|/home/circleci/project|g'"'"' '"'"'s|\\\\|/|g'"'"''
+                      echo 'Performing replaces: '"'"'s|C:\\\\\\\\Users\\\\\\\\circleci\\\\\\\\project|/home/circleci/project|g'"'"' '"'"'s|\\\\\\\\|/|g'"'"''
 
                       for file in "coverage/coverage-summary.json" "<<parameters.coverageJson>>"; do
                         cat $file | head -n 2
-                        cat $file | sed 's|C:\\\\\Users\\\\\circleci\\\\\project|/home/circleci/project|g' > $file
+                        cat $file | sed 's|C:\\\\\\\\Users\\\\\\\\circleci\\\\\\\\project|/home/circleci/project|g' > $file
                         cat $file | head -n 2
-                        cat $file | sed 's|\\\\\|/|g' > $file
+                        cat $file | sed 's|\\\\\\\\|/|g' > $file
                         cat $file | head -n 2
                       done
           - run: |
