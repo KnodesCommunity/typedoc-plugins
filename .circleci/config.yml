@@ -545,20 +545,20 @@ workflows:
           requires:
             - checkout
 
-      - build:
-          os: *test-matrix-os-default
-          node-version: *test-matrix-nodeversion-default
-          requires:
-            - npm-install-linux
-      - lint:
-          requires:
-            - npm-install-linux # !FORMAT - npm-install-${*test-matrix-os-default}
+      # - build:
+      #     os: *test-matrix-os-default
+      #     node-version: *test-matrix-nodeversion-default
+      #     requires:
+      #       - npm-install-linux
+      # - lint:
+      #     requires:
+      #       - npm-install-linux # !FORMAT - npm-install-${*test-matrix-os-default}
 
-      - test-sources:
-          coverage: true
-          matrix: *params-test-matrix
-          requires:
-            - npm-install-<<matrix.os>>
+      # - test-sources:
+      #     coverage: true
+      #     matrix: *params-test-matrix
+      #     requires:
+      #       - npm-install-<<matrix.os>>
       - test-tools:
           name: test-tools-<<matrix.os>>-STUB
           matrix:
@@ -568,20 +568,20 @@ workflows:
               - os: *test-matrix-os-default
           requires:
             - npm-install-<<matrix.os>>
-      - test-tools:
-          name: test-tools-linux-coverage # !FORMAT name: test-tools-${!*test-matrix-os-default}-coverage
-          os: *test-matrix-os-default
-          coverage: true
-          requires:
-            - npm-install-linux # !FORMAT - npm-install-${!*test-matrix-os-default}
-            - build
+      # - test-tools:
+      #     name: test-tools-linux-coverage # !FORMAT name: test-tools-${!*test-matrix-os-default}-coverage
+      #     os: *test-matrix-os-default
+      #     coverage: true
+      #     requires:
+      #       - npm-install-linux # !FORMAT - npm-install-${!*test-matrix-os-default}
+      #       - build
 
-      - codeclimate-upload:
-          requires:
-            - test-sources-16.16.0-linux # !FORMAT - test-sources-${!*test-matrix-nodeversion-default}-${*test-matrix-os-default}
-            - test-tools-linux-coverage # !FORMAT - test-tools-${!*test-matrix-os-default}-coverage
-            # - test-tools-16.16.0-macos # !FORMAT # - test-tools-${!*test-matrix-nodeversion-default}-macos
-            # - test-tools-16.16.0-windows # !FORMAT # - test-tools-${!*test-matrix-nodeversion-default}-windows
+      # - codeclimate-upload:
+      #     requires:
+      #       - test-sources-16.16.0-linux # !FORMAT - test-sources-${!*test-matrix-nodeversion-default}-${*test-matrix-os-default}
+      #       - test-tools-linux-coverage # !FORMAT - test-tools-${!*test-matrix-os-default}-coverage
+      #       # - test-tools-16.16.0-macos # !FORMAT # - test-tools-${!*test-matrix-nodeversion-default}-macos
+      #       # - test-tools-16.16.0-windows # !FORMAT # - test-tools-${!*test-matrix-nodeversion-default}-windows
   # publish: # Workflow ran only on `main` & `develop`
   #   when:
   #     or:
