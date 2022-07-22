@@ -25,7 +25,7 @@ module.exports.circleCi = async checkOnly => ( {
 				ANCHORS_MAP[node.anchor] = node;
 			}
 		} );
-		const cfgFormatted = cfgNvmSet.replace( /^(\s*).*?(#\s*!FORMAT\s*(.*))$/gm, ( src, indent, formatAppendix, format ) => {
+		const cfgFormatted = cfgNvmSet.replace( /^(\s*)[^#\n]*?(#\s*!FORMAT\s*(.*))$/gm, ( src, indent, formatAppendix, format ) => {
 			const formatted = format.replace( /\$\{\s*(.*?)\*(.*?)\s*\}/g, ( _, operator, alias ) => {
 				const node = ANCHORS_MAP[alias]?.clone() ??
 					assert.fail( `Missing alias "${alias}" in expression "${JSON.stringify( src )}"` );
