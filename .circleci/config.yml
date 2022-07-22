@@ -165,7 +165,7 @@ jobs:
           node-version: <<parameters.node-version>>
       - attach_workspace:
           at: .
-      - run: 
+      - run:
           name: Split tests
           command: |
             circleci tests glob "./packages/**/*.spec.ts" |
@@ -184,7 +184,7 @@ jobs:
           steps:
             - run: |
                 set -eo pipefail
-                npm run test:ci:coverage -- $(cat TEST_FILES)
+                npm run ci:test:coverage -- $(cat TEST_FILES)
                 echo $? > EXIT_CODE
             - knodes-typedoc-orb/coverage-arrange:
                 coverageJson: coverage/coverage-final.json
@@ -192,7 +192,7 @@ jobs:
       - unless:
           condition: *test-matrix-coverage-condition
           steps:
-            - run: npm run test:ci -- $(cat TEST_FILES)
+            - run: npm run ci:test -- $(cat TEST_FILES)
       # Finalize
       - store_test_results:
           path: ./junit.xml
@@ -216,7 +216,7 @@ jobs:
             and:
               - <<parameters.coverage>>
               - { equal: [<<parameters.node-version>>, *test-matrix-nodeversion-default ] }
-          steps: 
+          steps:
             - run:
                 name: Stub bins (keep real typedoc)
                 command: |
@@ -227,14 +227,14 @@ jobs:
                 name: Run precommit with coverage
                 command: |
                   set -eo pipefail
-                  nyc --reporter json-summary --reporter json npm run precommit
+                  npm run ci:nyc npm run precommit
                   echo $? > EXIT_CODE
             - knodes-typedoc-orb/coverage-arrange:
                 coverageJson: coverage/coverage-final.json
                 buildId: test-tools-<<parameters.os>>
       - unless:
           condition: *test-matrix-coverage-tools-condition
-          steps: 
+          steps:
             - run:
                 name: Stub bins
                 command: |
@@ -460,7 +460,7 @@ jobs:
             PARTS=$(find coverage -name '*.json')
             echo "Running coverage report by merging ${PARTS}"
             mv coverage coverate-tmp
-            nyc report --reporter lcov --reporter json-summary --temp-dir coverage-tmp 
+            nyc report --reporter lcov --reporter json-summary --temp-dir coverage-tmp
             ./cc-test-reporter after-build --coverage-input-type lcov --exit-code $(cat * | sort | tail -f)
       - store_artifacts:
           path: coverage
@@ -538,7 +538,7 @@ workflows:
           coverage: true
           requires:
             - build
-            
+
       - codeclimate-upload:
           requires:
             - test-sources-16.16.0-windows # !FORMAT - test-sources-${!*test-matrix-nodeversion-default}-${*test-matrix-os-default}
