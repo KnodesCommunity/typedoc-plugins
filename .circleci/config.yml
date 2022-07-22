@@ -1,10 +1,113 @@
 # This config is equivalent to both the '.circleci/extended/orb-free.yml' and the base '.circleci/config.yml'
 version: 2.1
 
+x-params:
+  node-version-non-default: &test-matrix-nodeversion-nondefault ["14.19.3", "18.4.0"]
+  node-version-default: &test-matrix-nodeversion-default "16.16.0"
+  test-matrix: &params-test-matrix
+    parameters: &test-matrix
+      # os: &test-matrix-os [&test-matrix-os-default linux, macos, windows]
+      os: &test-matrix-os [&test-matrix-os-default linux, windows]
+      node-version: &test-matrix-nodeversion [ "16.16.0", "14.19.3", "18.4.0" ] # !FORMAT node-version: &test-matrix-nodeversion [ ${*test-matrix-nodeversion-default}, ${...*test-matrix-nodeversion-nondefault} ]
+
 # Orbs are reusable packages of CircleCI configuration that you may share across projects, enabling you to create encapsulated, parameterized commands, jobs, and executors that can be used across multiple projects.
 # See: https://circleci.com/docs/2.0/orb-intro/
 orbs:
   node: circleci/node@5.0.2
+  knodes-typedoc-orb:
+    orbs:
+      node: circleci/node@5.0.2
+    commands:
+      install:
+        parameters:
+          os:
+            type: string
+          type:
+            default: clean-install
+            type: string
+        steps:
+        - when:
+            condition: { equal: [windows, <<parameters.os>>] }
+            steps:
+            - node/install-packages:
+                override-ci-command: npm run ci:<<parameters.type>>
+                cache-path: C:\Users\circleci\AppData\Roaming\npm-cache
+                cache-version: v1-<<parameters.os>>
+        - unless:
+            condition: { equal: [windows, <<parameters.os>>] }
+            steps:
+            - node/install-packages:
+                override-ci-command: npm run ci:<<parameters.type>>
+                cache-version: v1-<<parameters.os>>
+      codeclimate-install-only:
+        steps:
+          - run:
+              name: Install Code Climate Test Reporter
+              command: |
+                curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
+                chmod +x ./cc-test-reporter
+      codeclimate-prebuild:
+        steps:
+          - codeclimate-install-only
+          - run:
+              name: Run Code Climate test-reporter `before-build`
+              command: ./cc-test-reporter before-build
+      coverage-arrange:
+        parameters:
+          os:
+            type: string
+          coverageJson:
+            type: string
+          buildId:
+            type: string
+        steps:
+          - when:
+              condition:
+                equal: [<<parameters.os>>, "windows"]
+              steps:
+                - run:
+                    name: Normalize windows report
+                    command: |
+                      set -eo pipefail
+                      for file in "coverage/coverage-summary.json" "<<parameters.coverageJson>>"; do
+                        cat $file |
+                          sed 's|C:\\\\\\\\Users\\\\\\\\circleci\\\\\\\\project|/home/circleci/project|g' |
+                          sed 's|\\\\\\\\|/|g' > $file
+                      done
+          - run:
+              name: Move files to use buildId <<parameters.buildId>>
+              command: |
+                set -eo pipefail
+                mv EXIT_CODE coverage/EXIT_CODE_<<parameters.buildId>>
+                mv coverage/coverage-summary.json coverage/coverage-summary-<<parameters.buildId>>.json
+                mv <<parameters.coverageJson>> coverage/coverage-part-<<parameters.buildId>>.json
+          - persist_to_workspace:
+              root: .
+              paths:
+                - coverage/coverage-part-*.json
+                - coverage/EXIT_CODE_*
+          - store_artifacts:
+              path: coverage
+      stub-bins:
+        parameters:
+          bins:
+            type: string
+        steps:
+          - run:
+              name: Stub bins
+              command: |
+                for bin in <<parameters.bins>>; do
+                  bin_path=$(npx which $bin)
+                  if ! [ -z "$HOMEDRIVE" ]; then
+                    echo "Unsupported Windows"
+                    exit 1
+                  fi
+                  echo "Stubbing ${bin_path}"
+                  echo "echo \"STUB $bin\"" > ${bin_path}
+                  chmod +x ${bin_path}
+                done
+
+
 
 executors:
   node:
@@ -31,19 +134,6 @@ executors:
     docker:
       - image: alpine/git
 
-x-params:
-  test-matrix: &params-test-matrix
-    parameters:
-      os: [&test-matrix-os-default linux, windows]
-      node-version: &test-matrix-node-versions ["14.19.3", "16.15.1", &test-matrix-node-versions-default "16.16.0"]
-x-steps:
-  npm-install-cache: &step-npm-install-cache
-    restore_cache:
-      keys:
-        - v1--npm--install--{{ .Branch }}--{{ checksum "package-lock.json" }}
-        - v1--npm--install--{{ .Branch }}
-        - v1--npm--install
-
 jobs:
   checkout:
     executor: git
@@ -61,65 +151,32 @@ jobs:
       install-type:
         type: string
         default: clean-install
-    executor: node
-    resource_class: small
+      os:
+        type: string
+      node-version:
+        type: string
+    executor: <<parameters.os>>
     steps:
+      - node/install:
+          node-version: <<parameters.node-version>>
       - attach_workspace:
           at: .
-      - *step-npm-install-cache
-      - run: npm run ci:<< parameters.install-type >>
-      - save_cache:
-          key: v1--npm--install--{{ .Branch }}--{{ checksum "package-lock.json" }}
-          paths:
-            - ~/.npm
-      - persist_to_workspace:
-          root: .
-          paths:
-            - 'package-lock.json'
-            - 'node_modules'
-            - 'packages/*/node_modules'
-  clone-typedoc:
-    executor: git
-    resource_class: small
-    steps:
-      - attach_workspace:
-          at: .
+      - knodes-typedoc-orb/install:
+          type: <<parameters.install-type>>
+          os: <<parameters.os>>
       - run:
-          name: Update submodule
-          command: git submodule update --init --recursive
+          name: Update submodule & patch
+          command: |
+            git submodule update --init --recursive
+            npm run tools:patch -- apply --no-stash
       - persist_to_workspace:
           root: .
           paths:
             - '.git'
             - 'typedoc'
-  codeclimate-before:
-    executor: node
-    resource_class: small
-    steps:
-      - run:
-          name: Setup Code Climate test-reporter
-          command: |
-            curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > /tmp/cc-test-reporter
-            chmod +x /tmp/cc-test-reporter
-      - persist_to_workspace:
-          root: /tmp
-          paths:
-            - cc-test-reporter
-      - run:
-          name: Run Code Climate test-reporter `before-build`
-          command: /tmp/cc-test-reporter before-build
-  codeclimate-after:
-    executor: node
-    resource_class: small
-    steps:
-      - attach_workspace:
-          at: .
-      - attach_workspace:
-          at: /tmp
-      - run: npm run tools:patch -- apply --no-stash
-      - run:
-          name: Send report
-          command: /tmp/cc-test-reporter after-build --coverage-input-type lcov --exit-code $(cat ./TEST_STATUS)
+            - 'package-lock.json'
+            - 'node_modules'
+            - 'packages/*/node_modules'
   lint:
     executor: node
     resource_class: small
@@ -127,7 +184,7 @@ jobs:
       - attach_workspace:
           at: .
       - run: npm run lint
-  test:
+  test-sources:
     parameters:
       os:
         type: string
@@ -136,59 +193,108 @@ jobs:
       coverage:
         type: boolean
         default: false
-    executor: << parameters.os >>
+    executor: <<parameters.os>>
+    parallelism: 4
     steps:
       - node/install:
-          node-version: << parameters.node-version >>
+          node-version: <<parameters.node-version>>
       - attach_workspace:
           at: .
-      - when:
-          condition: { equal: ["linux", << parameters.os >>] }
-          steps:
-            - *step-npm-install-cache
-      - run: npm run ci:clean-install
+      - run:
+          name: Split tests
+          command: |
+            set -eo pipefail
+            circleci tests glob "./packages/**/*.spec.ts" |
+              circleci tests split --split-by=timings > TEST_FILES
+            if ! [ -z $HOMEDRIVE ]; then
+              sed -i 's:\\\:/:g' TEST_FILES
+            fi
+            echo "
+            Will be ran on following files:
+            $(cat TEST_FILES)";
+      # Run tests
       - when:
           condition: &test-matrix-coverage-condition
             and:
-              - << parameters.coverage >>
-              - { equal: [<< parameters.os >>, *test-matrix-os-default ] }
-              - { equal: [<< parameters.node-version >>, *test-matrix-node-versions-default ] }
+              - <<parameters.coverage>>
+              - { equal: [<<parameters.os>>, *test-matrix-os-default ] }
+              - { equal: [<<parameters.node-version>>, *test-matrix-nodeversion-default ] }
           steps:
-          - run:
-              command: |
-                npm run ci:test:coverage
-                echo $? > TEST_STATUS
-                exit $(cat TEST_STATUS)
-              when: always
+            - run: |
+                set -eo pipefail
+                npm run ci:test:coverage -- $(cat TEST_FILES)
+                echo $? > EXIT_CODE
+            - knodes-typedoc-orb/coverage-arrange:
+                os: <<parameters.os>>
+                coverageJson: coverage/coverage-final.json
+                buildId: test-sources-${CIRCLE_NODE_INDEX}
       - unless:
           condition: *test-matrix-coverage-condition
           steps:
-          - run:
-              command: npm run ci:test
-              when: always
-      - store_artifacts:
-          path: ./junit.xml
+            - run: npm run ci:test -- -- $(cat TEST_FILES)
+      # Finalize
       - store_test_results:
           path: ./junit.xml
-      - store_artifacts:
-          path: ./coverage
-      - when:
-          condition: *test-matrix-coverage-condition
-          steps:
-            - persist_to_workspace:
-                root: .
-                paths:
-                  - coverage
-                  - TEST_STATUS
-  build:
-    executor: node
-    resource_class: medium
+  test-tools:
+    parameters:
+      os:
+        type: string
+      coverage:
+        type: boolean
+        default: false
+    executor: <<parameters.os>>
     steps:
+      - node/install:
+          node-version: *test-matrix-nodeversion-default
       - attach_workspace:
           at: .
-      - run: npm run build
+      - when:
+          condition: &test-matrix-coverage-tools-condition <<parameters.coverage>>
+          steps:
+            - knodes-typedoc-orb/stub-bins:
+                bins: eslint jest tsc
+            - run:
+                name: Run precommit with coverage
+                command: |
+                  set -eo pipefail
+                  npx nyc --reporter json-summary --reporter json npm run precommit
+                  echo $? > EXIT_CODE
+            - knodes-typedoc-orb/coverage-arrange:
+                os: <<parameters.os>>
+                coverageJson: coverage/coverage-final.json
+                buildId: test-tools-<<parameters.os>>
+      - unless:
+          condition: *test-matrix-coverage-tools-condition
+          steps:
+            - knodes-typedoc-orb/stub-bins:
+                bins: eslint jest tsc typedoc
+            - run:
+                name: Run precommit
+                command: npm run precommit
+  build:
+    parameters:
+      os:
+        type: string
+      node-version:
+        type: string
+    executor: <<parameters.os>>
+    steps:
+      - node/install:
+          node-version: <<parameters.node-version>>
+      - attach_workspace:
+          at: .
+      - run: |
+          npm run build
+          mkdir dists
+          npm pack -ws --pack-destination dists
+          for file in $(find ./dists -name '*.tgz'); do
+            mkdir -p dists-content/$(basename $file .tgz)
+            tar -xzf $file -C dists-content/$(basename $file .tgz)
+          done
       - store_artifacts:
-          path: ./packages/**/dist
+          path: ./dists
+      - store_artifacts:
+          path: ./dists-content
       - persist_to_workspace:
           root: .
           paths:
@@ -371,82 +477,126 @@ jobs:
 
             [skip ci]"
             git push --set-upstream origin develop
+  codeclimate-upload:
+    executor: node
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: .
+      - knodes-typedoc-orb/codeclimate-install-only
+      - run:
+          name: Merge coverages & clean
+          command: |
+            exit_code=$(cat coverage/EXIT_CODE_* | sort | tail -1)
+            rm coverage/EXIT_CODE_*
 
-
+            PARTS=$(find coverage -name '*.json')
+            echo "Running coverage report by merging ${PARTS}"
+            mv coverage coverage-tmp
+            npx nyc report --reporter lcov --reporter json-summary --temp-dir coverage-tmp
+            ./cc-test-reporter after-build --coverage-input-type lcov --exit-code $(echo ${exit_code} | sort | tail -f)
+      - store_artifacts:
+          path: coverage
 
 # Invoke jobs via workflows
 # See: https://circleci.com/docs/2.0/configuration-reference/#workflows
 workflows:
   renovate: # Workflow ran only on `renovate/*`
     when:
-      matches: { pattern: "^renovate/.+$", value: << pipeline.git.branch >> }
+      matches: { pattern: "^renovate/.+$", value: <<pipeline.git.branch>> }
     jobs:
       - checkout
       - npm-install:
-          requires:
-            - checkout
-      - clone-typedoc:
+          matrix:
+            parameters:
+              os: *test-matrix-os
+          node-version: *test-matrix-nodeversion-default
           requires:
             - checkout
 
       - build:
+          os: *test-matrix-os-default
+          node-version: *test-matrix-nodeversion-default
           requires:
-            - npm-install
-            - clone-typedoc
+            - npm-install-linux # !FORMAT - npm-install-${*test-matrix-os-default}
       - lint:
           requires:
-            - build
-      - test:
-          matrix: 
-            parameters:
-              os: [*test-matrix-os-default]
-              node-version: *test-matrix-node-versions
-          requires:
-            - build
+            - npm-install-linux # !FORMAT - npm-install-${*test-matrix-os-default}
 
-      # - git-merge-develop:
-      #     requires:
-      #       - test
-      #       - build
+      - test-sources:
+          matrix: *params-test-matrix
+          requires:
+            - npm-install-<<matrix.os>>
+      - test-tools:
+          name: test-tools-<<matrix.os>>
+          matrix:
+            parameters: 
+              os: *test-matrix-os
+            exclude:
+              - os: windows
+          requires:
+            - npm-install-<<matrix.os>>
+
   check: # Workflow ran on all branches except `main`, `develop` and `renovate/*`
     unless:
       or:
-      #   - equal: [ main, << pipeline.git.branch >> ]
-      #   - equal: [ develop, << pipeline.git.branch >> ]
-        - matches: { pattern: "^renovate/.+$", value: << pipeline.git.branch >> }
+      #   - equal: [ main, <<pipeline.git.branch>> ]
+      #   - equal: [ develop, <<pipeline.git.branch>> ]
+        - matches: { pattern: "^renovate/.+$", value: <<pipeline.git.branch>> }
     jobs:
       - checkout
       - npm-install:
+          matrix:
+            parameters:
+              os: *test-matrix-os
           install-type: install
+          node-version: *test-matrix-nodeversion-default
           requires:
             - checkout
-      - clone-typedoc:
-          requires:
-            - checkout
-      - codeclimate-before
 
       - build:
+          os: *test-matrix-os-default
+          node-version: *test-matrix-nodeversion-default
           requires:
-            - npm-install
-            - clone-typedoc
+            - npm-install-linux # !FORMAT - npm-install-${*test-matrix-os-default}
       - lint:
           requires:
-            - build
-      - test:
+            - npm-install-linux # !FORMAT - npm-install-${*test-matrix-os-default}
+
+      - test-sources:
           coverage: true
           matrix: *params-test-matrix
           requires:
-            - build
-            - codeclimate-before
-      - codeclimate-after:
+            - npm-install-<<matrix.os>>
+      - test-tools:
+          name: test-tools-<<matrix.os>>-STUB
+          matrix:
+            parameters: 
+              os: *test-matrix-os
+            exclude:
+              - os: *test-matrix-os-default
+              - os: windows
           requires:
-            - lint
-            - test
+            - npm-install-<<matrix.os>>
+      - test-tools:
+          name: test-tools-linux-coverage # !FORMAT name: test-tools-${!*test-matrix-os-default}-coverage
+          os: *test-matrix-os-default
+          coverage: true
+          requires:
+            - npm-install-linux # !FORMAT - npm-install-${!*test-matrix-os-default}
+            - build
+
+      - codeclimate-upload:
+          requires:
+            - test-sources-16.16.0-linux # !FORMAT - test-sources-${!*test-matrix-nodeversion-default}-${*test-matrix-os-default}
+            - test-tools-linux-coverage # !FORMAT - test-tools-${!*test-matrix-os-default}-coverage
+            # - test-tools-16.16.0-macos # !FORMAT # - test-tools-${!*test-matrix-nodeversion-default}-macos
+            # - test-tools-16.16.0-windows # !FORMAT # - test-tools-${!*test-matrix-nodeversion-default}-windows
   # publish: # Workflow ran only on `main` & `develop`
   #   when:
   #     or:
-  #       - equal: [ main, << pipeline.git.branch >> ]
-  #       - equal: [ develop, << pipeline.git.branch >> ]
+  #       - equal: [ main, <<pipeline.git.branch>> ]
+  #       - equal: [ develop, <<pipeline.git.branch>> ]
   #   jobs:
   #     - npm-ci-install
   #     - codeclimate-before

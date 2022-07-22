@@ -4,9 +4,9 @@ module.exports = {
 	...config,
 	// See https://jestjs.io/docs/configuration#coveragereporters-arraystring--string-options
 	coverageReporters: [
-		'clover',
+		[ 'lcovonly', { projectRoot: __dirname } ],
 		'json',
-		[ 'lcov', { projectRoot: __dirname } ],
+		'json-summary',
 		'text',
 	],
 	// Run in band

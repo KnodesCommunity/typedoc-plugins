@@ -30,7 +30,6 @@
     "changelog": "conventional-changelog -p angular -i CHANGELOG.md -s",
     "ci:clean-install": "npm clean-install --include-workspace-root",
     "ci:install": "npm install --include-workspace-root",
-    "ci:nyc": "nyc --reporter json-summary --reporter json",
     "ci:test": "cross-env JEST_JUNIT_OUTPUT_NAME=junit.xml jest --config jest.config.ci.js --all --ci --reporters=default --reporters=jest-junit",
     "ci:test:coverage": "npm run ci:test -- --collectCoverage",
     "docs": "typedoc",
