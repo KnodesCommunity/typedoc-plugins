@@ -168,7 +168,9 @@ jobs:
       - run: 
           name: Split tests
           command: |
-            circleci tests glob "./packages/**/*.spec.ts" | circleci tests split --split-by=timings > TEST_FILES
+            circleci tests glob "./packages/**/*.spec.ts" |
+              circleci tests split --split-by=timings |
+              sed 's:\\:\/:g' > TEST_FILES
             echo "
             Will be ran on following files:
             $(cat TEST_FILES)";
