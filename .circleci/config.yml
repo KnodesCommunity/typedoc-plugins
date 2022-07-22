@@ -168,9 +168,12 @@ jobs:
       - run:
           name: Split tests
           command: |
+            set -eo pipefail
             circleci tests glob "./packages/**/*.spec.ts" |
-              circleci tests split --split-by=timings |
-              sed 's:\\:\/:g' > TEST_FILES
+              circleci tests split --split-by=timings > TEST_FILES
+            if ! [ -z $HOMEDRIVE ]; then
+              sed -i 's:\\\:/:g' TEST_FILES
+            fi
             echo "
             Will be ran on following files:
             $(cat TEST_FILES)";
@@ -227,7 +230,7 @@ jobs:
                 name: Run precommit with coverage
                 command: |
                   set -eo pipefail
-                  npm run ci:nyc npm run precommit
+                  npx nyc --reporter json-summary --reporter json npm run precommit
                   echo $? > EXIT_CODE
             - knodes-typedoc-orb/coverage-arrange:
                 coverageJson: coverage/coverage-final.json
@@ -460,7 +463,7 @@ jobs:
             PARTS=$(find coverage -name '*.json')
             echo "Running coverage report by merging ${PARTS}"
             mv coverage coverate-tmp
-            nyc report --reporter lcov --reporter json-summary --temp-dir coverage-tmp
+            npx nyc report --reporter lcov --reporter json-summary --temp-dir coverage-tmp
             ./cc-test-reporter after-build --coverage-input-type lcov --exit-code $(cat * | sort | tail -f)
       - store_artifacts:
           path: coverage
