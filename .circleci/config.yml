@@ -460,6 +460,12 @@ jobs:
           command: |
             exit_code=$(cat coverage/EXIT_CODE_* | sort | tail -1)
             rm coverage/EXIT_CODE_*
+
+            for winFile in "$(find ./coverage -name '*-windows.json')"; do
+              cat $winFile |
+                sed 's|C:\\\\Users\\\\circleci\\\\project|/home/circleci/project|g' |
+                sed 's|\\\\|/|g' > $winFile
+
             PARTS=$(find coverage -name '*.json')
             echo "Running coverage report by merging ${PARTS}"
             mv coverage coverage-tmp
