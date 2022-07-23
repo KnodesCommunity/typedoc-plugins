@@ -109,3 +109,4 @@ junit.xml
 docs/
 *.GENERATED*
 !*.GENERATED*.patch
+tools/sync-proto-modules/.changelog-cache.json

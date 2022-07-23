@@ -32,14 +32,22 @@ const spawn = ( cmd, args, opts = {} ) => new Promise( ( res, rej ) => {
 		stdio[1] instanceof Writable && p.stdout.pipe( stdio[1] );
 		stdio[2] instanceof Writable && p.stderr.pipe( stdio[2] );
 	}
-	p.on( 'close', code => code !== 0 ?
-		rej( new Error( `Exit code ${code}: ${JSON.stringify( {
-			cmd: [ cmd, ...args ],
-			cwd: opts.cwd,
-		} )}` ) ) : res( omitBy( {
+	p.on( 'close', code => {
+		const out = omitBy( {
 			stdout: stdio?.[1]?.CAPTURE === true ? stdio[1].read() : undefined,
 			stderr: stdio?.[2]?.CAPTURE === true ? stdio[2].read() : undefined,
-		}, isNil ) ) );
+			code,
+		}, isNil );
+		if( code !== 0 ) {
+			const err = new Error( `Exit code ${code}: ${JSON.stringify( {
+				cmd: [ cmd, ...args ],
+				cwd: opts.cwd,
+			} )}` );
+			return rej( Object.assign( err, out ) );
+		} else {
+			return res( out );
+		}
+	} );
 } );
 module.exports.spawn = spawn;
 

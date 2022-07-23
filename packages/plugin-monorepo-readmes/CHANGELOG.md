@@ -90,37 +90,7 @@ No notable changes were done in this version.
 ## [0.22.2](https://github.com/KnodesCommunity/typedoc-plugins/compare/v0.22.1...v0.22.2) (2022-03-06)
 
 
-No notable changes were done in this version.
-
-
-## 0.22.1 (2022-03-04)
+**First release**
 
 
 No notable changes were done in this version.
-
-
-### Bug Fixes
-
-* **monorepo**: fix events order, bind TypeDoc prototypes to watch custom events ([83ee577](https://github.com/KnodesCommunity/typedoc-plugins/commit/83ee5776cea435fd4b5d155d1bd96f99737a5063))
-* **monorepo**: various reflection path resolution fixes, better test code blocks ([314f173](https://github.com/KnodesCommunity/typedoc-plugins/commit/314f173d5430f452a9924569db8f38575337c638))
-
-
-### Features
-
-* add plugin ([7c9bc9c](https://github.com/KnodesCommunity/typedoc-plugins/commit/7c9bc9c167211a0201a54559c0f75ee5fc249f12))
-* **dep: @knodes/typedoc-pluginutils**: add `name` getter on plugin ([335095a](https://github.com/KnodesCommunity/typedoc-plugins/commit/335095a976ecedab7d1cbb64a2a1de0e4e5e7b79))
-* **dep: @knodes/typedoc-pluginutils**: add better support for modules in path reflection resolution ([ff0f7c7](https://github.com/KnodesCommunity/typedoc-plugins/commit/ff0f7c790c627a8308c00c8d5426d402657d11fa))
-* **dep: @knodes/typedoc-pluginutils**: add option group, add resolvePackageFile ([878baf8](https://github.com/KnodesCommunity/typedoc-plugins/commit/878baf8f713cd1f307bcde2a909ae0257d835d73))
-* **dep: @knodes/typedoc-pluginutils**: add package ([f6894ad](https://github.com/KnodesCommunity/typedoc-plugins/commit/f6894ad003e7f4336407238bc6dea1fd4d9c9101))
-* **dep: @knodes/typedoc-pluginutils**: add PathReflectionResolver, add plugin.relativeToRoot, use in MarkdownReplacer ([40eb1a1](https://github.com/KnodesCommunity/typedoc-plugins/commit/40eb1a1c2dca89cae27625f4234316166c652706))
-* **dep: @knodes/typedoc-pluginutils**: add rootDir on plugin, add CurrentPageMemo, add MarkdownReplacer, improve Logger ([200f52f](https://github.com/KnodesCommunity/typedoc-plugins/commit/200f52f8417865734c19ed6bc8d91128a2902abe))
-* **dep: @knodes/typedoc-pluginutils**: add source map support in markdown replacer ([57e5e39](https://github.com/KnodesCommunity/typedoc-plugins/commit/57e5e3925725e58677038d9b2dc9943ac42b0c96))
-* **dep: @knodes/typedoc-pluginutils**: fix `wrapError`, add helper `catchWrap` ([350fc9b](https://github.com/KnodesCommunity/typedoc-plugins/commit/350fc9b9281fce5b7bd7c98253af4a4ef8f66d79))
-
-
-# 0.22.0 (2022-02-23)
-
-
-## 0.0.1 (2022-02-23)
-
-

@@ -113,9 +113,10 @@ No notable changes were done in this version.
 * **dep: @knodes/typedoc-pluginutils**: fix `wrapError`, add helper `catchWrap` ([350fc9b](https://github.com/KnodesCommunity/typedoc-plugins/commit/350fc9b9281fce5b7bd7c98253af4a4ef8f66d79))
 
 
-# 0.22.0 (2022-02-23)
+## 0.22.0 (2022-02-23)
 
 
-## 0.0.1 (2022-02-23)
+**First release**
 
 
+No notable changes were done in this version.

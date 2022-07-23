@@ -92,9 +92,10 @@ No notable changes were done in this version.
 * add package ([fac9bfb](https://github.com/KnodesCommunity/typedoc-plugins/commit/fac9bfb31b40a52de790a990c7b5bc71dd354580))
 
 
-# 0.22.0 (2022-02-23)
+## 0.22.0 (2022-02-23)
+
+
+No notable changes were done in this version.
 
 
 ## 0.0.1 (2022-02-23)
-
-
