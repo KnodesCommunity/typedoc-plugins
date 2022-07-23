@@ -31,11 +31,11 @@ For more infos, please refer to [the documentation](https://knodescommunity.gith
    ```json
    {
    	"pluginPages": {
-   		"pages": [ { "title": "My project title", "moduleRoot": true, "children": [
-   			{ "title": "Some cool docs", "source": "cool-docs.md" },
-   			{ "title": "Configuration", "childrenDir": "configuration", "children": [
-   				{ "title": "Configuration file", "source": "file.md" },
-   				{ "title": "CLI options", "source": "cli.md" },
+   		"pages": [ { "name": "My project name", "moduleRoot": true, "children": [
+   			{ "name": "Some cool docs", "source": "cool-docs.md" },
+   			{ "name": "Configuration", "childrenDir": "configuration", "children": [
+   				{ "name": "Configuration file", "source": "file.md" },
+   				{ "name": "CLI options", "source": "cli.md" },
    			] },
    		] } ]
    	}
@@ -51,7 +51,7 @@ Syntax:
 ```
 
 * `<path-to-file>`: A path to the desired page. Checkout [this documentation page](https://knodescommunity.github.io/typedoc-plugins/_knodes_typedoc_pluginutils/pages/resolving-paths.html) for more infos on the syntax of the path.
-* `[ link label]`: allow to specify the text in the link. If not set, the target page title is used.
+* `[ link label]`: allow to specify the text in the link. If not set, the target page name is used.
 
 <!-- INSTALL -->
 ## Quick start

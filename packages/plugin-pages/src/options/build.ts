@@ -16,18 +16,23 @@ const wrapPageError = ( path: string[], index: number ) => ( err: any ) => {
 		return err;
 	}
 };
-const pageKeys: Array<keyof IPageNode> = [ 'children', 'childrenDir', 'childrenOutputDir', 'childrenSourceDir', 'output', 'source', 'title' ];
-const checkPageFactory = <T extends IPageNode>( allowedKeys: Array<keyof T> ) => ( page: unknown, path: string[] ): asserts page is T => {
+const pageKeys: Array<keyof IPageNode> = [ 'children', 'childrenDir', 'childrenOutputDir', 'childrenSourceDir', 'output', 'source', 'name' ];
+const checkPageFactory = <T extends IPageNode>( allowedKeys: Array<keyof T> ) => ( plugin: PagesPlugin, page: unknown, path: string[] ): asserts page is T => {
 	assert( page && isObject( page ), 'Page should be an object' );
 	const _page = page as Record<string, unknown>;
-	assert( 'title' in _page && isString( _page.title ), 'Page should have a title' );
+	if( 'title' in _page && !( 'name' in _page ) ){
+		_page.name = _page.title;
+		delete _page.title;
+		plugin.logger.warn( `Page ${[ ...path, _page.name ].map( p => `"${p}"` ).join( ' ⇒ ' )} is using deprecated "title" property. Use "name" instead.` );
+	}
+	assert( 'name' in _page && isString( _page.name ), 'Page should have a name' );
 	const extraProps = difference( Object.keys( _page ), allowedKeys as string[] );
-	assert.equal( extraProps.length, 0, `Page ${[ ...path, _page.title ].map( p => `"${p}"` ).join( ' ⇒ ' )} have extra properties ${JSON.stringify( extraProps )}` );
+	assert.equal( extraProps.length, 0, `Page ${[ ...path, _page.name ].map( p => `"${p}"` ).join( ' ⇒ ' )} have extra properties ${JSON.stringify( extraProps )}` );
 	if( 'children' in _page && !isNil( _page.children ) ){
 		assert( isArray( _page.children ), 'Page children should be an array' );
-		const thisPath = [ ...path, _page.title as string ];
+		const thisPath = [ ...path, _page.name as string ];
 		_page.children.forEach( ( c, i ) => miscUtils.catchWrap(
-			() => checkPage( c, thisPath ),
+			() => checkPage( plugin, c, thisPath ),
 			wrapPageError( thisPath, i ) ) );
 	}
 };
@@ -57,12 +62,12 @@ export const buildOptions = ( plugin: PagesPlugin ) => OptionGroup.factory<IPlug
 			if( v ){
 				assert( isArray( v ), 'Pages should be an array' );
 				v.forEach( ( p, i ): asserts p is IRootPageNode => miscUtils.catchWrap(
-					() => checkRootPage( p, [] ),
+					() => checkRootPage( plugin, p, [] ),
 					wrapPageError( [], i ) ) );
 				const rootFlags = groupBy( v, p => !!p.moduleRoot );
 				assert.equal( Object.keys( rootFlags ).length, 1, 'Every root pages should set `moduleRoot` to true, or none' );
 				if( rootFlags.true ) {
-					assert.equal( uniq( v.map( p => p.title ) ).length, v.length, 'Every root pages should have a different title' );
+					assert.equal( uniq( v.map( p => p.name ) ).length, v.length, 'Every root pages should have a different name' );
 				}
 			}
 		},

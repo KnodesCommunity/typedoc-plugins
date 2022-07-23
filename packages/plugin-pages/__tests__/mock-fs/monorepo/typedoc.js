@@ -5,17 +5,17 @@ module.exports = {
 	entryPointStrategy: 'packages',
 	pluginPages: {
 		pages: [
-			{ moduleRoot: true, title: 'demo', source: 'root-appendix.md', children: [
-				{ title: 'Root doc', source: 'root-doc.md', childrenSourceDir: '.', children: [
-					{ title: 'Root doc child', source: 'root-doc-child.md', output: 'child.html' },
+			{ moduleRoot: true, name: 'demo', source: 'root-appendix.md', children: [
+				{ name: 'Root doc', source: 'root-doc.md', childrenSourceDir: '.', children: [
+					{ name: 'Root doc child', source: 'root-doc-child.md', output: 'child.html' },
 				] },
 			] },
-			{ moduleRoot: true, title: 'pkg-a', source: 'readme-extras.md', children: [
-				{ title: 'Using pkg-a', source: 'using-pkg-a.md' },
+			{ moduleRoot: true, name: 'pkg-a', source: 'readme-extras.md', children: [
+				{ name: 'Using pkg-a', source: 'using-pkg-a.md' },
 			] },
-			{ moduleRoot: true, title: 'pkg-b', children: [
-				{ title: 'Using pkg-b', source: 'using-pkg-b.md', children: [
-					{ title: 'pkg-b details', source: 'details.md' },
+			{ moduleRoot: true, name: 'pkg-b', children: [
+				{ name: 'Using pkg-b', source: 'using-pkg-b.md', children: [
+					{ name: 'pkg-b details', source: 'details.md' },
 				] },
 			] },
 		],

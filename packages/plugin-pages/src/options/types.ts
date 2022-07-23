@@ -42,16 +42,16 @@ export interface IPageNode {
 	 */
 	source?: string;
 	/**
-	 * The title of the page/menu.
+	 * The name of the page/menu.
 	 *
-	 * If setting {@link IRootPageNode.moduleRoot} to `true`, the title is used to lookup the module/package/workspace to attach children to. When a {@link source} is
+	 * If setting {@link IRootPageNode.moduleRoot} to `true`, the name is used to lookup the module/package/workspace to attach children to. When a {@link source} is
 	 * also provided, the source is prepended to the target module index page.
 	 *
 	 * If set to `'VIRTUAL'`, the node itself is omitted and children are flattened while cumulating the node's source & output.
 	 *
 	 * @see {@page pages-tree.md} for details.
 	 */
-	title: LiteralUnion<'VIRTUAL', string>;
+	name: LiteralUnion<'VIRTUAL', string>;
 }
 
 export interface IRootPageNode extends IPageNode {
