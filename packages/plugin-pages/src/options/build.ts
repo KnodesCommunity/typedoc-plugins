@@ -88,8 +88,8 @@ export const buildOptions = ( plugin: PagesPlugin ) => OptionGroup.factory<IPlug
 		defaultValue: plugin.application.logger.level,
 	} )
 	.add( 'excludeMarkdownTags', {
-		help: 'A list of markdown captures to omit. Includes the tag name, but without the leading `@`.',
+		help: 'A list of markdown captures to omit. Should have the form `{@....}`.',
 		type: ParameterType.Array,
-		validate: patterns => patterns?.forEach( p => assert( !p.startsWith( '@' ), `Pattern ${JSON.stringify( p )} should not start with a leading '@'` ) ),
+		validate: patterns => patterns?.forEach( p => assert.match( p, /^\{@.*\}$/, `Pattern ${JSON.stringify( p )} should match "{@...}"` ) ),
 	}, v => v ?? [] )
 	.build();

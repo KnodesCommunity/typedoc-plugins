@@ -79,15 +79,30 @@ export class MarkdownReplacer implements IPluginComponent {
 	 * @param tagName - The name of the tag to match.
 	 * @param paramsRegExp - An optional regex to capture params.
 	 * @param callback - The callback to execute to replace the match.
+	 * @param options - Extra options.
 	 */
-	public registerMarkdownTag( tagName: Tag, paramsRegExp: RegExp | null, callback: MarkdownReplacer.ReplaceCallback ){
+	public registerMarkdownTag( tagName: Tag, paramsRegExp: RegExp | null, callback: MarkdownReplacer.ReplaceCallback, options: MarkdownReplacer.IRegisterOptions = {} ){
 		const mdRegexBase = buildMarkdownRegExp( tagName, paramsRegExp );
 		const tagRegex = new RegExp( `\\{${mdRegexBase.source}\\s*?\\}`, mdRegexBase.flags );
 		this._currentPageMemo.initialize();
-		this.plugin.application.renderer.on( MarkdownEvent.PARSE, this._processMarkdown.bind( this, tagRegex, ( { fullMatch, captures, event }, sourceHint ) => {
-			const newFullMatch = fullMatch.slice( 2 ).slice( 0, -1 );
-			return callback( { fullMatch: newFullMatch, captures, event }, sourceHint );
-		}, tagName ), undefined, 100 );
+		const { excludedMatches, priority } = {
+			excludedMatches: [],
+			priority: 100,
+			...options,
+		};
+		this.plugin.application.renderer.on(
+			MarkdownEvent.PARSE,
+			this._processMarkdown.bind(
+				this,
+				tagRegex,
+				( { fullMatch, captures, event }, sourceHint ) => {
+					const newFullMatch = fullMatch.slice( 2 ).slice( 0, -1 );
+					return callback( { fullMatch: newFullMatch, captures, event }, sourceHint );
+				},
+				tagName,
+				excludedMatches ),
+			undefined,
+			priority );
 	}
 
 
@@ -97,12 +112,14 @@ export class MarkdownReplacer implements IPluginComponent {
 	 * @param regex - The regex to match.
 	 * @param callback - The callback to execute with fullMatch, captures, & a source hint.
 	 * @param label - The replacer name.
+	 * @param excludeMatches - A list of matches to skip.
 	 * @param event - The event to modify.
 	 */
 	private _processMarkdown(
 		regex: RegExp,
 		callback: MarkdownReplacer.ReplaceCallback,
 		label: string,
+		excludeMatches: string[] | undefined,
 		event: MarkdownEvent,
 	) {
 		const mapContainers = MarkdownReplacer._getEventMapContainers( event );
@@ -117,6 +134,9 @@ export class MarkdownReplacer implements IPluginComponent {
 			regex,
 			( ...args ) => {
 				const { captures, fullMatch, index } = spitArgs( ...args );
+				if( excludeMatches?.includes( fullMatch ) ){
+					return fullMatch;
+				}
 				const getSourceHint = () => {
 					if( !relativeSource ){
 						return 'UNKNOWN SOURCE';
@@ -190,4 +210,9 @@ export namespace MarkdownReplacer {
 		event: MarkdownEvent;
 	}
 	export type ReplaceCallback = ( match: Match, sourceHint: SourceHint ) => string | JSX.Element | undefined;
+
+	export interface IRegisterOptions {
+		excludedMatches?: string[];
+		priority?: number;
+	}
 }

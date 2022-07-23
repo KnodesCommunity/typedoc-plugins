@@ -53,7 +53,7 @@ module.exports = {
 			// #region pagesConfig-3
 		],
 		// #endregion
-		excludeMarkdownTags: [ 'page <path-to-file>[ link label]', 'page ...' ],
+		excludeMarkdownTags: [ '{@page <path-to-file>[ link label]}', '{@page ...}' ],
 		// #region pagesConfig-4
 	},
 	// #endregion

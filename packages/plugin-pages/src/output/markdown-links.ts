@@ -20,7 +20,9 @@ class MarkdownPagesLinks implements IPluginComponent<PagesPlugin> {
 		const nodeReflections = event.project.getReflectionsByKind( PagesPluginReflectionKind.PAGE as any );
 		assert( nodeReflections.every( ( v ): v is PageReflection => v instanceof PageReflection ) );
 		this._nodesReflections = nodeReflections;
-		this._markdownReplacer.registerMarkdownTag( '@page', EXTRACT_PAGE_LINK_REGEX, this._replacePageLink.bind( this ) );
+		this._markdownReplacer.registerMarkdownTag( '@page', EXTRACT_PAGE_LINK_REGEX, this._replacePageLink.bind( this ), {
+			excludedMatches: this.plugin.pluginOptions.getValue().excludeMarkdownTags,
+		} );
 		this._currentPageMemo.initialize();
 	}
 
@@ -32,13 +34,9 @@ class MarkdownPagesLinks implements IPluginComponent<PagesPlugin> {
 	 * @returns the replaced content.
 	 */
 	private _replacePageLink(
-		{ captures, fullMatch }: Parameters<MarkdownReplacer.ReplaceCallback>[0],
+		{ captures }: Parameters<MarkdownReplacer.ReplaceCallback>[0],
 		sourceHint: Parameters<MarkdownReplacer.ReplaceCallback>[1],
 	): ReturnType<MarkdownReplacer.ReplaceCallback> {
-		if( ( this.plugin.pluginOptions.getValue().excludeMarkdownTags ?? [] ).includes( fullMatch ) ){
-			this._logger.verbose( () => `Skipping excluded markup ${JSON.stringify( fullMatch )} from "${sourceHint()}"` );
-			return;
-		}
 		const [ page, label ] = captures;
 
 		const targetPage = this._resolvePageLink( page );

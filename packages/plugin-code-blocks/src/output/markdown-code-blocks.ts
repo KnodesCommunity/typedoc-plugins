@@ -31,8 +31,9 @@ export class MarkdownCodeBlocks implements IPluginComponent<CodeBlockPlugin>{
 	private readonly _markdownReplacer = new MarkdownReplacer( this );
 	private readonly _fileSamples = new Map<string, Map<string, ICodeSample>>();
 	public constructor( public readonly plugin: CodeBlockPlugin, private readonly _themeMethods: ICodeBlocksPluginThemeMethods ){
-		this._markdownReplacer.registerMarkdownTag( '@codeblock', EXTRACT_CODE_BLOCKS_REGEX, this._replaceCodeBlock.bind( this ) );
-		this._markdownReplacer.registerMarkdownTag( '@inlineCodeblock', EXTRACT_INLINE_CODE_BLOCKS_REGEX, this._replaceInlineCodeBlock.bind( this ) );
+		const opts = { excludedMatches: this.plugin.pluginOptions.getValue().excludeMarkdownTags };
+		this._markdownReplacer.registerMarkdownTag( '@codeblock', EXTRACT_CODE_BLOCKS_REGEX, this._replaceCodeBlock.bind( this ), opts );
+		this._markdownReplacer.registerMarkdownTag( '@inlineCodeblock', EXTRACT_INLINE_CODE_BLOCKS_REGEX, this._replaceInlineCodeBlock.bind( this ), opts );
 		this._currentPageMemo.initialize();
 	}
 
@@ -40,16 +41,11 @@ export class MarkdownCodeBlocks implements IPluginComponent<CodeBlockPlugin>{
 	 * Transform the parsed inline code block.
 	 *
 	 * @param match - The match infos.
-	 * @param sourceHint - The best guess to the source of the match,
 	 * @returns the replaced content.
 	 */
-	private _replaceInlineCodeBlock( match: MarkdownReplacer.Match, sourceHint: MarkdownReplacer.SourceHint ) {
+	private _replaceInlineCodeBlock( match: MarkdownReplacer.Match ) {
 		// Avoid recursion in code blocks
 		if( this._currentPageMemo.currentReflection instanceof DeclarationReflection && this._currentPageMemo.currentReflection.kind === CODEBLOCK_KIND ){
-			return;
-		}
-		if( ( this.plugin.pluginOptions.getValue().excludeMarkdownTags ?? [] ).includes( match.fullMatch ) ){
-			this._logger.verbose( () => `Skipping excluded markup ${JSON.stringify( match.fullMatch )} from "${sourceHint()}"` );
 			return;
 		}
 		const [ fileName, blockModeStr, markdownCode ] = match.captures;
@@ -74,10 +70,6 @@ export class MarkdownCodeBlocks implements IPluginComponent<CodeBlockPlugin>{
 	private _replaceCodeBlock( match: MarkdownReplacer.Match, sourceHint: MarkdownReplacer.SourceHint ) {
 		// Avoid recursion in code blocks
 		if( this._currentPageMemo.currentReflection instanceof DeclarationReflection && this._currentPageMemo.currentReflection.kind === CODEBLOCK_KIND ){
-			return;
-		}
-		if( ( this.plugin.pluginOptions.getValue().excludeMarkdownTags ?? [] ).includes( match.fullMatch ) ){
-			this._logger.verbose( () => `Skipping excluded markup ${JSON.stringify( match.fullMatch )} from "${sourceHint()}"` );
 			return;
 		}
 		const [ file, block, blockModeStr, fakedFileName ] = match.captures;

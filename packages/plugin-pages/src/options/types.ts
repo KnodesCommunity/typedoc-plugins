@@ -121,7 +121,7 @@ export interface IPluginOptions {
 	logLevel: LogLevel;
 
 	/**
-	 * A list of markdown captures to omit. Includes the tag name, but without the leading `@`.
+	 * A list of markdown captures to omit. Should have the form `{@....}`.
 	 */
 	excludeMarkdownTags?: string[];
 }
