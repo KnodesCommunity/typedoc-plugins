@@ -35,7 +35,7 @@ typedoc --help
 * `logLevel`: The plugin log level.\
   Type: `LogLevel`\
   Default to the application log level.
-* `excludeMarkdownTags`: A list of markdown captures to omit. Includes the tag name, but without the leading `@`.\
+* `excludeMarkdownTags`: A list of markdown captures to omit. Should have the form `{@....}`.\
   Type: `string[]`
 
 > See {@link IPluginOptions}

@@ -58,26 +58,44 @@ describe( MarkdownReplacer.name, () => {
 		plugin = new TestPlugin();
 		replacer = new MarkdownReplacer( plugin );
 	} );
-	describe( 'Inline tag', () => {
-		it( 'should replace correctly inline tag in markdown event', () =>{
-			// Arrange
-			mockCurrentPage( 'Test', resolve( 'hello.ts' ), 1, 1 );
-			const fn = jest.fn().mockReturnValueOnce( 'REPLACE 1' ).mockReturnValueOnce( 'REPLACE 2' );
-			replacer.registerMarkdownTag( '@test', /(foo)?/g, fn );
-			const source = 'Hello {@test foo} {@test} @test';
-			const event = new MarkdownEvent( MarkdownEvent.PARSE, source, source );
-			const listeners = getMarkdownEventParseListeners( plugin );
-			expect( listeners ).toHaveLength( 1 );
+	it( 'should replace correctly inline tag in markdown event', () =>{
+		// Arrange
+		mockCurrentPage( 'Test', resolve( 'hello.ts' ), 1, 1 );
+		const fn = jest.fn().mockReturnValueOnce( 'REPLACE 1' ).mockReturnValueOnce( 'REPLACE 2' );
+		replacer.registerMarkdownTag( '@test', /(foo)?/g, fn );
+		const source = 'Hello {@test foo} {@test} @test';
+		const event = new MarkdownEvent( MarkdownEvent.PARSE, source, source );
+		const listeners = getMarkdownEventParseListeners( plugin );
+		expect( listeners ).toHaveLength( 1 );
 
-			// Act
-			listeners[0]( event );
+		// Act
+		listeners[0]( event );
 
-			// Assert
-			expect( event.parsedText ).toEqual( 'Hello REPLACE 1 REPLACE 2 @test' );
-			expect( fn ).toHaveBeenCalledTimes( 2 );
-			expect( fn ).toHaveBeenNthCalledWith( 1, { captures: [ 'foo' ], fullMatch: 'test foo', event }, expect.toBeFunction() );
-			expect( fn ).toHaveBeenNthCalledWith( 2, { captures: [ undefined ], fullMatch: 'test', event }, expect.toBeFunction() );
-		} );
+		// Assert
+		expect( event.parsedText ).toEqual( 'Hello REPLACE 1 REPLACE 2 @test' );
+		expect( fn ).toHaveBeenCalledTimes( 2 );
+		expect( fn ).toHaveBeenNthCalledWith( 1, { captures: [ 'foo' ], fullMatch: 'test foo', event }, expect.toBeFunction() );
+		expect( fn ).toHaveBeenNthCalledWith( 2, { captures: [ undefined ], fullMatch: 'test', event }, expect.toBeFunction() );
+	} );
+	it( 'should ignore excluded matches', () =>{
+		// Arrange
+		mockCurrentPage( 'Test', resolve( 'hello.ts' ), 1, 1 );
+		const fn = jest.fn().mockReturnValueOnce( '1' ).mockReturnValueOnce( '2' ).mockReturnValueOnce( '3' );
+		replacer.registerMarkdownTag( '@test', /(foo\d?)?/g, fn, { excludedMatches: [ '{@test foo1}', '{@test foo4}' ] } );
+		const source = 'Hello {@test} {@test foo1} {@test foo2} {@test foo3} {@test foo4} @test';
+		const event = new MarkdownEvent( MarkdownEvent.PARSE, source, source );
+		const listeners = getMarkdownEventParseListeners( plugin );
+		expect( listeners ).toHaveLength( 1 );
+
+		// Act
+		listeners[0]( event );
+
+		// Assert
+		expect( event.parsedText ).toEqual( 'Hello 1 {@test foo1} 2 3 {@test foo4} @test' );
+		expect( fn ).toHaveBeenCalledTimes( 3 );
+		expect( fn ).toHaveBeenNthCalledWith( 1, { captures: [], fullMatch: 'test', event }, expect.toBeFunction() );
+		expect( fn ).toHaveBeenNthCalledWith( 2, { captures: [ 'foo2' ], fullMatch: 'test foo2', event }, expect.toBeFunction() );
+		expect( fn ).toHaveBeenNthCalledWith( 3, { captures: [ 'foo3' ], fullMatch: 'test foo3', event }, expect.toBeFunction() );
 	} );
 	describe( 'Source map', () => {
 		describe( 'Once', () => {
