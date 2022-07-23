@@ -34,7 +34,15 @@
     "@knodes/typedoc-pluginutils": "~0.23.1"
   },
   "peerDependencies": {
-    "typedoc": "^0.23.0"
+    "typedoc": "^0.23.0",
+    "@knodes/typedoc-plugin-pages": "~0.23.1",
+    "@knodes/typedoc-plugin-code-blocks": "~0.23.1",
+    "@knodes/typedoc-plugin-monorepo-readmes": "~0.23.1"
+  },
+  "peerDependenciesMeta": {
+    "@knodes/typedoc-plugin-pages": {"optional": true},
+    "@knodes/typedoc-plugin-code-blocks": {"optional": true},
+    "@knodes/typedoc-plugin-monorepo-readmes": {"optional": true}
   },
   "devDependencies": {
     "@knodes/eslint-config": "^1.6.5",
