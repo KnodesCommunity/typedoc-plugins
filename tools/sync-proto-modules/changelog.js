@@ -33,6 +33,9 @@ module.exports.changelog = async checkOnly => ( {
 	} ),
 	run: async ( _, project, projects, ___, { changelog: fullChangelogStrs, oldestVersionCache } ) => {
 		const { path, pkgJson, pkgName, id } = project;
+		if( pkgJson.changelogStartsAt ){
+			oldestVersionCache[pkgName] = pkgJson.changelogStartsAt;
+		}
 		if( !( pkgName in oldestVersionCache ) ){
 			oldestVersionCache[pkgName] = await getOldestVersion( pkgName );
 			if( !oldestVersionCache[pkgName] ){
