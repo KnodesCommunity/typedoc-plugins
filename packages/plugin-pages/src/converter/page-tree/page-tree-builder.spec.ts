@@ -63,7 +63,7 @@ describe( 'Project', () => {
 		setVirtualFs( {
 			'foo.md': 'Foo content',
 		} );
-		const out = pageTreeBuilder.buildPagesTree( project, opts( [ { title: 'Foo', source: 'foo.md'  } ] ) );
+		const out = pageTreeBuilder.buildPagesTree( project, opts( [ { name: 'Foo', source: 'foo.md'  } ] ) );
 		expect( out.childrenNodes ).toEqual( [
 			matchReflection( MenuReflection, { name: 'TEST', depth: 0, module: project, childrenNodes: [
 				matchReflection( PageReflection, { name: 'Foo', depth: 1, module: project } ),
@@ -72,7 +72,7 @@ describe( 'Project', () => {
 	} );
 	it( 'should strip empty menu', () => {
 		plugin.logger.warn.mockImplementation( noop );
-		const out = pageTreeBuilder.buildPagesTree( project, opts( [ { title: 'Foo' } ] ) );
+		const out = pageTreeBuilder.buildPagesTree( project, opts( [ { name: 'Foo' } ] ) );
 		expect( out.childrenNodes ).toEqual( [] );
 	} );
 	it( 'should map menu with children', () => {
@@ -80,9 +80,9 @@ describe( 'Project', () => {
 			'bar.md': 'Bar content',
 			'baz.md': 'Baz content',
 		} );
-		const out = pageTreeBuilder.buildPagesTree( project, opts( [ { title: 'Foo', children: [
-			{ title: 'Bar', source: 'bar.md' },
-			{ title: 'Baz', source: 'baz.md' },
+		const out = pageTreeBuilder.buildPagesTree( project, opts( [ { name: 'Foo', children: [
+			{ name: 'Bar', source: 'bar.md' },
+			{ name: 'Baz', source: 'baz.md' },
 		] } ] ) );
 		expect( out.childrenNodes ).toEqual( [
 			matchReflection( MenuReflection, { name: 'TEST', depth: 0, module: project, childrenNodes: [
@@ -94,7 +94,7 @@ describe( 'Project', () => {
 		] );
 	} );
 	it( 'should map virtual menu with no children', () => {
-		const out = pageTreeBuilder.buildPagesTree( project, opts( [ { title: 'VIRTUAL', children: [] } ] ) );
+		const out = pageTreeBuilder.buildPagesTree( project, opts( [ { name: 'VIRTUAL', children: [] } ] ) );
 		expect( out.childrenNodes ).toEqual( [] );
 	} );
 	it( 'should map virtual menu with children', () => {
@@ -102,9 +102,9 @@ describe( 'Project', () => {
 			'bar.md': 'Bar content',
 			'baz.md': 'Baz content',
 		} );
-		const out = pageTreeBuilder.buildPagesTree( project, opts( [ { title: 'VIRTUAL', children: [
-			{ title: 'Bar', source: 'bar.md' },
-			{ title: 'Baz', source: 'baz.md' },
+		const out = pageTreeBuilder.buildPagesTree( project, opts( [ { name: 'VIRTUAL', children: [
+			{ name: 'Bar', source: 'bar.md' },
+			{ name: 'Baz', source: 'baz.md' },
 		] } ] ) );
 		expect( out.childrenNodes ).toEqual( [
 			matchReflection( MenuReflection, { name: 'TEST', depth: 0, module: project, childrenNodes: [
@@ -121,9 +121,9 @@ describe( 'Project', () => {
 				'baz.md': 'Baz content',
 			},
 		} );
-		const out = pageTreeBuilder.buildPagesTree( project, opts( [ { title: 'Foo', source: 'foo.md', children: [
-			{ title: 'Bar', source: 'bar.md' },
-			{ title: 'Baz', source: 'baz.md' },
+		const out = pageTreeBuilder.buildPagesTree( project, opts( [ { name: 'Foo', source: 'foo.md', children: [
+			{ name: 'Bar', source: 'bar.md' },
+			{ name: 'Baz', source: 'baz.md' },
 		] } ] ) );
 		expect( out.childrenNodes ).toEqual( [
 			matchReflection( MenuReflection, { name: 'TEST', depth: 0, module: project, childrenNodes: [
@@ -146,9 +146,9 @@ describe( 'Workspace', () => {
 				'package.json': '',
 			},
 		} );
-		const out = pageTreeBuilder.buildPagesTree( project, opts( [ { title: 'SUB', moduleRoot: true, children: [
-			{ title: 'Bar', source: 'bar.md' },
-			{ title: 'Baz', source: 'baz.md' },
+		const out = pageTreeBuilder.buildPagesTree( project, opts( [ { name: 'SUB', moduleRoot: true, children: [
+			{ name: 'Bar', source: 'bar.md' },
+			{ name: 'Baz', source: 'baz.md' },
 		] } ] ) );
 		expect( out.childrenNodes ).toEqual( [
 			matchReflection( MenuReflection, { name: 'SUB', depth: 0, module: targetModule,  childrenNodes: [
@@ -167,9 +167,9 @@ describe( 'Workspace', () => {
 				'baz.md': 'Baz content',
 			},
 		} );
-		const out = pageTreeBuilder.buildPagesTree( project, opts( [ { title: 'SUB2', moduleRoot: true, source: 'appendix.md', children: [
-			{ title: 'Bar', source: 'bar.md' },
-			{ title: 'Baz', source: 'baz.md' },
+		const out = pageTreeBuilder.buildPagesTree( project, opts( [ { name: 'SUB2', moduleRoot: true, source: 'appendix.md', children: [
+			{ name: 'Bar', source: 'bar.md' },
+			{ name: 'Baz', source: 'baz.md' },
 		] } ] ) );
 		expect( out.childrenNodes ).toEqual( [
 			matchReflection( PageReflection, { name: 'SUB2', depth: 0, module: targetModule, sourceFilePath: 'SUB2/appendix.md', childrenNodes: [
@@ -188,9 +188,9 @@ describe( 'Workspace', () => {
 				'baz.md': 'Baz content',
 			},
 		} );
-		const out = pageTreeBuilder.buildPagesTree( project, opts( [ { title: 'SUB2', moduleRoot: true, source: 'appendix.md', children: [
-			{ title: 'Bar', source: 'bar.md' },
-			{ title: 'Baz', source: 'baz.md' },
+		const out = pageTreeBuilder.buildPagesTree( project, opts( [ { name: 'SUB2', moduleRoot: true, source: 'appendix.md', children: [
+			{ name: 'Bar', source: 'bar.md' },
+			{ name: 'Baz', source: 'baz.md' },
 		] } ] ) );
 		expect( out.childrenNodes ).toEqual( [
 			matchReflection( PageReflection, { name: 'SUB2', depth: 0, module: targetModule, sourceFilePath: 'SUB2/appendix.md', childrenNodes: [
@@ -214,9 +214,9 @@ describe( 'Mixed', () => {
 			},
 		} );
 		const out = pageTreeBuilder.buildPagesTree( project, opts( [
-			{ title: project.name, moduleRoot: true, source: 'appendix.md' },
-			{ title: 'SUB1', moduleRoot: true, source: 'appendix.md' },
-			{ title: 'SUB2', moduleRoot: true, source: 'appendix.md' },
+			{ name: project.name, moduleRoot: true, source: 'appendix.md' },
+			{ name: 'SUB1', moduleRoot: true, source: 'appendix.md' },
+			{ name: 'SUB2', moduleRoot: true, source: 'appendix.md' },
 		] ) );
 		expect( out.childrenNodes ).toEqual( [
 			matchReflection( PageReflection, { name: project.name, depth: 0, module: project, sourceFilePath: 'appendix.md' } ),
@@ -237,11 +237,11 @@ describe( 'Mixed', () => {
 			},
 		} );
 		const out = pageTreeBuilder.buildPagesTree( project, opts( [
-			{ title: project.name, moduleRoot: true, children: [
-				{ title: 'Page Foo', source: 'foo.md' },
+			{ name: project.name, moduleRoot: true, children: [
+				{ name: 'Page Foo', source: 'foo.md' },
 			] },
-			{ title: 'SUB1', moduleRoot: true, children: [ { title: 'Page Baz', source: 'baz.md' } ] },
-			{ title: 'SUB2', moduleRoot: true, children: [ { title: 'Page Qux', source: 'qux.md' } ] },
+			{ name: 'SUB1', moduleRoot: true, children: [ { name: 'Page Baz', source: 'baz.md' } ] },
+			{ name: 'SUB2', moduleRoot: true, children: [ { name: 'Page Qux', source: 'qux.md' } ] },
 		] ) );
 		expect( out.childrenNodes ).toEqual( [
 			matchReflection( MenuReflection, { name: project.name, depth: 0, module: project, childrenNodes: [

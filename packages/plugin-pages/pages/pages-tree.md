@@ -25,7 +25,7 @@ Here is your input/output tree:
 
 ### Monorepos
 
-You can attach pages to monorepo modules (instead of the top-level project) by setting {@link IRootPageNode.moduleRoot `moduleRoot`} to true, and making sure their {@link IPageNode.title `title`} is the name of your module (eg. your `package.json` `name` field).
+You can attach pages to monorepo modules (instead of the top-level project) by setting {@link IRootPageNode.moduleRoot `moduleRoot`} to true, and making sure their {@link IPageNode.name `name`} is the name of your module (eg. your `package.json` `name` field).
 
 #### Example
 

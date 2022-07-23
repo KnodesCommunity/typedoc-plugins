@@ -96,7 +96,7 @@ export class PageTreeBuilder implements IPluginComponent<PagesPlugin> {
 			input: join( io.input, getDir( node, 'source' ) ),
 			output: join( io.output, getDir( node, 'output' ) ),
 		};
-		if( node.title === 'VIRTUAL' ){
+		if( node.name === 'VIRTUAL' ){
 			return node.children ?
 				this._mapNodesToReflectionsTree( node.children, parent, childrenIO ) :
 				[];
@@ -133,8 +133,8 @@ export class PageTreeBuilder implements IPluginComponent<PagesPlugin> {
 	private _getNodeParent( node: PageNode, parent: ANodeReflection.Parent ){
 		const module: ANodeReflection.Module = isModuleRoot( node ) ?
 			miscUtils.catchWrap(
-				() => this._getModule( parent, node.title ),
-				`Invalid pages configuration: could not find a workspace named "${node.title}"`,
+				() => this._getModule( parent, node.name ),
+				`Invalid pages configuration: could not find a workspace named "${node.name}"`,
 			) :
 			parent instanceof ANodeReflection ? parent.module : parent.project;
 		return { module, parent: parent instanceof ANodeReflection ? parent : module };
@@ -157,7 +157,7 @@ export class PageTreeBuilder implements IPluginComponent<PagesPlugin> {
 				err => new Error( `Could not locate page for ${getNodePath( node, actualParent )}`, { cause: err } ) );
 			const page = miscUtils.catchWrap(
 				() => new PageReflection(
-					node.title,
+					node.name,
 					module,
 					actualParent,
 					sourceFilePath,
@@ -168,7 +168,7 @@ export class PageTreeBuilder implements IPluginComponent<PagesPlugin> {
 			return page;
 		}
 		return new MenuReflection(
-			node.title,
+			node.name,
 			module,
 			actualParent,
 			normalizePath( join( io.output, getNodeUrl( { output: 'index.html', ...node } ) ) ) );

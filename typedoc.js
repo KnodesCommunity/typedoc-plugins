@@ -11,43 +11,43 @@ module.exports = {
 	pluginPages: {
 		pages: [
 			{
-				title: 'Knodes TypeDoc Plugins', // The section containing the monorepo root pages
+				name: 'Knodes TypeDoc Plugins', // The section containing the monorepo root pages
 				moduleRoot: true,
 				children: [
-					{ title: 'Changelog', source: './CHANGELOG.md' },
+					{ name: 'Changelog', source: './CHANGELOG.md' },
 				],
 			},
 			{
-				title: '@knodes/typedoc-plugin-pages', // A pages section for the package `@knodes/typedoc-plugin-pages`
+				name: '@knodes/typedoc-plugin-pages', // A pages section for the package `@knodes/typedoc-plugin-pages`
 				moduleRoot: true,
 				source: 'readme-extras.md', // This is a module root page. `readme-extras.md` will be appended to the module index
 				children: [ // Children pages
-					{ title: 'Using options', source: 'options.md' },
-					{ title: 'Pages tree', source: 'pages-tree.md' },
+					{ name: 'Using options', source: 'options.md' },
+					{ name: 'Pages tree', source: 'pages-tree.md' },
 				],
 			},
 			// #endregion
 			{
-				title: '@knodes/typedoc-plugin-code-blocks',
+				name: '@knodes/typedoc-plugin-code-blocks',
 				moduleRoot: true,
 				children: [
-					{ title: 'Using options', source: 'options.md' },
-					{ title: 'Configuring eslint', source: 'eslint.md' },
+					{ name: 'Using options', source: 'options.md' },
+					{ name: 'Configuring eslint', source: 'eslint.md' },
 				],
 			},
 			{
-				title: '@knodes/typedoc-plugin-monorepo-readmes',
+				name: '@knodes/typedoc-plugin-monorepo-readmes',
 				moduleRoot: true,
 				children: [
-					{ title: 'Using options', source: 'options.md' },
+					{ name: 'Using options', source: 'options.md' },
 				],
 			},
 			{
-				title: '@knodes/typedoc-pluginutils',
+				name: '@knodes/typedoc-pluginutils',
 				moduleRoot: true,
 				children: [
-					{ title: 'Providing options', source: 'providing-options.md' },
-					{ title: 'Resolving paths', source: 'resolving-paths.md' },
+					{ name: 'Providing options', source: 'providing-options.md' },
+					{ name: 'Resolving paths', source: 'resolving-paths.md' },
 				],
 			},
 			// #region pagesConfig-3

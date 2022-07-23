@@ -65,15 +65,15 @@ export const getNodeUrl = ( node: IPageNode ): string => {
 type NodeOrRef = IPageNode | Reflection;
 export const getNodePath = ( self?: NodeOrRef, parent?: NodeOrRef ): string => [ parent, self ]
 	.filter( isObject )
-	.flatMap( iterateNodeTitle )
+	.flatMap( iterateNodeName )
 	.map( p => JSON.stringify( p ) ).join( ' ⇥ ' );
-const iterateNodeTitle = ( node?: NodeOrRef ): string[] => {
+const iterateNodeName = ( node?: NodeOrRef ): string[] => {
 	if( node instanceof ANodeReflection ){
-		return [ ...iterateNodeTitle( node.parent ), node.name ];
+		return [ ...iterateNodeName( node.parent ), node.name ];
 	} else if( node instanceof Reflection ){
 		return [];
 	} else if( node ){
-		return [ node.title ];
+		return [ node.name ];
 	} else {
 		return [];
 	}
