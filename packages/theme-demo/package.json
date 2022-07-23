@@ -8,6 +8,8 @@
   "bugs": {
     "url": "https://github.com/KnodesCommunity/typedoc-plugins/issues"
   },
+  "private": true,
+  "changelogStartsAt": "0.23.2",
   "homepage": "https://knodescommunity.github.io/typedoc-plugins/modules/_knodes_typedoc_theme_demo.html",
   "author": {
     "email": "gerkin@knodes.org",
