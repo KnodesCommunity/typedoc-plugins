@@ -1,6 +1,6 @@
 import assert, { AssertionError } from 'assert';
 
-import { difference, groupBy, isArray, isNil, isObject, isString, uniq } from 'lodash';
+import { difference, groupBy, isArray, isNil, isObject, isString } from 'lodash';
 import { LogLevel, ParameterType } from 'typedoc';
 
 import { OptionGroup, miscUtils } from '@knodes/typedoc-pluginutils';
@@ -20,20 +20,30 @@ const pageKeys: Array<keyof IPageNode> = [ 'children', 'childrenDir', 'childrenO
 const checkPageFactory = <T extends IPageNode>( allowedKeys: Array<keyof T> ) => ( plugin: PagesPlugin, page: unknown, path: string[] ): asserts page is T => {
 	assert( page && isObject( page ), 'Page should be an object' );
 	const _page = page as Record<string, unknown>;
-	if( 'title' in _page && !( 'name' in _page ) ){
-		_page.name = _page.title;
-		delete _page.title;
-		plugin.logger.warn( `Page ${[ ...path, _page.name ].map( p => `"${p}"` ).join( ' ⇒ ' )} is using deprecated "title" property. Use "name" instead.` );
-	}
-	assert( 'name' in _page && isString( _page.name ), 'Page should have a name' );
-	const extraProps = difference( Object.keys( _page ), allowedKeys as string[] );
-	assert.equal( extraProps.length, 0, `Page ${[ ...path, _page.name ].map( p => `"${p}"` ).join( ' ⇒ ' )} have extra properties ${JSON.stringify( extraProps )}` );
-	if( 'children' in _page && !isNil( _page.children ) ){
-		assert( isArray( _page.children ), 'Page children should be an array' );
-		const thisPath = [ ...path, _page.name as string ];
-		_page.children.forEach( ( c, i ) => miscUtils.catchWrap(
-			() => checkPage( plugin, c, thisPath ),
-			wrapPageError( thisPath, i ) ) );
+	const pagePath = () => [ ...path, _page.name ].map( p => `"${p ?? 'Unnamed'}"` ).join( ' ⇒ ' );
+	if( 'match' in page && 'template' in page ){
+		assert( isString( _page.match ) );
+		assert( isArray( _page.template ) );
+		const selfFn = checkPageFactory( allowedKeys );
+		_page.template.forEach( ( t, i ) => selfFn( plugin, t, [ ...path, `TEMPLATE ${i + 1}` ] ) );
+	} else if( !( 'match' in page ) && !( 'template' in page ) ){
+		if( 'title' in _page && !( 'name' in _page ) ){
+			_page.name = _page.title;
+			delete _page.title;
+			plugin.logger.warn( `Page ${pagePath()} is using deprecated "title" property. Use "name" instead.` );
+		}
+		assert( 'name' in _page && isString( _page.name ), `Page ${pagePath()} should have a name` );
+		const extraProps = difference( Object.keys( _page ), allowedKeys as string[] );
+		assert.equal( extraProps.length, 0, `Page ${pagePath()} have extra properties ${JSON.stringify( extraProps )}` );
+		if( 'children' in _page && !isNil( _page.children ) ){
+			assert( isArray( _page.children ), `Page ${pagePath()} "children" should be an array` );
+			const thisPath = [ ...path, _page.name as string ];
+			_page.children.forEach( ( c, i ) => miscUtils.catchWrap(
+				() => checkPage( plugin, c, thisPath ),
+				wrapPageError( thisPath, i ) ) );
+		}
+	} else {
+		throw new Error( `Page ${pagePath()} has a "match" or "template" property, but it should have both or none` );
 	}
 };
 const checkPage = checkPageFactory<IPageNode>( pageKeys );
@@ -64,11 +74,9 @@ export const buildOptions = ( plugin: PagesPlugin ) => OptionGroup.factory<IPlug
 				v.forEach( ( p, i ): asserts p is IRootPageNode => miscUtils.catchWrap(
 					() => checkRootPage( plugin, p, [] ),
 					wrapPageError( [], i ) ) );
-				const rootFlags = groupBy( v, p => !!p.moduleRoot );
+				const flattenRootNodes = ( vv: any ) => 'template' in vv ? vv.template.flatMap( ( vvv: any ) => flattenRootNodes( vvv ) ) : [ vv ];
+				const rootFlags = groupBy( v.flatMap( vv => flattenRootNodes( vv ) ), p => !!p.moduleRoot );
 				assert.equal( Object.keys( rootFlags ).length, 1, 'Every root pages should set `moduleRoot` to true, or none' );
-				if( rootFlags.true ) {
-					assert.equal( uniq( v.map( p => p.name ) ).length, v.length, 'Every root pages should have a different name' );
-				}
 			}
 		},
 	}, v => {
