@@ -1,7 +1,7 @@
 import assert from 'assert';
 import { join as _join } from 'path';
 
-import { isObject, isString, startCase } from 'lodash';
+import { isNil, isObject, isString, startCase } from 'lodash';
 import { PascalCase } from 'type-fest';
 import { Reflection, normalizePath } from 'typedoc';
 
@@ -51,7 +51,7 @@ export const getNodeUrl = ( node: IPageNode ): string => {
 	} else {
 		assert( node.source );
 		const filenameNoExt = trimExt( node.source );
-		if( node.children ){
+		if( node.children && isNil( node.childrenDir ) && isNil( node.childrenOutputDir ) ){
 			return `${filenameNoExt}/index.html`;
 		}
 		return `${filenameNoExt}.html`;
