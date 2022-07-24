@@ -588,7 +588,7 @@ workflows:
 
       - codeclimate-upload:
           requires:
-            - test-sources-16.16.0-linux # !FORMAT - test-sources-${!*test-matrix-nodeversion-default}-${*test-matrix-os-default}
+            - test-sources-linux # !FORMAT - test-sources-${*test-matrix-os-default}
             - test-tools-linux-coverage # !FORMAT - test-tools-${!*test-matrix-os-default}-coverage
 
   check: # Workflow ran on all branches except `main`, `develop` and `renovate/*`
