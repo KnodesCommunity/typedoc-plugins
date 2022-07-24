@@ -1,3 +1,5 @@
+import assert from 'assert';
+
 import { escapeRegExp, isNil, isNumber, last, uniq } from 'lodash';
 import { JSX, MarkdownEvent } from 'typedoc';
 
@@ -36,9 +38,7 @@ interface IMapSource {
 
 const spitArgs = ( ...args: Parameters<Parameters<typeof String.prototype.replace>[1]> ) => {
 	const indexIdx = args.findIndex( isNumber );
-	if( isNil( indexIdx ) ){
-		throw new Error();
-	}
+	assert( indexIdx > 0 );
 	return {
 		fullMatch: args[0] as string,
 		captures: args.slice( 1, indexIdx ) as Array<string | null>,

@@ -85,21 +85,21 @@ export namespace ReflectionCommentReplacer {
 		reflection: Reflection;
 		context: Context;
 	}
-	export interface MatchBlockComment extends MatchBase {
-		kind: 'blockComment';
+	interface MatchInlineTag extends MatchBase {
 		tag: InlineTagDisplayPart;
-		block: CommentTag;
 		replace: ( newVal: CommentDisplayPart ) => void;
+	}
+	export interface MatchBlockComment extends MatchInlineTag {
+		kind: 'blockComment';
+		block: CommentTag;
 	}
 	export interface MatchBlock extends MatchBase {
 		kind: 'block';
 		block: CommentTag;
 		replace: ( newVal: CommentTag ) => void;
 	}
-	export interface MatchSummary extends MatchBase {
+	export interface MatchSummary extends MatchInlineTag {
 		kind: 'summary';
-		tag: InlineTagDisplayPart;
-		replace: ( newVal: CommentDisplayPart ) => void;
 	}
 	export type Match = MatchBlockComment | MatchBlock | MatchSummary
 	export type ReplaceCallback<T extends Match> = ( match: T ) => void;

@@ -5,8 +5,8 @@ import { Converter, LogLevel, ProjectReflection, Renderer, SourceReference } fro
 
 import { ABasePlugin } from '@knodes/typedoc-pluginutils';
 
-export type MockPlugin<T extends ABasePlugin> = jest.MockedObjectDeep<T>
-export const mockPlugin = <T extends ABasePlugin>( props: Partial<MockPlugin<T>> = {} ): MockPlugin<T> => {
+export type MockPlugin<T extends ABasePlugin = ABasePlugin> = jest.MockedObjectDeep<T>
+export const mockPlugin = <T extends ABasePlugin = ABasePlugin>( props: Partial<MockPlugin<T>> = {} ): MockPlugin<T> => {
 	const mockLogger = {
 		makeChildLogger: jest.fn(),
 		error: jest.fn().mockImplementation( v => fail( `Unexpected error log: ${typeof v === 'function' ? v() : v}` ) ),
