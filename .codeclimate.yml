@@ -1,0 +1,9 @@
+checks:
+  similar-code:
+    enabled: true
+    config:
+      threshold: 250
+  identical-code:
+    enabled: true
+    config:
+      threshold: 60
