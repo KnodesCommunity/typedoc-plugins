@@ -530,18 +530,71 @@ workflows:
       - test-tools:
           name: test-tools-<<matrix.os>>
           matrix:
-            parameters: 
+            parameters:
               os: *test-matrix-os
             exclude:
               - os: windows
           requires:
             - npm-install-<<matrix.os>>
 
+  dev-check: # Workflow ran on all features
+    when:
+      matches: { pattern: "^feature/.+$", value: <<pipeline.git.branch>> }
+    jobs:
+      - checkout
+      - npm-install:
+          matrix:
+            parameters:
+              os: *test-matrix-os
+          install-type: install
+          node-version: *test-matrix-nodeversion-default
+          requires:
+            - checkout
+
+      - build:
+          os: *test-matrix-os-default
+          node-version: *test-matrix-nodeversion-default
+          requires:
+            - npm-install-linux # !FORMAT - npm-install-${*test-matrix-os-default}
+      - lint:
+          requires:
+            - npm-install-linux # !FORMAT - npm-install-${*test-matrix-os-default}
+
+      - test-sources:
+          coverage: true
+          matrix:
+            parameters:
+              os: *test-matrix-os
+          node-version: *test-matrix-nodeversion-default
+          requires:
+            - npm-install-<<matrix.os>>
+      - test-tools:
+          name: test-tools-<<matrix.os>>-STUB
+          matrix:
+            parameters:
+              os: *test-matrix-os
+            exclude:
+              - os: *test-matrix-os-default
+              - os: windows
+          requires:
+            - npm-install-<<matrix.os>>
+      - test-tools:
+          name: test-tools-linux-coverage # !FORMAT name: test-tools-${!*test-matrix-os-default}-coverage
+          os: *test-matrix-os-default
+          coverage: true
+          requires:
+            - npm-install-linux # !FORMAT - npm-install-${!*test-matrix-os-default}
+            - build
+
+      - codeclimate-upload:
+          requires:
+            - test-sources-16.16.0-linux # !FORMAT - test-sources-${!*test-matrix-nodeversion-default}-${*test-matrix-os-default}
+            - test-tools-linux-coverage # !FORMAT - test-tools-${!*test-matrix-os-default}-coverage
+
   check: # Workflow ran on all branches except `main`, `develop` and `renovate/*`
     unless:
       or:
-      #   - equal: [ main, <<pipeline.git.branch>> ]
-      #   - equal: [ develop, <<pipeline.git.branch>> ]
+        - matches: { pattern: "^feature/.+$", value: <<pipeline.git.branch>> }
         - matches: { pattern: "^renovate/.+$", value: <<pipeline.git.branch>> }
     jobs:
       - checkout
@@ -571,7 +624,7 @@ workflows:
       - test-tools:
           name: test-tools-<<matrix.os>>-STUB
           matrix:
-            parameters: 
+            parameters:
               os: *test-matrix-os
             exclude:
               - os: *test-matrix-os-default
