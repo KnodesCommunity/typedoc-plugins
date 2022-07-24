@@ -14,11 +14,7 @@ export const join = ( ...segments: Array<string | undefined | null> ) => {
 	const leadingDots = segmentsNormalized[0].match( /^((\.{1,2}[/\\])+)/ );
 	return `${leadingDots ? leadingDots[0] : ''}${joined}`;
 };
-export const traverseDeep = ( reflections: readonly Reflection[], cb: ( reflection: Reflection ) => void | boolean  ) => reflections.forEach( r => traverseSingle( r, cb ) );
-const traverseSingle = ( reflection: Reflection, cb: ( reflection: Reflection ) => void | boolean ) => {
-	cb( reflection );
-	reflection.traverse( rr => traverseSingle( rr, cb ) );
-};
+
 const trimExt = ( file: string ) => {
 	if( !file.match( /\.[^/.]+$/ ) ){
 		throw new Error( `Invalid non-extension filename "${file}"` );
