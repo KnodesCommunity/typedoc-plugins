@@ -1,0 +1,42 @@
+name: Bug Report
+description: File a bug report
+title: "[Bug]: "
+labels: ["bug", "triage"]
+body:
+  - type: dropdown
+    id: plugin
+    attributes:
+      label: Plugin
+      description: What plugin are you encountering a problem with ?
+      options: ["@knodes/typedoc-plugin-code-blocks", "@knodes/typedoc-plugin-monorepo-readmes", "@knodes/typedoc-plugin-pages", "@knodes/typedoc-pluginutils", Unspecified] # !FORMAT options: [${...plugins}, Unspecified]
+    validations:
+      required: true
+  - type: input
+    id: versions
+    attributes:
+      label: Typedoc plugin(s) version(s)
+      description: Put here a list of all your typedoc plugins
+      placeholder: "Example: @knodes/plugin-pages@0.22.6, @knodes/plugin-code-blocks@0.22.4"
+    validations:
+      required: true
+  - type: input
+    id: typedoc-version
+    attributes:
+      label: Typedoc version
+      placeholder: "Example: 0.23.8" # !FORMAT placeholder: "Example: ${typedocVersion}"
+    validations:
+      required: true
+  - type: textarea
+    id: describe-problem
+    attributes:
+      label: Describe the problem
+      placeholder: "Example: an error is thrown when doing X."
+    validations:
+      required: true
+  - type: textarea
+    id: what-expected
+    attributes:
+      label: What did you expected ?
+      placeholder: "Example: Doing X should result in something."
+    validations:
+      required: true

@@ -4,11 +4,11 @@ const { normalizePath } = require( 'typedoc' );
 
 const { changelog } = require( './sync-proto-modules/changelog' );
 const { circleCi } = require( './sync-proto-modules/circleci' );
+const { issueTemplate } = require( './sync-proto-modules/issue-template' );
 const { packageJson } = require( './sync-proto-modules/package-json' );
 const { readme } = require( './sync-proto-modules/readme' );
 const { syncFs } = require( './sync-proto-modules/sync-fs' );
 const { typedocSubmodule } = require( './sync-proto-modules/typedoc-submodule' );
-
 const { selectProjects, createStash } = require( './utils' );
 
 if( require.main === module ){
@@ -40,6 +40,7 @@ if( require.main === module ){
 				typedocSubmodule,
 				circleCi,
 				changelog,
+				issueTemplate,
 			].reduce(
 				( acc, protoHandlerFactory ) => acc.then( v => Promise.resolve( protoHandlerFactory( checkOnly ) )
 					.then( w => [ ...v, w ] ) ),

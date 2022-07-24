@@ -1,0 +1,20 @@
+name: Feature request
+description: Suggest a feature
+title: "[Feature]: "
+labels: ["enhancement", "triage"]
+body:
+  - type: dropdown
+    id: plugin
+    attributes:
+      label: Plugin
+      description: What plugin is concerned ?
+      options: ["@knodes/typedoc-plugin-code-blocks", "@knodes/typedoc-plugin-monorepo-readmes", "@knodes/typedoc-plugin-pages", "@knodes/typedoc-pluginutils", Unspecified] # !FORMAT options: [${...plugins}, Unspecified]
+    validations:
+      required: true
+  - type: textarea
+    id: what-expected
+    attributes:
+      label: What would you want ?
+      placeholder: "Example: When doing X, I would like that Y happens."
+    validations:
+      required: true
