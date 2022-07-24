@@ -13,7 +13,7 @@ const baseConfig = package => ( {
 	testEnvironment: 'node',
 	globals: {
 		'ts-jest': {
-			tsconfig: `<rootDir>/packages/${package}/tsconfig.spec.json`,
+			tsconfig: resolveRoot( 'packages', package, 'tsconfig.spec.json' ),
 			diagnostics: {
 				pathRegex: new RegExp( `^${escapeRegExp( __dirname )}/packages/${package}/.*` ),
 			},
@@ -41,7 +41,7 @@ module.exports = projectDir => {
 					name: 'unit',
 					color: 'blue',
 				},
-				testMatch: [ `<rootDir>/packages/${package}/src/**/*.spec${anyExt}` ],
+				testMatch: [ resolveRoot( 'packages', package, `src/**/*.spec${anyExt}` ) ],
 			},
 			{
 				...base,
@@ -49,7 +49,7 @@ module.exports = projectDir => {
 					name: 'integration',
 					color: 'green',
 				},
-				testMatch: [ `<rootDir>/packages/${package}/__tests__/integration/**/*.spec${anyExt}` ],
+				testMatch: [ resolveRoot( 'packages', package, `__tests__/integration/**/*.spec${anyExt}` ) ],
 			},
 		],
 		collectCoverageFrom: [
