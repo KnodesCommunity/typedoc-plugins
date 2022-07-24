@@ -127,6 +127,7 @@
     "typescript": "^4.7.4",
     "unionfs": "^4.4.0",
     "yaml": "^2.1.1",
-    "fastest-levenshtein": "^1.0.16"
+    "fastest-levenshtein": "^1.0.16",
+    "@types/glob": "^7.2.0"
   }
 }

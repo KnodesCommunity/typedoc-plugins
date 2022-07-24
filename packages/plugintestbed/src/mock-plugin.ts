@@ -9,8 +9,8 @@ export type MockPlugin<T extends ABasePlugin = ABasePlugin> = jest.MockedObjectD
 export const mockPlugin = <T extends ABasePlugin = ABasePlugin>( props: Partial<MockPlugin<T>> = {} ): MockPlugin<T> => {
 	const mockLogger = {
 		makeChildLogger: jest.fn(),
-		error: jest.fn().mockImplementation( v => fail( `Unexpected error log: ${typeof v === 'function' ? v() : v}` ) ),
-		warn: jest.fn().mockImplementation( v => fail( `Unexpected warn log: ${typeof v === 'function' ? v() : v}` ) ),
+		error: jest.fn().mockImplementation( v => {throw new Error( `Unexpected error log: ${typeof v === 'function' ? v() : v}` ); } ),
+		warn: jest.fn().mockImplementation( v => {throw new Error( `Unexpected warn log: ${typeof v === 'function' ? v() : v}` ); } ),
 		log: jest.fn(),
 		verbose: jest.fn(),
 		info: jest.fn(),
@@ -23,7 +23,8 @@ export const mockPlugin = <T extends ABasePlugin = ABasePlugin>( props: Partial<
 	const application: any = {
 		logger: { level: LogLevel.Verbose, log: jest.fn() },
 		options: {
-			getValue: jest.fn().mockImplementation( k => isNil( k ) ? opts : opts[k] ),
+			getValue: jest.fn().mockImplementation( k => opts[k] ),
+			getRawValues: jest.fn().mockImplementation( () => opts ),
 			_setOptions: new Set(),
 		},
 	};

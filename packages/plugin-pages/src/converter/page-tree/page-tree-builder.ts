@@ -1,12 +1,16 @@
 import assert from 'assert';
+import { isAbsolute, resolve } from 'path';
 
+import { sync as glob } from 'glob';
+import { cloneDeep, uniq } from 'lodash';
 import { DeclarationReflection, MinimalSourceFile, ProjectReflection, Reflection, normalizePath } from 'typedoc';
 
 import { IPluginComponent, ResolveError, getWorkspaces, miscUtils, resolveNamedPath } from '@knodes/typedoc-pluginutils';
 
 import { ANodeReflection, MenuReflection, NodeReflection, PageReflection } from '../../models/reflections';
-import { IPageNode, IPluginOptions, IRootPageNode } from '../../options';
+import { IOptionPatternPage, IPageNode, IPluginOptions, IRootPageNode, OptionsPageNode } from '../../options';
 import type { PagesPlugin } from '../../plugin';
+import { IExpandContext, expandNode } from './expand-context';
 import { getDir, getNodePath, getNodeUrl, join } from './utils';
 
 const isModuleRoot = ( pageNode: IPageNode | IRootPageNode ) => 'moduleRoot' in pageNode && !!pageNode.moduleRoot;
@@ -34,21 +38,96 @@ export class PageTreeBuilder implements IPluginComponent<PagesPlugin> {
 		if( !options.pages || options.pages.length === 0 ){
 			return rootMenu;
 		} else {
-			if( options.pages.some( p => p.moduleRoot ) ){
+			const pages = this._expandRootPageNodes( options.pages, options.source );
+			if( pages.some( p => p.moduleRoot ) ){
 				rootMenu.childrenNodes = this._mapNodesToReflectionsTree(
-					options.pages,
+					pages,
 					project,
 					{ inputContainer: options.source, output: options.output } );
 			} else {
 				const projectRoot = new MenuReflection( project.name, project, project, project.url ?? '' );
 				projectRoot.childrenNodes = this._mapNodesToReflectionsTree(
-					options.pages,
+					pages,
 					projectRoot,
 					{ inputContainer: options.source, output: options.output } );
 				rootMenu.childrenNodes = projectRoot.childrenNodes.length > 0 ? [ projectRoot ] : [];
 			}
+			rootMenu.childrenNodes = this._dedupeNodes( rootMenu.childrenNodes );
 			return rootMenu;
 		}
+	}
+
+	/**
+	 * Merge identical nodes (identical at this point means same name & module).
+	 *
+	 * @param nodes - The nodes to dedupe.
+	 * @returns the deduped nodes.
+	 */
+	private _dedupeNodes( nodes: ANodeReflection[] ): ANodeReflection[] {
+		return nodes.reduce<ANodeReflection[]>( ( acc, v ) => {
+			const existing = acc.find( a => a.module === v.module && a.name === v.name );
+			if( existing ){
+				if( existing instanceof PageReflection && v instanceof PageReflection ){
+					throw new Error( `Deduping ${getNodePath( v )} failed: this page and ${getNodePath( existing )} both has source` );
+				}
+				v.parent = existing;
+				existing.childrenNodes = this._dedupeNodes( uniq( [
+					...( existing.childrenNodes ?? [] ),
+					...( v.childrenNodes ?? [] ).map( c => {
+						c.parent = existing;
+						return c;
+					} ),
+				] ) );
+			} else {
+				acc.push( v );
+			}
+			return acc;
+		}, [] );
+	}
+
+	/**
+	 * Expand each page entry for each entrypoint.
+	 *
+	 * @param pages - A list of pages options to expand.
+	 * @param sourceDir - The pages container directory.
+	 * @returns the expanded page nodes.
+	 */
+	private _expandRootPageNodes( pages: IPluginOptions.Page[], sourceDir: string ): IRootPageNode[]{
+		const entryPoints = this.plugin.application.options.getValue( 'entryPoints' ).flatMap( ep => glob( ep ) );
+		return pages.map( p => this._expandPageNode<IRootPageNode>( entryPoints.map( ep => join( ep, sourceDir ) ), p, [] ) ).flat( 2 );
+	}
+
+	/**
+	 * Expand the given node or node match from each if the given path sources.
+	 *
+	 * @param froms - A list of paths to try to expand against.
+	 * @param node - The node to expand.
+	 * @param prevContexts - A list of previous expansion contexts.
+	 * @returns the expanded nodes.
+	 */
+	private _expandPageNode<T extends IPageNode>( froms: string[], node: OptionsPageNode<T> | IOptionPatternPage<T>, prevContexts: IExpandContext[] = [] ): T[] {
+		if( 'match' in node ){
+			const matches = froms.flatMap( from => glob( node.match, { cwd: from  } ).map( m => ( {
+				from,
+				match: normalizePath( m ),
+				fullPath: normalizePath( resolve( from, m ) ),
+				prev: prevContexts,
+			} as IExpandContext ) ) );
+			const nodesExpanded = matches.map( m => node.template.map( t => {
+				const tClone = cloneDeep( t );
+				if( 'children' in tClone ){
+					tClone.children = tClone.children?.map( c => this._expandPageNode( [ m.fullPath ], c, [ ...prevContexts, m ] ) ).flat( 1 ) ?? [];
+				}
+				const expanded = expandNode( tClone, m );
+				return expanded;
+			} ) ).flat( 1 );
+			return nodesExpanded as any;
+		}
+		const clone = cloneDeep( node );
+		if( 'children' in clone ){
+			clone.children = clone.children?.map( c => this._expandPageNode( froms, c, [ ...prevContexts ] ) ).flat( 1 ) ?? [];
+		}
+		return [ clone as any ];
 	}
 
 	/**
@@ -151,7 +230,7 @@ export class PageTreeBuilder implements IPluginComponent<PagesPlugin> {
 	private _getNodeReflection( node: PageNode, parent: ANodeReflection.Parent, io: IIOPath ){
 		const { module, parent: actualParent } = this._getNodeParent( node, parent );
 		if( node.source ){
-			const nodePath = join( io.input, node.source );
+			const nodePath = isAbsolute( node.source ) ? node.source : join( io.input, node.source );
 			const sourceFilePath = miscUtils.catchWrap(
 				() => resolveNamedPath( module, io.inputContainer ?? undefined, nodePath ),
 				err => {

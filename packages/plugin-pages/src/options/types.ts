@@ -61,6 +61,21 @@ export interface IRootPageNode extends IPageNode {
 	moduleRoot?: boolean;
 }
 
+export interface IOptionPatternPage<T extends IPageNode = IPageNode> {
+	match: string;
+	template: Array<OptionsPageNode<T>>;
+}
+export type OptionsPageNode<T extends IPageNode = IPageNode> = Omit<T, 'children'> & {
+	children?: Array<OptionsPageNode | IOptionPatternPage>;
+}
+
+export interface IOptionsPage {
+	/**
+	 * List of children nodes. Both pages & menu entries can have children.
+	 */
+	children?: IPageNode[];
+}
+
 export enum EInvalidPageLinkHandling {
 	FAIL = 'fail',
 	LOG_ERROR = 'logError',
@@ -76,7 +91,7 @@ export interface IPluginOptions {
 	 *
 	 * @see {@page pages-tree.md} for details.
 	 */
-	pages: IRootPageNode[];
+	pages: IPluginOptions.Page[];
 
 	/**
 	 * Whether or not @page and @pagelink tags should be parsed.
@@ -125,4 +140,6 @@ export interface IPluginOptions {
 	 */
 	excludeMarkdownTags?: string[];
 }
-
+export namespace IPluginOptions {
+	export type Page = OptionsPageNode<IRootPageNode> | IOptionPatternPage<IRootPageNode>;
+}

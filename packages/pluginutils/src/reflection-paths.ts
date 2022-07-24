@@ -1,6 +1,6 @@
 import assert from 'assert';
 import { existsSync, readdirSync } from 'fs';
-import { dirname, parse, resolve  } from 'path';
+import { dirname, isAbsolute, parse, resolve  } from 'path';
 
 import { memoize } from 'lodash';
 import { LiteralUnion } from 'type-fest';
@@ -107,6 +107,12 @@ export const resolveNamedPath: {
 	const [ currentReflection, containerFolder, path ] = args.length === 3 ? args : [ args[0], undefined, args[1] ];
 	let containerFolderMut = containerFolder;
 	let pathMut = normalizePath( path );
+	if( isAbsolute( pathMut ) ){
+		if( existsSync( pathMut ) ){
+			return pathMut;
+		}
+		throw new Error( `Resolved file "${pathMut}" does not exists` );
+	}
 	let reflectionRoots = findModuleRoot( getReflectionModule( currentReflection ) );
 	if( pathMut.startsWith( '~~:' ) ){
 		pathMut = pathMut.slice( 3 );
