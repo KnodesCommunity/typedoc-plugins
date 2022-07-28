@@ -34,10 +34,12 @@ typedoc --help
   Default to the application log level.
 * `excludeMarkdownTags`: A list of markdown captures to omit. Should have the form `{@....}`.\
   Type: `string[]`
+* `linkModuleBase`: The container in packages to search for pages in "{@link ...}" tags.\
+  Type: `string | null`
 * `source`: **deprecated** Root directory where all page source files live.\
   Type: `string`\
   Default: `'pages'`
 
-  > **Note**: prefer setting this option to `null` in order to anticipate a future removal of this option.
+  > **Note**: prefer setting this option to `null` and use `linkModuleBase` in order to anticipate a future removal of this option.
 
 > See {@link IPluginOptions}

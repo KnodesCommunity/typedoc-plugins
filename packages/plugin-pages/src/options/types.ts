@@ -140,6 +140,10 @@ export interface IPluginOptions {
 	 * A list of markdown captures to omit. Should have the form `{@....}`.
 	 */
 	excludeMarkdownTags?: string[];
+	/**
+	 * The container in packages to search for pages in "{@link ...}" tags.
+	 */
+	linkModuleBase: string | null;
 }
 export namespace IPluginOptions {
 	export type Page = OptionsPageNode<IRootPageNode> | IOptionPatternPage<IRootPageNode>;
