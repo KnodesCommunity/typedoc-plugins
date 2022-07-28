@@ -92,7 +92,7 @@ export const buildOptions = ( plugin: PagesPlugin ) => OptionGroup.factory<IPlug
 		help: 'Root directory where all page source files live.',
 		type: ParameterType.String,
 		defaultValue: 'pages',
-	} )
+	}, v => v || null )
 	.add( 'logLevel', {
 		help: 'The plugin log level.',
 		type: ParameterType.Map,

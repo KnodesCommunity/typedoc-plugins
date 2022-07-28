@@ -18,9 +18,9 @@ const isModuleRoot = ( pageNode: IPageNode | IRootPageNode ) => 'moduleRoot' in 
 type PageNode = IPageNode | IRootPageNode;
 
 interface IIOPath {
-	inputContainer?: string;
-	input?: string;
-	output?: string;
+	inputContainer: string | null;
+	input?: string | null;
+	output?: string | null;
 }
 export class PageTreeBuilder implements IPluginComponent<PagesPlugin> {
 	private readonly _logger = this.plugin.logger.makeChildLogger( PageTreeBuilder.name );
@@ -34,6 +34,9 @@ export class PageTreeBuilder implements IPluginComponent<PagesPlugin> {
 	 * @returns the nodes tree.
 	 */
 	public buildPagesTree( project: ProjectReflection, options: IPluginOptions ): MenuReflection {
+		if( options.source ) { // TODO: Backward compatibility
+			this._logger.warn( 'Using deprecated option "source". We recommend setting it to `null` and use "VIRTUAL" menus with "childrenDir"' );
+		}
 		const rootMenu = new MenuReflection( 'ROOT', project, undefined, '' );
 		if( !options.pages || options.pages.length === 0 ){
 			return rootMenu;
@@ -92,9 +95,9 @@ export class PageTreeBuilder implements IPluginComponent<PagesPlugin> {
 	 * @param sourceDir - The pages container directory.
 	 * @returns the expanded page nodes.
 	 */
-	private _expandRootPageNodes( pages: IPluginOptions.Page[], sourceDir: string ): IRootPageNode[]{
+	private _expandRootPageNodes( pages: IPluginOptions.Page[], sourceDir?: string | null ): IRootPageNode[]{
 		const entryPoints = this.plugin.application.options.getValue( 'entryPoints' ).flatMap( ep => glob( ep ) );
-		return pages.map( p => this._expandPageNode<IRootPageNode>( entryPoints.map( ep => join( ep, sourceDir ) ), p, [] ) ).flat( 2 );
+		return pages.map( p => this._expandPageNode<IRootPageNode>( entryPoints, p, sourceDir, [] ) ).flat( 1 );
 	}
 
 	/**
@@ -102,12 +105,13 @@ export class PageTreeBuilder implements IPluginComponent<PagesPlugin> {
 	 *
 	 * @param froms - A list of paths to try to expand against.
 	 * @param node - The node to expand.
+	 * @param sourceDir - The container directory expected to contain all source pages.
 	 * @param prevContexts - A list of previous expansion contexts.
 	 * @returns the expanded nodes.
 	 */
-	private _expandPageNode<T extends IPageNode>( froms: string[], node: OptionsPageNode<T> | IOptionPatternPage<T>, prevContexts: IExpandContext[] = [] ): T[] {
+	private _expandPageNode<T extends IPageNode>( froms: string[], node: OptionsPageNode<T> | IOptionPatternPage<T>, sourceDir?: string | null, prevContexts: IExpandContext[] = [] ): T[] {
 		if( 'match' in node ){
-			const matches = froms.flatMap( from => glob( node.match, { cwd: from  } ).map( m => ( {
+			const matches = froms.flatMap( from => glob( node.match, { cwd: from.match( /^\.{1,2}\// ) ? from : join( from, sourceDir )  } ).map( m => ( {
 				from,
 				match: normalizePath( m ),
 				fullPath: normalizePath( resolve( from, m ) ),
@@ -116,7 +120,7 @@ export class PageTreeBuilder implements IPluginComponent<PagesPlugin> {
 			const nodesExpanded = matches.map( m => node.template.map( t => {
 				const tClone = cloneDeep( t );
 				if( 'children' in tClone ){
-					tClone.children = tClone.children?.map( c => this._expandPageNode( [ m.fullPath ], c, [ ...prevContexts, m ] ) ).flat( 1 ) ?? [];
+					tClone.children = tClone.children?.map( c => this._expandPageNode( [ m.fullPath ], c, sourceDir, [ ...prevContexts, m ] ) ).flat( 1 ) ?? [];
 				}
 				const expanded = expandNode( tClone, m );
 				return expanded;
@@ -125,7 +129,7 @@ export class PageTreeBuilder implements IPluginComponent<PagesPlugin> {
 		}
 		const clone = cloneDeep( node );
 		if( 'children' in clone ){
-			clone.children = clone.children?.map( c => this._expandPageNode( froms, c, [ ...prevContexts ] ) ).flat( 1 ) ?? [];
+			clone.children = clone.children?.map( c => this._expandPageNode( froms, c, '.', [ ...prevContexts ] ) ).flat( 1 ) ?? [];
 		}
 		return [ clone as any ];
 	}
