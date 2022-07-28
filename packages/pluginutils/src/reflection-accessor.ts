@@ -111,6 +111,9 @@ export const resolveNamedPath: {
 	if( path.startsWith( '~~/' ) ){
 		path = path.replace( /^~~\//, '' );
 		reflectionRoots = findModuleRoot( currentReflection.project );
+	} else if( path.match( /^~\// ) ){
+		path = path.slice( 2 );
+		reflectionRoots = findModuleRoot( getReflectionModule( currentReflection ) );
 	} else if( path.match( /^~[^~]+\// ) ){
 		const workspaces = getWorkspaces( currentReflection.project ).slice( 1 ).filter( w => path.startsWith( `~${w.name}/` ) );
 		const workspace = workspaces[0];
@@ -121,9 +124,6 @@ export const resolveNamedPath: {
 		}
 		path = path.slice( workspace.name.length + 2 );
 		reflectionRoots = findModuleRoot( workspace );
-	} else if( path.match( /^~\// ) ){
-		path = path.slice( 2 );
-		reflectionRoots = findModuleRoot( getReflectionModule( currentReflection ) );
 	} else if( path.match( /^\.{1,2}\// ) ){
 		containerFolder = undefined;
 		reflectionRoots = dirname( currentReflection.sources?.[0].fullFileName ?? assert.fail() );

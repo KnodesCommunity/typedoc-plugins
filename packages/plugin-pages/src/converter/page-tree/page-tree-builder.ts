@@ -170,7 +170,7 @@ export class PageTreeBuilder implements IPluginComponent<PagesPlugin> {
 	 * @returns the node reflections.
 	 */
 	private _mapNodeToReflection( node: PageNode, parent: ANodeReflection.Parent, io: IIOPath ): NodeReflection[] {
-		const childrenIO: IIOPath = isModuleRoot( node ) ? { ...io } : {
+		const childrenIO: IIOPath = {
 			...io,
 			input: join( io.input, getDir( node, 'source' ) ),
 			output: join( io.output, getDir( node, 'output' ) ),
@@ -181,11 +181,13 @@ export class PageTreeBuilder implements IPluginComponent<PagesPlugin> {
 				[];
 		}
 		const nodeReflection = this._getNodeReflection( node, parent, io );
-		if( !( nodeReflection.module instanceof ProjectReflection ) && nodeReflection.isModuleAppendix ){
-			// If the node is attached to a new module, skip changes in the input tree (stay at root of `pages` in module)
+		if( nodeReflection.isModuleAppendix ){
 			childrenIO.input = io.input;
-			// Output is now like `pkg-a/pages/...`
-			childrenIO.output = `${nodeReflection.name.replace( /[^a-z0-9]/gi, '_' )}/${io.output ?? ''}`;
+			childrenIO.output = io.output;
+			if( !( nodeReflection.module instanceof ProjectReflection ) ){
+				// Output is now like `pkg-a/pages/...`
+				childrenIO.output = `${nodeReflection.name.replace( /[^a-z0-9]/gi, '_' )}/${io.output ?? ''}`;
+			}
 		}
 		const children = node.children ?
 			this._mapNodesToReflectionsTree(
