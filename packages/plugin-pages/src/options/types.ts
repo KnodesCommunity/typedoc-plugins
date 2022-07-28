@@ -124,9 +124,10 @@ export interface IPluginOptions {
 	/**
 	 * Root directory where all page source files live.
 	 *
+	 * @deprecated - Prefer setting this option to `null`.
 	 * @default 'pages'
 	 */
-	source: string;
+	source: string | null;
 
 	/**
 	 * The plugin log level.

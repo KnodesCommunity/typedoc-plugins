@@ -29,13 +29,15 @@ typedoc --help
 * `output`: Output directory where your pages will be rendered.\
   Type: `string`\
   Default: `'pages'`
-* `source`: Root directory where all page source files live.\
-  Type: `string`\
-  Default: `'pages'`
 * `logLevel`: The plugin log level.\
   Type: `LogLevel`\
   Default to the application log level.
 * `excludeMarkdownTags`: A list of markdown captures to omit. Should have the form `{@....}`.\
   Type: `string[]`
+* `source`: **deprecated** Root directory where all page source files live.\
+  Type: `string`\
+  Default: `'pages'`
+
+  > **Note**: prefer setting this option to `null` in order to anticipate a future removal of this option.
 
 > See {@link IPluginOptions}
