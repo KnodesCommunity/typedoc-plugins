@@ -242,27 +242,6 @@ describe( 'Simple tree', () => {
 				] } ),
 			] );
 		} );
-		it( 'should map page to workspace with children with pages in module', () => {
-			addChildModule( 'SUB' );
-			const targetModule = addChildModule( 'SUB2' );
-			setVirtualFs( {
-				SUB2: {
-					'appendix.md': 'APPENDIX',
-					'bar.md': 'Bar content',
-					'baz.md': 'Baz content',
-				},
-			} );
-			const out = pageTreeBuilder.buildPagesTree( project, opts( [ { name: 'SUB2', moduleRoot: true, source: 'appendix.md', children: [
-				{ name: 'Bar', source: 'bar.md' },
-				{ name: 'Baz', source: 'baz.md' },
-			] } ] ) );
-			expect( out.childrenNodes ).toEqual( [
-				matchReflection( PageReflection, { name: 'SUB2', depth: 0, module: targetModule, sourceFilePath: 'SUB2/appendix.md', childrenNodes: [
-					matchReflection( PageReflection, { name: 'Bar', depth: 1, module: targetModule, sourceFilePath: 'SUB2/bar.md', content: 'Bar content', url: 'SUB2/bar.html' } ),
-					matchReflection( PageReflection, { name: 'Baz', depth: 1, module: targetModule, sourceFilePath: 'SUB2/baz.md', content: 'Baz content', url: 'SUB2/baz.html' } ),
-				] } ),
-			] );
-		} );
 	} );
 	describe( 'Mixed', () => {
 		it( 'should map appendixes to workspace and root', () => {
