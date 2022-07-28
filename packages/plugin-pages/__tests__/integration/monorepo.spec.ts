@@ -167,11 +167,16 @@ describe( 'pkg-a', () => {
 	} ) );
 	describe( '`variables/pkg_a.stubA.html`', describeDocsFile( rootDir, 'variables/pkg_a.stubA.html', it => {
 		it( 'should have correct content', ( _content, dom ) => {
-			const link = dom.window.document.querySelector( '.tsd-comment a' );
-			expect( link ).toBeTruthy();
-			expect( link ).toHaveTextContent( /^the root doc page$/ );
-			expect( link ).toHaveAttribute( 'href', '../pages/root-doc/index.html' );
-			expect( link!.closest( '.tsd-comment' ) ).toHaveTextContent( 'See also the root doc page. stubB' );
+			const comment = dom.window.document.querySelector( '.tsd-comment' );
+			expect( comment ).toHaveTextContent( 'See also the root doc page. This should point to the README stubB' );
+			const links = comment!.querySelectorAll( 'a' );
+			expect( links ).toHaveLength( 3 );
+			expect( links[0] ).toHaveTextContent( /^the root doc page$/ );
+			expect( links[0] ).toHaveAttribute( 'href', '../pages/root-doc/index.html' );
+			expect( links[1] ).toHaveTextContent( /^the README$/ );
+			expect( links[1] ).toHaveAttribute( 'href', '../modules/pkg_a.html' );
+			expect( links[2] ).toHaveTextContent( /^stubB$/ );
+			expect( links[2] ).toHaveAttribute( 'href', 'pkg_b.stubB.html' );
 		} );
 		it( 'should have correct primary navigation', ( _content, dom ) => {
 			const primaryNavItems = Array.from( dom.window.document.querySelectorAll( '.tsd-navigation.primary li.pages-entry' ) );

@@ -451,7 +451,7 @@ exports[`pkg-a \`modules/pkg_a.html\` should have constant content 1`] = `
 			<aside class=\\"tsd-sources\\">
 				<ul>
 					<li>Defined in <a href=\\"https://github.com/KnodesCommunity/typedoc-plugins/blob/develop/packages/plugin-pages/__tests__/mock-fs/monorepo/packages/a/pages/readme-extras.md#L1\\">packages/a/pages/readme-extras.md:1</a></li>
-					<li>Defined in <a href=\\"https://github.com/KnodesCommunity/typedoc-plugins/blob/develop/packages/plugin-pages/__tests__/mock-fs/monorepo/packages/a/src/index.ts#L6\\">a/src/index.ts:6</a></li>
+					<li>Defined in <a href=\\"https://github.com/KnodesCommunity/typedoc-plugins/blob/develop/packages/plugin-pages/__tests__/mock-fs/monorepo/packages/a/src/index.ts#L7\\">a/src/index.ts:7</a></li>
 				</ul>
 			</aside>
 			<section class=\\"tsd-panel-group\\">
@@ -755,12 +755,13 @@ exports[`pkg-a \`variables/pkg_a.stubA.html\` should have constant content 1`] =
 			</div>
 			<div class=\\"tsd-signature\\">stubA<span class=\\"tsd-signature-symbol\\">:</span> <span class=\\"tsd-signature-type\\">0</span><span class=\\"tsd-signature-symbol\\"> = 0</span></div>
 			<div class=\\"tsd-comment tsd-typography\\">
-				<p>See also <a href=\\"../pages/root-doc/index.html\\">the root doc page</a>.</p>
+				<p>See also <a href=\\"../pages/root-doc/index.html\\">the root doc page</a>.
+					This should point to <a href=\\"../modules/pkg_a.html\\">the README</a></p>
 				<p><a href=\\"pkg_b.stubB.html\\">stubB</a></p>
 			</div>
 			<aside class=\\"tsd-sources\\">
 				<ul>
-					<li>Defined in <a href=\\"https://github.com/KnodesCommunity/typedoc-plugins/blob/develop/packages/plugin-pages/__tests__/mock-fs/monorepo/packages/a/src/index.ts#L6\\">a/src/index.ts:6</a></li>
+					<li>Defined in <a href=\\"https://github.com/KnodesCommunity/typedoc-plugins/blob/develop/packages/plugin-pages/__tests__/mock-fs/monorepo/packages/a/src/index.ts#L7\\">a/src/index.ts:7</a></li>
 				</ul>
 			</aside>
 		</div>

@@ -52,7 +52,7 @@ export class DefaultPagesRenderer implements IPagesPluginThemeMethods, IPluginCo
 	 * @returns the generated link.
 	 */
 	public renderPageLink( { page, label }: RenderPageLinkProps ): JSX.Element {
-		return <a href={this._theme.markedPlugin.getRelativeUrl( page.url )}>{label ?? page.originalName}</a>;
+		return <a href={this._theme.markedPlugin.getRelativeUrl( page.isModuleAppendix ? page.module.url ?? assert.fail() : page.url )}>{label ?? page.originalName}</a>;
 	}
 
 	/**
