@@ -90,7 +90,7 @@ export class MarkdownPagesLinks implements IPluginComponent<PagesPlugin> {
 		assert( isString( pageAlias ) );
 		const resolvedFile = resolveNamedPath(
 			this._currentPageMemo.currentReflection,
-			this.plugin.pluginOptions.getValue().source ?? undefined,
+			this.plugin.pluginOptions.getValue().linkModuleBase ?? this.plugin.pluginOptions.getValue().source ?? undefined, // TODO: Backward compatibility
 			pageAlias as NamedPath );
 		const page = this._nodesReflections.find( m => m.sourceFilePath === resolvedFile );
 		assert( page, new Error( 'Page not found' ) );

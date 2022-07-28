@@ -104,4 +104,8 @@ export const buildOptions = ( plugin: PagesPlugin ) => OptionGroup.factory<IPlug
 		type: ParameterType.Array,
 		validate: patterns => patterns?.forEach( p => assert.match( p, /^\{@.*\}$/, `Pattern ${JSON.stringify( p )} should match "{@...}"` ) ),
 	}, v => v ?? [] )
+	.add( 'linkModuleBase', {
+		help: 'The container in packages to search for pages in "{@link ...}" tags.',
+		type: ParameterType.String,
+	}, v => v || null )
 	.build();
