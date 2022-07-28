@@ -7,6 +7,7 @@ import { CurrentPageMemo, IPluginComponent, MarkdownReplacer, NamedPath, resolve
 
 import { getNodePath } from '../converter/page-tree';
 import { PageReflection, PagesPluginReflectionKind } from '../models/reflections';
+import { EInvalidPageLinkHandling } from '../options';
 import type { PagesPlugin } from '../plugin';
 import { IPagesPluginThemeMethods } from './theme';
 
@@ -39,12 +40,31 @@ class MarkdownPagesLinks implements IPluginComponent<PagesPlugin> {
 	): ReturnType<MarkdownReplacer.ReplaceCallback> {
 		const [ page, label ] = captures;
 
-		const targetPage = this._resolvePageLink( page );
-		if( targetPage ){
-			this._logger.verbose( () => `Created a link from "${sourceHint()}" to ${getNodePath( targetPage )}` );
-			return this._themeMethods.renderPageLink( { label: label ?? undefined, page: targetPage } );
-		} else {
-			this._logger.error( () => `In "${sourceHint()}", could not resolve page "${page}" from reflection ${this._currentPageMemo.currentReflection.name}` );
+		try {
+			const targetPage = this._resolvePageLink( page );
+			if( targetPage ){
+				this._logger.verbose( () => `Created a link from "${sourceHint()}" to ${getNodePath( targetPage )}` );
+				return this._themeMethods.renderPageLink( { label: label ?? undefined, page: targetPage } );
+			}
+		} catch( err: any ){
+			const message = `In "${sourceHint()}", could not resolve page "${page}" from reflection ${this._currentPageMemo.currentReflection.name}: ${err}`;
+			switch( this.plugin.pluginOptions.getValue().invalidPageLinkHandling ){
+				case EInvalidPageLinkHandling.FAIL: {
+					throw new Error( message, { cause: err } );
+				}
+				case EInvalidPageLinkHandling.LOG_ERROR: {
+					this._logger.error( message );
+				} break;
+				case EInvalidPageLinkHandling.LOG_WARN: {
+					this._logger.warn( message );
+				} break;
+				case EInvalidPageLinkHandling.NONE: {
+					this._logger.verbose( message );
+				} break;
+				default: {
+					assert.fail( `Invalid \`invalidPageLinkHandling\` option value ${this.plugin.pluginOptions.getValue().invalidPageLinkHandling}` );
+				}
+			}
 		}
 	}
 
@@ -57,16 +77,13 @@ class MarkdownPagesLinks implements IPluginComponent<PagesPlugin> {
 	private _resolvePageLink( pageAlias: string | null ){
 		assert( this._nodesReflections );
 		assert( isString( pageAlias ) );
-		try {
-			const resolvedFile = resolveNamedPath(
-				this._currentPageMemo.currentReflection,
-				this.plugin.pluginOptions.getValue().source,
-				pageAlias as NamedPath );
-			const page = this._nodesReflections.find( m => m.sourceFilePath === resolvedFile );
-			return page;
-		} catch( _err ){
-			return null;
-		}
+		const resolvedFile = resolveNamedPath(
+			this._currentPageMemo.currentReflection,
+			this.plugin.pluginOptions.getValue().source ?? undefined,
+			pageAlias as NamedPath );
+		const page = this._nodesReflections.find( m => m.sourceFilePath === resolvedFile );
+		assert( page, new Error( 'Page not found' ) );
+		return page;
 	}
 }
 export const bindReplaceMarkdown = ( plugin: PagesPlugin, themeMethods: IPagesPluginThemeMethods, event: RendererEvent ) => new MarkdownPagesLinks( plugin, themeMethods, event );

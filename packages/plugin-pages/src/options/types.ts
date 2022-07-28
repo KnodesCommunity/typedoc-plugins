@@ -61,7 +61,7 @@ export interface IRootPageNode extends IPageNode {
 	moduleRoot?: boolean;
 }
 
-export enum EInvalidPageLinkHandling{
+export enum EInvalidPageLinkHandling {
 	FAIL = 'fail',
 	LOG_ERROR = 'logError',
 	LOG_WARN = 'logWarn',
