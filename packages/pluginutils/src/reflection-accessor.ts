@@ -72,6 +72,12 @@ export namespace NamedPath {
 	export type CurrentModule = `~/${string}`
 }
 
+export class ResolveError extends Error {
+	public constructor( public readonly triedPath: string, options?: ErrorOptions ){
+		super( `Could not resolve ${triedPath}`, options );
+	}
+}
+
 /**
  * Resolve a named path. See {@page resolving-paths.md} for details.
  *
@@ -128,5 +134,5 @@ export const resolveNamedPath: {
 	if( existsSync( resolved ) ){
 		return resolved;
 	}
-	throw new Error( `Resolved file "${resolved}" does not exists` );
+	throw new ResolveError( resolved );
 };

@@ -2,7 +2,7 @@ import assert from 'assert';
 
 import { DeclarationReflection, MinimalSourceFile, ProjectReflection, Reflection, normalizePath } from 'typedoc';
 
-import { IPluginComponent, getWorkspaces, miscUtils, resolveNamedPath } from '@knodes/typedoc-pluginutils';
+import { IPluginComponent, ResolveError, getWorkspaces, miscUtils, resolveNamedPath } from '@knodes/typedoc-pluginutils';
 
 import { ANodeReflection, MenuReflection, NodeReflection, PageReflection } from '../../models/reflections';
 import { IPageNode, IPluginOptions, IRootPageNode } from '../../options';
@@ -153,8 +153,11 @@ export class PageTreeBuilder implements IPluginComponent<PagesPlugin> {
 		if( node.source ){
 			const nodePath = join( io.input, node.source );
 			const sourceFilePath = miscUtils.catchWrap(
-				() => resolveNamedPath( module, io.inputContainer, nodePath ),
-				err => new Error( `Could not locate page for ${getNodePath( node, actualParent )}`, { cause: err } ) );
+				() => resolveNamedPath( module, io.inputContainer ?? undefined, nodePath ),
+				err => {
+					const path = err instanceof ResolveError ? `./${this.plugin.relativeToRoot( err.triedPath )}` : nodePath;
+					return new Error( `Could not locate page for ${getNodePath( node, actualParent )}. Searched for "${path}"`, { cause: err } );
+				} );
 			const page = miscUtils.catchWrap(
 				() => new PageReflection(
 					node.name,
