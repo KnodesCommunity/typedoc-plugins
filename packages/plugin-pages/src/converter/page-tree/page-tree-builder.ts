@@ -186,11 +186,11 @@ export class PageTreeBuilder implements IPluginComponent<PagesPlugin> {
 		}
 		const nodeReflection = this._getNodeReflection( node, parent, io );
 		if( nodeReflection.isModuleAppendix ){
-			childrenIO.input = io.input;
-			childrenIO.output = io.output;
+			childrenIO.input = node.childrenSourceDir ?? node.childrenDir ?? io.input;
 			if( !( nodeReflection.module instanceof ProjectReflection ) ){
 				// Output is now like `pkg-a/pages/...`
-				childrenIO.output = `${nodeReflection.name.replace( /[^a-z0-9]/gi, '_' )}/${io.output ?? ''}`;
+				const output = node.childrenOutputDir ?? node.childrenDir ?? io.output;
+				childrenIO.output = `${nodeReflection.name.replace( /[^a-z0-9]/gi, '_' )}/${output ?? ''}`;
 			}
 		}
 		const children = node.children ?
