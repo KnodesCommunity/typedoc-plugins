@@ -1,7 +1,8 @@
 import assert from 'assert';
 import { dirname } from 'path';
 
-import { defaultsDeep, get, identity, kebabCase } from 'lodash';
+import { closest } from 'fastest-levenshtein';
+import { defaultsDeep, difference, get, identity, kebabCase } from 'lodash';
 import { DeclarationOption, ParameterType } from 'typedoc';
 
 import type { ABasePlugin } from '../base-plugin';
@@ -176,6 +177,11 @@ export class OptionGroup<
 				this._setValueFromFile( value );
 			}
 		} else {
+			const valKeys = Object.keys( value );
+			const optKeys = Object.keys( this._options );
+			for( const unknownOption of difference( valKeys, optKeys ) ){
+				this.plugin.logger.warn( `Unknown option "${unknownOption}". Did you mean "${closest( unknownOption, optKeys )}" ?` );
+			}
 			const newOpts = this._mapOptions( ( k, o ) => {
 				if( k in value ) {
 					try {
