@@ -1,6 +1,6 @@
 ## Providing options
 
-See {@page ~@knodes/typedoc-pluginutils/providing-options.md} to know more about how you can pass options.
+See {@page ~@knodes/typedoc-pluginutils:providing-options.md} to know more about how you can pass options.
 
 Options are prefixed with `pluginCodeBlocks`.
 

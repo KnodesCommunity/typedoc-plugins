@@ -11,14 +11,14 @@ export class TestBlockRel{}
 /**
  * A test code block for module path implicitly in `examples` directory
  *
- * @codeblock ~/example-test.json
+ * @codeblock ~:example-test.json
  */
 export class TestBlockRelativeModule{}
 
 /**
  * A test code block for project path implicitly in `examples` directory
  *
- * @codeblock ~~/example-test.json
+ * @codeblock ~~:example-test.json
  */
 export class TestBlockExplicitProject{}
 // #endregion

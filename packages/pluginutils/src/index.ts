@@ -4,6 +4,6 @@ export * from './current-page-memo';
 export * from './events-extra';
 export * from './options';
 export * from './plugin-logger';
-export * from './reflection-accessor';
+export * from './reflection-paths';
 export * from './text-replacers';
 export * from './utils';

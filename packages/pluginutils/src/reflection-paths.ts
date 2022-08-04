@@ -67,9 +67,9 @@ export const getReflectionModule = ( reflection: Reflection ) => getReflectionPa
  */
 export type NamedPath = LiteralUnion<NamedPath.Project | NamedPath.Module | NamedPath.CurrentModule, string>
 export namespace NamedPath {
-	export type Project = `~~/${string}`;
-	export type Module = `~${string}/${string}`
-	export type CurrentModule = `~/${string}`
+	export type Project = `~~:${string}`;
+	export type Module = `~${string}:${string}`
+	export type CurrentModule = `~:${string}`
 }
 
 export class ResolveError extends Error {
@@ -103,34 +103,33 @@ export const resolveNamedPath: {
 	 */
 	( currentReflection: Reflection, path: NamedPath ): string;
 } = ( ...args: [Reflection, string | undefined, NamedPath] | [Reflection, NamedPath] ) => {
-	let [ , containerFolder, path ] = args.length === 3 ? args : [ args[0], undefined, args[1] ];
-	const currentReflection = args[0];
-	const pathSrc = path;
+	const [ currentReflection, containerFolder, path ] = args.length === 3 ? args : [ args[0], undefined, args[1] ];
+	let containerFolderMut = containerFolder;
+	let pathMut = normalizePath( path );
 	let reflectionRoots = findModuleRoot( getReflectionModule( currentReflection ) );
-	path = normalizePath( path );
-	if( path.startsWith( '~~/' ) ){
-		path = path.replace( /^~~\//, '' );
+	if( pathMut.startsWith( '~~:' ) ){
+		pathMut = pathMut.slice( 3 );
 		reflectionRoots = findModuleRoot( currentReflection.project );
-	} else if( path.match( /^~[^~]+\// ) ){
-		const workspaces = getWorkspaces( currentReflection.project ).slice( 1 ).filter( w => path.startsWith( `~${w.name}/` ) );
+	} else if( pathMut.match( /^~.+?:/ ) ){
+		const workspaces = getWorkspaces( currentReflection.project ).slice( 1 ).filter( w => pathMut.startsWith( `~${w.name}:` ) );
 		const workspace = workspaces[0];
 		if( !workspace ){
-			throw new Error( `Could not get a module corresponding to the path ${pathSrc.slice( 1 )}` );
+			throw new Error( `Could not get a module corresponding to the path ${path.slice( 1 )}` );
 		} else if( workspaces.length > 1 ){
-			throw new Error( `Ambiguous reference for path ${pathSrc}. Matched ${workspaces.map( w => w.name ).join( ', ' )}` );
+			throw new Error( `Ambiguous reference for path ${pathMut}. Matched ${workspaces.map( w => w.name ).join( ', ' )}` );
 		}
-		path = path.slice( workspace.name.length + 2 );
+		pathMut = pathMut.slice( workspace.name.length + 2 );
 		reflectionRoots = findModuleRoot( workspace );
-	} else if( path.match( /^~\// ) ){
-		path = path.slice( 2 );
+	} else if( pathMut.match( /^~:/ ) ){
+		pathMut = pathMut.slice( 2 );
 		reflectionRoots = findModuleRoot( getReflectionModule( currentReflection ) );
-	} else if( path.match( /^\.{1,2}\// ) ){
-		containerFolder = undefined;
+	} else if( pathMut.match( /^\.{1,2}\// ) ) {
+		containerFolderMut = undefined;
 		reflectionRoots = dirname( currentReflection.sources?.[0].fullFileName ?? assert.fail() );
 	}
 
 	assert( reflectionRoots );
-	const resolved = normalizePath( resolve( reflectionRoots, containerFolder ?? '.', path ) );
+	const resolved = normalizePath( resolve( reflectionRoots, containerFolderMut ?? '.', pathMut ) );
 	if( existsSync( resolved ) ){
 		return resolved;
 	}

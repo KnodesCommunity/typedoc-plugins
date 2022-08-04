@@ -11,14 +11,14 @@ export class TestInlineRel{}
 /**
  * A test code block for module path implicitly in `examples` directory
  *
- * {@codeblock ~/example-test.json}
+ * {@codeblock ~:example-test.json}
  */
 export class TestInlineRelativeModule{}
 
 /**
  * A test code block for project path implicitly in `examples` directory
  *
- * {@codeblock ~~/example-test.json}
+ * {@codeblock ~~:example-test.json}
  */
 export class TestInlineExplicitProject{}
 // #endregion
@@ -27,7 +27,7 @@ export class TestInlineExplicitProject{}
 /**
  * A test code block for project path implicitly in `examples` directory
  *
- * @example {@codeblock ~~/example-test.json}
+ * @example {@codeblock ~~:example-test.json}
  */
 export class TestInlineExampleProject{}
 // #endregion
