@@ -442,8 +442,8 @@ exports[`pkg-a \`modules/pkg_a.html\` should have constant content 1`] = `
 				<h1>Module pkg-a</h1>
 			</div>
 			<div class=\\"tsd-panel tsd-typography\\">
-				<a href=\\"#this-is-appended-to-the-readme-of-pkg-a\\" id=\\"this-is-appended-to-the-readme-of-pkg-a\\" style=\\"color: inherit; text-decoration: none;\\">
-					<h2>This is appended to the readme of <code>pkg-a</code></h2>
+				<a href=\\"#readme-for-a\\" id=\\"readme-for-a\\" style=\\"color: inherit; text-decoration: none;\\">
+					<h1>README for A</h1>
 				</a>
 				<p>See <a href=\\"../variables/pkg_a.stubA.html\\">stubA</a>, <a href=\\"../variables/pkg_a.stubA.html\\">stubA</a>, stubB or <a href=\\"../variables/pkg_b.stubB.html\\">stubB</a></p>
 			</div>
@@ -902,6 +902,13 @@ exports[`pkg-b \`modules/pkg_b.html\` should have constant content 1`] = `
 				</ul>
 				<h1>Module pkg-b</h1>
 			</div>
+			<div class=\\"tsd-panel tsd-typography\\">
+				<a href=\\"#readme-for-b\\" id=\\"readme-for-b\\" style=\\"color: inherit; text-decoration: none;\\">
+					<h1>README for B</h1>
+				</a>
+				<p>See <a href=\\"../variables/pkg_a.stubA.html\\">stubA</a>, stubA, <a href=\\"../variables/pkg_b.stubB.html\\">stubB</a> or <a href=\\"../variables/pkg_b.stubB.html\\">stubB</a></p>
+			</div>
+			<hr />
 			<aside class=\\"tsd-sources\\">
 				<ul>
 					<li>Defined in <a href=\\"https://stub.git/FAKE-USER/FAKE-PROJECT/blob/develop/packages/b/src/index.ts#L4\\">b/src/index.ts:4</a></li>

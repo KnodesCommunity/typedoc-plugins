@@ -100,7 +100,7 @@ describe( 'pkg-a', () => {
 			// Check if doc content prepended to the module index
 			const sep = content[0].querySelectorAll( 'hr' );
 			expect( sep ).toHaveLength( 1 );
-			expect( sep[0].previousElementSibling ).toHaveTextContent( 'This is appended to the readme of pkg-a See stubA, stubA, stubB or stubB' );
+			expect( sep[0].previousElementSibling ).toHaveTextContent( 'README for A See stubA, stubA, stubB or stubB' );
 			const links = sep[0].previousElementSibling!.querySelector( ':scope > p' )!.querySelectorAll( 'a' );
 			expect( links ).toHaveLength( 3 );
 			expect( links[0] ).toHaveAttribute( 'href', links[1].href );
@@ -199,8 +199,12 @@ describe( 'pkg-b', () => {
 			expect( content ).toHaveLength( 1 );
 			// Check if doc content prepended to the module index
 			const sep = content[0].querySelectorAll( 'hr' );
-			expect( sep ).toHaveLength( 0 );
-			expect( content[0] ).not.toHaveTextContent( /This is appended to/ );
+			expect( sep ).toHaveLength( 1 );
+			expect( sep[0].previousElementSibling ).toHaveTextContent( 'README for B See stubA, stubA, stubB or stubB' );
+			const links = sep[0].previousElementSibling!.querySelector( ':scope > p' )!.querySelectorAll( 'a' );
+			expect( links ).toHaveLength( 3 );
+			expect( links[0] ).not.toHaveAttribute( 'href', links[1].href );
+			expect( links[1] ).toHaveAttribute( 'href', links[2].href );
 		} );
 		it( 'should have correct primary navigation', ( _content, dom ) => {
 			const primaryNavItems = Array.from( dom.window.document.querySelectorAll( '.tsd-navigation.primary li.pages-entry' ) );
