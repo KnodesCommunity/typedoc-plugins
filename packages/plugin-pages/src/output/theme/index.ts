@@ -1,3 +1,5 @@
+import assert from 'assert';
+
 import { once } from 'lodash';
 import { DefaultTheme, RendererEvent } from 'typedoc';
 
@@ -7,15 +9,10 @@ import { IPagesPluginThemeMethods, isPagesPluginTheme } from './types';
 
 export const getPagesPluginThemeMethods = once( ( plugin: PagesPlugin, event: RendererEvent ): IPagesPluginThemeMethods => {
 	const theme = plugin.application.renderer.theme;
-	if( !theme ){
-		throw new Error( 'Missing theme' );
-	}
+	assert( theme, 'Missing theme' );
 	if( !isPagesPluginTheme( theme ) ){
-		if( theme instanceof DefaultTheme ){
-			return new DefaultPagesRenderer( plugin, event );
-		} else {
-			throw new Error( 'Unhandled theme not compatible nor extending the default theme.' );
-		}
+		assert( theme instanceof DefaultTheme, 'Unhandled theme not compatible nor extending the default theme.' );
+		return new DefaultPagesRenderer( plugin, event );
 	} else {
 		return theme.pagesPlugin( event );
 	}

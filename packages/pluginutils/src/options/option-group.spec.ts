@@ -107,44 +107,33 @@ describe( 'Behavior', () => {
 	}
 	let app: Application;
 	let plugin: TestPlugin;
+	let opts: OptionGroup<{foo: number;bar?: string | undefined}, any>;
 	beforeEach( () => {
 		app = new Application();
 		plugin = new TestPlugin( app );
-	} );
-	it( 'should have options subset', () => {
-		const opts = OptionGroup.factory<{foo: number; bar?: string}>( plugin )
+		opts = OptionGroup.factory<{foo: number; bar?: string}>( plugin )
 			.add( 'bar', { type: ParameterType.String, help: '' } )
 			.add( 'foo', { type: ParameterType.Number, help: '' } )
 			.build();
+	} );
+	it( 'should have options subset', () => {
 		app.options.freeze();
 		expect( app.options.getRawValues() ).toMatchObject( { 'TEST:foo': 0, 'TEST:bar': '', 'TEST': { foo: 0, bar: '' }} );
 		expect( opts.getValue() ).toMatchObject( { foo: 0, bar: '' } );
 	} );
 	it( 'should set options (combined)', () => {
-		const opts = OptionGroup.factory<{foo: number; bar?: string}>( plugin )
-			.add( 'bar', { type: ParameterType.String, help: '' } )
-			.add( 'foo', { type: ParameterType.Number, help: '' } )
-			.build();
 		opts.setValue( { bar: 'Hello', foo: 42 } );
 		app.options.freeze();
 		expect( app.options.getRawValues() ).toMatchObject( { 'TEST:foo': 42, 'TEST:bar': 'Hello', 'TEST': { foo: 42, bar: 'Hello' }} );
 		expect( opts.getValue() ).toMatchObject( { foo: 42, bar: 'Hello' } );
 	} );
 	it( 'should set options (partial)', () => {
-		const opts = OptionGroup.factory<{foo: number; bar?: string}>( plugin )
-			.add( 'bar', { type: ParameterType.String, help: '' } )
-			.add( 'foo', { type: ParameterType.Number, help: '' } )
-			.build();
 		opts.setValue( { bar: 'Hello' } );
 		app.options.freeze();
 		expect( app.options.getRawValues() ).toMatchObject( { 'TEST:foo': 0, 'TEST:bar': 'Hello', 'TEST': { foo: 0, bar: 'Hello' }} );
 		expect( opts.getValue() ).toMatchObject( { foo: 0, bar: 'Hello' } );
 	} );
 	it( 'should set options (JSON)', () => {
-		const opts = OptionGroup.factory<{foo: number; bar?: string}>( plugin )
-			.add( 'bar', { type: ParameterType.String, help: '' } )
-			.add( 'foo', { type: ParameterType.Number, help: '' } )
-			.build();
 		opts.setValue( JSON.stringify( { bar: 'World' } ) );
 		app.options.freeze();
 		expect( app.options.getRawValues() ).toMatchObject( { 'TEST:foo': 0, 'TEST:bar': 'World', 'TEST': { foo: 0, bar: 'World' }} );
@@ -153,10 +142,6 @@ describe( 'Behavior', () => {
 	it( 'should set options (filename, JSON)', () => {
 		const tmp = fileSync( { postfix: '.json' } );
 		writeFileSync( tmp.name, JSON.stringify( { bar: 'Doh' } ) );
-		const opts = OptionGroup.factory<{foo: number; bar?: string}>( plugin )
-			.add( 'bar', { type: ParameterType.String, help: '' } )
-			.add( 'foo', { type: ParameterType.Number, help: '' } )
-			.build();
 		opts.setValue( tmp.name );
 		app.options.freeze();
 		expect( app.options.getRawValues() ).toMatchObject( { 'TEST:foo': 0, 'TEST:bar': 'Doh', 'TEST': { foo: 0, bar: 'Doh' }} );
@@ -165,10 +150,6 @@ describe( 'Behavior', () => {
 	it( 'should set options (filename, JS)', () => {
 		const tmp = fileSync( { postfix: '.js' } );
 		writeFileSync( tmp.name, 'module.exports = { bar: \'DohJS\' }' );
-		const opts = OptionGroup.factory<{foo: number; bar?: string}>( plugin )
-			.add( 'bar', { type: ParameterType.String, help: '' } )
-			.add( 'foo', { type: ParameterType.Number, help: '' } )
-			.build();
 		opts.setValue( tmp.name );
 		app.options.freeze();
 		expect( app.options.getRawValues() ).toMatchObject( { 'TEST:foo': 0, 'TEST:bar': 'DohJS', 'TEST': { foo: 0, bar: 'DohJS' }} );

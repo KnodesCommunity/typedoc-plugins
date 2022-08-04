@@ -11,23 +11,21 @@ export const getReflectionSourceFileName = ( reflection?: Reflection ) => {
 	return reflection.sources?.[0].fullFileName;
 };
 export const getPageSourceCoordinates = ( reflection: Reflection | undefined, position: number ): {line: number; column: number; file: string} | undefined => {
-	if( !reflection ){
-		return;
+	const sourceRef = reflection?.sources?.[0];
+	if( !sourceRef || !reflection.comment ){
+		return undefined;
 	}
-	const sourceRef = reflection.sources?.[0];
-	if( sourceRef && reflection.comment ){
-		const coordinates = getCoordinates(
-			( reflection instanceof ProjectReflection && reflection.readme ?
-				reflection.readme :
-				reflection.comment.summary )[0].text,
-			position );
-		return {
-			...coordinates,
-			line: sourceRef.line + coordinates.line - 1,
-			file: sourceRef.fileName,
-		};
-	}
-	return undefined;
+	const commentParts = reflection instanceof ProjectReflection && reflection.readme ?
+		reflection.readme :
+		reflection.comment.summary;
+	const coordinates = getCoordinates(
+		commentParts[0].text,
+		position );
+	return {
+		...coordinates,
+		line: sourceRef.line + coordinates.line - 1,
+		file: sourceRef.fileName,
+	};
 };
 
 export const getSourceLocationBestClue = ( reflection?: Reflection, position?: number ) => {

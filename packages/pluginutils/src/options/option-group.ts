@@ -3,7 +3,7 @@ import { dirname } from 'path';
 
 import { closest } from 'fastest-levenshtein';
 import { defaultsDeep, difference, get, identity, kebabCase } from 'lodash';
-import { DeclarationOption, ParameterType } from 'typedoc';
+import { DeclarationOption, MixedDeclarationOption, ParameterType } from 'typedoc';
 
 import type { ABasePlugin } from '../base-plugin';
 import { EventsExtra } from '../events-extra';
@@ -68,6 +68,18 @@ export class OptionGroup<
 			build: () => new OptionGroup( plugin, decs, mappers as any ),
 		} as any as Builder<T2, TDecs>;
 	}
+
+	private get _rootOption(): MixedDeclarationOption {
+		const linkAppendix = 'documentation' in this.plugin.package ?
+			` See \u001b[96m${( this.plugin.package as any ).documentation}\u001b[0m for more informations.` : // Cyan
+			'';
+		return {
+			name: this.plugin.optionsPrefix,
+			type: ParameterType.Mixed,
+			help: `[${this.plugin.package.name}]: Set all plugin options below as an object, a JSON string or from a file.${linkAppendix}`,
+		};
+	}
+
 	public constructor(
 		public readonly plugin: ABasePlugin,
 		optionDeclarations: TDeclarations,
@@ -76,37 +88,14 @@ export class OptionGroup<
 		this._options = Object.fromEntries( ( Object.entries( optionDeclarations ) as Array<[k: keyof T & string, v: TDeclarations[keyof T & string]]> )
 			.map( ( [ k, v ] ) => {
 				assert( k !== 'options' );
-				const fullDec: DeclarationOption = {
-					...v,
-					name: k,
-				};
+				const fullDec: DeclarationOption = { ...v, name: k };
 				const opt = new Option( plugin, this, fullDec, mappers[k] );
 				return [ k, opt ];
 			} ) ) as any;
-		const linkAppendix = 'documentation' in this.plugin.package ?
-			` See \u001b[96m${( this.plugin.package as any ).documentation}\u001b[0m for more informations.` : // Cyan
-			'';
-		this.plugin.application.options.addDeclaration( {
-			name: this.plugin.optionsPrefix,
-			type: ParameterType.Mixed,
-			help: `[${this.plugin.package.name}]: Set all plugin options below as an object, a JSON string or from a file.${linkAppendix}`,
-		} );
+		this.plugin.application.options.addDeclaration( this._rootOption );
 
 		EventsExtra.for( this.plugin.application )
-			.beforeOptionsFreeze( () => {
-				const defaultOpts = this.getValue();
-				// Try read default files
-				const generalOpts = this.plugin.application.options.getValue( this.plugin.optionsPrefix ) as any;
-				if( generalOpts ){
-					this._setValue( generalOpts );
-				} else {
-					try {
-						this._setValueFromFile( `./typedoc-${kebabCase( this.plugin.optionsPrefix )}` );
-					// eslint-disable-next-line no-empty -- No-op error
-					} catch( _err ){}
-				}
-				this.setValue( defaultsDeep( this.getValue(), defaultOpts ) );
-			} );
+			.beforeOptionsFreeze( this._onBeforeOptionsFreeze.bind( this ) );
 	}
 
 	/**
@@ -127,20 +116,59 @@ export class OptionGroup<
 	public setValue<TK extends keyof TDeclarations>( key: TK, value: DecOptType<TDeclarations[TK]> ): void
 	public setValue( ...args: [OptionGroupSetValue<TDeclarations> | string] | [key: keyof TDeclarations, value: DecOptType<TDeclarations[keyof TDeclarations]>] ): void
 	public setValue( ...args: [OptionGroupSetValue<TDeclarations> | string] | [key: keyof TDeclarations, value: DecOptType<TDeclarations[keyof TDeclarations]>] ){
-		if( args.length === 1 ){
-			try {
-				this._setValue( args[0] );
-			} catch( e: any ){
-				if ( e.code === 'MODULE_NOT_FOUND' ) {
-					this.plugin.logger.error( `Config file ${args[0]} not found` );
-				} else {
-					throw e;
+		if( args.length === 2 ){
+			const [ key, value ] = args;
+			return this._setValue( { [key]: value } as any );
+		}
+		try {
+			this._setValue( args[0] );
+		} catch( e: any ){
+			if ( e.code !== 'MODULE_NOT_FOUND' ) {
+				throw e;
+			}
+			this.plugin.logger.error( `Config file ${args[0]} not found` );
+		}
+	}
+
+	/**
+	 * Set the raw values.
+	 *
+	 * @param value - The value to set. Paths, JSON & partial options are authorized.
+	 * @returns nothing.
+	 */
+	private _setValue( value: OptionGroupSetValue<TDeclarations> | string ): void {
+		if( typeof value === 'object' ){
+			return this._setValueFromObject( value );
+		} else if( value.startsWith( '{' ) && value.endsWith( '}' ) ){
+			const parsedValue = JSON.parse( value ) as OptionGroupSetValue<TDeclarations>;
+			this._setValue( parsedValue );
+		} else {
+			this._setValueFromFile( value );
+		}
+	}
+
+	/**
+	 * Set the raw values from a POJO.
+	 *
+	 * @param value - The values to set as object.
+	 */
+	private _setValueFromObject( value: OptionGroupSetValue<TDeclarations> ){
+		const valKeys = Object.keys( value );
+		const optKeys = Object.keys( this._options );
+		for( const unknownOption of difference( valKeys, optKeys ) ){
+			this.plugin.logger.warn( `Unknown option "${unknownOption}". Did you mean "${closest( unknownOption, optKeys )}" ?` );
+		}
+		const newOpts = this._mapOptions( ( k, o ) => {
+			if( k in value ) {
+				try {
+					o.setValue( value[k] as any );
+				} catch( err: any ){
+					throw new Error( `Could not set option "${o.fullName}": ${err.message ?? err}`, { cause: err } );
 				}
 			}
-		} else {
-			const [ key, value ] = args;
-			this._setValue( { [key]: value } as any );
-		}
+			return o.getValue();
+		} );
+		this.plugin.application.options.setValue( this.plugin.optionsPrefix, newOpts );
 	}
 
 	/**
@@ -164,36 +192,21 @@ export class OptionGroup<
 	}
 
 	/**
-	 * Set the raw values.
-	 *
-	 * @param value - The value to set. Paths, JSON & partial options are authorized
+	 * Try loading different options sources, and update plugin options with default values if not set.
 	 */
-	private _setValue( value: OptionGroupSetValue<TDeclarations> | string ): void {
-		if( typeof value === 'string' ){
-			if( value.startsWith( '{' ) && value.endsWith( '}' ) ){
-				const parsedValue = JSON.parse( value ) as OptionGroupSetValue<TDeclarations>;
-				this._setValue( parsedValue );
-			} else {
-				this._setValueFromFile( value );
-			}
+	private _onBeforeOptionsFreeze(){
+		const defaultOpts = this.getValue();
+		// Try read default files
+		const generalOpts = this.plugin.application.options.getValue( this.plugin.optionsPrefix ) as any;
+		if( generalOpts ){
+			this._setValue( generalOpts );
 		} else {
-			const valKeys = Object.keys( value );
-			const optKeys = Object.keys( this._options );
-			for( const unknownOption of difference( valKeys, optKeys ) ){
-				this.plugin.logger.warn( `Unknown option "${unknownOption}". Did you mean "${closest( unknownOption, optKeys )}" ?` );
-			}
-			const newOpts = this._mapOptions( ( k, o ) => {
-				if( k in value ) {
-					try {
-						o.setValue( value[k] as any );
-					} catch( err: any ){
-						throw new Error( `Could not set option "${o.fullName}": ${err.message ?? err}`, { cause: err } );
-					}
-				}
-				return o.getValue();
-			} );
-			this.plugin.application.options.setValue( this.plugin.optionsPrefix, newOpts );
+			try {
+				this._setValueFromFile( `./typedoc-${kebabCase( this.plugin.optionsPrefix )}` );
+			// eslint-disable-next-line no-empty -- No-op error
+			} catch( _err ){}
 		}
+		this.setValue( defaultsDeep( this.getValue(), defaultOpts ) );
 	}
 
 	/**

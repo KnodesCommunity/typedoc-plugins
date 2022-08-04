@@ -1,3 +1,5 @@
+import assert from 'assert';
+
 import { DefaultTheme, RendererEvent } from 'typedoc';
 
 import type { CodeBlockPlugin } from '../../plugin';
@@ -6,15 +8,10 @@ import { ICodeBlocksPluginThemeMethods, isCodeBlocksPluginTheme } from './types'
 
 export const getCodeBlocksThemeMethods = ( plugin: CodeBlockPlugin, event: RendererEvent ): ICodeBlocksPluginThemeMethods => {
 	const theme = plugin.application.renderer.theme;
-	if( !theme ){
-		throw new Error( 'Missing theme' );
-	}
+	assert( theme, 'Missing theme' );
 	if( !isCodeBlocksPluginTheme( theme ) ){
-		if( theme instanceof DefaultTheme ){
-			return new DefaultCodeBlockRenderer( plugin );
-		} else {
-			throw new Error( 'Unhandled theme not compatible nor extending the default theme.' );
-		}
+		assert( theme instanceof DefaultTheme, 'Unhandled theme not compatible nor extending the default theme.' );
+		return new DefaultCodeBlockRenderer( plugin );
 	} else {
 		return theme.codeBlocksPlugin( event );
 	}
