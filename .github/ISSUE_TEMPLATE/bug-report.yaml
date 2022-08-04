@@ -23,7 +23,7 @@ body:
     id: typedoc-version
     attributes:
       label: Typedoc version
-      placeholder: "Example: 0.23.8" # !FORMAT placeholder: "Example: ${typedocVersion}"
+      placeholder: "Example: 0.23.10" # !FORMAT placeholder: "Example: ${typedocVersion}"
     validations:
       required: true
   - type: textarea
