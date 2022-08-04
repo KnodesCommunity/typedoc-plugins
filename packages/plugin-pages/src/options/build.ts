@@ -73,7 +73,6 @@ export const buildOptions = ( plugin: PagesPlugin ) => OptionGroup.factory<IPlug
 		},
 	}, v => {
 		v = v ?? [];
-		// TODO: Better checks
 		return v as any;
 	} )
 	.add( 'output', {

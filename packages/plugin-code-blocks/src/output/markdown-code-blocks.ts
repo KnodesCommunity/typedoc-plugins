@@ -91,8 +91,8 @@ export class MarkdownCodeBlocks implements IPluginComponent<CodeBlockPlugin>{
 				sourceFile: resolvedFile,
 				url,
 			} ) );
-		} catch( err ) {
-			this._logger.error( () => `In "${sourceHint()}", failed to render code block from ${this._currentPageMemo.currentReflection.name}: ${err}` );
+		} catch( err: any ) {
+			this._logger.error( () => `In ${sourceHint()}: Failed to render code block from ${this._currentPageMemo.currentReflection.name}: ${err?.message ?? err}` );
 			return undefined;
 		}
 	}

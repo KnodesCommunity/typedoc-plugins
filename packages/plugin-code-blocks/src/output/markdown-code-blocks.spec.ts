@@ -107,11 +107,16 @@ describe( 'Behavior', () => {
 			expect( markdownReplacerTestbed.runMarkdownReplace( content ) ).toEqual( content );
 		} );
 		it( 'should throw if invalid mode', () => {
-			// setVirtualFs( { foo: { 'bar.txt': '' }} );
-			// setup( uuid => JSX.createElement( 'p', {}, uuid ) );
-			// readCodeSampleMock.mockReturnValue( new Map( [[ DEFAULT_BLOCK_NAME, { code: FILE_CONTENT, ...defaultBlock } ]] ) );
-			// // FIXME: remove `any` cast
-			// expect( () => markdownReplacerTestbed.runMarkdownReplace( '{@codeblock foo/bar.txt asdasd}' ) ).toThrowWithMessage( Error as any, /^Invalid block mode "asdasd"/m );
+			plugin.logger.error.mockImplementation( noop );
+			setVirtualFs( { foo: { 'bar.txt': '' }} );
+			readCodeSampleMock.mockReturnValue( new Map( [[ DEFAULT_BLOCK_NAME, { code: FILE_CONTENT, ...defaultBlock } ]] ) );
+			const content = '{@codeblock foo/bar.txt asdasd}';
+			expect( markdownReplacerTestbed.runMarkdownReplace( content ) ).toEqual( content );
+			expect( plugin.logger.error ).toHaveBeenCalledTimes( 1 );
+			expect( plugin.logger.error ).toHaveBeenCalledWith( expect.toSatisfy( fn => {
+				expect( fn() ).toEqual( 'In "foo.ts:1:1" (in expansion of @codeblock): Failed to render code block from Foo: Invalid block mode "asdasd".' );
+				return true;
+			} ) );
 		} );
 	} );
 } );

@@ -1,4 +1,3 @@
-import { AssertionError } from 'assert';
 import { resolve } from 'path';
 
 import { noop } from 'lodash';
@@ -24,36 +23,37 @@ beforeEach( () => {
 
 describe( 'Resolution error handling', () => {
 	const msg = `Could not resolve page "NOPE" from reflection test: Could not resolve ${normalizePath( resolve( 'NOPE' ) )}`;
+	const location = 'In "test.ts:1:1" (in expansion of @page)';
 	it( 'should handle error correctly on mode FAIL', () => {
 		plugin.pluginOptions.getValue().invalidPageLinkHandling = EInvalidPageLinkHandling.FAIL;
 		expect( () => markdownReplacerTestbed.runMarkdownReplace( '{@page NOPE}' ) )
-			.toThrowWithMessage( Error as any, `In "test.ts:1:1" (in expansion of @page): ${msg}` );
+			.toThrowWithMessage( Error as any, `${location}: ${msg}` );
 	} );
 	it( 'should handle error correctly on mode LOG_ERROR', () => {
 		plugin.logger.error.mockImplementation( noop );
 		plugin.pluginOptions.getValue().invalidPageLinkHandling = EInvalidPageLinkHandling.LOG_ERROR;
 		markdownReplacerTestbed.runMarkdownReplace( '{@page NOPE}' );
 		expect( plugin.logger.error ).toHaveBeenCalledTimes( 1 );
-		expect( plugin.logger.error ).toHaveBeenCalledWith( `In "test.ts:1:1" (in expansion of @page): ${msg}` );
+		expect( plugin.logger.error ).toHaveBeenCalledWith( `${location}: ${msg}` );
 	} );
 	it( 'should handle error correctly on mode LOG_WARN', () => {
 		plugin.logger.warn.mockImplementation( noop );
 		plugin.pluginOptions.getValue().invalidPageLinkHandling = EInvalidPageLinkHandling.LOG_WARN;
 		markdownReplacerTestbed.runMarkdownReplace( '{@page NOPE}' );
 		expect( plugin.logger.warn ).toHaveBeenCalledTimes( 1 );
-		expect( plugin.logger.warn ).toHaveBeenCalledWith( `In "test.ts:1:1" (in expansion of @page): ${msg}` );
+		expect( plugin.logger.warn ).toHaveBeenCalledWith( `${location}: ${msg}` );
 	} );
 	it( 'should handle error correctly on mode NONE', () => {
 		plugin.pluginOptions.getValue().invalidPageLinkHandling = EInvalidPageLinkHandling.NONE;
 		markdownReplacerTestbed.runMarkdownReplace( '{@page NOPE}' );
 		expect( plugin.logger.verbose ).toHaveBeenCalledTimes( 1 );
-		expect( plugin.logger.verbose ).toHaveBeenCalledWith( `In "test.ts:1:1" (in expansion of @page): ${msg}` );
+		expect( plugin.logger.verbose ).toHaveBeenCalledWith( `${location}: ${msg}` );
 	} );
-	it.failing( 'should throw with invalid option', () => { // TODO: Restore once https://github.com/jest-community/jest-extended/pull/475 is merged
+	it( 'should throw with invalid option', () => {
 		plugin.pluginOptions.getValue().invalidPageLinkHandling = 42 as any;
 		expect( () => markdownReplacerTestbed.runMarkdownReplace( '{@page NOPE}' ) )
 			.toThrowWithMessage(
-				AssertionError as any,
-				'Invalid `invalidPageLinkHandling` option value 42' );
+				Error,
+				`${location}: Invalid \`invalidPageLinkHandling\` option value 42` );
 	} );
 } );
