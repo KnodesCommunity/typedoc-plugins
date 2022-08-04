@@ -105,7 +105,7 @@ describe( MarkdownReplacer.name, () => {
 				[ '\nhello {@test ## } world', [ 'hello.ts:2:7' ]],
 				[ 'hello {@test ## } world{@test ##}\nHow are you doing ?\n{@test ##}', [ 'hello.ts:1:7', 'hello.ts:1:24', 'hello.ts:3:1' ]],
 			] )( 'should match %j with sourcemaps %j', ( source, expectedMaps ) => {
-				mockCurrentPage( 'Test', resolve( 'hello.ts' ), 1, 1 );
+				mockCurrentPage( 'Test', 'hello.ts', 1, 1 );
 				const fn = jest.fn().mockReturnValue( '#' );
 				replacer.registerMarkdownTag( '@test', /##/g, fn );
 				const evt = new MarkdownEvent( MarkdownEvent.PARSE, source, source );
@@ -160,7 +160,7 @@ describe( MarkdownReplacer.name, () => {
 					], replacer: jest.fn().mockReturnValue( '=' ) },
 				]],
 			] )( 'should match %j with sourcemaps (%s) %#', ( source, _label, binds ) => {
-				mockCurrentPage( 'Test', resolve( 'hello.ts' ), 1, 1 );
+				mockCurrentPage( 'Test', 'hello.ts', 1, 1 );
 				binds.forEach( b => replacer.registerMarkdownTag( b.tag as any, null, b.replacer ) );
 				const evt = new MarkdownEvent( MarkdownEvent.PARSE, source, source );
 				const listeners = getMarkdownEventParseListeners( plugin );

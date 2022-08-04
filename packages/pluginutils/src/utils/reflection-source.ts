@@ -8,7 +8,7 @@ export const getReflectionSourceFileName = ( reflection?: Reflection ) => {
 	if( !reflection ){
 		return;
 	}
-	return reflection.sources?.[0].fileName;
+	return reflection.sources?.[0].fullFileName;
 };
 export const getPageSourceCoordinates = ( reflection: Reflection | undefined, position: number ): {line: number; column: number; file: string} | undefined => {
 	if( !reflection ){

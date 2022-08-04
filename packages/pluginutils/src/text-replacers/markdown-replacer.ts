@@ -128,7 +128,6 @@ export class MarkdownReplacer implements IPluginComponent {
 			( pos => ( { ...textUtils.getCoordinates( originalText, pos ), source: originalText, index: pos, expansions: [] } as IMapSource ) );
 
 		const sourceFile = this._currentPageMemo.hasCurrent ? reflectionSourceUtils.getReflectionSourceFileName( this._currentPageMemo.currentReflection ) : undefined;
-		const relativeSource = sourceFile ? this.plugin.relativeToRoot( sourceFile ) : undefined;
 		const thisContainer: ISourceMapContainer = this._generateSourceMapContainer( regex, label, getMapSource );
 		event.parsedText = originalText.replace(
 			regex,
@@ -138,13 +137,13 @@ export class MarkdownReplacer implements IPluginComponent {
 					return fullMatch;
 				}
 				const getSourceHint = () => {
-					if( !relativeSource ){
+					if( !sourceFile ){
 						return 'UNKNOWN SOURCE';
 					}
 					const { line, column, expansions } = getMapSource( index );
 					const posStr = line && column ? `:${line}:${column}` : '';
 					const expansionContext = ` (in expansion of ${expansions.concat( [ thisContainer ] ).map( e => e.label ).join( ' ⇒ ' )})`;
-					return relativeSource + posStr + expansionContext;
+					return sourceFile + posStr + expansionContext;
 				};
 				const replacement = miscUtils.catchWrap(
 					() => callback( { fullMatch, captures, event }, getSourceHint ),
