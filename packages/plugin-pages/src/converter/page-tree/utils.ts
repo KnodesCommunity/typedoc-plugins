@@ -45,7 +45,7 @@ export const getNodeUrl = ( node: IPageNode ): string => {
 		if( node.output.endsWith( '.html' ) ){
 			return node.output;
 		} else {
-			// TODO: Maybe throw if confix
+			// TODO: Maybe throw if config
 			return `${node.output}.html`;
 		}
 	} else {
