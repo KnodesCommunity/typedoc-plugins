@@ -143,11 +143,11 @@ export class MarkdownReplacer implements IPluginComponent {
 					const { line, column, expansions } = getMapSource( index );
 					const posStr = line && column ? `:${line}:${column}` : '';
 					const expansionContext = ` (in expansion of ${expansions.concat( [ thisContainer ] ).map( e => e.label ).join( ' ⇒ ' )})`;
-					return sourceFile + posStr + expansionContext;
+					return `"${sourceFile}${posStr}"${expansionContext}`;
 				};
 				const replacement = miscUtils.catchWrap(
 					() => callback( { fullMatch, captures, event }, getSourceHint ),
-					() => `In ${getSourceHint()}` );
+					err => `In ${getSourceHint()}: ${err.message}` );
 				if( isNil( replacement ) ){
 					return fullMatch;
 				}

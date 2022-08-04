@@ -12,7 +12,7 @@ import type { PagesPlugin } from '../plugin';
 import { IPagesPluginThemeMethods } from './theme';
 
 const EXTRACT_PAGE_LINK_REGEX = /([^}\s]+)(?:\s+([^}]+?))?\s*/g;
-class MarkdownPagesLinks implements IPluginComponent<PagesPlugin> {
+export class MarkdownPagesLinks implements IPluginComponent<PagesPlugin> {
 	private readonly _currentPageMemo = CurrentPageMemo.for( this );
 	private readonly _markdownReplacer = new MarkdownReplacer( this );
 	private readonly _logger = this.plugin.logger.makeChildLogger( MarkdownPagesLinks.name );
@@ -43,27 +43,38 @@ class MarkdownPagesLinks implements IPluginComponent<PagesPlugin> {
 		try {
 			const targetPage = this._resolvePageLink( page );
 			if( targetPage ){
-				this._logger.verbose( () => `Created a link from "${sourceHint()}" to ${getNodePath( targetPage )}` );
+				this._logger.verbose( () => `Created a link from ${sourceHint()} to ${getNodePath( targetPage )}` );
 				return this._themeMethods.renderPageLink( { label: label ?? undefined, page: targetPage } );
 			}
 		} catch( err: any ){
-			const message = `In "${sourceHint()}", could not resolve page "${page}" from reflection ${this._currentPageMemo.currentReflection.name}: ${err}`;
-			switch( this.plugin.pluginOptions.getValue().invalidPageLinkHandling ){
-				case EInvalidPageLinkHandling.FAIL: {
-					throw new Error( message, { cause: err } );
-				}
-				case EInvalidPageLinkHandling.LOG_ERROR: {
-					this._logger.error( message );
-				} break;
-				case EInvalidPageLinkHandling.LOG_WARN: {
-					this._logger.warn( message );
-				} break;
-				case EInvalidPageLinkHandling.NONE: {
-					this._logger.verbose( message );
-				} break;
-				default: {
-					assert.fail( `Invalid \`invalidPageLinkHandling\` option value ${this.plugin.pluginOptions.getValue().invalidPageLinkHandling}` );
-				}
+			this._handleResolveError( err, page, sourceHint );
+		}
+	}
+
+	/**
+	 * Handle a page resolution error according to user options.
+	 *
+	 * @param err - The error thrown.
+	 * @param page - The page in the inline tag.
+	 * @param sourceHint - The best guess to the source of the match,
+	 */
+	private _handleResolveError( err: any, page: string | null, sourceHint: MarkdownReplacer.SourceHint ) {
+		const message = `Could not resolve page "${page}" from reflection ${this._currentPageMemo.currentReflection.name}: ${err.message ?? err}`;
+		switch( this.plugin.pluginOptions.getValue().invalidPageLinkHandling ){
+			case EInvalidPageLinkHandling.FAIL: {
+				throw new Error( message, { cause: err } );
+			}
+			case EInvalidPageLinkHandling.LOG_ERROR: {
+				this._logger.error( `In ${sourceHint()}: ${message}` );
+			} break;
+			case EInvalidPageLinkHandling.LOG_WARN: {
+				this._logger.warn( `In ${sourceHint()}: ${message}` );
+			} break;
+			case EInvalidPageLinkHandling.NONE: {
+				this._logger.verbose( `In ${sourceHint()}: ${message}` );
+			} break;
+			default: {
+				assert.fail( `Invalid \`invalidPageLinkHandling\` option value ${this.plugin.pluginOptions.getValue().invalidPageLinkHandling}` );
 			}
 		}
 	}

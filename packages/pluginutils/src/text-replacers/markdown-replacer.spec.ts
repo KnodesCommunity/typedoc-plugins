@@ -114,7 +114,7 @@ describe( MarkdownReplacer.name, () => {
 				listeners[0]( evt );
 				expect( fn ).toHaveBeenCalledTimes( expectedMaps.length );
 				expectedMaps.forEach( ( m, i ) => {
-					expect( fn.mock.calls[i][1]() ).toStartWith( `${m} ` );
+					expect( fn.mock.calls[i][1]() ).toStartWith( `"${m}" ` );
 					expect( fn.mock.calls[i][1]() ).toEndWith( 'in expansion of @test)' );
 				} );
 			} );
@@ -171,7 +171,7 @@ describe( MarkdownReplacer.name, () => {
 					b.maps.forEach( ( m, j ) => {
 						const mapStr = b.replacer.mock.calls[j][1]();
 						expect( mapStr, `Replacer ${b.tag}, call ${j}` )
-							.toMatch( new RegExp( `^${escapeRegExp( m.map )} \\(.*? of ${m.ctxs.map( escapeRegExp ).join( ' . ' )}\\)` ) );
+							.toMatch( new RegExp( `^"${escapeRegExp( m.map )}" \\(.*? of ${m.ctxs.map( escapeRegExp ).join( ' . ' )}\\)` ) );
 					} );
 				} );
 			} );
