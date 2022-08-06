@@ -63,8 +63,16 @@ export interface IRootPageNode extends IPageNode {
 
 export interface IOptionPatternPage<T extends IPageNode = IPageNode> {
 	match: string;
-	template: Array<OptionsPageNode<T>>;
+	template: Array<OptionsPageNode<T>> | ( ( match: ITemplateMatch ) => T[] );
 }
+
+export interface ITemplateMatch {
+	from: string;
+	match: string;
+	fullPath: string;
+	prev: ITemplateMatch[];
+}
+
 export type OptionsPageNode<T extends IPageNode = IPageNode> = Omit<T, 'children'> & {
 	children?: Array<OptionsPageNode | IOptionPatternPage>;
 }

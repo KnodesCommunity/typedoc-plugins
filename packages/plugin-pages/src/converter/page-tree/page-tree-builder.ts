@@ -2,15 +2,15 @@ import assert from 'assert';
 import { isAbsolute, resolve } from 'path';
 
 import { sync as glob } from 'glob';
-import { cloneDeep, uniq } from 'lodash';
+import { cloneDeep, isFunction, isNil, omitBy, uniq } from 'lodash';
 import { DeclarationReflection, MinimalSourceFile, ProjectReflection, Reflection, normalizePath } from 'typedoc';
 
 import { IPluginComponent, ResolveError, getWorkspaces, miscUtils, resolveNamedPath } from '@knodes/typedoc-pluginutils';
 
 import { ANodeReflection, MenuReflection, NodeReflection, PageReflection } from '../../models/reflections';
-import { IOptionPatternPage, IPageNode, IPluginOptions, IRootPageNode, OptionsPageNode } from '../../options';
+import { IOptionPatternPage, IPageNode, IPluginOptions, IRootPageNode, ITemplateMatch, OptionsPageNode } from '../../options';
 import type { PagesPlugin } from '../../plugin';
-import { IExpandContext, expandNode } from './expand-context';
+import { expandNode } from './expand-node';
 import { getDir, getNodePath, getNodeUrl, join } from './utils';
 
 const isModuleRoot = ( pageNode: IPageNode | IRootPageNode ) => 'moduleRoot' in pageNode && !!pageNode.moduleRoot;
@@ -109,32 +109,46 @@ export class PageTreeBuilder implements IPluginComponent<PagesPlugin> {
 	 * @param froms - A list of paths to try to expand against.
 	 * @param node - The node to expand.
 	 * @param sourceDir - The container directory expected to contain all source pages.
-	 * @param prevContexts - A list of previous expansion contexts.
+	 * @param prevMatches - A list of previous expansion contexts.
 	 * @returns the expanded nodes.
 	 */
-	private _expandPageNode<T extends IPageNode>( froms: string[], node: OptionsPageNode<T> | IOptionPatternPage<T>, sourceDir?: string | null, prevContexts: IExpandContext[] = [] ): T[] {
+	private _expandPageNode<T extends IPageNode>( froms: string[], node: OptionsPageNode<T> | IOptionPatternPage<T>, sourceDir?: string | null, prevMatches: ITemplateMatch[] = [] ): T[] {
 		if( 'match' in node ){
 			const matches = froms.flatMap( from => glob( node.match, { cwd: from.match( /^\.{1,2}\// ) ? from : join( from, sourceDir )  } ).map( m => ( {
 				from,
 				match: normalizePath( m ),
 				fullPath: normalizePath( resolve( from, m ) ),
-				prev: prevContexts,
-			} as IExpandContext ) ) );
-			const nodesExpanded = matches.map( m => node.template.map( t => {
-				const tClone = cloneDeep( t );
-				if( 'children' in tClone ){
-					tClone.children = tClone.children?.map( c => this._expandPageNode( [ m.fullPath ], c, sourceDir, [ ...prevContexts, m ] ) ).flat( 1 ) ?? [];
-				}
-				const expanded = expandNode( tClone, m );
-				return expanded;
-			} ) ).flat( 1 );
-			return nodesExpanded as any;
+				prev: prevMatches,
+			} as ITemplateMatch ) ) );
+			assert( matches.length > 0, `Node match "${node.match}" did not matched anything.` );
+			return matches.map( this._expandPageNodeTemplate<T>.bind( this, sourceDir, node.template ) ).flat( 1 );
 		}
 		const clone = cloneDeep( node );
 		if( 'children' in clone ){
-			clone.children = clone.children?.map( c => this._expandPageNode( froms, c, '.', [ ...prevContexts ] ) ).flat( 1 ) ?? [];
+			clone.children = clone.children?.map( c => this._expandPageNode( froms, c, '.', [ ...prevMatches ] ) ).flat( 1 ) ?? [];
 		}
 		return [ clone as any ];
+	}
+
+	/**
+	 *
+	 * @param sourceDir
+	 * @param template
+	 * @param match
+	 */
+	private _expandPageNodeTemplate<T extends IPageNode>( sourceDir: string | null | undefined, template: IOptionPatternPage<IPageNode>['template'], match: ITemplateMatch ): T[] {
+		if( isFunction( template ) ){
+			template = template( match );
+		}
+		const templateResult = template.map( t => {
+			const tClone: T = omitBy( {
+				...cloneDeep( t ),
+				children: t.children?.map( c => this._expandPageNode( [ match.fullPath ], c, sourceDir, [ ...match.prev, match ] ) ).flat( 1 ),
+			}, isNil ) as any;
+			const expanded = expandNode( tClone, match );
+			return expanded;
+		} );
+		return templateResult;
 	}
 
 	/**

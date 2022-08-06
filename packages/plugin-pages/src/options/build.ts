@@ -1,6 +1,6 @@
 import assert, { AssertionError } from 'assert';
 
-import { difference, groupBy, isArray, isNil, isObject, isString } from 'lodash';
+import { difference, groupBy, isArray, isFunction, isNil, isObject, isString } from 'lodash';
 import { LogLevel, ParameterType } from 'typedoc';
 
 import { OptionGroup, miscUtils } from '@knodes/typedoc-pluginutils';
@@ -23,9 +23,11 @@ const checkPageFactory = <T extends IPageNode>( allowedKeys: Array<keyof T> ) =>
 	const pagePath = () => [ ...path, _page.name ].map( p => `"${p ?? 'Unnamed'}"` ).join( ' ⇒ ' );
 	if( 'match' in page && 'template' in page ){
 		assert( isString( _page.match ) );
-		assert( isArray( _page.template ) );
-		const selfFn = checkPageFactory( allowedKeys );
-		_page.template.forEach( ( t, i ) => selfFn( plugin, t, [ ...path, `TEMPLATE ${i + 1}` ] ) );
+		assert( isArray( _page.template ) || isFunction( _page.template ) );
+		if( isArray( _page.template ) ) {
+			const selfFn = checkPageFactory( allowedKeys );
+			_page.template.forEach( ( t, i ) => selfFn( plugin, t, [ ...path, `TEMPLATE ${i + 1}` ] ) );
+		}
 	} else if( !( 'match' in page ) && !( 'template' in page ) ){
 		if( 'title' in _page && !( 'name' in _page ) ){
 			_page.name = _page.title;
@@ -74,7 +76,9 @@ export const buildOptions = ( plugin: PagesPlugin ) => OptionGroup.factory<IPlug
 				v.forEach( ( p, i ): asserts p is IRootPageNode => miscUtils.catchWrap(
 					() => checkRootPage( plugin, p, [] ),
 					wrapPageError( [], i ) ) );
-				const flattenRootNodes = ( vv: any ) => 'template' in vv ? vv.template.flatMap( ( vvv: any ) => flattenRootNodes( vvv ) ) : [ vv ];
+				const flattenRootNodes = ( vv: any ) => 'template' in vv ?
+					isArray( vv.template ) ? vv.template.flatMap( ( vvv: any ) => flattenRootNodes( vvv ) ) : [] :
+					[ vv ];
 				const rootFlags = groupBy( v.flatMap( vv => flattenRootNodes( vv ) ), p => !!p.moduleRoot );
 				assert.equal( Object.keys( rootFlags ).length, 1, 'Every root pages should set `moduleRoot` to true, or none' );
 			}

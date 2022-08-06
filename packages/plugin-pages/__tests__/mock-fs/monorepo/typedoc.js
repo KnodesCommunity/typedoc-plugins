@@ -7,7 +7,7 @@ module.exports = {
 		pages: [
 			{ match: 'README.md', template: [
 				// eslint-disable-next-line no-template-curly-in-string -- Lodash templates
-				{ moduleRoot: true, source: '${context.fullPath}', name: 'pkg-<%= _.nth(context.from.split("/"), -1) %>' },
+				{ moduleRoot: true, source: '${match.fullPath}', name: 'pkg-<%= _.nth(match.from.split("/"), -1) %>' },
 			] },
 			{ moduleRoot: true, name: 'demo', source: 'pages/root-appendix.md', childrenSourceDir: 'pages', childrenOutputDir: '', children: [
 				{ name: 'Root doc', source: 'root-doc.md', childrenSourceDir: '.', children: [
