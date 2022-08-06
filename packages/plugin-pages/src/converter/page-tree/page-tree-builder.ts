@@ -68,19 +68,22 @@ export class PageTreeBuilder implements IPluginComponent<PagesPlugin> {
 	 */
 	private _dedupeNodes( nodes: ANodeReflection[] ): ANodeReflection[] {
 		return nodes.reduce<ANodeReflection[]>( ( acc, v ) => {
-			const existing = acc.find( a => a.module === v.module && a.name === v.name );
-			if( existing ){
+			const existingIndex = acc.findIndex( a => a.module === v.module && a.name === v.name );
+			if( existingIndex > -1 ){
+				const existing = acc[existingIndex];
 				if( existing instanceof PageReflection && v instanceof PageReflection ){
 					throw new Error( `Deduping ${getNodePath( v )} failed: this page and ${getNodePath( existing )} both has source` );
 				}
-				v.parent = existing;
-				existing.childrenNodes = this._dedupeNodes( uniq( [
+				const [ toKeep, toDrop ] = v instanceof PageReflection ? [ v, existing ] : [ existing, v ];
+				toDrop.parent = toKeep;
+				toKeep.childrenNodes = this._dedupeNodes( uniq( [
 					...( existing.childrenNodes ?? [] ),
-					...( v.childrenNodes ?? [] ).map( c => {
-						c.parent = existing;
-						return c;
-					} ),
-				] ) );
+					...( v.childrenNodes ?? [] ),
+				] ).map( c => {
+					c.parent = toKeep;
+					return c;
+				} ) );
+				acc[existingIndex] = toKeep;
 			} else {
 				acc.push( v );
 			}
