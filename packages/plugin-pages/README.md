@@ -20,9 +20,10 @@ For more infos, please refer to [the documentation](https://knodescommunity.gith
 
 - 🔍 Search integration
 - 🔗 Interpage hyperlinks
-- 🎨 Compatible with the default theme
+- 🎨 Compatible with default & custom themes
 - 📁 Monorepo support
 - 🎯 Locate invalid markups
+- 🔅 [Glob](https://www.npmjs.com/package/glob) support
 
 ## Usage
 
