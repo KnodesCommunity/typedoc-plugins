@@ -55,21 +55,30 @@ export interface IPageNode {
 }
 
 export interface IRootPageNode extends IPageNode {
-	/**
-	 * A flag to enable module lookup.
-	 */
+	/** A flag to enable module lookup. */
 	moduleRoot?: boolean;
 }
 
+/**
+ * A template page. It is expanded by matching the {@link match} [glob](https://www.npmjs.com/package/glob) against every entry point.
+ *
+ * @see {@page pages-tree.md} for details.
+ */
 export interface IOptionTemplatePage<T extends IPageNode = IPageNode> {
+	/** The match [glob](https://www.npmjs.com/package/glob). */
 	match: string;
+	/** An array of pages containing template strings, or a function returning the resulting nodes */
 	template: Array<OptionsPageNode<T>> | ( ( match: ITemplateMatch ) => T[] );
 }
 
 export interface ITemplateMatch {
+	/** The path from where the `match` was matched. */
 	from: string;
+	/** The actual glob matched. */
 	match: string;
+	/** The full path, usually `${{@link from}}/${{@link match}}`. */
 	fullPath: string;
+	/** The ancestor matches. */
 	prev: ITemplateMatch[];
 }
 

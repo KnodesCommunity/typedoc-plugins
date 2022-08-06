@@ -1,6 +1,6 @@
 ## Example configuration
 
-Here is a samble of this monorepo configuration:
+Here is a sample of this monorepo configuration:
 
 {@codeblock ../../../typedoc.js#pagesConfig-*}
 
