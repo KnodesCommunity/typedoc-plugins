@@ -8,5 +8,5 @@
       "node"
     ],
   },
-  "exclude": ["typedoc"]
+  "exclude": ["typedoc", "**/dist"]
 }
