@@ -99,7 +99,9 @@ export class PageTreeBuilder implements IPluginComponent<PagesPlugin> {
 	 * @returns the expanded page nodes.
 	 */
 	private _expandRootPageNodes( pages: IPluginOptions.Page[], sourceDir?: string | null ): IRootPageNode[]{
-		const entryPoints = this.plugin.application.options.getValue( 'entryPoints' ).flatMap( ep => glob( ep ) );
+		const entryPoints = this.plugin.application.options.getValue( 'entryPoints' )
+			.flatMap( ep => glob( normalizePath( ep ) ) )
+			.map( normalizePath );
 		return pages.map( p => this._expandPageNode<IRootPageNode>( entryPoints, p, sourceDir, [] ) ).flat( 1 );
 	}
 
@@ -114,7 +116,11 @@ export class PageTreeBuilder implements IPluginComponent<PagesPlugin> {
 	 */
 	private _expandPageNode<T extends IPageNode>( froms: string[], node: OptionsPageNode<T> | IOptionTemplatePage<T>, sourceDir?: string | null, prevMatches: ITemplateMatch[] = [] ): T[] {
 		if( 'match' in node ){
-			const matches = froms.flatMap( from => glob( node.match, { cwd: from.match( /^\.{1,2}\// ) ? from : join( from, sourceDir )  } ).map( m => ( {
+			const matches = froms.flatMap( from => glob( node.match, {
+				cwd: from.match( /^\.{1,2}\// ) ?
+					from :
+					normalizePath( join( from, sourceDir ) ),
+			} ).map( m => ( {
 				from,
 				match: normalizePath( m ),
 				fullPath: normalizePath( resolve( from, m ) ),
