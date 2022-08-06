@@ -44,6 +44,7 @@
     "release:default": "./tools/release.sh",
     "release:windows": "echo \"Unsupported platform for release. Run this command only from an UNIX-like environment.\"",
     "test": "jest",
+    "test:coverage": "jest --config ./jest.config.coverage.js",
     "tools:bump-versions": "node tools/bump-versions",
     "tools:infer-next-version": "node tools/infer-next-version",
     "tools:patch": "node ./tools/typedoc-patcher --no-stash",
