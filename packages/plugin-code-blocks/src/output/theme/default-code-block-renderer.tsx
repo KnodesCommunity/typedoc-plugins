@@ -30,11 +30,25 @@ export class DefaultCodeBlockRenderer implements ICodeBlocksPluginThemeMethods, 
 
 	public readonly renderCodeBlock = ( { asFile, sourceFile, mode, content, url }: ICodeBlock ) => this._wrapCode(
 		<p>From {url ? <a href={url}>{asFile}</a> : <>{asFile}</>}</p>,
-		this._theme.getRenderContext( new PageEvent( asFile ) ).markdown( `\`\`\`${extname( sourceFile ).slice( 1 )}
-${content.replace( /\\/g, '\\\\' ).replace( /`/g, '\\`' )}
-\`\`\`` ),
+		this._theme.getRenderContext( new PageEvent( asFile ) ).markdown( this._generateFencedCodeBlock( sourceFile, content ) ),
 		mode,
 	);
+
+	/**
+	 * Generate a fenced code block with the extension of {@link sourceFile}. The {@link content} is searched for backticks, in order to be properly escaped.
+	 *
+	 * @param sourceFile - The source file name.
+	 * @param content - The code content.
+	 * @returns a markdown code block
+	 */
+	private _generateFencedCodeBlock( sourceFile: string, content: string ) {
+		const ext = extname( sourceFile ).slice( 1 );
+		const contentMaxTicks = Math.max( ...( content.match( /`{3,}/g ) ?? [ '' ] ).map( t => t.length ) );
+		const blockTicks = Math.max( contentMaxTicks + 1, 3 );
+		return `${'`'.repeat( blockTicks )}${ext}
+${content}
+${'`'.repeat( blockTicks )}`;
+	}
 
 	private readonly _wrapCode = ( header: string | JSX.Element, codeHighlighted: string, mode: EBlockMode ) => {
 		const code = <>
