@@ -21,7 +21,7 @@ export const mockPlugin = <T extends ABasePlugin = ABasePlugin>( props: Partial<
 		pluginOpts: {},
 	};
 	const application: any = {
-		logger: { level: LogLevel.Verbose, log: jest.fn() },
+		logger: { level: LogLevel.Verbose, ...mockLogger, makeChildLogger: undefined },
 		options: {
 			getValue: jest.fn().mockImplementation( k => opts[k] ),
 			getRawValues: jest.fn().mockImplementation( () => opts ),
