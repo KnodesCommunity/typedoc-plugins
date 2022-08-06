@@ -1,3 +1,3 @@
-export * from './markdown-replacer';
-export * from './reflection-comment-replacer';
+export * from './markdown/markdown-replacer';
+export * from './reflection-comment/reflection-comment-replacer';
 export * from './types';

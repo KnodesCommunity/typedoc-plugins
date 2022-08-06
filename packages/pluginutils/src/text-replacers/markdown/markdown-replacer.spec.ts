@@ -2,15 +2,15 @@
 import assert from 'assert';
 import { relative, resolve } from 'path';
 
-import { escapeRegExp, identity } from 'lodash';
+import { identity } from 'lodash';
 import { Application, DeclarationReflection, MarkdownEvent, ReflectionKind, SourceReference } from 'typedoc';
 
-jest.mock( '../base-plugin' );
-const { ABasePlugin, getPlugin, getApplication } = require( '../base-plugin' ) as jest.Mocked<typeof import( '../base-plugin' )>;
+jest.mock( '../../base-plugin' );
+const { ABasePlugin, getPlugin, getApplication } = require( '../../base-plugin' ) as jest.Mocked<typeof import( '../../base-plugin' )>;
 getPlugin.mockImplementation( identity );
-getApplication.mockImplementation( jest.requireActual( '../base-plugin' ).getApplication );
+getApplication.mockImplementation( jest.requireActual( '../../base-plugin' ).getApplication );
 
-import { CurrentPageMemo } from '../current-page-memo';
+import { CurrentPageMemo } from '../../current-page-memo';
 import { MarkdownReplacer } from './markdown-replacer';
 
 class TestPlugin extends ABasePlugin {
@@ -122,33 +122,53 @@ describe( MarkdownReplacer.name, () => {
 	} );
 	describe( 'Multi', () => {
 		describe( 'Source map', () => {
+			const short = '=';
+			const long = '='.repeat( 20 );
 			it.each( [
 				[ 'hello {@tag1} world', 'Simple', [
-					{ tag: '@tag1',       maps: [ { map: 'hello.ts:1:7', ctxs: [ '@tag1' ] } ], replacer: jest.fn().mockReturnValueOnce( '@' ) },
+					{ tag: '@tag1',       maps: [ { map: 'hello.ts:1:7', ctxs: [ '@tag1' ] } ], replacer: jest.fn().mockReturnValueOnce( short ) },
 				]],
 				[ 'hello {@tag1} world', 'Overlapping same size', [
 					{ tag: '@tag1',       maps: [ { map: 'hello.ts:1:7', ctxs: [ '@tag1' ] } ], replacer: jest.fn().mockReturnValueOnce( '{@tag2}' ) },
-					{ tag: '@tag2',       maps: [ { map: 'hello.ts:1:7', ctxs: [ '@tag1', '@tag2' ] } ], replacer: jest.fn().mockReturnValueOnce( '=' ) },
+					{ tag: '@tag2',       maps: [ { map: 'hello.ts:1:7', ctxs: [ '@tag1', '@tag2' ] } ], replacer: jest.fn().mockReturnValueOnce( short ) },
 				]],
 				[ 'hello {@tag1} world', 'Overlapping diff size', [
 					{ tag: '@tag1',       maps: [ { map: 'hello.ts:1:7', ctxs: [ '@tag1' ] } ], replacer: jest.fn().mockReturnValueOnce( '{@tag2long}' ) },
-					{ tag: '@tag2long',   maps: [ { map: 'hello.ts:1:7', ctxs: [ '@tag1', '@tag2long' ] } ], replacer: jest.fn().mockReturnValueOnce( '=' ) },
+					{ tag: '@tag2long',   maps: [ { map: 'hello.ts:1:7', ctxs: [ '@tag1', '@tag2long' ] } ], replacer: jest.fn().mockReturnValueOnce( short ) },
 				]],
-				[ 'hello {@tag1} world {@tag2}', '1=>2 + 2', [
+				[ 'hello {@tag1} world {@tag1} foo {@tag1} bar', 'Multiple longer', [
+					{ tag: '@tag1',       maps: [
+						{ map: 'hello.ts:1:7', ctxs: [ '@tag1' ] },
+						{ map: 'hello.ts:1:21', ctxs: [ '@tag1' ] },
+						{ map: 'hello.ts:1:33', ctxs: [ '@tag1' ] },
+					], replacer: jest.fn().mockReturnValue( long ) },
+				]],
+				[ 'hello {@tag1} world {@tag1} foo {@tag1} bar', 'Multiple shorter', [
+					{ tag: '@tag1',       maps: [
+						{ map: 'hello.ts:1:7', ctxs: [ '@tag1' ] },
+						{ map: 'hello.ts:1:21', ctxs: [ '@tag1' ] },
+						{ map: 'hello.ts:1:33', ctxs: [ '@tag1' ] },
+					], replacer: jest.fn().mockReturnValue( short ) },
+				]],
+				[ 'hello {@tag1} world {@tag2} foo', 'Subsequent', [
+					{ tag: '@tag1',       maps: [ { map: 'hello.ts:1:7', ctxs: [ '@tag1' ] } ], replacer: jest.fn().mockReturnValueOnce( long ) },
+					{ tag: '@tag2',       maps: [ { map: 'hello.ts:1:21', ctxs: [ '@tag2' ] } ], replacer: jest.fn().mockReturnValueOnce( short ) },
+				]],
+				[ 'hello {@tag1} world {@tag2} foo', '1=>2 + 2', [
 					{ tag: '@tag1',       maps: [ { map: 'hello.ts:1:7', ctxs: [ '@tag1' ] } ], replacer: jest.fn().mockReturnValueOnce( '{@tag2}' ) },
 					{ tag: '@tag2',       maps: [
 						{ map: 'hello.ts:1:7', ctxs: [ '@tag1', '@tag2' ] },
 						{ map: 'hello.ts:1:21', ctxs: [ '@tag2' ] },
-					], replacer: jest.fn().mockReturnValueOnce( '=' ) },
+					], replacer: jest.fn().mockReturnValue( short ) },
 				]],
 				[ 'hello \n{@tag2}\n{@tag1} world ', '2 + 1=>2', [
 					{ tag: '@tag1',       maps: [ { map: 'hello.ts:3:1', ctxs: [ '@tag1' ] } ], replacer: jest.fn().mockReturnValueOnce( '{@tag2}' ) },
 					{ tag: '@tag2',       maps: [
 						{ map: 'hello.ts:2:1', ctxs: [ '@tag2' ] },
 						{ map: 'hello.ts:3:1', ctxs: [ '@tag1', '@tag2' ] },
-					], replacer: jest.fn().mockReturnValueOnce( '=' ) },
+					], replacer: jest.fn().mockReturnValue( short ) },
 				]],
-				[ 'hello\n{@tag1} world\n{@tag2}\n{@tag1}', '1=>2 + 2 + 1=>2', [
+				[ 'hello\n{@tag1} world\n{@tag2}\n{@tag1} foo', '1=>2 + 2 + 1=>2', [
 					{ tag: '@tag1',       maps: [
 						{ map: 'hello.ts:2:1', ctxs: [ '@tag1' ] },
 						{ map: 'hello.ts:4:1', ctxs: [ '@tag1' ] },
@@ -157,7 +177,7 @@ describe( MarkdownReplacer.name, () => {
 						{ map: 'hello.ts:2:1', ctxs: [ '@tag1', '@tag2' ] },
 						{ map: 'hello.ts:3:1', ctxs: [ '@tag2' ] },
 						{ map: 'hello.ts:4:1', ctxs: [ '@tag1', '@tag2' ] },
-					], replacer: jest.fn().mockReturnValue( '=' ) },
+					], replacer: jest.fn().mockReturnValue( short ) },
 				]],
 			] )( 'should match %j with sourcemaps (%s) %#', ( source, _label, binds ) => {
 				mockCurrentPage( 'Test', 'hello.ts', 1, 1 );
@@ -166,14 +186,17 @@ describe( MarkdownReplacer.name, () => {
 				const listeners = getMarkdownEventParseListeners( plugin );
 				expect( listeners ).toHaveLength( binds.length );
 				binds.forEach( ( _b, i ) => listeners[i]( evt ) );
-				binds.forEach( b => {
+				const mapped = binds.map( b => {
 					expect( b.replacer, `Replacer ${b.tag}` ).toHaveBeenCalledTimes( b.maps.length );
-					b.maps.forEach( ( m, j ) => {
-						const mapStr = b.replacer.mock.calls[j][1]();
-						expect( mapStr, `Replacer ${b.tag}, call ${j}` )
-							.toMatch( new RegExp( `^"${escapeRegExp( m.map )}" \\(.*? of ${m.ctxs.map( escapeRegExp ).join( ' . ' )}\\)` ) );
-					} );
-				} );
+					return b.maps
+						.map( ( m, j ) => [
+							`Replacer ${b.tag}, call ${j}`,
+							b.replacer.mock.calls[j][1](),
+							`"${m.map}" (in expansion of ${m.ctxs.join( ' ⇒ ' )})`,
+						] as const );
+				} ).flat( 1 );
+				expect( Object.fromEntries( mapped.map( ( [ l, v ] ) => [ l, v ] ) ) )
+					.toEqual( Object.fromEntries( mapped.map( ( [ l, , a ] ) => [ l, a ] ) ) );
 			} );
 		} );
 	} );

@@ -1,8 +1,8 @@
 import { Comment, CommentDisplayPart, CommentTag, Context, Converter, InlineTagDisplayPart, Reflection } from 'typedoc';
 
-import { ABasePlugin, IPluginComponent, PluginAccessor, getPlugin } from '../base-plugin';
-import { EventsExtra } from '../events-extra';
-import { Tag } from './types';
+import { ABasePlugin, IPluginComponent, PluginAccessor, getPlugin } from '../../base-plugin';
+import { EventsExtra } from '../../events-extra';
+import { Tag } from '../types';
 
 const filterDisplayParts = ( tagName: Tag ) => ( commentPart: CommentDisplayPart ): commentPart is InlineTagDisplayPart => commentPart.kind === 'inline-tag' && commentPart.tag === tagName;
 

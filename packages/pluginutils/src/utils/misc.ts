@@ -31,3 +31,5 @@ export const rootDir = memoize( ( app: Application ) => {
 		throw new Error();
 	}
 } );
+
+export const Narrow = <T>( v: any ): v is T => true;

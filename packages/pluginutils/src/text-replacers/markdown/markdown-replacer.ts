@@ -1,40 +1,15 @@
 import assert from 'assert';
 
-import { escapeRegExp, isNil, isNumber, last, uniq } from 'lodash';
+import { escapeRegExp, isNil, isNumber, uniq } from 'lodash';
 import { JSX, MarkdownEvent } from 'typedoc';
 
-import { ABasePlugin, IPluginComponent, PluginAccessor, getPlugin } from '../base-plugin';
-import { CurrentPageMemo } from '../current-page-memo';
-import { PluginLogger } from '../plugin-logger';
-import { miscUtils, reflectionSourceUtils, textUtils } from '../utils';
-import { Tag } from './types';
-
-interface ISourceEdit {
-	from: number;
-	to: number;
-	source: string;
-	replacement: string;
-}
-interface ISourceMapContainer {
-	readonly editions: ISourceEdit[];
-	readonly getEditionContext: ( position: number ) => ( {
-		line: number;
-		column: number;
-		expansions: ISourceMapContainer[];
-		index: number;
-		source: string;
-	} );
-	readonly label: string;
-	readonly plugin: ABasePlugin;
-	readonly regex: RegExp;
-}
-interface IMapSource {
-	line: number;
-	column: number;
-	expansions: ISourceMapContainer[];
-	index: number;
-	source: string;
-}
+import { ABasePlugin, IPluginComponent, PluginAccessor, getPlugin } from '../../base-plugin';
+import { CurrentPageMemo } from '../../current-page-memo';
+import { PluginLogger } from '../../plugin-logger';
+import { miscUtils, reflectionSourceUtils } from '../../utils';
+import { jsxToString } from '../../utils/text';
+import { Tag } from '../types';
+import { SourceMapContainer } from './source-map-container';
 
 const spitArgs = ( ...args: Parameters<Parameters<typeof String.prototype.replace>[1]> ) => {
 	const indexIdx = args.findIndex( isNumber );
@@ -50,8 +25,9 @@ const mergeFlags = ( ...flags: string[] ) => uniq( flags.join( '' ).split( '' ) 
 const buildMarkdownRegExp = ( tagName: string, paramsRegExp: RegExp | null ) => paramsRegExp ?
 	new RegExp( `${escapeRegExp( tagName )}(?:\\s+${paramsRegExp.source})?`, mergeFlags( paramsRegExp.flags, 'g' ) ) :
 	new RegExp( `${escapeRegExp( tagName )}`, 'g' );
+
 export class MarkdownReplacer implements IPluginComponent {
-	private static readonly _mapContainers = new WeakMap<MarkdownEvent, ISourceMapContainer[]>();
+	private static readonly _mapContainers = new WeakMap<MarkdownEvent, SourceMapContainer>();
 
 	public readonly plugin: ABasePlugin;
 	private readonly _logger: PluginLogger;
@@ -63,8 +39,10 @@ export class MarkdownReplacer implements IPluginComponent {
 	 * @param event - The event to get source maps for.
 	 * @returns the source map list.
 	 */
-	private static _getEventMapContainers( event: MarkdownEvent ): ISourceMapContainer[] {
-		return this._mapContainers.get( event ) ?? [];
+	private static _getEventMapContainer( event: MarkdownEvent ): SourceMapContainer {
+		const container = this._mapContainers.get( event ) ?? new SourceMapContainer();
+		MarkdownReplacer._mapContainers.set( event, container );
+		return container;
 	}
 
 	public constructor( pluginAccessor: PluginAccessor ){
@@ -122,13 +100,9 @@ export class MarkdownReplacer implements IPluginComponent {
 		excludeMatches: string[] | undefined,
 		event: MarkdownEvent,
 	) {
-		const mapContainers = MarkdownReplacer._getEventMapContainers( event );
 		const originalText = event.parsedText;
-		const getMapSource = last( mapContainers )?.getEditionContext ??
-			( pos => ( { ...textUtils.getCoordinates( originalText, pos ), source: originalText, index: pos, expansions: [] } as IMapSource ) );
-
+		const mapLayer = MarkdownReplacer._getEventMapContainer( event ).addLayer( label, originalText );
 		const sourceFile = this._currentPageMemo.hasCurrent ? reflectionSourceUtils.getReflectionSourceFileName( this._currentPageMemo.currentReflection ) : undefined;
-		const thisContainer: ISourceMapContainer = this._generateSourceMapContainer( regex, label, getMapSource );
 		event.parsedText = originalText.replace(
 			regex,
 			( ...args ) => {
@@ -136,69 +110,16 @@ export class MarkdownReplacer implements IPluginComponent {
 				if( excludeMatches?.includes( fullMatch ) ){
 					return fullMatch;
 				}
-				const getSourceHint = () => {
-					if( !sourceFile ){
-						return 'UNKNOWN SOURCE';
-					}
-					const { line, column, expansions } = getMapSource( index );
-					const posStr = line && column ? `:${line}:${column}` : '';
-					const expansionContext = ` (in expansion of ${expansions.concat( [ thisContainer ] ).map( e => e.label ).join( ' ⇒ ' )})`;
-					return `"${sourceFile}${posStr}"${expansionContext}`;
-				};
+				const getSourceHint = mapLayer.sourceHint.bind( mapLayer, sourceFile, index );
 				const replacement = miscUtils.catchWrap(
-					() => callback( { fullMatch, captures, event }, getSourceHint ),
+					() => jsxToString( callback( { fullMatch, captures, event }, getSourceHint ) ),
 					err => `In ${getSourceHint()}: ${err.message}` );
 				if( isNil( replacement ) ){
 					return fullMatch;
 				}
-				const replacementStr = typeof replacement === 'string' ? replacement : JSX.renderElement( replacement );
-				thisContainer.editions.push( { from: index, to: index + fullMatch.length, replacement: replacementStr, source: fullMatch } );
-				return replacementStr;
+				mapLayer.addEdition( index, fullMatch, replacement );
+				return replacement;
 			} );
-		MarkdownReplacer._mapContainers.set( event, [
-			...mapContainers,
-			thisContainer,
-		] );
-	}
-
-	/**
-	 * Create a new source map container for the given {@link regex} & {@link label}, that will chain with {@link getMapSource} to get location in the actual original source.
-	 *
-	 * @param regex - The regex used for replacement.
-	 * @param label - The replacement label.
-	 * @param getMapSource - The method to get the position before previous replacement.
-	 * @returns a new map container.
-	 */
-	private _generateSourceMapContainer( regex: RegExp, label: string, getMapSource: ( pos: number ) => IMapSource ): ISourceMapContainer {
-		const thisContainer: ISourceMapContainer = {
-			regex,
-			editions: [],
-			label,
-			plugin: this.plugin,
-			getEditionContext: ( pos: number ) => {
-				const { offsetedPos, didEdit } = thisContainer.editions.reduce(
-					( acc, edit ) => {
-						const isAfterEdit = edit.from <= acc.offsetedPos;
-						if( !isAfterEdit ){
-							return acc;
-						}
-						const _didEdit = edit.from + edit.replacement.length > acc.offsetedPos;
-						return {
-							offsetedPos: acc.offsetedPos + ( _didEdit ?
-								edit.from - acc.offsetedPos :
-								edit.source.length - edit.replacement.length ),
-							didEdit: _didEdit || acc.didEdit,
-						};
-					},
-					{ offsetedPos: pos, didEdit: false } );
-				const source = getMapSource( offsetedPos );
-				if( didEdit ){
-					source.expansions = [ ...source.expansions, thisContainer ];
-				}
-				return source;
-			},
-		};
-		return thisContainer;
 	}
 }
 export namespace MarkdownReplacer {

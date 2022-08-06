@@ -2,7 +2,7 @@ import { Application, Comment, CommentTag, Context, Converter, DeclarationReflec
 
 import { createMockProjectWithPackage, setupCaptureEvent } from '#plugintestbed';
 
-import { ABasePlugin } from '../base-plugin';
+import { ABasePlugin } from '../../base-plugin';
 import { ReflectionCommentReplacer } from './reflection-comment-replacer';
 
 let plugin: ABasePlugin;
