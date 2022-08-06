@@ -3,16 +3,39 @@ const { yellow } = require( 'chalk' );
 const { globAsync } = require( '../utils' );
 const { tryReadFile, getDocsUrl, readProjectPackageJson, syncFile } = require( './utils' );
 
-/**
- * @param {boolean} checkOnly
- * @returns {import('./utils').ProtoHandler}
- */
-module.exports.readme = checkOnly => {
+class Readme {
+	constructor( checkOnly ){
+		this.name = 'readme';
+		this.checkOnly = checkOnly;
+	}
+
+	async run( _proto, { path: projectPath } ){
+		const readmeFiles = await globAsync( `${projectPath}/@(readme|README).@(md|MD)` );
+		if( readmeFiles.length > 1 ){
+			throw new Error( 'Multiple README files' );
+		}
+		const readmeFile = readmeFiles[0] ?? `${projectPath}/README.md`;
+		const readmeContent = ( await tryReadFile( readmeFile, 'utf-8' ) ) ?? '';
+		const { packageContent } = await readProjectPackageJson( projectPath );
+		if( !packageContent ){
+			throw new Error();
+		}
+		const result = ( await [ this._replaceHeader, this._replaceInstall ].reduce( async ( content, fn ) => {
+			const c = await content;
+			return fn( c, packageContent );
+		}, Promise.resolve( readmeContent ) ) ).replace( /\r\n/g, '\n' );
+		await syncFile( this.checkOnly, readmeFile, result );
+	}
+
+	handleFile( filename ) {
+		return /(\/|^)readme\.md$/i.test( filename );
+	}
+
 	/**
-	 * @param {string} readmeContent
-	 * @param {any} packageContent
+	 * @param readmeContent
+	 * @param packageContent
 	 */
-	const replaceHeader = async ( readmeContent, packageContent ) => {
+	async _replaceHeader( readmeContent, packageContent ){
 		let newHeader = `# ${packageContent.name}`;
 		if( packageContent.description ){
 			newHeader += `\n\n> ${packageContent.description}`;
@@ -39,31 +62,28 @@ ${newHeader}
 			console.log( yellow( `Header not found in ${readmeContent}` ) );
 		}
 		return newHeader + readmeContent.replace( headerRegex, '' );
-	};
+	}
+
 	/**
-	 * @param {string} readmeContent
-	 * @param {any} packageContent
+	 * @param readmeContent
+	 * @param packageContent
 	 */
-	const replaceInstall = async ( readmeContent, packageContent ) => {
+	async _replaceInstall( readmeContent, packageContent ){
 		const typedocVer = packageContent.dependencies?.['typedoc'] ?? packageContent.peerDependencies?.['typedoc'];
 		const devTypedocVer = packageContent.devDependencies?.['typedoc'];
-		let newInstall = `## Quick start
+		const newInstall = `<!-- INSTALL -->
+## Quick start
 
 \`\`\`sh
 npm install --save-dev ${packageContent.name}${typedocVer ? ` typedoc@${typedocVer}` : ''}
-\`\`\``;
-		if( typedocVer || devTypedocVer ){
-			newInstall += '\n\n## Compatibility';
-		}
-		if( typedocVer ){
-			newInstall += `\n\nThis plugin version should match TypeDoc \`${typedocVer}\` for compatibility.`;
-		}
-		if( devTypedocVer ){
-			newInstall += `\n\n> **Note**: this plugin version was released by testing against \`${devTypedocVer}\`.`;
-		}
-		newInstall = `<!-- INSTALL -->
-${newInstall}
-<!-- INSTALL end -->
+\`\`\`
+${( typedocVer || devTypedocVer ) && `
+## Compatibility
+`}${typedocVer && `
+This plugin version should match TypeDoc \`${typedocVer}\` for compatibility.
+`}${devTypedocVer && `
+> **Note**: this plugin version was released by testing against \`${devTypedocVer}\`.
+`}<!-- INSTALL end -->
 `;
 		const installRegex = /^<!-- INSTALL -->(.*)<!-- INSTALL end -->(\r?\n|$)/sm;
 		if( !installRegex.test( readmeContent ) ){
@@ -71,26 +91,7 @@ ${newInstall}
 			return `${readmeContent  }\n\n${newInstall}`;
 		}
 		return readmeContent.replace( installRegex, newInstall );
-	};
-	return {
-		name: 'readme',
-		run: async ( _proto, { path: projectPath } ) => {
-			const readmeFiles = await globAsync( `${projectPath}/@(readme|README).@(md|MD)` );
-			if( readmeFiles.length > 1 ){
-				throw new Error( 'Multiple README files' );
-			}
-			const readmeFile = readmeFiles[0] ?? `${projectPath}/README.md`;
-			const readmeContent = ( await tryReadFile( readmeFile, 'utf-8' ) ) ?? '';
-			const { packageContent } = await readProjectPackageJson( projectPath );
-			if( !packageContent ){
-				throw new Error();
-			}
-			const result = ( await [ replaceHeader, replaceInstall ].reduce( async ( content, fn ) => {
-				const c = await content;
-				return fn( c, packageContent );
-			}, Promise.resolve( readmeContent ) ) ).replace( /\r\n/g, '\n' );
-			await syncFile( checkOnly, readmeFile, result );
-		},
-		handleFile: filename => /(\/|^)readme\.md$/i.test( filename ),
-	};
-};
+	}
+}
+
+module.exports.readme = checkOnly => new Readme( checkOnly );

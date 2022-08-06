@@ -12,5 +12,6 @@ module.exports = {
 		'jsdoc/require-param-description': 'off',
 		'jsdoc/no-undefined-types': 'off',
 		'jsdoc/valid-types': 'off',
+		'jsdoc/require-jsdoc': 'off',
 	},
 };
