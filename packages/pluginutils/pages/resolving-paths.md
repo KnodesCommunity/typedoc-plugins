@@ -7,6 +7,8 @@
 ## How resolution works
 
 * **Relative paths (starting with `./` or `../`)**: Targets are **not** searched in *container folders*, but relative to the current file.
-* **Current module paths (starting with `~/` or without `~...` prefix)**: Targets are searched in the *container folder* of the current *workspace*.
-* **Explicit module paths (starting with `~<workspace-name>/`)**: Targets are searched in the *container folder* of the *workspace* with the given name.
-* **Root paths (starting with `~~/`)**: Targets are searched in the *container folder* of the *root workspace*.
+* **Current module paths (starting with `~:` or without `~...:` prefix)**: Targets are searched in the *container folder* of the current *workspace*.
+* **Explicit module paths (starting with `~<workspace-name>:`)**: Targets are searched in the *container folder* of the *workspace* with the given name.
+* **Root paths (starting with `~~:`)**: Targets are searched in the *container folder* of the *root workspace*.
+
+See {@link NamedPath} for the type definition.

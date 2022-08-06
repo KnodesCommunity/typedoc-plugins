@@ -65,11 +65,12 @@ export const getReflectionModule = ( reflection: Reflection ) => getReflectionPa
 /**
  * Don't worry about typings, it's just a string with special prefixes. See {@page resolving-paths.md} for details.
  */
-export type NamedPath = LiteralUnion<NamedPath.Project | NamedPath.Module | NamedPath.CurrentModule, string>
+export type NamedPath = LiteralUnion<NamedPath.Relative | NamedPath.Project | NamedPath.ExplicitModule | NamedPath.CurrentModule, string>
 export namespace NamedPath {
+	export type Relative = `.${'.' | ''}/${string}`;
 	export type Project = `~~:${string}`;
-	export type Module = `~${string}:${string}`
-	export type CurrentModule = `~:${string}`
+	export type ExplicitModule = `~${string}:${string}`
+	export type CurrentModule = LiteralUnion<`~:${string}`, string>
 }
 
 export class ResolveError extends Error {
