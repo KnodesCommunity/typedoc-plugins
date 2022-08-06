@@ -8,7 +8,7 @@ import { DeclarationReflection, MinimalSourceFile, ProjectReflection, Reflection
 import { IPluginComponent, ResolveError, getWorkspaces, miscUtils, resolveNamedPath } from '@knodes/typedoc-pluginutils';
 
 import { ANodeReflection, MenuReflection, NodeReflection, PageReflection } from '../../models/reflections';
-import { IOptionPatternPage, IPageNode, IPluginOptions, IRootPageNode, ITemplateMatch, OptionsPageNode } from '../../options';
+import { IOptionTemplatePage, IPageNode, IPluginOptions, IRootPageNode, ITemplateMatch, OptionsPageNode } from '../../options';
 import type { PagesPlugin } from '../../plugin';
 import { expandNode } from './expand-node';
 import { getDir, getNodePath, getNodeUrl, join } from './utils';
@@ -112,7 +112,7 @@ export class PageTreeBuilder implements IPluginComponent<PagesPlugin> {
 	 * @param prevMatches - A list of previous expansion contexts.
 	 * @returns the expanded nodes.
 	 */
-	private _expandPageNode<T extends IPageNode>( froms: string[], node: OptionsPageNode<T> | IOptionPatternPage<T>, sourceDir?: string | null, prevMatches: ITemplateMatch[] = [] ): T[] {
+	private _expandPageNode<T extends IPageNode>( froms: string[], node: OptionsPageNode<T> | IOptionTemplatePage<T>, sourceDir?: string | null, prevMatches: ITemplateMatch[] = [] ): T[] {
 		if( 'match' in node ){
 			const matches = froms.flatMap( from => glob( node.match, { cwd: from.match( /^\.{1,2}\// ) ? from : join( from, sourceDir )  } ).map( m => ( {
 				from,
@@ -131,12 +131,14 @@ export class PageTreeBuilder implements IPluginComponent<PagesPlugin> {
 	}
 
 	/**
+	 * Expand the given {@link template} using the provided {@link match}.
 	 *
-	 * @param sourceDir
-	 * @param template
-	 * @param match
+	 * @param sourceDir - The directory expected to contain pages files.
+	 * @param template - The template to expand.
+	 * @param match - The match used for expansion.
+	 * @returns a list opf pages.
 	 */
-	private _expandPageNodeTemplate<T extends IPageNode>( sourceDir: string | null | undefined, template: IOptionPatternPage<IPageNode>['template'], match: ITemplateMatch ): T[] {
+	private _expandPageNodeTemplate<T extends IPageNode>( sourceDir: string | null | undefined, template: IOptionTemplatePage<IPageNode>['template'], match: ITemplateMatch ): T[] {
 		if( isFunction( template ) ){
 			template = template( match );
 		}

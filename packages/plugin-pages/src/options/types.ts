@@ -61,7 +61,7 @@ export interface IRootPageNode extends IPageNode {
 	moduleRoot?: boolean;
 }
 
-export interface IOptionPatternPage<T extends IPageNode = IPageNode> {
+export interface IOptionTemplatePage<T extends IPageNode = IPageNode> {
 	match: string;
 	template: Array<OptionsPageNode<T>> | ( ( match: ITemplateMatch ) => T[] );
 }
@@ -74,7 +74,7 @@ export interface ITemplateMatch {
 }
 
 export type OptionsPageNode<T extends IPageNode = IPageNode> = Omit<T, 'children'> & {
-	children?: Array<OptionsPageNode | IOptionPatternPage>;
+	children?: Array<OptionsPageNode | IOptionTemplatePage>;
 }
 
 export interface IOptionsPage {
@@ -154,5 +154,5 @@ export interface IPluginOptions {
 	linkModuleBase: string | null;
 }
 export namespace IPluginOptions {
-	export type Page = OptionsPageNode<IRootPageNode> | IOptionPatternPage<IRootPageNode>;
+	export type Page = OptionsPageNode<IRootPageNode> | IOptionTemplatePage<IRootPageNode>;
 }
