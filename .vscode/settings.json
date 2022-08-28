@@ -1,4 +1,4 @@
 {
     "jest.jestCommandLine": "node_modules/.bin/jest",
-    "jest.autoRun": "off"
+    "jest.autoRun": {"watch": false, "onSave": "test-file"}
 }
