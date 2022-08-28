@@ -450,8 +450,8 @@ exports[`pkg-a \`modules/pkg_a.html\` should have constant content 1`] = `
 			<hr />
 			<aside class=\\"tsd-sources\\">
 				<ul>
-					<li>Defined in <a href=\\"https://github.com/KnodesCommunity/typedoc-plugins/blob/develop/packages/plugin-pages/__tests__/mock-fs/monorepo/packages/a/pages/readme-extras.md#L1\\">packages/a/pages/readme-extras.md:1</a></li>
-					<li>Defined in <a href=\\"https://github.com/KnodesCommunity/typedoc-plugins/blob/develop/packages/plugin-pages/__tests__/mock-fs/monorepo/packages/a/src/index.ts#L7\\">a/src/index.ts:7</a></li>
+					<li>Defined in <a href=\\"https://stub.git/FAKE-USER/FAKE-PROJECT/blob/develop/packages/a/pages/readme-extras.md#L1\\">packages/a/pages/readme-extras.md:1</a></li>
+					<li>Defined in <a href=\\"https://stub.git/FAKE-USER/FAKE-PROJECT/blob/develop/packages/a/src/index.ts#L7\\">a/src/index.ts:7</a></li>
 				</ul>
 			</aside>
 			<section class=\\"tsd-panel-group\\">
@@ -761,7 +761,7 @@ exports[`pkg-a \`variables/pkg_a.stubA.html\` should have constant content 1`] =
 			</div>
 			<aside class=\\"tsd-sources\\">
 				<ul>
-					<li>Defined in <a href=\\"https://github.com/KnodesCommunity/typedoc-plugins/blob/develop/packages/plugin-pages/__tests__/mock-fs/monorepo/packages/a/src/index.ts#L7\\">a/src/index.ts:7</a></li>
+					<li>Defined in <a href=\\"https://stub.git/FAKE-USER/FAKE-PROJECT/blob/develop/packages/a/src/index.ts#L7\\">a/src/index.ts:7</a></li>
 				</ul>
 			</aside>
 		</div>
@@ -904,7 +904,7 @@ exports[`pkg-b \`modules/pkg_b.html\` should have constant content 1`] = `
 			</div>
 			<aside class=\\"tsd-sources\\">
 				<ul>
-					<li>Defined in <a href=\\"https://github.com/KnodesCommunity/typedoc-plugins/blob/develop/packages/plugin-pages/__tests__/mock-fs/monorepo/packages/b/src/index.ts#L4\\">b/src/index.ts:4</a></li>
+					<li>Defined in <a href=\\"https://stub.git/FAKE-USER/FAKE-PROJECT/blob/develop/packages/b/src/index.ts#L4\\">b/src/index.ts:4</a></li>
 				</ul>
 			</aside>
 			<section class=\\"tsd-panel-group\\">
@@ -1369,7 +1369,7 @@ exports[`pkg-b \`variables/pkg_b.stubB.html\` should have constant content 1`] =
 			</div>
 			<aside class=\\"tsd-sources\\">
 				<ul>
-					<li>Defined in <a href=\\"https://github.com/KnodesCommunity/typedoc-plugins/blob/develop/packages/plugin-pages/__tests__/mock-fs/monorepo/packages/b/src/index.ts#L4\\">b/src/index.ts:4</a></li>
+					<li>Defined in <a href=\\"https://stub.git/FAKE-USER/FAKE-PROJECT/blob/develop/packages/b/src/index.ts#L4\\">b/src/index.ts:4</a></li>
 				</ul>
 			</aside>
 		</div>

@@ -11,7 +11,7 @@ const PKGS = { a: PKG_A, b: PKG_B };
 
 const rootDir = resolve( __dirname, '../mock-fs/monorepo' );
 process.chdir( rootDir );
-runPluginBeforeAll( rootDir, resolve( __dirname, '../../src/index' ), { options: { gitRemote: 'FAKE' }} );
+runPluginBeforeAll( rootDir, resolve( __dirname, '../../src/index' ), { options: { gitRemote: undefined }} );
 describe.each( [ 'a', 'b' ] )( 'Pkg %s', pkg => {
 	describe( `\`classes/pkg_${pkg}.TestNoPrefixExamples.html\``, describeDocsFile( rootDir, `classes/pkg_${pkg}.TestNoPrefixExamples.html`, it => {
 		it( 'should have correct content', ( content, dom ) => {

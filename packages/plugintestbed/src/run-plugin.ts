@@ -2,8 +2,9 @@ import assert from 'assert';
 import { resolve } from 'path';
 
 import { Many, castArray } from 'lodash';
-
 import { Application, ArgumentsReader, LogLevel, TSConfigReader, TypeDocOptions, TypeDocReader } from 'typedoc';
+
+import { Repository } from '../../../node_modules/typedoc/dist/lib/converter/utils/repository';
 
 export const runPlugin = async (
 	testDir: string,
@@ -20,10 +21,22 @@ export const runPlugin = async (
 		gitRemote: 'origin',
 		gitRevision: 'develop',
 	};
-	app.bootstrap( {
+	const fullOpts = {
 		...baseOptions,
 		...options,
+	};
+	jest.spyOn( Repository, 'tryCreateRepository' ).mockImplementation( ( path, gitRevision, gitRemote ) => {
+		if( !gitRemote || !gitRevision ){
+			return undefined;
+		}
+		const repo = new Repository( process.cwd(), gitRevision, [ `http://stub.git/${gitRemote}` ] );
+		repo.user = 'FAKE-USER';
+		repo.project = 'FAKE-PROJECT';
+		repo.hostname = 'stub.git';
+		repo.contains = jest.fn().mockReturnValue( true );
+		return repo;
 	} );
+	app.bootstrap( fullOpts );
 	const project = app.convert();
 	expect( project ).toBeTruthy();
 	assert( project );

@@ -10,7 +10,7 @@ const INLINE_CODE = simpleJson( '"hello"', '"world"' );
 
 const rootDir = resolve( __dirname, '../mock-fs/simple' );
 process.chdir( rootDir );
-runPluginBeforeAll( rootDir, resolve( __dirname, '../../src/index' ), { options: { gitRemote: 'FAKE' }} );
+runPluginBeforeAll( rootDir, resolve( __dirname, '../../src/index' ), { options: { gitRemote: undefined }} );
 describe( '`index.html`', describeDocsFile( rootDir, 'index.html', it => {
 	it( 'should have correct content', ( content, dom ) => {
 		expect( content ).toMatch( /<link\s+rel="stylesheet"\s+href="([^"]*?\/)?assets\/code-blocks\.css"\s*\/>/ );
