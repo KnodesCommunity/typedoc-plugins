@@ -1,5 +1,5 @@
-import { statSync } from 'fs';
-import { dirname } from 'path';
+import { mkdirSync, statSync, writeFileSync } from 'fs';
+import { dirname, resolve } from 'path';
 
 import { isFunction, isString, memoize } from 'lodash';
 import { Application } from 'typedoc';
@@ -33,3 +33,9 @@ export const rootDir = memoize( ( app: Application ) => {
 } );
 
 export const Narrow = <T>( v: any ): v is T => true;
+export const writeDiag = ( diagDir: string | undefined | null, file: string, content: () => string ) => {
+	if( diagDir ){
+		mkdirSync( diagDir, { recursive: true } );
+		writeFileSync( resolve( diagDir, file ), content() );
+	}
+};
