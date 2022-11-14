@@ -7,5 +7,6 @@ module.exports = {
 	},
 	rules: {
 		'no-bitwise': [ 'off' ],
+		'jsdoc/check-tag-names': [ 'error', { definedTags: [ 'experimental', 'category' ] } ],
 	},
 };

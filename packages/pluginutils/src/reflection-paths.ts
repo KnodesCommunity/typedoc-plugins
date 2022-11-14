@@ -36,7 +36,8 @@ const _findModuleRoot = memoize( ( moduleDir: string, projectRoot: string, rootM
 	return _findModuleRoot( normalizePath( dirname( moduleDir ) ), projectRoot, rootMatcher );
 } );
 
-export const getWorkspaces = ( project: ProjectReflection ): [ProjectReflection, ...DeclarationReflection[]] => {
+export type Workspaces = [ProjectReflection, ...DeclarationReflection[]];
+export const getWorkspaces = ( project: ProjectReflection ): Workspaces => {
 	const modules = project.getReflectionsByKind( ReflectionKind.Module );
 	assert( modules.every( ( m ): m is DeclarationReflection => m instanceof DeclarationReflection ) );
 	return [
@@ -63,7 +64,7 @@ export const getReflectionParentMatching: {
 export const getReflectionModule = ( reflection: Reflection ) => getReflectionParentMatching( reflection, isModule ) ?? reflection.project;
 
 /**
- * Don't worry about typings, it's just a string with special prefixes. See {@page resolving-paths.md} for details.
+ * Don't worry about typings, it's just a string with special prefixes. See {@page resolving-paths} for details.
  */
 export type NamedPath = LiteralUnion<NamedPath.Relative | NamedPath.Project | NamedPath.ExplicitModule | NamedPath.CurrentModule, string>
 export namespace NamedPath {
@@ -80,14 +81,14 @@ export class ResolveError extends Error {
 }
 
 /**
- * Resolve a named path. See {@page resolving-paths.md} for details.
+ * Resolve a named path. See {@page resolving-paths} for details.
  *
  * @param args - The reflection to resolve from, an optional container folder, and the target path specifier.
  * @returns the resolved path.
  */
 export const resolveNamedPath: {
 	/**
-	 * Resolve a named path. See {@page resolving-paths.md} for details.
+	 * Resolve a named path. See {@page resolving-paths} for details.
 	 *
 	 * @param currentReflection - The reflection to resolve from.
 	 * @param containerFolder - An optional container folder.
@@ -96,7 +97,7 @@ export const resolveNamedPath: {
 	 */
 	( currentReflection: Reflection, containerFolder: string | undefined, path: NamedPath ): string;
 	/**
-	 * Resolve a named path. See {@page resolving-paths.md} for details.
+	 * Resolve a named path. See {@page resolving-paths} for details.
 	 *
 	 * @param currentReflection - The reflection to resolve from.
 	 * @param path - The target path specifier.

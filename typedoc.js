@@ -20,10 +20,12 @@ module.exports = {
 					{ name: 'Changelog', source: './CHANGELOG.md' },
 				],
 			},
-			{ match: 'pages/readme-extras.md', template: context => [ // Add `pages/readme-extras.md` at the end of the module's readme in every module containing it. Use function template.
+			// Add `pages/readme-extras.md` at the end of the module's readme in every module containing it. Use function template.
+			{ loader: 'template', match: 'pages/readme-extras.md', template: context => [
 				{ moduleRoot: true, name: `@knodes/typedoc-${basename( context.from )}`, source: context.match },
 			] },
-			{ match: 'pages/options.md', template: [ // Add `pages/options.md` page in every module containing it. Use JSON-compatible template.
+			// Add `pages/options.md` page in every module containing it. Use JSON-compatible template.
+			{ loader: 'template', match: 'pages/options.md', template: [
 				{ moduleRoot: true, name: '@knodes/typedoc-${path.basename(match.from)}', children: [
 					{ name: 'Using options', source: '${match.match}' },
 				] },
@@ -55,7 +57,7 @@ module.exports = {
 				],
 			},
 			// #region pagesConfig-3
-			{ match: 'CHANGELOG.md', template: [
+			{ loader: 'template', match: 'CHANGELOG.md', template: [
 				{ moduleRoot: true, name: '@knodes/typedoc-${path.basename(match.from)}', children: [
 					{ name: 'Changelog', source: '${match.match}' },
 				] },
@@ -63,7 +65,6 @@ module.exports = {
 		],
 		// #endregion
 		excludeMarkdownTags: [ '{@page <path-to-file>[ link label]}', '{@page ...}' ],
-		source: null,
 		linkModuleBase: 'pages',
 		// #region pagesConfig-4
 	},

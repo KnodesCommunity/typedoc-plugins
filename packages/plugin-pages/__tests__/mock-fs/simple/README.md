@@ -1,1 +1,1 @@
-README links to {@page additional-resources/some-cool-docs.md}
+README links to {@page pages/additional-resources/some-cool-docs}

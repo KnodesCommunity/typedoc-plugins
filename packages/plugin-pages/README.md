@@ -42,7 +42,7 @@ For more infos, please refer to [the documentation](https://knodescommunity.gith
    	}
    }
    ```
-   See [the *pages* tree guide](https://knodescommunity.github.io/typedoc-plugins/_knodes_typedoc_plugin_pages/pages/pages-tree.html), or [the *options* documentation page](https://knodescommunity.github.io/typedoc-plugins/_knodes_typedoc_plugin_pages/pages/options.html) for more infos.
+   See [the *pages* tree guide](https://knodescommunity.github.io/typedoc-plugins/_knodes_typedoc_plugin_pages/pages/pages-tree/index.html), or [the *options* documentation page](https://knodescommunity.github.io/typedoc-plugins/_knodes_typedoc_plugin_pages/pages/options.html) for more infos.
 3. In any markdown content (in README, pages, or doc comments), use the `{@page ...}` tag to create a link to a page.
 
 Syntax:

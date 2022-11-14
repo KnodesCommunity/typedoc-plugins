@@ -5,7 +5,7 @@ import { Converter, LogLevel, ProjectReflection, Renderer, SourceReference } fro
 
 import { ABasePlugin } from '@knodes/typedoc-pluginutils';
 
-export type MockPlugin<T extends ABasePlugin = ABasePlugin> = jest.MockedObjectDeep<T>
+export type MockPlugin<T extends ABasePlugin = ABasePlugin> = jest.MockedObjectDeep<T> & {setOptions: ( opts: any ) => void}
 export const mockPlugin = <T extends ABasePlugin = ABasePlugin>( props: Partial<MockPlugin<T>> = {} ): MockPlugin<T> => {
 	const mockLogger = {
 		makeChildLogger: jest.fn(),
@@ -40,6 +40,7 @@ export const mockPlugin = <T extends ABasePlugin = ABasePlugin>( props: Partial<
 		},
 		...props,
 	} ).map( ( ( [ k, v ] ) => [ k, { value: v } ] ) ) ) );
+	plugin.setOptions = ( newOpts: any ) => opts.pluginOpts = newOpts;
 	return plugin;
 };
 

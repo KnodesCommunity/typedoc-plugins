@@ -1,3 +1,5 @@
+import { resolve } from 'path';
+
 import { escapeRegExp } from 'lodash';
 
 const setName = ( fn: any, name: string ) => {
@@ -48,3 +50,5 @@ export const elementMatcher = ( elemDescriptor: {textContent?: string; attrs?: R
 		} ),
 		`elementMatcher(elemDescriptor: ${JSON.stringify( elemDescriptor )}` ) );
 };
+export const pluginPath = resolve( __dirname, '../src/index' );
+export const mockFs = ( path: string ) => resolve( __dirname, 'mock-fs', path );

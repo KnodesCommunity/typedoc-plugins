@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`Documentation \`classes/Test.html\` should have constant content 1`] = `
+exports[`Documentation classes/Test.html should have constant content 1`] = `
 "<!DOCTYPE html>
 <html class=\\"default\\" lang=\\"en\\">
 
@@ -50,7 +50,8 @@ exports[`Documentation \`classes/Test.html\` should have constant content 1`] = 
 			<section class=\\"tsd-panel tsd-comment\\">
 				<div class=\\"tsd-comment tsd-typography\\">
 					<p>A test class</p>
-					<p>See the <a href=\\"../pages/getting-started/configuration.html\\">Configuration</a> page for infos.</p>
+					<p>See the <a href=\\"../pages/getting-started/configuration.html\\">Configuration</a> page for infos.
+						Checkout also the <a href=\\"../pages/test-page-front-matter.html\\">Test page front matter</a> page.</p>
 				</div>
 			</section>
 			<section class=\\"tsd-panel tsd-hierarchy\\">
@@ -61,7 +62,7 @@ exports[`Documentation \`classes/Test.html\` should have constant content 1`] = 
 			</section>
 			<aside class=\\"tsd-sources\\">
 				<ul>
-					<li>Defined in <a href=\\"https://stub.git/FAKE-USER/FAKE-PROJECT/blob/develop/src/index.ts#L6\\">index.ts:6</a></li>
+					<li>Defined in <a href=\\"https://stub.git/FAKE-USER/FAKE-PROJECT/blob/develop/src/index.ts#L7\\">index.ts:7</a></li>
 				</ul>
 			</aside>
 			<section class=\\"tsd-panel-group tsd-index-group\\">
@@ -169,6 +170,7 @@ exports[`Documentation \`classes/Test.html\` should have constant content 1`] = 
 											<li class=\\"pages-entry pages-entry-page pages-entry-depth-2\\"><a href=\\"../pages/additional-resources/some-cool-docs.html\\">Some cool docs</a></li>
 										</ul>
 									</li>
+									<li class=\\"pages-entry pages-entry-page pages-entry-depth-1\\"><a href=\\"../pages/test-page-front-matter.html\\">Test page front matter</a></li>
 								</ul>
 							</li>
 						</ul>
@@ -202,7 +204,7 @@ exports[`Documentation \`classes/Test.html\` should have constant content 1`] = 
 </html>"
 `;
 
-exports[`Pages \`pages/additional-resources/some-cool-docs.html\` should have constant content 1`] = `
+exports[`Pages pages/additional-resources/some-cool-docs.html should have constant content 1`] = `
 "<!DOCTYPE html>
 <html class=\\"default\\" lang=\\"en\\">
 
@@ -319,6 +321,7 @@ exports[`Pages \`pages/additional-resources/some-cool-docs.html\` should have co
 											<li class=\\"current selected pages-entry pages-entry-page pages-entry-depth-2\\"><a href=\\"some-cool-docs.html\\">Some cool docs</a></li>
 										</ul>
 									</li>
+									<li class=\\"pages-entry pages-entry-page pages-entry-depth-1\\"><a href=\\"../test-page-front-matter.html\\">Test page front matter</a></li>
 								</ul>
 							</li>
 						</ul>
@@ -345,7 +348,7 @@ exports[`Pages \`pages/additional-resources/some-cool-docs.html\` should have co
 </html>"
 `;
 
-exports[`Pages \`pages/getting-started/configuration.html\` should have constant content 1`] = `
+exports[`Pages pages/getting-started/configuration.html should have constant content 1`] = `
 "<!DOCTYPE html>
 <html class=\\"default\\" lang=\\"en\\">
 
@@ -462,6 +465,7 @@ exports[`Pages \`pages/getting-started/configuration.html\` should have constant
 											<li class=\\"pages-entry pages-entry-page pages-entry-depth-2\\"><a href=\\"../additional-resources/some-cool-docs.html\\">Some cool docs</a></li>
 										</ul>
 									</li>
+									<li class=\\"pages-entry pages-entry-page pages-entry-depth-1\\"><a href=\\"../test-page-front-matter.html\\">Test page front matter</a></li>
 								</ul>
 							</li>
 						</ul>
@@ -488,7 +492,7 @@ exports[`Pages \`pages/getting-started/configuration.html\` should have constant
 </html>"
 `;
 
-exports[`Pages \`pages/getting-started/index.html\` should have constant content 1`] = `
+exports[`Pages pages/getting-started/index.html should have constant content 1`] = `
 "<!DOCTYPE html>
 <html class=\\"default\\" lang=\\"en\\">
 
@@ -604,6 +608,7 @@ exports[`Pages \`pages/getting-started/index.html\` should have constant content
 											<li class=\\"pages-entry pages-entry-page pages-entry-depth-2\\"><a href=\\"../additional-resources/some-cool-docs.html\\">Some cool docs</a></li>
 										</ul>
 									</li>
+									<li class=\\"pages-entry pages-entry-page pages-entry-depth-1\\"><a href=\\"../test-page-front-matter.html\\">Test page front matter</a></li>
 								</ul>
 							</li>
 						</ul>

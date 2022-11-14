@@ -1,6 +1,6 @@
 ## Providing options
 
-See {@page ~@knodes/typedoc-pluginutils:providing-options.md} to know more about how you can pass options.
+See {@page ~@knodes/typedoc-pluginutils:providing-options} to know more about how you can pass options.
 
 Options are prefixed with `pluginPages`.
 
@@ -12,7 +12,7 @@ typedoc --help
 
 ## Complete list of options
 
-* `pages`: The pages definition. Checkout {@page ./pages-tree.md} for more infos on how to set this.\
+* `pages`: The pages definition. Checkout {@page ./pages-tree} for more infos on how to set this.\
   Type: {@link IPageNode `IPageNode[]`}
 * `enablePageLinks`: Whether or not {@page ...} tags should be parsed.\
   Type: `boolean`\

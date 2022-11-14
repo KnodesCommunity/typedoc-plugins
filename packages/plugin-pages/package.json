@@ -41,7 +41,10 @@
   "dependencies": {
     "lodash": "^4.17.21",
     "@knodes/typedoc-pluginutils": "~0.23.1",
-    "glob": "^8.0.3"
+    "front-matter": "^4.0.2",
+    "glob": "^8.0.3",
+    "js-yaml": "^4.1.0",
+    "minimatch": "^5.1.0"
   },
   "peerDependencies": {
     "typedoc": "^0.23.0",
@@ -73,7 +76,9 @@
     "typescript": "^4.7.4",
     "@types/fs-extra": "^9.0.13",
     "@types/glob": "^7.2.0",
+    "@types/js-yaml": "^4.0.5",
     "@types/lunr": "^2.3.4",
+    "@types/minimatch": "^3.0.5",
     "conventional-changelog-cli": "^2.2.2",
     "type-fest": "^2.16.0"
   }

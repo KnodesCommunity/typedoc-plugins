@@ -13,64 +13,64 @@ const rootDir = resolve( __dirname, '../mock-fs/monorepo' );
 process.chdir( rootDir );
 runPluginBeforeAll( rootDir, resolve( __dirname, '../../src/index' ), { options: { gitRemote: undefined }} );
 describe.each( [ 'a', 'b' ] )( 'Pkg %s', pkg => {
-	describe( `\`classes/pkg_${pkg}.TestNoPrefixExamples.html\``, describeDocsFile( rootDir, `classes/pkg_${pkg}.TestNoPrefixExamples.html`, it => {
-		it( 'should have correct content', ( content, dom ) => {
+	describe( `\`classes/pkg_${pkg}.TestNoPrefixExamples.html\``, describeDocsFile( rootDir, `classes/pkg_${pkg}.TestNoPrefixExamples.html`, withContent => {
+		it( 'should have correct content', withContent( ( content, dom ) => {
 			expect( content ).toMatch( /<link\s+rel="stylesheet"\s+href="([^"]*?\/)?assets\/code-blocks\.css"\s*\/>/ );
 
 			const codeblocks = dom.window.document.querySelectorAll( '.code-block' );
 			expect( codeblocks ).toHaveLength( 1 );
 			expect( codeblocks[0].outerHTML ).toEqual( formatExpanded( `./packages/${pkg}/examples/test.json`, PKGS[pkg as keyof typeof PKGS] ) );
-		} );
-		it( 'should have constant content', content => {
+		} ) );
+		it( 'should have constant content', withContent( content => {
 			expect( formatHtml( content ) ).toMatchSnapshot();
-		} );
+		} ) );
 	} ) );
-	describe( `\`classes/pkg_${pkg}.TestInModuleExamples.html\``, describeDocsFile( rootDir, `classes/pkg_${pkg}.TestInModuleExamples.html`, it => {
-		it( 'should have correct content', ( content, dom ) => {
+	describe( `\`classes/pkg_${pkg}.TestInModuleExamples.html\``, describeDocsFile( rootDir, `classes/pkg_${pkg}.TestInModuleExamples.html`, withContent => {
+		it( 'should have correct content', withContent( ( content, dom ) => {
 			expect( content ).toMatch( /<link\s+rel="stylesheet"\s+href="([^"]*?\/)?assets\/code-blocks\.css"\s*\/>/ );
 
 			const codeblocks = dom.window.document.querySelectorAll( '.code-block' );
 			expect( codeblocks ).toHaveLength( 1 );
 			expect( codeblocks[0].outerHTML ).toEqual( formatExpanded( `./packages/${pkg}/examples/test.json`, PKGS[pkg as keyof typeof PKGS] ) );
-		} );
-		it( 'should have constant content', content => {
+		} ) );
+		it( 'should have constant content', withContent( content => {
 			expect( formatHtml( content ) ).toMatchSnapshot();
-		} );
+		} ) );
 	} ) );
-	describe( `\`classes/pkg_${pkg}.TestInProjA.html\``, describeDocsFile( rootDir, `classes/pkg_${pkg}.TestInProjA.html`, it => {
-		it( 'should have correct content', ( content, dom ) => {
+	describe( `\`classes/pkg_${pkg}.TestInProjA.html\``, describeDocsFile( rootDir, `classes/pkg_${pkg}.TestInProjA.html`, withContent => {
+		it( 'should have correct content', withContent( ( content, dom ) => {
 			expect( content ).toMatch( /<link\s+rel="stylesheet"\s+href="([^"]*?\/)?assets\/code-blocks\.css"\s*\/>/ );
 
 			const codeblocks = dom.window.document.querySelectorAll( '.code-block' );
 			expect( codeblocks ).toHaveLength( 1 );
 			expect( codeblocks[0].outerHTML ).toEqual( formatExpanded( './packages/a/examples/test.json', PKG_A ) );
-		} );
-		it( 'should have constant content', content => {
+		} ) );
+		it( 'should have constant content', withContent( content => {
 			expect( formatHtml( content ) ).toMatchSnapshot();
-		} );
+		} ) );
 	} ) );
-	describe( `\`classes/pkg_${pkg}.TestInProjB.html\``, describeDocsFile( rootDir, `classes/pkg_${pkg}.TestInProjB.html`, it => {
-		it( 'should have correct content', ( content, dom ) => {
+	describe( `\`classes/pkg_${pkg}.TestInProjB.html\``, describeDocsFile( rootDir, `classes/pkg_${pkg}.TestInProjB.html`, withContent => {
+		it( 'should have correct content', withContent( ( content, dom ) => {
 			expect( content ).toMatch( /<link\s+rel="stylesheet"\s+href="([^"]*?\/)?assets\/code-blocks\.css"\s*\/>/ );
 
 			const codeblocks = dom.window.document.querySelectorAll( '.code-block' );
 			expect( codeblocks ).toHaveLength( 1 );
 			expect( codeblocks[0].outerHTML ).toEqual( formatExpanded( './packages/b/examples/test.json', PKG_B ) );
-		} );
-		it( 'should have constant content', content => {
+		} ) );
+		it( 'should have constant content', withContent( content => {
 			expect( formatHtml( content ) ).toMatchSnapshot();
-		} );
+		} ) );
 	} ) );
-	describe( `\`classes/pkg_${pkg}.TestInProjRoot.html\``, describeDocsFile( rootDir, `classes/pkg_${pkg}.TestInProjRoot.html`, it => {
-		it( 'should have correct content', ( content, dom ) => {
+	describe( `\`classes/pkg_${pkg}.TestInProjRoot.html\``, describeDocsFile( rootDir, `classes/pkg_${pkg}.TestInProjRoot.html`, withContent => {
+		it( 'should have correct content', withContent( ( content, dom ) => {
 			expect( content ).toMatch( /<link\s+rel="stylesheet"\s+href="([^"]*?\/)?assets\/code-blocks\.css"\s*\/>/ );
 
 			const codeblocks = dom.window.document.querySelectorAll( '.code-block' );
 			expect( codeblocks ).toHaveLength( 1 );
 			expect( codeblocks[0].outerHTML ).toEqual( formatExpanded( './examples/test.json', PKG_ROOT ) );
-		} );
-		it( 'should have constant content', content => {
+		} ) );
+		it( 'should have constant content', withContent( content => {
 			expect( formatHtml( content ) ).toMatchSnapshot();
-		} );
+		} ) );
 	} ) );
 } );

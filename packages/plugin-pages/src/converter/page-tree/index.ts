@@ -1,3 +1,2 @@
-export * from './page-tree-builder';
-export * from './utils';
-export { ITemplateContext } from './expand-node';
+export { PageTreeBuilder } from './page-tree-builder';
+export { getNodePath } from './utils';

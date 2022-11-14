@@ -1,97 +1,6 @@
-import { LiteralUnion } from 'type-fest';
 import { LogLevel } from 'typedoc';
 
-/**
- * Defines a page or menu entry.
- * The item is considered as a menu-only if it does not have a {@link source}.
- */
-export interface IPageNode {
-	/**
-	 * List of children nodes. Both pages & menu entries can have children.
-	 */
-	children?: IPageNode[];
-	/**
-	 * The default directory in which children are sourced/outputted.\
-	 * Overriden by {@link childrenSourceDir} or {@link childrenOutputDir}.
-	 *
-	 * @see {@page pages-tree.md} for details.
-	 */
-	childrenDir?: string;
-	/**
-	 * The directory in which children pages are sourced.\
-	 * If not set, {@link childrenDir} is used.\
-	 * If {@link childrenDir} is not set too, the behavior differs if the node is a page or not.
-	 *
-	 * @see {@page pages-tree.md} for details.
-	 */
-	childrenSourceDir?: string;
-	/**
-	 * The directory in which children pages are outputted.\
-	 * If not set, {@link childrenDir} is used.\
-	 * If {@link childrenDir} is not set too, the behavior differs if the node is a page or not.
-	 *
-	 * @see {@page pages-tree.md} for details.
-	 */
-	childrenOutputDir?: string;
-	/**
-	 * The output file (for pages only).
-	 */
-	output?: string;
-	/**
-	 * The source file. The node is a page **only** if this property is set.
-	 */
-	source?: string;
-	/**
-	 * The name of the page/menu.
-	 *
-	 * If setting {@link IRootPageNode.moduleRoot} to `true`, the name is used to lookup the module/package/workspace to attach children to. When a {@link source} is
-	 * also provided, the source is prepended to the target module index page.
-	 *
-	 * If set to `'VIRTUAL'`, the node itself is omitted and children are flattened while cumulating the node's source & output.
-	 *
-	 * @see {@page pages-tree.md} for details.
-	 */
-	name: LiteralUnion<'VIRTUAL', string>;
-}
-
-export interface IRootPageNode extends IPageNode {
-	/** A flag to enable module lookup. */
-	moduleRoot?: boolean;
-}
-
-/**
- * A template page. It is expanded by matching the {@link match} [glob](https://www.npmjs.com/package/glob) against every entry point.
- *
- * @see {@page pages-tree.md} for details.
- */
-export interface IOptionTemplatePage<T extends IPageNode = IPageNode> {
-	/** The match [glob](https://www.npmjs.com/package/glob). */
-	match: string;
-	/** An array of pages containing template strings, or a function returning the resulting nodes */
-	template: Array<OptionsPageNode<T>> | ( ( match: ITemplateMatch ) => T[] );
-}
-
-export interface ITemplateMatch {
-	/** The path from where the `match` was matched. */
-	from: string;
-	/** The actual glob matched. */
-	match: string;
-	/** The full path, usually `${{@link from}}/${{@link match}}`. */
-	fullPath: string;
-	/** The ancestor matches. */
-	prev: ITemplateMatch[];
-}
-
-export type OptionsPageNode<T extends IPageNode = IPageNode> = Omit<T, 'children'> & {
-	children?: Array<OptionsPageNode | IOptionTemplatePage>;
-}
-
-export interface IOptionsPage {
-	/**
-	 * List of children nodes. Both pages & menu entries can have children.
-	 */
-	children?: IPageNode[];
-}
+import { AnyLoaderRawPageNode } from '../converter/loaders';
 
 export enum EInvalidPageLinkHandling {
 	FAIL = 'fail',
@@ -106,9 +15,9 @@ export interface IPluginOptions {
 	/**
 	 * The pages definition.
 	 *
-	 * @see {@page pages-tree.md} for details.
+	 * @see {@page pages-tree} for details.
 	 */
-	pages: IPluginOptions.Page[];
+	pages: AnyLoaderRawPageNode[];
 
 	/**
 	 * Whether or not @page and @pagelink tags should be parsed.
@@ -139,14 +48,6 @@ export interface IPluginOptions {
 	output: string;
 
 	/**
-	 * Root directory where all page source files live.
-	 *
-	 * @deprecated - Prefer setting this option to `null`.
-	 * @default 'pages'
-	 */
-	source: string | null;
-
-	/**
 	 * The plugin log level.
 	 *
 	 * @default application.logger.level
@@ -157,11 +58,14 @@ export interface IPluginOptions {
 	 * A list of markdown captures to omit. Should have the form `{@....}`.
 	 */
 	excludeMarkdownTags?: string[];
+
 	/**
-	 * The container in packages to search for pages in "{@link ...}" tags.
+	 * The container in packages to search for pages in "{@page ...}" tags.
 	 */
 	linkModuleBase: string | null;
-}
-export namespace IPluginOptions {
-	export type Page = OptionsPageNode<IRootPageNode> | IOptionTemplatePage<IRootPageNode>;
+
+	/**
+	 * The directory name where to output diagnostics data.
+	 */
+	diagnostics?: string;
 }

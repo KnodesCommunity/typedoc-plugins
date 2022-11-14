@@ -47,7 +47,7 @@ export const runPluginBeforeAll = (
 	testDir: string,
 	pluginPaths: Many<string>,
 	opts?: {options?: Partial<TypeDocOptions>; output?: string},
-) => beforeAll( () => runPlugin( testDir, pluginPaths, opts ), ( process.env.CI === 'true' ? 120 : 60 ) * 1000 );
+) => beforeAll( () => runPlugin( testDir, pluginPaths, opts ), ( process.env.CI === 'true' ? 240 : 120 ) * 1000 );
 
 export const setupTypedocApplication = ( options?: Partial<TypeDocOptions> | undefined ) => {
 	const app = new Application();

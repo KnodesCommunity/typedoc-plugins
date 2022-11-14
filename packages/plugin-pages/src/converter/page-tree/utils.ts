@@ -1,75 +1,50 @@
 import assert from 'assert';
-import { join as _join } from 'path';
 
-import { isNil, isObject, isString, startCase } from 'lodash';
-import { PascalCase } from 'type-fest';
-import { Reflection, normalizePath } from 'typedoc';
+import { isArray, isObject } from 'lodash';
+import { Reflection } from 'typedoc';
 
 import { ANodeReflection } from '../../models/reflections';
-import { IPageNode } from '../../options';
+import { INodeInParent, SourceNode } from '../loaders';
 
-export const join = ( ...segments: Array<string | undefined | null> ) => {
-	const segmentsNormalized = segments.filter( isString ).map( normalizePath );
-	const joined = normalizePath( _join( ...segmentsNormalized ) );
-	const leadingDots = segmentsNormalized[0].match( /^((\.{1,2}[/\\])+)/ );
-	return `${leadingDots ? leadingDots[0] : ''}${joined}`;
-};
-
-const trimExt = ( file: string ) => {
-	if( !file.match( /\.[^/.]+$/ ) ){
-		throw new Error( `Invalid non-extension filename "${file}"` );
+export type NodesTreeBuild = {defs: SourceNode[]; children: NodesTreeBuild[]};
+const findInNodesTreeBuildByName = ( nodes: NodesTreeBuild[], name: string ) => nodes.find( known => known.defs.some( def => def.name === name ) );
+const findSubTree = ( parents: SourceNode[], tree: NodesTreeBuild[] ) => {
+	parents = [ ...parents ].reverse();
+	while( parents.length !== 0 ){
+		const treeDef = findInNodesTreeBuildByName( tree, parents[0].name );
+		assert( treeDef );
+		tree = treeDef.children;
+		parents = parents.slice( 1 );
 	}
-	return file.replace( /\.[^/.]+$/, '' );
+	return tree;
 };
-export const getDir = ( node: IPageNode, kind: 'output' | 'source' ): string => {
-	const childKey = `children${startCase( kind )}Dir` as `children${PascalCase<typeof kind>}Dir`;
-	const childVal = node[childKey];
-	if( isString( childVal ) ){
-		return childVal;
-	} else if( isString( node.childrenDir ) ){
-		return node.childrenDir;
-	} else {
-		const val = node[kind];
-		if( !isString( val ) ){
-			if( kind === 'output' ){
-				return node.childrenDir ?? ( node.source ? trimExt( node.source ) : '.' );
-			}
-			return '.';
-		}
-		return trimExt( val );
-	}
-};
-
-export const getNodeUrl = ( node: IPageNode ): string => {
-	if( node.output ){
-		if( node.output.endsWith( '.html' ) ){
-			return node.output;
+export const buildNodesTree = ( nodes: INodeInParent[] ) =>
+	nodes.reduce<NodesTreeBuild[]>( ( acc, n ) => {
+		const subTree = findSubTree( n.parents, acc );
+		const mergeTarget = findInNodesTreeBuildByName( subTree, n.node.name );
+		if( mergeTarget ){
+			mergeTarget.defs.push( n.node );
 		} else {
-			// TODO: Maybe throw if config
-			return `${node.output}.html`;
+			subTree.push( { defs: [ n.node ], children: [] } );
 		}
-	} else {
-		assert( node.source );
-		const filenameNoExt = trimExt( node.source );
-		if( node.children && isNil( node.childrenDir ) && isNil( node.childrenOutputDir ) ){
-			return `${filenameNoExt}/index.html`;
-		}
-		return `${filenameNoExt}.html`;
-	}
-};
+		return acc;
+	}, [] );
 
-type NodeOrRef = IPageNode | Reflection;
+type NodeOrRef = ANodeReflection | NodesTreeBuild | {name?: string} | Reflection;
 export const getNodePath = ( self?: NodeOrRef, parent?: NodeOrRef ): string => [ parent, self ]
 	.filter( isObject )
 	.flatMap( iterateNodeName )
 	.map( p => JSON.stringify( p ) ).join( ' ⇥ ' );
+const isNodeTreeBuild = ( v: any ): v is NodesTreeBuild => v && 'defs' in v && isArray( v.defs );
 const iterateNodeName = ( node?: NodeOrRef ): string[] => {
 	if( node instanceof ANodeReflection ){
 		return [ ...iterateNodeName( node.parent ), node.name ];
 	} else if( node instanceof Reflection ){
 		return [];
+	} else if( isNodeTreeBuild( node ) ){
+		return [ node.defs[0].name ];
 	} else if( node ){
-		return [ node.name ];
+		return [ node.name ?? 'UNKNOWN' ];
 	} else {
 		return [];
 	}

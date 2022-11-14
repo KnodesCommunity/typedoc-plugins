@@ -3,28 +3,28 @@ module.exports = {
 		'packages/*',
 	],
 	entryPointStrategy: 'packages',
+	/** @type {import('../../../src/options').IPluginOptions} */
 	pluginPages: {
 		pages: [
-			{ match: 'README.md', template: [
-				// eslint-disable-next-line no-template-curly-in-string -- Lodash templates
-				{ moduleRoot: true, source: '${match.fullPath}', name: 'pkg-<%= _.nth(match.from.split("/"), -1) %>' },
+			{ loader: 'frontMatter', root: 'pages-front-matter' },
+			{ loader: 'frontMatter', root: 'pages-noop' },
+			{ loader: 'template', match: 'README.md', modules: [ '!~' ], template: [
+				{ moduleRoot: true, source: '<%= match.match %>', name: '<%= match.module.name %>' },
 			] },
-			{ moduleRoot: true, name: 'demo', source: 'pages/root-appendix.md', childrenSourceDir: 'pages', childrenOutputDir: '', children: [
-				{ name: 'Root doc', source: 'root-doc.md', childrenSourceDir: '.', children: [
-					{ name: 'Root doc child', source: 'root-doc-child.md', output: 'child.html' },
+			{ moduleRoot: true, name: 'demo', source: 'pages/root-appendix.md', childrenDir: 'pages', children: [
+				{ name: 'Root doc', source: 'root-doc.md', childrenDir: '.', children: [
+					{ name: 'Root doc child', source: 'root-doc-child.md' },
 				] },
 			] },
-			{ moduleRoot: true, name: 'pkg-a', childrenSourceDir: 'pages', children: [
+			{ moduleRoot: true, name: 'pkg-a', childrenDir: 'pages', children: [
 				{ name: 'Using pkg-a', source: 'using-pkg-a.md' },
 			] },
-			{ moduleRoot: true, name: 'pkg-b', childrenSourceDir: 'pages', children: [
+			{ moduleRoot: true, name: 'pkg-b', childrenDir: 'pages', children: [
 				{ name: 'Using pkg-b', source: 'using-pkg-b.md', children: [
 					{ name: 'pkg-b details', source: 'details.md' },
 				] },
 			] },
 		],
-		source: null,
 		linkModuleBase: 'pages',
-		logLevel: 'Verbose',
 	},
 };

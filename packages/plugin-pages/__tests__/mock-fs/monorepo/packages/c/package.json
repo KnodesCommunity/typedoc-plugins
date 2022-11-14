@@ -1,0 +1,4 @@
+{
+    "name": "pkg-c",
+    "typedoc": {"entryPoint": "./src/index.ts"}
+}
