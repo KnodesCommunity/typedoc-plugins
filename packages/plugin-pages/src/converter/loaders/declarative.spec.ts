@@ -1,6 +1,8 @@
 
 import { resolve } from 'path';
 
+import { normalizePath } from 'typedoc';
+
 import { MockPlugin, mockPlugin, restoreFs, setVirtualFs } from '#plugintestbed';
 
 import { PagesPlugin } from '../../plugin';
@@ -16,7 +18,7 @@ beforeEach( () => {
 process.chdir( __dirname );
 afterEach( restoreFs );
 describe( 'collectNodes', () => {
-	const ROOT_NODE = { name: 'ROOT', path: { fs: __dirname, virtual: '~' }};
+	const ROOT_NODE = { name: 'ROOT', path: { fs: normalizePath( __dirname ), virtual: '~' }};
 	const RECURSE_MOCK = jest.fn( function*(){yield* [];} );
 	const DEFAULT_COLLECT_CONTEXT = { parents: [ ROOT_NODE ], recurse: RECURSE_MOCK };
 	describe( 'No `moduleRoot`', () => {
@@ -26,8 +28,8 @@ describe( 'collectNodes', () => {
 			const nodes = [ ...loader.collectNodes( { name: 'foo', children }, DEFAULT_COLLECT_CONTEXT ) ];
 			expect( nodes ).toEqual( [ { node: { name: 'foo' }, parents: [ ROOT_NODE ] } ] );
 			expect( RECURSE_MOCK ).toHaveBeenCalledTimes( children.length );
-			expect( RECURSE_MOCK ).toHaveBeenCalledWith( children[0], [ { name: 'foo' }, ...DEFAULT_COLLECT_CONTEXT.parents ], expect.objectContaining( { input: __dirname } ) );
-			expect( RECURSE_MOCK ).toHaveBeenCalledWith( children[1], [ { name: 'foo' }, ...DEFAULT_COLLECT_CONTEXT.parents ], expect.objectContaining( { input: __dirname } ) );
+			expect( RECURSE_MOCK ).toHaveBeenCalledWith( children[0], [ { name: 'foo' }, ...DEFAULT_COLLECT_CONTEXT.parents ], expect.objectContaining( { input: normalizePath( __dirname ) } ) );
+			expect( RECURSE_MOCK ).toHaveBeenCalledWith( children[1], [ { name: 'foo' }, ...DEFAULT_COLLECT_CONTEXT.parents ], expect.objectContaining( { input: normalizePath( __dirname ) } ) );
 		} );
 	} );
 	describe( 'With `moduleRoot`', () => {
@@ -41,8 +43,8 @@ describe( 'collectNodes', () => {
 				const nodes = [ ...loader.collectNodes( { name: root.name, moduleRoot: true, children }, { ...DEFAULT_COLLECT_CONTEXT, parents: [ root ] } ) ];
 				expect( nodes ).toBeArray();
 				expect( RECURSE_MOCK ).toHaveBeenCalledTimes( children.length );
-				expect( RECURSE_MOCK ).toHaveBeenCalledWith( children[0], [ root ], expect.objectContaining( { input: root.path.fs, output: `${output}OUT` } ) );
-				expect( RECURSE_MOCK ).toHaveBeenCalledWith( children[1], [ root ], expect.objectContaining( { input: root.path.fs, output: `${output}OUT` } ) );
+				expect( RECURSE_MOCK ).toHaveBeenCalledWith( children[0], [ root ], expect.objectContaining( { input: normalizePath( root.path.fs ), output: `${output}OUT` } ) );
+				expect( RECURSE_MOCK ).toHaveBeenCalledWith( children[1], [ root ], expect.objectContaining( { input: normalizePath( root.path.fs ), output: `${output}OUT` } ) );
 			} );
 			it( 'should yield correctly module readme appendix', () => {
 				plugin.pluginOptions.getValue().output = 'OUT';
@@ -53,7 +55,7 @@ describe( 'collectNodes', () => {
 						name: ROOT_NODE.name,
 						content: 'hello',
 						path: {
-							fs: resolve( 'test.md' ),
+							fs: normalizePath( resolve( 'test.md' ) ),
 							virtual: root.path.virtual,
 						},
 					},
@@ -67,8 +69,8 @@ describe( 'collectNodes', () => {
 				const nodes = [ ...loader.collectNodes( { name: root.name, source: 'test.md', moduleRoot: true, children }, { ...DEFAULT_COLLECT_CONTEXT, parents: [ root ] } ) ];
 				expect( nodes ).toBeArray();
 				expect( RECURSE_MOCK ).toHaveBeenCalledTimes( children.length );
-				expect( RECURSE_MOCK ).toHaveBeenCalledWith( children[0], [ root ], expect.objectContaining( { input: root.path.fs, output: `${output}OUT` } ) );
-				expect( RECURSE_MOCK ).toHaveBeenCalledWith( children[1], [ root ], expect.objectContaining( { input: root.path.fs, output: `${output}OUT` } ) );
+				expect( RECURSE_MOCK ).toHaveBeenCalledWith( children[0], [ root ], expect.objectContaining( { input: normalizePath( root.path.fs ), output: `${output}OUT` } ) );
+				expect( RECURSE_MOCK ).toHaveBeenCalledWith( children[1], [ root ], expect.objectContaining( { input: normalizePath( root.path.fs ), output: `${output}OUT` } ) );
 			} );
 		} );
 	} );
