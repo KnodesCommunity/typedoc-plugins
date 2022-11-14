@@ -1,8 +1,6 @@
 
 import { resolve } from 'path';
 
-import { normalizePath } from 'typedoc';
-
 import { MockPlugin, mockPlugin, restoreFs, setVirtualFs } from '#plugintestbed';
 
 import { PagesPlugin } from '../../plugin';
@@ -55,7 +53,7 @@ describe( 'collectNodes', () => {
 						name: ROOT_NODE.name,
 						content: 'hello',
 						path: {
-							fs: normalizePath( resolve( 'test.md' ) ),
+							fs: resolve( 'test.md' ),
 							virtual: root.path.virtual,
 						},
 					},
