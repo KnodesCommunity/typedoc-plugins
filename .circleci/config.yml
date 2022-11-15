@@ -13,10 +13,10 @@ x-params:
 # Orbs are reusable packages of CircleCI configuration that you may share across projects, enabling you to create encapsulated, parameterized commands, jobs, and executors that can be used across multiple projects.
 # See: https://circleci.com/docs/2.0/orb-intro/
 orbs:
-  node: circleci/node@5.0.2
+  node: circleci/node@5.0.3
   knodes-typedoc-orb:
     orbs:
-      node: circleci/node@5.0.2
+      node: circleci/node@5.0.3
     commands:
       install:
         parameters:
