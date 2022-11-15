@@ -128,7 +128,7 @@ export class FrontMatterNodeLoader implements IPluginComponent<PagesPlugin>, INo
 	private _loadFile( moduleDir: string, rootDir: string, filePath: string, defaultName = autoName( filePath ) ): SourceNode {
 		const fullFilePath = resolve( moduleDir, rootDir, filePath );
 		const content = readFileSync( fullFilePath, 'utf-8' );
-		const virtual = join( rootDir, trimExt( filePath ).replace( /\/index$/, '' ) );
+		const virtual = normalizePath( join( rootDir, trimExt( filePath ) ).replace( /\/index$/, '' ) );
 		if( [ 'yaml', 'yml' ].includes( extname( filePath ).slice( 1 ) ) ){
 			return {
 				name: defaultName,

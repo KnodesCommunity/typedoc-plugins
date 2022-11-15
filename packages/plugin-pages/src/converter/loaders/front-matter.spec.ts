@@ -32,7 +32,7 @@ beforeEach( () => {
 process.chdir( __dirname );
 afterEach( restoreFs );
 const mkPath = ( { root }: {root: string}, file: string, ext = 'md' ) => ( {
-	virtual: normalizePath( normalize( `${root}/${file.replace( /\/index$/, '' )}` ) ),
+	virtual: normalizePath( normalize( `${root}/${file}` ) ).replace( /\/index$/, '' ),
 	fs: normalizePath( resolve( __dirname, root, `${file}.${ext}` ) ),
 } );
 const matchNodeByName = ( name: string ) => expect.objectContaining( { name } );

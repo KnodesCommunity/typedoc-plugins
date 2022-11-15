@@ -55,7 +55,7 @@ describe( 'collectNodes', () => {
 						name: ROOT_NODE.name,
 						content: 'hello',
 						path: {
-							fs: normalizePath( resolve( 'test.md' ) ),
+							fs: resolve( 'test.md' ),
 							virtual: root.path.virtual,
 						},
 					},
