@@ -180,6 +180,8 @@ jobs:
   lint:
     executor: node
     resource_class: small
+    environment:
+      NODE_OPTIONS: --max-old-space-size=2048
     steps:
       - attach_workspace:
           at: .
