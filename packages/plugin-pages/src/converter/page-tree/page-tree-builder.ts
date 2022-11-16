@@ -56,14 +56,15 @@ export class PageTreeBuilder implements IPluginComponent<PagesPlugin> {
 			.reduce<Array<{entrypoint: string; mod: DeclarationReflection}>>( ( acc, mod ) => {
 				const src = mod.sources?.[0].fullFileName;
 				assert( src );
-				const entryPoint = this.plugin.application.options.getValue( 'entryPoints' ).find( ep => minimatch( src, `${ep}/**` ) );
+				const entryPoints = this.plugin.application.options.getValue( 'entryPoints' ).map( normalizePath );
+				const entryPoint = entryPoints.find( ep => minimatch( src, `${ep}/**` ) );
 				assert(
 					entryPoint,
 					format(
 						'Could not determine the entrypoint of module %s (with source %s). Entrypoints are %j',
 						mod.name,
 						src,
-						this.plugin.application.options.getValue( 'entryPoints' ) ) );
+						entryPoints ) );
 				let entryPointRoot = src;
 				while( !minimatch( entryPointRoot, entryPoint ) ) {
 					const parentDir = resolve( entryPointRoot, '..' );

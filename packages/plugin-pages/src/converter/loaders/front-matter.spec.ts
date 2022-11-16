@@ -32,7 +32,7 @@ beforeEach( () => {
 process.chdir( __dirname );
 afterEach( restoreFs );
 const mkPath = ( { root }: {root: string}, file: string, ext = 'md' ) => ( {
-	virtual: normalizePath( normalize( `${root}/${file}` ) ).replace( /\/index$/, '' ),
+	virtual: normalizePath( normalize( `${root}/${file}` ) ).replace( /(\/index)+$/, '' ),
 	fs: normalizePath( resolve( __dirname, root, `${file}.${ext}` ) ),
 } );
 const matchNodeByName = ( name: string ) => expect.objectContaining( { name } );
@@ -80,7 +80,7 @@ describe( 'collectNodes', () => {
 		const nodes = [ ...loader.collectNodes( { loader: 'frontMatter', root: '.' }, DEFAULT_COLLECT_CONTEXT ) ];
 		expect( nodes ).toEqual( [
 			expect.objectContaining( {
-				node: { path: { fs: resolve( file ), virtual: 'index', urlFragment: expect.toBeNil() }, ...page.node },
+				node: { path: { fs: normalizePath( resolve( file ) ), virtual: 'index', urlFragment: expect.toBeNil() }, ...page.node },
 			} ),
 		] );
 	} );
@@ -93,8 +93,8 @@ describe( 'collectNodes', () => {
 		expect( nodes ).toEqual( [ {
 			node: {
 				path: {
-					fs: resolve( CONTAINER, FILE ),
-					virtual: join( CONTAINER, trimExt( FILE ) ),
+					fs: normalizePath( resolve( CONTAINER, FILE ) ),
+					virtual: normalizePath( join( CONTAINER, trimExt( FILE ) ) ),
 					urlFragment: expect.not.stringContaining( CONTAINER ),
 				},
 				...page.node,
@@ -151,8 +151,8 @@ describe( 'collectNodes', () => {
 			{
 				node: {
 					path: {
-						fs: resolve( CONTAINER, CONTAINER2, FILE ),
-						virtual: join( CONTAINER, CONTAINER2, trimExt( FILE ) ),
+						fs: normalizePath( resolve( CONTAINER, CONTAINER2, FILE ) ),
+						virtual: normalizePath( join( CONTAINER, CONTAINER2, trimExt( FILE ) ) ),
 						urlFragment: expect.not.stringContaining( CONTAINER ),
 					},
 					...page.node,
