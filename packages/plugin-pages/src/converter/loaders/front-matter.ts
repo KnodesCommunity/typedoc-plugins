@@ -1,14 +1,13 @@
 import assert from 'assert';
 import { readFileSync } from 'fs';
-import { basename, extname, join, relative, resolve } from 'path';
 import { format } from 'util';
 
 import frontMatter from 'front-matter';
 import { load as loadYaml } from 'js-yaml';
 import { isObject, last, lowerCase, uniqBy, upperFirst } from 'lodash';
-import { normalizePath } from 'typedoc';
 
 import { IPluginComponent, PluginAccessor, getPlugin } from '@knodes/typedoc-pluginutils';
+import { basename, extname, join, relative, resolve } from '@knodes/typedoc-pluginutils/path';
 
 import type { PagesPlugin } from '../../plugin';
 import { trimExt } from '../utils';
@@ -60,7 +59,7 @@ export class FrontMatterNodeLoader implements IPluginComponent<PagesPlugin>, INo
 		const moduleDir = module.path.fs;
 		const roots = globMatch( rawNode.root, { from: moduleDir } );
 		for( const root of roots ){
-			const files = globMatch( '**/*.{md,y?(a)ml}', { from: join( moduleDir, root ) } ).map( normalizePath );
+			const files = globMatch( '**/*.{md,y?(a)ml}', { from: join( moduleDir, root ) } );
 			for( const { node, parents: loadedParents } of this._loadFilesList( moduleDir, root, '.', files ) ){
 				yield { node, parents: [ ...loadedParents, ...parents ] };
 			}
@@ -82,8 +81,7 @@ export class FrontMatterNodeLoader implements IPluginComponent<PagesPlugin>, INo
 			file: f,
 			dir: ( [
 				null,
-				...normalizePath( relative( relDir, f ) )
-					.split( '/', 2 ),
+				...relative( relDir, f ).split( '/', 2 ),
 			].slice( -2 ) )[0],
 		} ) );
 
@@ -105,7 +103,7 @@ export class FrontMatterNodeLoader implements IPluginComponent<PagesPlugin>, INo
 				for( const { node, parents } of this._loadFilesList(
 					moduleDir,
 					rootDir,
-					normalizePath( join( relDir, dir ) ),
+					join( relDir, dir ),
 					filesByDir.filter( fbd => fbd.dir === dir ).map( fbd => fbd.file ) )
 				){
 					yield { node, parents: [ ...thisDirParents, ...parents ] };
@@ -126,9 +124,9 @@ export class FrontMatterNodeLoader implements IPluginComponent<PagesPlugin>, INo
 	 * @param defaultName
 	 */
 	private _loadFile( moduleDir: string, rootDir: string, filePath: string, defaultName = autoName( filePath ) ): SourceNode {
-		const fullFilePath = normalizePath( resolve( moduleDir, rootDir, filePath ) );
+		const fullFilePath = resolve( moduleDir, rootDir, filePath );
 		const content = readFileSync( fullFilePath, 'utf-8' );
-		const virtual = normalizePath( join( rootDir, trimExt( filePath ) ) ).replace( /(\/index)+$/, '' );
+		const virtual = join( rootDir, trimExt( filePath ) ).replace( /(\/index)+$/, '' );
 		if( [ 'yaml', 'yml' ].includes( extname( filePath ).slice( 1 ) ) ){
 			return {
 				name: defaultName,
@@ -146,7 +144,7 @@ export class FrontMatterNodeLoader implements IPluginComponent<PagesPlugin>, INo
 				name: defaultName,
 				...nodeInfos.attributes,
 				path: {
-					fs: normalizePath( fullFilePath ),
+					fs: fullFilePath,
 					urlFragment: nodeInfos.attributes.url ? `${nodeInfos.attributes.url}` : undefined,
 					virtual,
 				},

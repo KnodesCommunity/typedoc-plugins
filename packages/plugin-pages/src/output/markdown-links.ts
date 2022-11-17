@@ -1,10 +1,10 @@
 import assert from 'assert';
-import { dirname, join, normalize, relative, resolve } from 'path';
 
 import { isString, uniq } from 'lodash';
-import { DeclarationReflection, ProjectReflection, RendererEvent, normalizePath } from 'typedoc';
+import { DeclarationReflection, ProjectReflection, RendererEvent } from 'typedoc';
 
 import { CurrentPageMemo, IPluginComponent, MarkdownReplacer, findModuleRoot, getReflectionModule, getWorkspaces, reflectionSourceUtils } from '@knodes/typedoc-pluginutils';
+import { dirname, join, normalize, relative, resolve } from '@knodes/typedoc-pluginutils/path';
 
 import { getNodePath } from '../converter/page-tree';
 import { PageReflection, PagesPluginReflectionKind } from '../models/reflections';
@@ -106,16 +106,16 @@ export class MarkdownPagesLinks implements IPluginComponent<PagesPlugin> {
 			}
 			return pages[0];
 		} else {
-			const resolvedPath = normalizePath( normalize( path ) );
+			const resolvedPath = normalize( path );
 			const searchFromDir = moduleQualifier === undefined && path.match( /^\.{1,2}\// ) ?
 				dirname( reflectionSourceUtils.getReflectionSourceFileName( this._currentPageMemo.currentReflection ) ?? assert.fail() ) :
 				join( this._getModuleRootByModuleQualifier( defaultedModuleQualifier ) ?? assert.fail(), linkModuleBase );
-			const approximateAbsoluteTargetPath = normalizePath( resolve(
+			const approximateAbsoluteTargetPath = resolve(
 				searchFromDir,
-				resolvedPath ) );
+				resolvedPath );
 			const modulesContainingTarget = [ ...this._workspacesRoots.entries() ]
 				.map( ( [ reflection, reflectionPath ] ) => [
-					normalizePath( relative( reflectionPath, approximateAbsoluteTargetPath ) ),
+					relative( reflectionPath, approximateAbsoluteTargetPath ),
 					reflection,
 				] as const )
 				.filter( ( [ toTargetPath ] ) => !toTargetPath.startsWith( '../' ) )

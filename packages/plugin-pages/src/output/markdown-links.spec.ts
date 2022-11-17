@@ -1,7 +1,7 @@
-import { resolve } from 'path';
-
 import { noop } from 'lodash';
-import { DeclarationReflection, ProjectReflection, ReflectionKind, SourceReference, normalizePath } from 'typedoc';
+import { DeclarationReflection, ProjectReflection, ReflectionKind, SourceReference } from 'typedoc';
+
+import { resolve } from '@knodes/typedoc-pluginutils/path';
 
 import { MockPlugin, createMockProjectWithPackage, mockPlugin, restoreFs, setVirtualFs, setupMockMarkdownReplacer, setupMockPageMemo } from '#plugintestbed';
 
@@ -71,7 +71,7 @@ describe( 'Resolution', () => {
 			] )( 'should convert %s to %s on module "hello"', ( source, expected ) => {
 				setVirtualFs( { hello: { 'readme.md': 'Module A' }} );
 				const module = Object.assign( new DeclarationReflection( 'hello', ReflectionKind.Module, project ), { sources: [
-					new SourceReference( normalizePath( resolve( 'hello/readme.md' ) ), 1, 1 ),
+					new SourceReference( resolve( 'hello/readme.md' ), 1, 1 ),
 				] } );
 				project.getReflectionsByKind = getReflectionsByKindFactory( {
 					modules: [ module ],
@@ -82,7 +82,7 @@ describe( 'Resolution', () => {
 					'test',
 					'test.ts',
 					Object.assign( new DeclarationReflection( 'test', ReflectionKind.Accessor, module ), { sources: [
-						new SourceReference( normalizePath( resolve( 'hello/test.ts' ) ), 1, 1 ),
+						new SourceReference( resolve( 'hello/test.ts' ), 1, 1 ),
 					] } ) );
 				expect( markdownReplacerTestbed.runMarkdownReplace( `{@page ${source}}` ) ).toEqual( 'foo' );
 				expect( mockPage.matchVirtualPath ).toHaveBeenCalledWith( expected );
@@ -96,10 +96,10 @@ describe( 'Resolution', () => {
 					} );
 					const modules = [
 						Object.assign( new DeclarationReflection( 'module-a', ReflectionKind.Module, project ), { sources: [
-							new SourceReference( normalizePath( resolve( 'module-a/readme.md' ) ), 1, 1 ),
+							new SourceReference( resolve( 'module-a/readme.md' ), 1, 1 ),
 						] } ),
 						Object.assign( new DeclarationReflection( 'module-b', ReflectionKind.Module, project ), { sources: [
-							new SourceReference( normalizePath( resolve( 'module-b/readme.md' ) ), 1, 1 ),
+							new SourceReference( resolve( 'module-b/readme.md' ), 1, 1 ),
 						] } ),
 					];
 					project.getReflectionsByKind = getReflectionsByKindFactory( { modules, pages: [ mockPage ] } );

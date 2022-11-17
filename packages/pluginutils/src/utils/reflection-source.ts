@@ -1,6 +1,7 @@
-import { Reflection, SourceReference, normalizePath } from 'typedoc';
+import { Reflection, SourceReference } from 'typedoc';
 
 import { PluginAccessor, getApplication, getPlugin } from '../base-plugin';
+import { normalize } from './path';
 
 export const getReflectionSourceFileName = ( reflection?: Reflection ) => {
 	if( !reflection ){
@@ -10,7 +11,7 @@ export const getReflectionSourceFileName = ( reflection?: Reflection ) => {
 };
 
 export const createSourceReference = ( pluginAccessor: PluginAccessor, absoluteFilename: string, line?: number, character?: number ) => {
-	const source = new SourceReference( normalizePath( absoluteFilename ), line ?? 1, character ?? 1 );
+	const source = new SourceReference( normalize( absoluteFilename ), line ?? 1, character ?? 1 );
 	source.fileName = getPlugin( pluginAccessor ).relativeToRoot( absoluteFilename );
 	const repo = ( getApplication( pluginAccessor ).converter.getComponent( 'source' ) as any )?.getRepository( source.fullFileName );
 	source.url = repo?.getURL( source.fullFileName );

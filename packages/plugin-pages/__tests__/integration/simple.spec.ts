@@ -1,6 +1,7 @@
 import { readFile } from 'fs/promises';
-import { resolve } from 'path';
 import { createContext, runInContext } from 'vm';
+
+import { resolve } from '@knodes/typedoc-pluginutils/path';
 
 import { describeDocsFile, formatHtml, getBreadcrumb, runPluginBeforeAll } from '#plugintestbed';
 

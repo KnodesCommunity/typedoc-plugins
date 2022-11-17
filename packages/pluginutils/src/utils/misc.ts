@@ -1,8 +1,11 @@
 import { mkdirSync, statSync, writeFileSync } from 'fs';
-import { dirname, resolve } from 'path';
+// eslint-disable-next-line no-restricted-imports -- Used internally only
+import { resolve } from 'path';
 
 import { isFunction, isString, memoize } from 'lodash';
 import { Application } from 'typedoc';
+
+import { dirname } from './path';
 
 export const rethrow = <T>( block: () => T, newErrorFactory: ( err: any ) => string | Error ) => {
 	try {

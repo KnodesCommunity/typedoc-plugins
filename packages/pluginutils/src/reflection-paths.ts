@@ -1,10 +1,11 @@
 import assert from 'assert';
 import { existsSync, readdirSync } from 'fs';
-import { dirname, isAbsolute, parse, resolve  } from 'path';
 
 import { memoize } from 'lodash';
 import { LiteralUnion } from 'type-fest';
 import { DeclarationReflection, ProjectReflection, Reflection, ReflectionKind, normalizePath } from 'typedoc';
+
+import { dirname, isAbsolute, parse, resolve  } from './utils/path';
 
 const isRootFile = ( dir: string, file: string ) => !!( file.match( /^readme.md$/i ) || file.match( /^package.json$/ ) );
 export const findModuleRoot = memoize( ( reflection: Reflection, rootMatcher: ( dir: string, file: string ) => boolean = isRootFile ) => {
@@ -13,12 +14,12 @@ export const findModuleRoot = memoize( ( reflection: Reflection, rootMatcher: ( 
 		const { dir, base } = parse( src.fullFileName );
 		return rootMatcher( dir, base );
 	} )?.fullFileName ?? assert.fail( 'Can\'t get the project root' );
-	const projectRootDir = normalizePath( dirname( projectRootFile ) );
+	const projectRootDir = dirname( projectRootFile );
 	if( reflection === projectReflection ){
 		return projectRootDir;
 	}
 	for ( const source of reflection.sources ?? [] ) {
-		const root = _findModuleRoot( normalizePath( dirname( source.fullFileName ) ), projectRootDir, rootMatcher );
+		const root = _findModuleRoot( dirname( source.fullFileName ), projectRootDir, rootMatcher );
 		if( root ){
 			return root;
 		}
@@ -33,7 +34,7 @@ const _findModuleRoot = memoize( ( moduleDir: string, projectRoot: string, rootM
 	if( files.some( f => rootMatcher( moduleDir, f ) ) ){
 		return moduleDir;
 	}
-	return _findModuleRoot( normalizePath( dirname( moduleDir ) ), projectRoot, rootMatcher );
+	return _findModuleRoot( dirname( moduleDir ), projectRoot, rootMatcher );
 } );
 
 export type Workspaces = [ProjectReflection, ...DeclarationReflection[]];
@@ -137,7 +138,7 @@ export const resolveNamedPath: {
 	}
 
 	assert( reflectionRoots );
-	const resolved = normalizePath( resolve( reflectionRoots, containerFolderMut ?? '.', pathMut ) );
+	const resolved = resolve( reflectionRoots, containerFolderMut ?? '.', pathMut );
 	if( existsSync( resolved ) ){
 		return resolved;
 	}

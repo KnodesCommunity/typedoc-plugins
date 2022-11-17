@@ -1,8 +1,7 @@
-import { join, normalize, resolve } from 'path';
-
 import { dump as stringifyToYaml } from 'js-yaml';
 import { last } from 'lodash';
-import { normalizePath } from 'typedoc';
+
+import { join, resolve } from '@knodes/typedoc-pluginutils/path';
 
 import { MockPlugin, NestedDirectoryJSON, mockPlugin, restoreFs, setVirtualFs } from '#plugintestbed';
 
@@ -32,8 +31,8 @@ beforeEach( () => {
 process.chdir( __dirname );
 afterEach( restoreFs );
 const mkPath = ( { root }: {root: string}, file: string, ext = 'md' ) => ( {
-	virtual: normalizePath( normalize( `${root}/${file}` ) ).replace( /(\/index)+$/, '' ),
-	fs: normalizePath( resolve( __dirname, root, `${file}.${ext}` ) ),
+	virtual: join( root, file ).replace( /(\/index)+$/, '' ),
+	fs: resolve( __dirname, root, `${file}.${ext}` ),
 } );
 const matchNodeByName = ( name: string ) => expect.objectContaining( { name } );
 
@@ -80,7 +79,7 @@ describe( 'collectNodes', () => {
 		const nodes = [ ...loader.collectNodes( { loader: 'frontMatter', root: '.' }, DEFAULT_COLLECT_CONTEXT ) ];
 		expect( nodes ).toEqual( [
 			expect.objectContaining( {
-				node: { path: { fs: normalizePath( resolve( file ) ), virtual: 'index', urlFragment: expect.toBeNil() }, ...page.node },
+				node: { path: { fs: resolve( file ), virtual: 'index', urlFragment: expect.toBeNil() }, ...page.node },
 			} ),
 		] );
 	} );
@@ -93,8 +92,8 @@ describe( 'collectNodes', () => {
 		expect( nodes ).toEqual( [ {
 			node: {
 				path: {
-					fs: normalizePath( resolve( CONTAINER, FILE ) ),
-					virtual: normalizePath( join( CONTAINER, trimExt( FILE ) ) ),
+					fs: resolve( CONTAINER, FILE ),
+					virtual: join( CONTAINER, trimExt( FILE ) ),
 					urlFragment: expect.not.stringContaining( CONTAINER ),
 				},
 				...page.node,
@@ -151,8 +150,8 @@ describe( 'collectNodes', () => {
 			{
 				node: {
 					path: {
-						fs: normalizePath( resolve( CONTAINER, CONTAINER2, FILE ) ),
-						virtual: normalizePath( join( CONTAINER, CONTAINER2, trimExt( FILE ) ) ),
+						fs: resolve( CONTAINER, CONTAINER2, FILE ),
+						virtual: join( CONTAINER, CONTAINER2, trimExt( FILE ) ),
 						urlFragment: expect.not.stringContaining( CONTAINER ),
 					},
 					...page.node,

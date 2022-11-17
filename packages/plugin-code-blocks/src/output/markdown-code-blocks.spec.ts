@@ -1,7 +1,7 @@
-import { resolve } from 'path';
-
 import { noop } from 'lodash';
-import { DeclarationReflection, ReflectionKind, RepositoryType, normalizePath } from 'typedoc';
+import { DeclarationReflection, ReflectionKind, RepositoryType } from 'typedoc';
+
+import { resolve } from '@knodes/typedoc-pluginutils/path';
 
 import { MockPlugin, createMockProjectWithPackage, mockPlugin, restoreFs, setVirtualFs, setupMockMarkdownReplacer, setupMockPageMemo } from '#plugintestbed';
 
@@ -62,7 +62,7 @@ describe( 'Behavior', () => {
 		expect( markdownReplacerTestbed.runMarkdownReplace( text ) ).toEqual( text );
 	} );
 	describe( 'Code block generation', ()=> {
-		const sourceFile = normalizePath( resolve( rootDir, FILE ) );
+		const sourceFile = resolve( rootDir, FILE );
 		interface IBlockGenerationAssertion{
 			renderCall: Partial<ICodeBlock>;
 			blocks: Array<[string, {code: string;startLine: number;endLine: number}]>;

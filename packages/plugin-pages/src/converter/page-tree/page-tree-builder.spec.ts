@@ -1,6 +1,6 @@
-import { resolve } from 'path';
+import { DeclarationReflection, LogLevel, ProjectReflection, ReflectionKind, SourceReference } from 'typedoc';
 
-import { DeclarationReflection, LogLevel, ProjectReflection, ReflectionKind, SourceReference, normalizePath } from 'typedoc';
+import { resolve } from '@knodes/typedoc-pluginutils/path';
 
 import { MockPlugin, createMockProjectWithPackage, mockPlugin, restoreFs } from '#plugintestbed';
 
@@ -28,7 +28,7 @@ beforeEach( () => {
 
 	plugin = mockPlugin<PagesPlugin>();
 	Object.assign( plugin.application.options.getRawValues(), {
-		entryPoints: [ normalizePath( process.cwd() ) ],
+		entryPoints: [ resolve( process.cwd() ) ],
 	} );
 	pageTreeBuilder = new PageTreeBuilder( plugin, rootNodeLoader );
 	project = createMockProjectWithPackage();

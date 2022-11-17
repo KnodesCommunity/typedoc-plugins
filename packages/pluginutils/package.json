@@ -24,6 +24,10 @@
     "utils"
   ],
   "main": "dist/index.js",
+  "exports": {
+    ".": "./dist/index.js",
+    "./path": "./dist/utils/path.js"
+  },
   "files": [
     "dist",
     "src"

@@ -1,6 +1,6 @@
-import { resolve } from 'path';
-
 import { escapeRegExp } from 'lodash';
+
+import { resolve } from '@knodes/typedoc-pluginutils/path';
 
 const setName = ( fn: any, name: string ) => {
 	Object.defineProperty( fn, 'toString', { value: () => name, writable: true } );

@@ -1,13 +1,13 @@
 import assert from 'assert';
 import { readFileSync } from 'fs';
-import { join as _join, relative, resolve } from 'path';
+
 import { format } from 'util';
 
 import { difference, isArray, isNil, isString, last } from 'lodash';
 import { LiteralUnion } from 'type-fest';
-import { normalizePath } from 'typedoc';
 
 import { IPluginComponent, PluginAccessor, getPlugin } from '@knodes/typedoc-pluginutils';
+import { join, relative, resolve } from '@knodes/typedoc-pluginutils/path';
 
 import type { AnyLoaderRawPageNode } from '.';
 import type { PagesPlugin } from '../../plugin';
@@ -17,13 +17,6 @@ import { IBaseRawNode, ICheckConfigContext, INodeLoader, IRegisterNodeContext, N
 interface IIOPath {
 	input: string;
 }
-
-const join = ( ...segments: Array<string | undefined | null> ) => {
-	const segmentsNormalized = segments.filter( isString ).map( normalizePath );
-	const joined = normalizePath( _join( ...segmentsNormalized ) );
-	const leadingDots = segmentsNormalized[0].match( /^((\.{1,2}[/\\])+)/ );
-	return `${leadingDots ? leadingDots[0] : ''}${joined}`;
-};
 
 const pageKeys: Array<keyof DeclarativeNodeLoader.IRawNode> = [ 'children', 'childrenDir', 'source', 'name', 'moduleRoot' ];
 
@@ -179,7 +172,7 @@ export class DeclarativeNodeLoader implements IPluginComponent<PagesPlugin>, INo
 				content: readFileSync( filePath, 'utf-8' ),
 				path: {
 					fs: filePath,
-					virtual: trimExt( normalizePath( relative( module.path.fs, filePath ) ) ),
+					virtual: trimExt( relative( module.path.fs, filePath ) ),
 				},
 			};
 		} else {

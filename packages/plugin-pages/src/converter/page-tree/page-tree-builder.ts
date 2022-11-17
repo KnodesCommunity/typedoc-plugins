@@ -1,23 +1,18 @@
 import assert from 'assert';
-import { join as _join, resolve } from 'path';
 import { format } from 'util';
 
-import { identity, isString, pick } from 'lodash';
+import { pick } from 'lodash';
 import minimatch from 'minimatch';
-import { DeclarationReflection, MinimalSourceFile, ProjectReflection, ReflectionKind, normalizePath } from 'typedoc';
+import { DeclarationReflection, MinimalSourceFile, ProjectReflection, ReflectionKind } from 'typedoc';
 
 import { IPluginComponent, miscUtils } from '@knodes/typedoc-pluginutils';
+import { join, normalize, resolve } from '@knodes/typedoc-pluginutils/path';
 
 import { ANodeReflection, MenuReflection, NodeReflection, PageReflection } from '../../models/reflections';
 import type { PagesPlugin } from '../../plugin';
 import { ModuleSourceNode, RootNodeLoader, SourceNode } from '../loaders';
 import { urlize } from '../utils';
 import { NodesTreeBuild, buildNodesTree, getNodePath } from './utils';
-
-const join = ( ...segments: Array<string | undefined | null> ) => {
-	const segmentsNormalized = segments.filter( isString ).filter( identity ).map( normalizePath );
-	return normalizePath( _join( ...segmentsNormalized ) );
-};
 
 const nodeReflectionToJson = ( node: ANodeReflection ): any => ( {
 	...pick( node, 'id', 'name', 'originalName' ),
@@ -56,7 +51,7 @@ export class PageTreeBuilder implements IPluginComponent<PagesPlugin> {
 			.reduce<Array<{entrypoint: string; mod: DeclarationReflection}>>( ( acc, mod ) => {
 				const src = mod.sources?.[0].fullFileName;
 				assert( src );
-				const entryPoints = this.plugin.application.options.getValue( 'entryPoints' ).map( normalizePath );
+				const entryPoints = this.plugin.application.options.getValue( 'entryPoints' ).map( normalize );
 				const entryPoint = entryPoints.find( ep => minimatch( src, `${ep}/**` ) );
 				assert(
 					entryPoint,

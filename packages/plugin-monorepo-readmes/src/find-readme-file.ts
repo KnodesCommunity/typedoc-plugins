@@ -1,8 +1,9 @@
 import { readdirSync } from 'fs';
-import { dirname, resolve } from 'path';
 
 import { sync as findUpSync } from 'find-up';
 import { DeclarationReflection, UrlMapping } from 'typedoc';
+
+import { dirname, resolve } from '@knodes/typedoc-pluginutils/path';
 
 const getModuleReflectionSource = ( reflection: DeclarationReflection ) => reflection.sources?.[0]?.fullFileName;
 

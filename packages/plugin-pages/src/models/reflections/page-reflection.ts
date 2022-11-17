@@ -1,4 +1,6 @@
-import { ProjectReflection, SourceReference, normalizePath } from 'typedoc';
+import { ProjectReflection, SourceReference } from 'typedoc';
+
+import { normalize } from '@knodes/typedoc-pluginutils/path';
 
 import { ANodeReflection } from './a-node-reflection';
 import { PagesPluginReflectionKind } from './reflection-kind';
@@ -24,7 +26,7 @@ export class PageReflection extends ANodeReflection {
 		this.relevanceBoost = 5;
 
 		const namedPathRoot = this.module instanceof ProjectReflection ? '~~' : `~${this.module.name}`;
-		this.namedPath = normalizePath( `${namedPathRoot}:${pageVirtualPath}` );
+		this.namedPath = normalize( `${namedPathRoot}:${pageVirtualPath}` );
 	}
 
 	/**
@@ -32,6 +34,6 @@ export class PageReflection extends ANodeReflection {
 	 * @param virtualPath
 	 */
 	public matchVirtualPath( virtualPath: string ): boolean {
-		return normalizePath( removeTrailingIndex( virtualPath ) ) === normalizePath( removeTrailingIndex( this.namedPath ) );
+		return normalize( removeTrailingIndex( virtualPath ) ) === normalize( removeTrailingIndex( this.namedPath ) );
 	}
 }

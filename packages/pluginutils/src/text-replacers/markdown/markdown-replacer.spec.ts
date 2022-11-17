@@ -1,6 +1,5 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
 import assert from 'assert';
-import { relative, resolve } from 'path';
 
 import { identity } from 'lodash';
 import { Application, DeclarationReflection, MarkdownEvent, ReflectionKind, SourceReference } from 'typedoc';
@@ -11,6 +10,7 @@ getPlugin.mockImplementation( identity );
 getApplication.mockImplementation( jest.requireActual( '../../base-plugin' ).getApplication );
 
 import { CurrentPageMemo } from '../../current-page-memo';
+import { relative, resolve } from '../../utils/path';
 import { MarkdownReplacer } from './markdown-replacer';
 
 class TestPlugin extends ABasePlugin {

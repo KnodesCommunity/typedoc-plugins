@@ -1,5 +1,4 @@
 import assert from 'assert';
-import { dirname } from 'path';
 
 import { closest } from 'fastest-levenshtein';
 import { defaultsDeep, difference, get, identity, kebabCase } from 'lodash';
@@ -7,6 +6,7 @@ import { DeclarationOption, MixedDeclarationOption, ParameterType } from 'typedo
 
 import type { ABasePlugin } from '../base-plugin';
 import { EventsExtra } from '../events-extra';
+import { dirname } from '../utils/path';
 import { MapperPart, Option } from './option';
 import { DecOptType, TypeErr, _DecOpt } from './utils';
 

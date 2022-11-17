@@ -1,11 +1,10 @@
 import assert from 'assert';
-import { basename, dirname, relative, resolve } from 'path';
 import { format } from 'util';
 
 import { LoDashStatic, castArray, isArray, isBoolean, isFunction, isNumber, isObject, isString, last, template } from 'lodash';
-import { normalizePath } from 'typedoc';
 
 import { IPluginComponent, PluginAccessor, getPlugin } from '@knodes/typedoc-pluginutils';
+import { basename, dirname, normalize, relative, resolve } from '@knodes/typedoc-pluginutils/path';
 
 import type { PagesPlugin } from '../../plugin';
 import { IBaseRawNode, ICheckConfigContext, INodeLoader, IRegisterNodeContext, NodeGenerator, SourceNode, UnknownNode } from './nodes';
@@ -13,13 +12,13 @@ import { GlobMatch, doesMatch, globMatch, isValidGlobMatch } from './utils';
 
 export interface ITemplateContext {
 	_: LoDashStatic;
-	path: Pick<typeof import( 'path' ), 'dirname' | 'basename' | 'relative'>;
+	path: Pick<typeof import( '@knodes/typedoc-pluginutils/path' ), 'dirname' | 'basename' | 'relative'>;
 }
 const imports: Omit<ITemplateContext, '_'> = {
 	path: {
-		dirname: ( ...args: Parameters<typeof dirname> ) => normalizePath( dirname( ...args ) ),
-		basename: ( ...args: Parameters<typeof basename> ) => normalizePath( basename( ...args ) ),
-		relative: ( ...args: Parameters<typeof relative> ) => normalizePath( relative( ...args ) ),
+		dirname,
+		basename,
+		relative,
 	},
 };
 
@@ -99,8 +98,8 @@ export class TemplateNodeLoader implements IPluginComponent<PagesPlugin>, INodeL
 			.map( m => ( {
 				module: last( parents ),
 				from: rootPath,
-				match: normalizePath( m ),
-				fullPath: normalizePath( resolve( rootPath, m ) ),
+				match: normalize( m ),
+				fullPath: resolve( rootPath, m ),
 				prev: [ ...dataDefaulted ],
 			} as TemplateNodeLoader.ITemplateMatch ) );
 		for( const matched of allMatched ) {

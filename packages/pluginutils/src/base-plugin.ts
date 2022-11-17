@@ -1,15 +1,15 @@
 import assert from 'assert';
-import { basename, dirname, relative, resolve } from 'path';
 
 import { camelCase, isString, once } from 'lodash';
 import { sync as pkgUpSync } from 'pkg-up';
 import { satisfies } from 'semver';
 import { PackageJson, ReadonlyDeep, SetRequired } from 'type-fest';
-import { Application, Context, Converter, LogLevel, SourceReference, normalizePath } from 'typedoc';
+import { Application, Context, Converter, LogLevel, SourceReference } from 'typedoc';
 
 import { EventsExtra } from './events-extra';
 import { PluginLogger } from './plugin-logger';
 import * as miscUtils from './utils/misc';
+import { basename, dirname, relative, resolve } from './utils/path';
 
 type RequiredPackageJson = SetRequired<PackageJson, 'name' | 'version'>
 export abstract class ABasePlugin {
@@ -95,7 +95,7 @@ export abstract class ABasePlugin {
 	 * @returns the relative path.
 	 */
 	public relativeToRoot( path: string ){
-		return normalizePath( relative( this.rootDir, path ) );
+		return relative( this.rootDir, path );
 	}
 	/**
 	 * Resolve the path to a plugin file (resolved from the plugin `package.json`).
@@ -104,7 +104,7 @@ export abstract class ABasePlugin {
 	 * @returns the resolved path.
 	 */
 	public resolvePackageFile( path: string ){
-		return normalizePath( resolve( this.pluginDir, path ) );
+		return resolve( this.pluginDir, path );
 	}
 }
 
