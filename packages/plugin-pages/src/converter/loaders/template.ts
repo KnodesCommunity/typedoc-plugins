@@ -110,10 +110,12 @@ export class TemplateNodeLoader implements IPluginComponent<PagesPlugin>, INodeL
 	}
 
 	/**
+	 * Expand the given template & recurse on the expanded nodes.
 	 *
-	 * @param tpl
-	 * @param match
-	 * @param recurse
+	 * @param tpl - The template to expand.
+	 * @param match - The match informations.
+	 * @param recurse - A function to call with expanded template to generate actual nodes.
+	 * @yields nodes for each template matches.
 	 */
 	private *_expandTemplateForMatch(
 		tpl: TemplateNodeLoader.IRawNode['template'],

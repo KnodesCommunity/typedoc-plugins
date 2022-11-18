@@ -16,7 +16,6 @@ import { GlobMatch, globMatch, isValidGlobMatch } from './utils';
 
 const autoName = ( dirOrFile: string ) => upperFirst( lowerCase( basename( dirOrFile, extname( dirOrFile ) ) ) );
 
-// @LEGACY -- Remove @experimental for v0.24
 /**
  * @experimental
  */
@@ -67,13 +66,13 @@ export class FrontMatterNodeLoader implements IPluginComponent<PagesPlugin>, INo
 	}
 
 	/**
+	 * Load a list of files in `{@link moduleDir}/{@link rootDir}/{@link relDir}`.
 	 *
-	 * @param moduleDir
-	 * @param rootDir
-	 * @param relDir
-	 * @param files
-	 * @param graph
-	 * @param moduleVirtualPath
+	 * @param moduleDir - The base path of the module.
+	 * @param rootDir - The pages container dir.
+	 * @param relDir - The directory exploration accumulator.
+	 * @param files - A list of files to load in the resulting directory.
+	 * @yields nodes from the given files.
 	 */
 	private *_loadFilesList( moduleDir: string, rootDir: string, relDir: string, files: string[]  ): NodeGenerator {
 		const sorted = files.sort();
@@ -115,13 +114,13 @@ export class FrontMatterNodeLoader implements IPluginComponent<PagesPlugin>, INo
 	}
 
 	/**
+	 * Load a single file from the filesystem.
 	 *
-	 * @param moduleDir
-	 * @param rootDir
-	 * @param filePath
-	 * @param nodeGraph
-	 * @param moduleVirtualPath
-	 * @param defaultName
+	 * @param moduleDir - The base path of the module.
+	 * @param rootDir - The pages container dir.
+	 * @param filePath - The path to the file.
+	 * @param defaultName - The default name of the resulting node. This is used as a fallback if the node does not declare a name explicitly.
+	 * @returns the loaded node.
 	 */
 	private _loadFile( moduleDir: string, rootDir: string, filePath: string, defaultName = autoName( filePath ) ): SourceNode {
 		const fullFilePath = resolve( moduleDir, rootDir, filePath );

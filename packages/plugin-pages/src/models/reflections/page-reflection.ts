@@ -30,8 +30,10 @@ export class PageReflection extends ANodeReflection {
 	}
 
 	/**
+	 * Check if the given virtual path matches this page's virtual path.
 	 *
-	 * @param virtualPath
+	 * @param virtualPath - The path to test.
+	 * @returns `true` if virtual paths are equivalent, `false` otherwise.
 	 */
 	public matchVirtualPath( virtualPath: string ): boolean {
 		return normalize( removeTrailingIndex( virtualPath ) ) === normalize( removeTrailingIndex( this.namedPath ) );

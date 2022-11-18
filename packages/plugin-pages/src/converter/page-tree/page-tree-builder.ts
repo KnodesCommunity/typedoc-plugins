@@ -113,7 +113,7 @@ export class PageTreeBuilder implements IPluginComponent<PagesPlugin> {
 	 * @param nodes - The nodes.
 	 * @param parent - The parent of this node (project, module or node).
 	 * @param module - The module of this node.
-	 * @param context
+	 * @param context - The current context to build pages from.
 	 * @returns the node reflections.
 	 */
 	private _mapNodesToReflectionsTree( nodes: NodesTreeBuild[], parent: ANodeReflection.Parent, module: ANodeReflection.Module, context: IReflectionBuildContext ): NodeReflection[] {
@@ -128,7 +128,7 @@ export class PageTreeBuilder implements IPluginComponent<PagesPlugin> {
 	 * @param node - The node.
 	 * @param parent - The parent of this node (project, module or node).
 	 * @param module - The module of this node.
-	 * @param root0
+	 * @param context - The current context to build pages from.
 	 * @returns the node reflections.
 	 */
 	private _mapNodeToReflection( node: NodesTreeBuild, parent: ANodeReflection.Parent, module: ANodeReflection.Module, { url }: IReflectionBuildContext ): NodeReflection[] {
@@ -161,8 +161,7 @@ export class PageTreeBuilder implements IPluginComponent<PagesPlugin> {
 	 * @param node - The node.
 	 * @param parent - The parent of this node (project, module or node).
 	 * @param module - The module of this node.
-	 * @param context
-	 * @param url
+	 * @param url - The desired URL of the page.
 	 * @returns the node reflection.
 	 */
 	private _getNodeReflection( node: NodesTreeBuild, parent: ANodeReflection.Parent, module: ANodeReflection.Module, url: string ){

@@ -52,6 +52,7 @@ export class MarkdownPagesLinks implements IPluginComponent<PagesPlugin> {
 		} catch( err: any ){
 			this._handleResolveError( err, page, sourceHint );
 		}
+		return undefined;
 	}
 
 	/**
@@ -131,8 +132,10 @@ export class MarkdownPagesLinks implements IPluginComponent<PagesPlugin> {
 	}
 
 	/**
+	 * Find the module or project by module qualifier.
 	 *
-	 * @param qualifier
+	 * @param qualifier - The qualifier to search.
+	 * @returns the module.
 	 */
 	private _getModuleRootByModuleQualifier( qualifier: string ){
 		const moduleName = qualifier.slice( 1 );
@@ -143,9 +146,11 @@ export class MarkdownPagesLinks implements IPluginComponent<PagesPlugin> {
 	}
 
 	/**
+	 * Find all pages that match the given virtual path like `{@link moduleQualifier}:{@link path}`.
 	 *
-	 * @param moduleQualifier
-	 * @param path
+	 * @param moduleQualifier - The module qualifier.
+	 * @param path - The path of the page in the module
+	 * @returns the list of matched pages (usually 1).
 	 */
 	private _getPagesMatchingAlias( moduleQualifier: string, path: string ) {
 		const resolvedPageAlias = `${moduleQualifier}:${path}`;

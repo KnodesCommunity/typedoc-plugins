@@ -46,7 +46,7 @@ export class MarkdownCodeBlocks implements IPluginComponent<CodeBlockPlugin>{
 	private _replaceInlineCodeBlock( match: MarkdownReplacer.Match ) {
 		// Avoid recursion in code blocks
 		if( this._currentPageMemo.currentReflection instanceof DeclarationReflection && this._currentPageMemo.currentReflection.kind === CODEBLOCK_KIND ){
-			return;
+			return undefined;
 		}
 		const [ fileName, blockModeStr, markdownCode ] = match.captures;
 		assert.ok( fileName );
@@ -70,7 +70,7 @@ export class MarkdownCodeBlocks implements IPluginComponent<CodeBlockPlugin>{
 	private _replaceCodeBlock( match: MarkdownReplacer.Match, sourceHint: MarkdownReplacer.SourceHint ) {
 		// Avoid recursion in code blocks
 		if( this._currentPageMemo.currentReflection instanceof DeclarationReflection && this._currentPageMemo.currentReflection.kind === CODEBLOCK_KIND ){
-			return;
+			return undefined;
 		}
 		const [ file, block, blockModeStr, fakedFileName ] = match.captures;
 		try {

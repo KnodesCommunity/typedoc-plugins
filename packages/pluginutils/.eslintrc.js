@@ -8,4 +8,9 @@ module.exports = {
 	rules: {
 		'no-restricted-imports': [ 'error', 'path' ],
 	},
+	settings: {
+		jsdoc: {
+			mode: 'typescript',
+		},
+	},
 };

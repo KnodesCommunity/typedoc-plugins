@@ -83,27 +83,30 @@ export class DeclarativeNodeLoader implements IPluginComponent<PagesPlugin>, INo
 	}
 
 	/**
+	 * Resolve informations of a raw declarative node.
 	 *
-	 * @param rawNode
-	 * @param parents
-	 * @param data
+	 * @param rawNode - The node from configuration.
+	 * @param parents - A list of nodes yielded as parents of this node.
+	 * @param data - The declarative loader context data.
+	 * @returns informations about the node and its descendants.
 	 */
 	private _resolveRawNode( rawNode: DeclarativeNodeLoader.IRawNode, parents: SourceNode[], data?: IIOPath ) {
 		if( rawNode.moduleRoot ){
-			const { module, modPath, modOutput, modFile } = this._getRawNodeContext( parents );
+			const module = last( parents ) ?? assert.fail();
+			const { output: modOutput, fs: modFs, virtual: modVirtual } = this._getModuleContext( module );
 			assert( parents.length === 1, 'Found module root in a child page' );
 			if( rawNode.name !== module.name ){
-				return;
+				return undefined;
 			}
 			const defaultData = {
-				input: join( modFile, rawNode.childrenDir ),
+				input: join( modFs, rawNode.childrenDir ),
 				output: modOutput,
 			};
 			if( rawNode.source ) {
 				assert( isNil( module.content ), format( 'Module "%s" already have an appendix, defined in "%s"', module.name, module.path?.fs ) );
-				const loaded = this._loadNodeData( rawNode, module, { input: modFile } );
+				const loaded = this._loadNodeData( rawNode, module, { input: modFs } );
 				if( loaded.path ){
-					loaded.path.virtual = modPath.virtual;
+					loaded.path.virtual = modVirtual;
 				}
 				return {
 					yieldSelf: {
@@ -146,22 +149,25 @@ export class DeclarativeNodeLoader implements IPluginComponent<PagesPlugin>, INo
 	}
 
 	/**
+	 * Resolve the context data for the given module
 	 *
-	 * @param parents
+	 * @param module - The module source node.
+	 * @returns the module path metadata along with the expected output directory for pages of this module.
 	 */
-	private _getRawNodeContext( parents: SourceNode[] ){
-		const module = last( parents ) ?? assert.fail();
+	private _getModuleContext( module: SourceNode ){
 		assert( nodeHasFile( module ) );
-		const modPath = module.path;
-		const modOutput = join( modPath.virtual === '~' ? null : modPath.urlFragment ?? assert.fail(), this.plugin.pluginOptions.getValue().output );
-		return { module, modPath, modOutput, modFile: modPath.fs };
+		const { path } = module;
+		const output = join( path.virtual === '~' ? null : path.urlFragment ?? assert.fail(), this.plugin.pluginOptions.getValue().output );
+		return { ...path, output };
 	}
 
 	/**
+	 * Load raw node data by reading the filesystem if a source is specified.
 	 *
-	 * @param rawNode
-	 * @param module
-	 * @param io
+	 * @param rawNode - The node to load.
+	 * @param module - The module of the loaded node.
+	 * @param io - Input path accumulator.
+	 * @returns the loaded source node (page or menu).
 	 */
 	private _loadNodeData( rawNode: DeclarativeNodeLoader.IRawNode, module: SourceNode, io: IIOPath ): SourceNode {
 		if( rawNode.source ){

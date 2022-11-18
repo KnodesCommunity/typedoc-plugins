@@ -10,7 +10,7 @@ const getModuleReflectionSource = ( reflection: DeclarationReflection ) => refle
 const findReadmeInDir = ( dir: string, readmeFile: string[] ) => readdirSync( dir ).find( f => readmeFile.includes( f.toLowerCase() ) );
 
 /**
- * Try to resoluve the README file in the directory of the module's `package.json`.
+ * Try to resolve the README file in the directory of the module's `package.json`.
  *
  * @param readmeTargets - A list of file names to look up to locate packages root.
  * @param moduleMapping - The module URL mapping.
@@ -27,7 +27,7 @@ export const findReadmeFile = ( readmeTargets: string[], moduleMapping: UrlMappi
 	readmeCandidates = readmeCandidates.map( r => r.toLowerCase() );
 	const src = getModuleReflectionSource( moduleMapping.model );
 	if( !src ){
-		return;
+		return undefined;
 	}
 	let targetFile;
 	for ( const target of readmeTargets ) {
@@ -46,4 +46,5 @@ export const findReadmeFile = ( readmeTargets: string[], moduleMapping: UrlMappi
 			};
 		}
 	}
+	return undefined;
 };

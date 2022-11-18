@@ -134,11 +134,10 @@ export class OptionGroup<
 	 * Set the raw values.
 	 *
 	 * @param value - The value to set. Paths, JSON & partial options are authorized.
-	 * @returns nothing.
 	 */
 	private _setValue( value: OptionGroupSetValue<TDeclarations> | string ): void {
 		if( typeof value === 'object' ){
-			return this._setValueFromObject( value );
+			this._setValueFromObject( value );
 		} else if( value.startsWith( '{' ) && value.endsWith( '}' ) ){
 			const parsedValue = JSON.parse( value ) as OptionGroupSetValue<TDeclarations>;
 			this._setValue( parsedValue );
