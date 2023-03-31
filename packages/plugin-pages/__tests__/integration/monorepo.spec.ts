@@ -39,7 +39,6 @@ describe( 'Root module', () => {
 		} ) );
 		it( 'should have correct primary navigation', withContent( ( _content, dom ) => {
 			const primaryNavItems = Array.from( dom.window.document.querySelectorAll( '.tsd-navigation.primary li.pages-entry' ) );
-			expect( primaryNavItems ).toHaveLength( 2 );
 			expect( primaryNavItems ).toEqual( [
 				menuItemMatcher( 'Root doc', true, 'index.html' ),
 				menuItemMatcher( 'Root doc child', false, 'root-doc-child.html' ),
@@ -70,7 +69,6 @@ describe( 'Root module', () => {
 		} ) );
 		it( 'should have correct primary navigation', withContent( ( _content, dom ) => {
 			const primaryNavItems = Array.from( dom.window.document.querySelectorAll( '.tsd-navigation.primary li.pages-entry' ) );
-			expect( primaryNavItems ).toHaveLength( 2 );
 			expect( primaryNavItems ).toEqual( [
 				menuItemMatcher( 'Root doc', true, 'index.html' ),
 				menuItemMatcher( 'Root doc child', true, 'root-doc-child.html' ),
@@ -106,7 +104,6 @@ describe( 'pkg-a', () => {
 		} ) );
 		it( 'should have correct primary navigation', withContent( ( _content, dom ) => {
 			const primaryNavItems = Array.from( dom.window.document.querySelectorAll( '.tsd-navigation.primary li.pages-entry' ) );
-			expect( primaryNavItems ).toHaveLength( 3 );
 			expect( primaryNavItems ).toEqual( [
 				menuItemMatcher( 'Root doc', false, '../pages/root-doc/index.html' ),
 				menuItemMatcher( 'Root doc child', false, '../pages/root-doc/root-doc-child.html' ),
@@ -140,7 +137,6 @@ describe( 'pkg-a', () => {
 		} ) );
 		it( 'should have correct primary navigation', withContent( ( _content, dom ) => {
 			const primaryNavItems = Array.from( dom.window.document.querySelectorAll( '.tsd-navigation.primary li.pages-entry' ) );
-			expect( primaryNavItems ).toHaveLength( 3 );
 			expect( primaryNavItems ).toEqual( [
 				menuItemMatcher( 'Root doc', false, '../root-doc/index.html' ),
 				menuItemMatcher( 'Root doc child', false, '../root-doc/root-doc-child.html' ),
@@ -180,7 +176,6 @@ describe( 'pkg-a', () => {
 		} ) );
 		it( 'should have correct primary navigation', withContent( ( _content, dom ) => {
 			const primaryNavItems = Array.from( dom.window.document.querySelectorAll( '.tsd-navigation.primary li.pages-entry' ) );
-			expect( primaryNavItems ).toHaveLength( 3 );
 			expect( primaryNavItems ).toEqual( [
 				menuItemMatcher( 'Root doc', false, '../pages/root-doc/index.html' ),
 				menuItemMatcher( 'Root doc child', false, '../pages/root-doc/root-doc-child.html' ),
@@ -340,10 +335,10 @@ describe( 'pkg-c', () => {
 		} ) );
 		it( 'should have correct primary navigation', withContent( ( _content, dom ) => {
 			const primaryNavItems = Array.from( dom.window.document.querySelectorAll( '.tsd-navigation.primary li.pages-entry' ) );
-			expect( primaryNavItems ).toHaveLength( 5 );
 			expect( primaryNavItems ).toEqual( [
 				menuItemMatcher( 'Root doc', false, '../pages/root-doc/index.html' ),
 				menuItemMatcher( 'Root doc child', false, '../pages/root-doc/root-doc-child.html' ),
+				menuItemMatcher( 'This is a sample page', false, '../pages/pkg_c/this-is-a-sample-page.html' ),
 				menuItemMatcher( 'Package C child 1', false, '../pages/pkg_c/package-c-child-1/index.html' ),
 				menuItemMatcher( 'Package C child 1 sub', false, '../pages/pkg_c/package-c-child-1/package-c-child-1-sub.html' ),
 				menuItemMatcher( 'Package C child 2', false, '../pages/pkg_c/package-c-child-2.html' ),
@@ -367,6 +362,43 @@ describe( 'pkg-c', () => {
 		} ) );
 	} ) );
 
+	describe( 'pages/pkg_c/this-is-a-sample-page.html', describeDocsFile( rootDir, 'pages/pkg_c/this-is-a-sample-page.html', withContent => {
+		it( 'should have correct content', withContent( ( _content, _dom, doc ) => {
+			expect( doc.querySelector( '.tsd-page-title > h1' ) ).toHaveTextContent( 'This is a sample page' );
+			const content = doc.querySelectorAll( '.col-content > .tsd-panel' );
+			expect( content ).toHaveLength( 1 );
+			expect( content[0] ).toHaveTextContent( 'Here, I can write pretty much anything' );
+		} ) );
+		it( 'should have correct primary navigation', withContent( ( _content, dom ) => {
+			const primaryNavItems = Array.from( dom.window.document.querySelectorAll( '.tsd-navigation.primary li.pages-entry' ) );
+			expect( primaryNavItems ).toEqual( [
+				menuItemMatcher( 'Root doc', false, '../root-doc/index.html' ),
+				menuItemMatcher( 'Root doc child', false, '../root-doc/root-doc-child.html' ),
+				menuItemMatcher( 'This is a sample page', true, 'this-is-a-sample-page.html' ),
+				menuItemMatcher( 'Package C child 1', false, 'package-c-child-1/index.html' ),
+				menuItemMatcher( 'Package C child 1 sub', false, 'package-c-child-1/package-c-child-1-sub.html' ),
+				menuItemMatcher( 'Package C child 2', false, 'package-c-child-2.html' ),
+			] );
+		} ) );
+		it( 'should have correct secondary navigation', withContent( ( _content, dom ) => {
+			const secondaryNavItems = Array.from( dom.window.document.querySelectorAll<HTMLAnchorElement>( '.tsd-navigation.secondary li a' ) );
+			expect( secondaryNavItems ).toHaveLength( 1 );
+			expect( secondaryNavItems[0] ).toEqual( elementMatcher( { textContent: 'stubC', attrs: { href: '../../variables/pkg_c.stubC.html' }} ) );
+		} ) );
+		it( 'should have correct breadcrumb', withContent( ( _content, dom ) => {
+			const breadcrumb = getBreadcrumb( dom );
+			expect( breadcrumb ).toHaveLength( 3 );
+			expect( breadcrumb ).toEqual( [
+				{ href: '../../modules.html', text: packageName },
+				{ href: '../../modules/pkg_c.html', text: 'pkg-c' },
+				{ href: 'this-is-a-sample-page.html', text: 'This is a sample page' },
+			] );
+		} ) );
+		it( 'should have constant content', withContent( ( content, _dom ) => {
+			expect( formatHtml( content ) ).toMatchSnapshot();
+		} ) );
+	} ) );
+
 	describe( 'pages/pkg_c/package-c-child-1/index.html', describeDocsFile( rootDir, 'pages/pkg_c/package-c-child-1/index.html', withContent => {
 		it( 'should have correct content', withContent( ( _content, _dom, doc ) => {
 			expect( doc.querySelector( '.tsd-page-title > h1' ) ).toHaveTextContent( 'Package C child 1' );
@@ -376,10 +408,10 @@ describe( 'pkg-c', () => {
 		} ) );
 		it( 'should have correct primary navigation', withContent( ( _content, dom ) => {
 			const primaryNavItems = Array.from( dom.window.document.querySelectorAll( '.tsd-navigation.primary li.pages-entry' ) );
-			expect( primaryNavItems ).toHaveLength( 5 );
 			expect( primaryNavItems ).toEqual( [
 				menuItemMatcher( 'Root doc', false, '../../root-doc/index.html' ),
 				menuItemMatcher( 'Root doc child', false, '../../root-doc/root-doc-child.html' ),
+				menuItemMatcher( 'This is a sample page', false, '../this-is-a-sample-page.html' ),
 				menuItemMatcher( 'Package C child 1', true, 'index.html' ),
 				menuItemMatcher( 'Package C child 1 sub', false, 'package-c-child-1-sub.html' ),
 				menuItemMatcher( 'Package C child 2', false, '../package-c-child-2.html' ),
@@ -413,10 +445,10 @@ describe( 'pkg-c', () => {
 		} ) );
 		it( 'should have correct primary navigation', withContent( ( _content, dom ) => {
 			const primaryNavItems = Array.from( dom.window.document.querySelectorAll( '.tsd-navigation.primary li.pages-entry' ) );
-			expect( primaryNavItems ).toHaveLength( 5 );
 			expect( primaryNavItems ).toEqual( [
 				menuItemMatcher( 'Root doc', false, '../../root-doc/index.html' ),
 				menuItemMatcher( 'Root doc child', false, '../../root-doc/root-doc-child.html' ),
+				menuItemMatcher( 'This is a sample page', false, '../this-is-a-sample-page.html' ),
 				menuItemMatcher( 'Package C child 1', true, 'index.html' ),
 				menuItemMatcher( 'Package C child 1 sub', true, 'package-c-child-1-sub.html' ),
 				menuItemMatcher( 'Package C child 2', false, '../package-c-child-2.html' ),
@@ -451,10 +483,10 @@ describe( 'pkg-c', () => {
 		} ) );
 		it( 'should have correct primary navigation', withContent( ( _content, dom ) => {
 			const primaryNavItems = Array.from( dom.window.document.querySelectorAll( '.tsd-navigation.primary li.pages-entry' ) );
-			expect( primaryNavItems ).toHaveLength( 5 );
 			expect( primaryNavItems ).toEqual( [
 				menuItemMatcher( 'Root doc', false, '../root-doc/index.html' ),
 				menuItemMatcher( 'Root doc child', false, '../root-doc/root-doc-child.html' ),
+				menuItemMatcher( 'This is a sample page', false, 'this-is-a-sample-page.html' ),
 				menuItemMatcher( 'Package C child 1', false, 'package-c-child-1/index.html' ),
 				menuItemMatcher( 'Package C child 1 sub', false, 'package-c-child-1/package-c-child-1-sub.html' ),
 				menuItemMatcher( 'Package C child 2', true, 'package-c-child-2.html' ),
@@ -489,10 +521,10 @@ describe( 'pkg-c', () => {
 		} ) );
 		it( 'should have correct primary navigation', withContent( ( _content, dom ) => {
 			const primaryNavItems = Array.from( dom.window.document.querySelectorAll( '.tsd-navigation.primary li.pages-entry' ) );
-			expect( primaryNavItems ).toHaveLength( 5 );
 			expect( primaryNavItems ).toEqual( [
 				menuItemMatcher( 'Root doc', false, '../pages/root-doc/index.html' ),
 				menuItemMatcher( 'Root doc child', false, '../pages/root-doc/root-doc-child.html' ),
+				menuItemMatcher( 'This is a sample page', false, '../pages/pkg_c/this-is-a-sample-page.html' ),
 				menuItemMatcher( 'Package C child 1', false, '../pages/pkg_c/package-c-child-1/index.html' ),
 				menuItemMatcher( 'Package C child 1 sub', false, '../pages/pkg_c/package-c-child-1/package-c-child-1-sub.html' ),
 				menuItemMatcher( 'Package C child 2', false, '../pages/pkg_c/package-c-child-2.html' ),

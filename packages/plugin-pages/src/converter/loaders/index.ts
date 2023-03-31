@@ -8,8 +8,9 @@ import { IPluginComponent, PluginAccessor, getPlugin } from '@knodes/typedoc-plu
 import type { PagesPlugin } from '../../plugin';
 import { DeclarativeNodeLoader } from './declarative';
 import { FrontMatterNodeLoader } from './front-matter';
-import { IBaseRawNode, ICheckConfigContext, INodeLoader, IRegisterNodeContext, ModuleSourceNode, NodeGenerator, SourceNode } from './nodes';
+import { IBaseRawNode, ICheckConfigContext, INodeInParent, INodeLoader, IRegisterNodeContext, ModuleSourceNode, NodeGenerator, NodePath, SourceNode } from './nodes';
 import { TemplateNodeLoader } from './template';
+import { GlobMatch } from './utils';
 
 export class RootNodeLoader implements IPluginComponent<PagesPlugin>, INodeLoader<IBaseRawNode, any> {
 	private readonly _registeredNodes = new Map<IBaseRawNode, boolean>();
@@ -105,5 +106,5 @@ export class RootNodeLoader implements IPluginComponent<PagesPlugin>, INodeLoade
 		return validLoaders[0];
 	}
 }
-export { IBaseRawNode, NodePath, INodeInParent, SourceNode, ModuleSourceNode } from './nodes';
 export type AnyLoaderRawPageNode = FrontMatterNodeLoader.IRawNode | TemplateNodeLoader.IRawNode | DeclarativeNodeLoader.IRawNode;
+export { IBaseRawNode, NodePath, INodeInParent, SourceNode, ModuleSourceNode, DeclarativeNodeLoader, FrontMatterNodeLoader, TemplateNodeLoader, GlobMatch };

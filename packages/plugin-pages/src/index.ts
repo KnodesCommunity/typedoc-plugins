@@ -1,3 +1,4 @@
+export { AnyLoaderRawPageNode, DeclarativeNodeLoader, FrontMatterNodeLoader, TemplateNodeLoader, GlobMatch } from './converter/loaders';
 export { load } from './load';
 export { IPluginOptions, EInvalidPageLinkHandling } from './options';
 export { PageReflection, MenuReflection, NodeReflection, PagesPluginReflectionKind, ANodeReflection } from './models/reflections';

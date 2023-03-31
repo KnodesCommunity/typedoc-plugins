@@ -106,7 +106,7 @@ export class MarkdownReplacer implements IPluginComponent {
 		event.parsedText = originalText.replace(
 			regex,
 			( ...args ) => {
-				const { captures, fullMatch, index } = spitArgs( ...args );
+				const { captures, fullMatch, index, source } = spitArgs( ...args );
 				if( excludeMatches?.includes( fullMatch ) ){
 					return fullMatch;
 				}
@@ -117,8 +117,10 @@ export class MarkdownReplacer implements IPluginComponent {
 				if( isNil( replacement ) ){
 					return fullMatch;
 				}
-				mapLayer.addEdition( index, fullMatch, replacement );
-				return replacement;
+				const lastLine = source.slice( 0, index ).split( /\n/ ).at( -1 );
+				const indentedReplacement = lastLine?.match( /^\s+$/ ) ? replacement.replace( /\n/g, `\n${lastLine}` ) : replacement;
+				mapLayer.addEdition( index, fullMatch, indentedReplacement );
+				return indentedReplacement;
 			} );
 	}
 }

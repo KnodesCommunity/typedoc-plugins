@@ -7,14 +7,10 @@ import { IPluginComponent, PluginAccessor, getPlugin } from '@knodes/typedoc-plu
 import { basename, dirname, normalize, relative, resolve } from '@knodes/typedoc-pluginutils/path';
 
 import type { PagesPlugin } from '../../plugin';
-import { IBaseRawNode, ICheckConfigContext, INodeLoader, IRegisterNodeContext, NodeGenerator, SourceNode, UnknownNode } from './nodes';
+import { IBaseRawNode, ICheckConfigContext, INodeLoader, IRegisterNodeContext, ModuleSourceNode, NodeGenerator, UnknownNode } from './nodes';
 import { GlobMatch, doesMatch, globMatch, isValidGlobMatch } from './utils';
 
-export interface ITemplateContext {
-	_: LoDashStatic;
-	path: Pick<typeof import( '@knodes/typedoc-pluginutils/path' ), 'dirname' | 'basename' | 'relative'>;
-}
-const imports: Omit<ITemplateContext, '_'> = {
+const imports: Omit<TemplateNodeLoader.ITemplateContext, '_'> = {
 	path: {
 		dirname,
 		basename,
@@ -124,7 +120,9 @@ export class TemplateNodeLoader implements IPluginComponent<PagesPlugin>, INodeL
 	): NodeGenerator {
 		if( isFunction( tpl ) ){
 			const tplRes = tpl( match );
-			yield* castArray( tplRes ).map( node => ( { node, parents: [] } ) );
+			for( const tplResIter of castArray( tplRes ) ){
+				yield* recurse( tplResIter );
+			}
 			return;
 		}
 		const templateResults = castArray( tpl ).map( t => expandNode( t, match ) );
@@ -133,6 +131,7 @@ export class TemplateNodeLoader implements IPluginComponent<PagesPlugin>, INodeL
 		}
 	}
 }
+type AnyChildNode = IBaseRawNode & UnknownNode;
 export namespace TemplateNodeLoader {
 	export interface IRawNode extends IBaseRawNode {
 		loader:'template';
@@ -143,20 +142,47 @@ export namespace TemplateNodeLoader {
 		/**
 		 * A function, node or list of nodes expanded with the matched paths.
 		 */
-		template: Array<IBaseRawNode & UnknownNode> | ( IBaseRawNode & UnknownNode ) | ( ( match: ITemplateMatch ) => ( SourceNode | SourceNode[] ) );
+		template: AnyChildNode[] | AnyChildNode | ( ( match: ITemplateMatch ) => ( AnyChildNode | AnyChildNode[] ) );
 		/**
 		 * A list of patterns to filter modules.
 		 */
 		modules?: GlobMatch;
 	}
+	export interface ITemplateContext {
+		/**
+		 * Lodash functions.
+		 *
+		 * @see https://lodash.com/docs/
+		 */
+		_: LoDashStatic;
+		/**
+		 * A subset of `node:path` package. Each methods are normalized, eg. `\` are replaced with `/` no matter the operating system
+		 */
+		path: Pick<typeof import( '@knodes/typedoc-pluginutils/path' ), 'dirname' | 'basename' | 'relative'>;
+	}
 	export interface ITemplateMatch {
-		/** The path from where the `match` was matched. */
+		/**
+		 * The module informations where the match was found.
+		 */
+		module: ModuleSourceNode;
+		/**
+		 * The path within the module from where the `match` was executed.
+		 */
 		from: string;
-		/** The actual glob matched. */
+		/**
+		 * The actual glob matched.
+		 */
 		match: string;
-		/** The full path, usually `${{@link from}}/${{@link match}}`. */
+		/**
+		 * The full path, usually <code>{@link from}/{@link match}</code>.
+		 */
 		fullPath: string;
-		/** The ancestor matches. */
+		/**
+		 * The ancestor matches (in case of nested templates).
+		 *
+		 * @experimental Nested templates are poorly tested and might have unexpected behaviors. Yet, they **should** work.
+		 * If you use nested templates & encounter a problem, feel free to open an issue so that I can have real use cases.
+		 */
 		prev: ITemplateMatch[];
 	}
 }

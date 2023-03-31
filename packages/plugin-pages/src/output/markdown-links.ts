@@ -39,12 +39,12 @@ export class MarkdownPagesLinks implements IPluginComponent<PagesPlugin> {
 	 */
 	private _replacePageLink(
 		{ captures }: Parameters<MarkdownReplacer.ReplaceCallback>[0],
-		sourceHint: Parameters<MarkdownReplacer.ReplaceCallback>[1],
+		sourceHint: MarkdownReplacer.SourceHint,
 	): ReturnType<MarkdownReplacer.ReplaceCallback> {
 		const [ page, label ] = captures;
 
 		try {
-			const targetPage = this._resolvePageLink( page );
+			const targetPage = this._resolvePageLink( page, sourceHint );
 			if( targetPage ){
 				this._logger.verbose( () => `Created a link from ${sourceHint()} to ${getNodePath( targetPage )}` );
 				return this._themeMethods.renderPageLink( { label: label ?? undefined, page: targetPage } );
@@ -87,11 +87,16 @@ export class MarkdownPagesLinks implements IPluginComponent<PagesPlugin> {
 	 * Find the actual page that matches the given page alias.
 	 *
 	 * @param pageSpecifier - The page alias, usually in the form of a {@link NamedPath}.
+	 * @param sourceHint - The best guess to the source of the match,
 	 * @returns the resolved page.
 	 */
-	private _resolvePageLink( pageSpecifier: string | null ){
+	private _resolvePageLink( pageSpecifier: string | null, sourceHint: MarkdownReplacer.SourceHint ){
 		assert( this._nodesReflections );
 		assert( isString( pageSpecifier ) );
+		if( pageSpecifier.endsWith( '.md' ) ){
+			this._logger.warn( `In ${sourceHint()}: specifying ".md" extension is deprecated. You now should only provide the base name of the page` );
+			pageSpecifier = pageSpecifier.slice( 0, -3 );
+		}
 		const currentReflectionModule = getReflectionModule( this._currentPageMemo.currentReflection );
 		const currentReflectionModuleName = currentReflectionModule instanceof ProjectReflection ? '~' : currentReflectionModule.name;
 		const [ , moduleQualifier, path ] = pageSpecifier.match( /^(~[^:]*)?(?::?(.*))?$/ ) ?? assert.fail( 'Could not parse page specifier' );

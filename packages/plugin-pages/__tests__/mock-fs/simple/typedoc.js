@@ -1,8 +1,11 @@
+// #region config-1
 module.exports = {
+	// #endregion config-1
 	entryPoints: [
 		'./src/index.ts',
 	],
 	/** @type {import('../../../src').IPluginOptions} */
+	// #region config-2
 	pluginPages: {
 		pages: [
 			{ name: 'VIRTUAL', childrenDir: 'pages', children: [
@@ -13,7 +16,10 @@ module.exports = {
 					{ name: 'Some cool docs', source: 'some-cool-docs.md' },
 				] },
 			] },
+			// #endregion config-2
 			{ loader: 'frontMatter', root: 'pagesFront' },
+			// #region config-3
 		],
 	},
 };
+// #endregion config-3

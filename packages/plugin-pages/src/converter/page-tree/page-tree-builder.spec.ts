@@ -43,6 +43,9 @@ const addChildModule = ( name: string, path = name ) => {
 	project.children ??= [];
 	project.children.push( moduleRef );
 	project.registerReflection( moduleRef );
+	Object.assign( plugin.application.options.getRawValues(), {
+		entryPoints: [ ...plugin.application.options.getRawValues().entryPoints!, resolve( path ) ],
+	} );
 	return moduleRef;
 };
 

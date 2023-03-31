@@ -14,7 +14,7 @@ By default, pages with children are renamed to `{source-without-extensions}/inde
 
 Assuming you have the following configuration:
 
-{@codeblock simple/typedoc.js}
+{@codeblock simple/typedoc.js#config-*}
 
 Here is your input/output tree:
 

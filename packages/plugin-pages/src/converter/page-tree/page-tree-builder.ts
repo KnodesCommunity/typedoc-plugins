@@ -51,7 +51,8 @@ export class PageTreeBuilder implements IPluginComponent<PagesPlugin> {
 			.reduce<Array<{entrypoint: string; mod: DeclarationReflection}>>( ( acc, mod ) => {
 				const src = mod.sources?.[0].fullFileName;
 				assert( src );
-				const entryPoints = this.plugin.application.options.getValue( 'entryPoints' ).map( normalize );
+				// Sort entrypoints by deepest to higest
+				const entryPoints = this.plugin.application.options.getValue( 'entryPoints' ).map( normalize ).sort( ( a, b ) => b.split( '/' ).length - a.split( '/' ).length );
 				const entryPoint = entryPoints.find( ep => minimatch( src, `${ep}/**` ) );
 				assert(
 					entryPoint,

@@ -19,15 +19,24 @@ const findSubTree = ( parents: SourceNode[], tree: NodesTreeBuild[] ) => {
 	return tree;
 };
 export const buildNodesTree = ( nodes: INodeInParent[] ) =>
-	nodes.reduce<NodesTreeBuild[]>( ( acc, n ) => {
-		const subTree = findSubTree( n.parents, acc );
-		const mergeTarget = findInNodesTreeBuildByName( subTree, n.node.name );
-		if( mergeTarget ){
-			mergeTarget.defs.push( n.node );
-		} else {
-			subTree.push( { defs: [ n.node ], children: [] } );
+	nodes.reduce<NodesTreeBuild[]>( ( tree, node, i ) => {
+		// Detect & skip duplicate nodes
+		const nodeIndexWithSameFile = node.node.path?.fs ?
+			nodes.findIndex( ( otherNode, j ) => j < i && otherNode.node.path?.fs && otherNode.node.path.fs === node.node.path?.fs ) :
+			-1;
+		if( nodeIndexWithSameFile !== -1 && i !== nodeIndexWithSameFile ) {
+			return tree;
 		}
-		return acc;
+
+		// Deep resolution
+		const subTree = findSubTree( node.parents, tree );
+		const mergeTarget = findInNodesTreeBuildByName( subTree, node.node.name );
+		if( mergeTarget ){
+			mergeTarget.defs.push( node.node );
+		} else {
+			subTree.push( { defs: [ node.node ], children: [] } );
+		}
+		return tree;
 	}, [] );
 
 type NodeOrRef = ANodeReflection | NodesTreeBuild | {name?: string} | Reflection;
