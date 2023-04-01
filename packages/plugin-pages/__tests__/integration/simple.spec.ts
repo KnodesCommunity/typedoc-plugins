@@ -20,11 +20,13 @@ describe( 'Pages', () => {
 		} ) );
 		it( 'should have correct primary navigation', withContent( ( _content, dom ) => {
 			const primaryNavItems = Array.from( dom.window.document.querySelectorAll( '.tsd-navigation.primary li.pages-entry' ) );
-			expect( primaryNavItems ).toContainEqual( menuItemMatcher( 'Getting started', true, 'index.html' ) );
-			expect( primaryNavItems ).toContainEqual( menuItemMatcher( 'Configuration', false, 'configuration.html' ) );
-			expect( primaryNavItems ).toContainEqual( menuItemMatcher( 'Additional resources', false, null ) );
-			expect( primaryNavItems ).toContainEqual( menuItemMatcher( 'Some cool docs', false, '../additional-resources/some-cool-docs.html' ) );
-			expect( primaryNavItems ).toContainEqual( menuItemMatcher( 'Test page front matter', false, '../test-page-front-matter.html' ) );
+			expect( primaryNavItems ).toEqual( [
+				menuItemMatcher( 'Getting started', true, 'index.html' ),
+				menuItemMatcher( 'Configuration', false, 'configuration.html' ),
+				menuItemMatcher( 'Additional resources', false, null ),
+				menuItemMatcher( 'Some cool docs', false, '../additional-resources/some-cool-docs.html' ),
+				menuItemMatcher( 'Test page front matter', false, '../test-page-front-matter.html' ),
+			] );
 		} ) );
 		it( 'should have correct secondary navigation', withContent( ( _content, dom ) => {
 			const secondaryNavItems = Array.from( dom.window.document.querySelectorAll<HTMLAnchorElement>( '.tsd-navigation.secondary li a' ) );
@@ -33,7 +35,6 @@ describe( 'Pages', () => {
 		} ) );
 		it( 'should have correct breadcrumb', withContent( ( _content, dom ) => {
 			const breadcrumb = getBreadcrumb( dom );
-			expect( breadcrumb ).toHaveLength( 2 );
 			expect( breadcrumb ).toIncludeSameMembers( [
 				{ href: '../../modules.html', text: packageName },
 				{ href: 'index.html', text: 'Getting started' },
@@ -51,11 +52,13 @@ describe( 'Pages', () => {
 		} ) );
 		it( 'should have correct primary navigation', withContent( ( _content, dom ) => {
 			const primaryNavItems = Array.from( dom.window.document.querySelectorAll( '.tsd-navigation.primary li.pages-entry' ) );
-			expect( primaryNavItems ).toContainEqual( menuItemMatcher( 'Getting started', true, 'index.html' ) );
-			expect( primaryNavItems ).toContainEqual( menuItemMatcher( 'Configuration', true, 'configuration.html' ) );
-			expect( primaryNavItems ).toContainEqual( menuItemMatcher( 'Additional resources', false, null ) );
-			expect( primaryNavItems ).toContainEqual( menuItemMatcher( 'Some cool docs', false, '../additional-resources/some-cool-docs.html' ) );
-			expect( primaryNavItems ).toContainEqual( menuItemMatcher( 'Test page front matter', false, '../test-page-front-matter.html' ) );
+			expect( primaryNavItems ).toEqual( [
+				menuItemMatcher( 'Getting started', true, 'index.html' ),
+				menuItemMatcher( 'Configuration', true, 'configuration.html' ),
+				menuItemMatcher( 'Additional resources', false, null ),
+				menuItemMatcher( 'Some cool docs', false, '../additional-resources/some-cool-docs.html' ),
+				menuItemMatcher( 'Test page front matter', false, '../test-page-front-matter.html' ),
+			] );
 		} ) );
 		it( 'should have correct secondary navigation', withContent( ( _content, dom ) => {
 			const secondaryNavItems = Array.from( dom.window.document.querySelectorAll<HTMLAnchorElement>( '.tsd-navigation.secondary li a' ) );
@@ -64,7 +67,6 @@ describe( 'Pages', () => {
 		} ) );
 		it( 'should have correct breadcrumb', withContent( ( _content, dom ) => {
 			const breadcrumb = getBreadcrumb( dom );
-			expect( breadcrumb ).toHaveLength( 3 );
 			expect( breadcrumb ).toIncludeSameMembers( [
 				{ href: '../../modules.html', text: packageName },
 				{ href: 'index.html', text: 'Getting started' },
@@ -83,11 +85,13 @@ describe( 'Pages', () => {
 		} ) );
 		it( 'should have correct primary navigation', withContent( ( _content, dom ) => {
 			const primaryNavItems = Array.from( dom.window.document.querySelectorAll( '.tsd-navigation.primary li.pages-entry' ) );
-			expect( primaryNavItems ).toContainEqual( menuItemMatcher( 'Getting started', false, '../getting-started/index.html' ) );
-			expect( primaryNavItems ).toContainEqual( menuItemMatcher( 'Configuration', false, '../getting-started/configuration.html' ) );
-			expect( primaryNavItems ).toContainEqual( menuItemMatcher( 'Additional resources', true, null ) );
-			expect( primaryNavItems ).toContainEqual( menuItemMatcher( 'Some cool docs', true, 'some-cool-docs.html' ) );
-			expect( primaryNavItems ).toContainEqual( menuItemMatcher( 'Test page front matter', false, '../test-page-front-matter.html' ) );
+			expect( primaryNavItems ).toEqual( [
+				menuItemMatcher( 'Getting started', false, '../getting-started/index.html' ),
+				menuItemMatcher( 'Configuration', false, '../getting-started/configuration.html' ),
+				menuItemMatcher( 'Additional resources', true, null ),
+				menuItemMatcher( 'Some cool docs', true, 'some-cool-docs.html' ),
+				menuItemMatcher( 'Test page front matter', false, '../test-page-front-matter.html' ),
+			] );
 		} ) );
 		it( 'should have correct secondary navigation', withContent( ( _content, dom ) => {
 			const secondaryNavItems = Array.from( dom.window.document.querySelectorAll<HTMLAnchorElement>( '.tsd-navigation.secondary li a' ) );
@@ -96,7 +100,6 @@ describe( 'Pages', () => {
 		} ) );
 		it( 'should have correct breadcrumb', withContent( ( _content, dom ) => {
 			const breadcrumb = getBreadcrumb( dom );
-			expect( breadcrumb ).toHaveLength( 3 );
 			expect( breadcrumb ).toIncludeSameMembers( [
 				{ href: '../../modules.html', text: packageName },
 				{ href: null, text: 'Additional resources' },
@@ -122,11 +125,13 @@ describe( 'Documentation', () => {
 		} ) );
 		it( 'should have correct primary navigation', withContent( ( _content, dom ) => {
 			const primaryNavItems = Array.from( dom.window.document.querySelectorAll( '.tsd-navigation.primary li.pages-entry' ) );
-			expect( primaryNavItems ).toContainEqual( menuItemMatcher( 'Getting started', false, '../pages/getting-started/index.html' ) );
-			expect( primaryNavItems ).toContainEqual( menuItemMatcher( 'Configuration', false, '../pages/getting-started/configuration.html' ) );
-			expect( primaryNavItems ).toContainEqual( menuItemMatcher( 'Additional resources', false, null ) );
-			expect( primaryNavItems ).toContainEqual( menuItemMatcher( 'Some cool docs', false, '../pages/additional-resources/some-cool-docs.html' ) );
-			expect( primaryNavItems ).toContainEqual( menuItemMatcher( 'Test page front matter', false, '../pages/test-page-front-matter.html' ) );
+			expect( primaryNavItems ).toEqual( [
+				menuItemMatcher( 'Getting started', false, '../pages/getting-started/index.html' ),
+				menuItemMatcher( 'Configuration', false, '../pages/getting-started/configuration.html' ),
+				menuItemMatcher( 'Additional resources', false, null ),
+				menuItemMatcher( 'Some cool docs', false, '../pages/additional-resources/some-cool-docs.html' ),
+				menuItemMatcher( 'Test page front matter', false, '../pages/test-page-front-matter.html' ),
+			] );
 		} ) );
 		it( 'should have constant content', withContent( ( content, _dom ) => {
 			expect( formatHtml( content ) ).toMatchSnapshot();
