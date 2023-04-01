@@ -1,6 +1,6 @@
 import assert from 'assert';
 
-import { escapeRegExp, isNil, isNumber, uniq } from 'lodash';
+import { escapeRegExp, isNil, isNumber, last, uniq } from 'lodash';
 import { JSX, MarkdownEvent } from 'typedoc';
 
 import { ABasePlugin, IPluginComponent, PluginAccessor, getPlugin } from '../../base-plugin';
@@ -117,7 +117,7 @@ export class MarkdownReplacer implements IPluginComponent {
 				if( isNil( replacement ) ){
 					return fullMatch;
 				}
-				const lastLine = source.slice( 0, index ).split( /\n/ ).at( -1 );
+				const lastLine = last( source.slice( 0, index ).split( /\n/ ) );
 				const indentedReplacement = lastLine?.match( /^\s+$/ ) ? replacement.replace( /\n/g, `\n${lastLine}` ) : replacement;
 				mapLayer.addEdition( index, fullMatch, indentedReplacement );
 				return indentedReplacement;
