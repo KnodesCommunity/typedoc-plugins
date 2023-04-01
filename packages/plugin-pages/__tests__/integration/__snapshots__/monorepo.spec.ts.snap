@@ -1234,7 +1234,7 @@ exports[`pkg-b pages/pkg_b/using-pkg-b/pkg-b-details.html should have constant c
 				<h1> pkg-b details</h1>
 			</div>
 			<div class=\\"tsd-panel tsd-typography\\">
-				<pre><code><span class=\\"hl-0\\">Test</span>
+				<pre><code class=\\"language-text\\">Test
 </code></pre>
 			</div>
 		</div>

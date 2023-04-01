@@ -1,14 +1,20 @@
 Options can be set in the following ways:
 
 * inline (for CLI), as a JSON object (wrapped with `{` & `}`)
-  ```sh
+
+  ```bash
   typedoc --<pluginOptionsPrefix> '{"source": "my-source"}'
   ```
+
 * as a path to a configuration file exporting options (`require`able files are supported, so, by default, `.json` & `.js`)
-  ```sh
+
+  ```bash
   typedoc --<pluginOptionsPrefix> plugin-configuration.json
   ```
-  {@inlineCodeblock typedoc.json ```json
+
+  {@inlineCodeblock typedoc.json
+
+  ```json
   {
       // ...
       "<pluginOptionsPrefix>": "plugin-configuration.json"
@@ -16,10 +22,14 @@ Options can be set in the following ways:
   ```}
 
 * as individual options (prefixed with `<pluginOptionsPrefix>:`)
-  ```sh
+
+  ```bash
   typedoc --<pluginOptionsPrefix>:<optionName> <optionValue>
   ```
-  {@inlineCodeblock typedoc.json ```json
+
+  {@inlineCodeblock typedoc.json
+
+  ```json
   {
       // ...
       "<pluginOptionsPrefix>:<optionName>": "<optionValue>"
@@ -27,7 +37,10 @@ Options can be set in the following ways:
   ```}
 
 * or as an object (for config file only)
-  {@inlineCodeblock typedoc.json ```json
+
+  {@inlineCodeblock typedoc.json
+
+  ```json
   {
       // ...
       "<pluginOptionsPrefix>": {

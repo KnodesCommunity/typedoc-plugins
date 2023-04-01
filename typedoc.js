@@ -71,6 +71,7 @@ module.exports = {
 	// #endregion
 	pluginCodeBlocks: {
 		source: '__tests__/mock-fs',
+		excludeMarkdownTags: [ '{@codeblock}', '{@inlineCodeblock}' ],
 	},
 	excludePrivate: true,
 	// #region pagesConfig-5

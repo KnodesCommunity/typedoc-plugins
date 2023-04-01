@@ -43,35 +43,39 @@ exports[`\`index.html\` should have constant content 1`] = `
 			<div class=\\"tsd-page-title\\">
 				<h2>@knodes/typedoc-plugin-code-blocks</h2>
 			</div>
-			<div class=\\"tsd-panel tsd-typography\\">
+			<div class=\\"tsd-panel tsd-typography\\"><!-- markdownlint-disable fenced-code-language blanks-around-fences -->
+
 				<p>Hello world</p>
 				<details class=\\"code-block\\" open>
 					<summary>
-						<p>From Test inline codeblock from relative</p>
+						<p>From CodeBlock1.json</p>
 					</summary>
 					<pre><code class=\\"language-json\\"><span class=\\"hl-0\\">{</span><span class=\\"hl-1\\">&quot;Foo&quot;</span><span class=\\"hl-0\\">: </span><span class=\\"hl-2\\">&quot;Bar&quot;</span><span class=\\"hl-0\\">}</span>
 </code></pre>
 				</details>
 
+
 				<details class=\\"code-block\\" open>
 					<summary>
-						<p>From Test inline codeblock from project root</p>
+						<p>From CodeBlock2.json</p>
 					</summary>
 					<pre><code class=\\"language-json\\"><span class=\\"hl-0\\">{</span><span class=\\"hl-1\\">&quot;Hello&quot;</span><span class=\\"hl-0\\">: </span><span class=\\"hl-2\\">&quot;World&quot;</span><span class=\\"hl-0\\">}</span>
 </code></pre>
 				</details>
 
+
 				<details class=\\"code-block\\" open>
 					<summary>
-						<p>From Test inline codeblock from module root</p>
+						<p>From CodeBlock3.json</p>
 					</summary>
 					<pre><code class=\\"language-json\\"><span class=\\"hl-0\\">{</span><span class=\\"hl-1\\">&quot;Hello&quot;</span><span class=\\"hl-0\\">: </span><span class=\\"hl-2\\">&quot;World&quot;</span><span class=\\"hl-0\\">}</span>
 </code></pre>
 				</details>
 
+
 				<details class=\\"code-block\\" open>
 					<summary>
-						<p>From example-inline.json</p>
+						<p>From InlineCodeBlock4.json</p>
 					</summary>
 					<pre><code class=\\"language-json\\"><span class=\\"hl-0\\">{</span><span class=\\"hl-1\\">&quot;hello&quot;</span><span class=\\"hl-0\\">: </span><span class=\\"hl-2\\">&quot;world&quot;</span><span class=\\"hl-0\\">}</span>
 </code></pre>

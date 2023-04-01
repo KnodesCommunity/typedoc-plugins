@@ -1,0 +1,4 @@
+line-length: false
+first-line-heading: false
+no-duplicate-header:
+  allow_different_nesting: true

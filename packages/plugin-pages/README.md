@@ -29,19 +29,21 @@ For more infos, please refer to [the documentation](https://knodescommunity.gith
 
 1. Create markdown files into your repository (by default in the `pages` directory).
 2. Configure your pages tree in the typedoc configuration. Example:
+
    ```json
    {
-   	"pluginPages": {
-   		"pages": [ { "name": "My project name", "moduleRoot": true, "children": [
-   			{ "name": "Some cool docs", "source": "cool-docs.md" },
-   			{ "name": "Configuration", "childrenDir": "configuration", "children": [
-   				{ "name": "Configuration file", "source": "file.md" },
-   				{ "name": "CLI options", "source": "cli.md" },
-   			] },
-   		] } ]
-   	}
+    "pluginPages": {
+     "pages": [ { "name": "My project name", "moduleRoot": true, "children": [
+      { "name": "Some cool docs", "source": "cool-docs.md" },
+      { "name": "Configuration", "childrenDir": "configuration", "children": [
+       { "name": "Configuration file", "source": "file.md" },
+       { "name": "CLI options", "source": "cli.md" },
+      ] },
+     ] } ]
+    }
    }
    ```
+
    See [the *pages* tree guide](https://knodescommunity.github.io/typedoc-plugins/_knodes_typedoc_plugin_pages/pages/pages-tree/index.html), or [the *options* documentation page](https://knodescommunity.github.io/typedoc-plugins/_knodes_typedoc_plugin_pages/pages/options.html) for more infos.
 3. In any markdown content (in README, pages, or doc comments), use the `{@page ...}` tag to create a link to a page.
 
@@ -51,8 +53,8 @@ Syntax:
 {@page <path-to-file>[ link label]}
 ```
 
-* `<path-to-file>`: A path to the desired page. Checkout [this documentation page](https://knodescommunity.github.io/typedoc-plugins/_knodes_typedoc_pluginutils/pages/resolving-paths.html) for more infos on the syntax of the path.
-* `[ link label]`: allow to specify the text in the link. If not set, the target page name is used.
+- `<path-to-file>`: A path to the desired page. Checkout [this documentation page](https://knodescommunity.github.io/typedoc-plugins/_knodes_typedoc_pluginutils/pages/resolving-paths.html) for more infos on the syntax of the path.
+- `[ link label]`: allow to specify the text in the link. If not set, the target page name is used.
 
 <!-- INSTALL -->
 ## Quick start
@@ -69,4 +71,3 @@ This plugin version should match TypeDoc `^0.23.0` for compatibility.
 <!-- INSTALL end -->
 
 > **NOTE:** This plugin is based on [typedoc-plugin-loopingz-pages](https://github.com/loopingz/typedoc-plugin-loopingz-pages), which is in turn a fork of [typedoc-plugin-pages](https://github.com/mipatterson/typedoc-plugin-pages). Integrating it in this monorepo should (I hope) make easier maintenance.<!-- INSTALL -->
-

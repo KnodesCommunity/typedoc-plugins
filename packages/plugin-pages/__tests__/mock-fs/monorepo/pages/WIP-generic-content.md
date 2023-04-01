@@ -36,4 +36,3 @@ From `packages/plugin-pages/__tests__/mock-fs/monorepo/packages/a/pages/using-pk
   * {@page using-pkg-b/details}
 * {@page using-pkg-c}
 * {@page details}
-

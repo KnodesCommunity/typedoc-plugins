@@ -42,6 +42,7 @@ Since `v0.23.2`, you can use glob matching & templates to add pages automaticall
 Template pages are defined anywhere in your page tree, and must have a string `match` and an array or function `template` (see {@link IOptionTemplatePage}). \
 The `match` [glob](https://www.npmjs.com/package/glob) is executed on every folder matched by [`entryPoints`](https://typedoc.org/guides/options/#entrypoints), generating one or multiple {@link ITemplateMatch}. \
 Each {@link ITemplateMatch} is used to expand the `template`. The template can be either
+
 * a function taking the `match` as only argument and returning a list of {@link IPageNode} (for JS config files),
 * or an array that may contain [lodash template strings](https://lodash.com/docs/4.17.15#template) anywhere (for JSON & JS config files).
 
