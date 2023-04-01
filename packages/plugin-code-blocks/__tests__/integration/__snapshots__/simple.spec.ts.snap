@@ -43,7 +43,8 @@ exports[`\`index.html\` should have constant content 1`] = `
 			<div class=\\"tsd-page-title\\">
 				<h2>@knodes/typedoc-plugin-code-blocks</h2>
 			</div>
-			<div class=\\"tsd-panel tsd-typography\\">
+			<div class=\\"tsd-panel tsd-typography\\"><!-- markdownlint-disable fenced-code-language blanks-around-fences -->
+
 				<p>Hello world</p>
 				<details class=\\"code-block\\" open>
 					<summary>

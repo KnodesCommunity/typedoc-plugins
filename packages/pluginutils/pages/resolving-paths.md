@@ -1,4 +1,4 @@
-## Some terminology:
+## Some terminology
 
 * A **container folder** is a well-known directory where all targets are expected to be. For example, it can be a directory containing all extra markdown pages or examples you want to put in your documentation. Each *workspace* can have its own *container folder*.
 * A **workspace** is a top-level entry in your project. There is always at least a **root workspace**\

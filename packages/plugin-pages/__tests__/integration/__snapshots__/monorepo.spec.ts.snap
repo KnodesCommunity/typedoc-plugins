@@ -1068,7 +1068,7 @@ exports[`pkg-b pkg_b/pages/using-pkg-b/details.html should have constant content
 				<h1> pkg-b details</h1>
 			</div>
 			<div class=\\"tsd-panel tsd-typography\\">
-				<pre><code><span class=\\"hl-0\\">Test</span>
+				<pre><code class=\\"language-text\\">Test
 </code></pre>
 			</div>
 		</div>
