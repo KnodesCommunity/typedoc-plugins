@@ -1,3 +1,5 @@
+<!-- markdownlint-disable fenced-code-language blanks-around-fences -->
+
 Hello world
 
 {@codeblock ./src/codeblock/src-test.json | Test inline codeblock from relative}
