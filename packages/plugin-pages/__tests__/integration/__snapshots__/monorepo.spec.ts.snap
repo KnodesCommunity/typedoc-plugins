@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`Root module \`index.html\` should have constant content 1`] = `
+exports[`Root module index.html should have constant content 1`] = `
 "<!DOCTYPE html>
 <html class=\\"default\\" lang=\\"en\\">
 
@@ -133,7 +133,7 @@ exports[`Root module \`index.html\` should have constant content 1`] = `
 </html>"
 `;
 
-exports[`Root module \`pages/root-doc/child.html\` should have constant content 1`] = `
+exports[`Root module pages/root-doc/child.html should have constant content 1`] = `
 "<!DOCTYPE html>
 <html class=\\"default\\" lang=\\"en\\">
 
@@ -264,7 +264,7 @@ exports[`Root module \`pages/root-doc/child.html\` should have constant content 
 </html>"
 `;
 
-exports[`Root module \`pages/root-doc/index.html\` should have constant content 1`] = `
+exports[`Root module pages/root-doc/index.html should have constant content 1`] = `
 "<!DOCTYPE html>
 <html class=\\"default\\" lang=\\"en\\">
 
@@ -394,7 +394,7 @@ exports[`Root module \`pages/root-doc/index.html\` should have constant content 
 </html>"
 `;
 
-exports[`pkg-a \`modules/pkg_a.html\` should have constant content 1`] = `
+exports[`pkg-a modules/pkg_a.html should have constant content 1`] = `
 "<!DOCTYPE html>
 <html class=\\"default\\" lang=\\"en\\">
 
@@ -561,7 +561,7 @@ exports[`pkg-a \`modules/pkg_a.html\` should have constant content 1`] = `
 </html>"
 `;
 
-exports[`pkg-a \`pkg_a/pages/using-pkg-a.html\` should have constant content 1`] = `
+exports[`pkg-a pkg_a/pages/using-pkg-a.html should have constant content 1`] = `
 "<!DOCTYPE html>
 <html class=\\"default\\" lang=\\"en\\">
 
@@ -705,7 +705,7 @@ exports[`pkg-a \`pkg_a/pages/using-pkg-a.html\` should have constant content 1`]
 </html>"
 `;
 
-exports[`pkg-a \`variables/pkg_a.stubA.html\` should have constant content 1`] = `
+exports[`pkg-a variables/pkg_a.stubA.html should have constant content 1`] = `
 "<!DOCTYPE html>
 <html class=\\"default\\" lang=\\"en\\">
 
@@ -855,7 +855,7 @@ exports[`pkg-a \`variables/pkg_a.stubA.html\` should have constant content 1`] =
 </html>"
 `;
 
-exports[`pkg-b \`modules/pkg_b.html\` should have constant content 1`] = `
+exports[`pkg-b modules/pkg_b.html should have constant content 1`] = `
 "<!DOCTYPE html>
 <html class=\\"default\\" lang=\\"en\\">
 
@@ -1018,7 +1018,7 @@ exports[`pkg-b \`modules/pkg_b.html\` should have constant content 1`] = `
 </html>"
 `;
 
-exports[`pkg-b \`pkg_b/pages/using-pkg-b/details.html\` should have constant content 1`] = `
+exports[`pkg-b pkg_b/pages/using-pkg-b/details.html should have constant content 1`] = `
 "<!DOCTYPE html>
 <html class=\\"default\\" lang=\\"en\\">
 
@@ -1166,7 +1166,7 @@ exports[`pkg-b \`pkg_b/pages/using-pkg-b/details.html\` should have constant con
 </html>"
 `;
 
-exports[`pkg-b \`pkg_b/pages/using-pkg-b/index.html\` should have constant content 1`] = `
+exports[`pkg-b pkg_b/pages/using-pkg-b/index.html should have constant content 1`] = `
 "<!DOCTYPE html>
 <html class=\\"default\\" lang=\\"en\\">
 
@@ -1315,7 +1315,7 @@ exports[`pkg-b \`pkg_b/pages/using-pkg-b/index.html\` should have constant conte
 </html>"
 `;
 
-exports[`pkg-b \`variables/pkg_b.stubB.html\` should have constant content 1`] = `
+exports[`pkg-b variables/pkg_b.stubB.html should have constant content 1`] = `
 "<!DOCTYPE html>
 <html class=\\"default\\" lang=\\"en\\">
 

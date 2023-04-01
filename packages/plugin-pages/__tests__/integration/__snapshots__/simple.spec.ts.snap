@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`Documentation \`classes/Test.html\` should have constant content 1`] = `
+exports[`Documentation classes/Test.html should have constant content 1`] = `
 "<!DOCTYPE html>
 <html class=\\"default\\" lang=\\"en\\">
 
@@ -202,7 +202,7 @@ exports[`Documentation \`classes/Test.html\` should have constant content 1`] = 
 </html>"
 `;
 
-exports[`Pages \`pages/additional-resources/some-cool-docs.html\` should have constant content 1`] = `
+exports[`Pages pages/additional-resources/some-cool-docs.html should have constant content 1`] = `
 "<!DOCTYPE html>
 <html class=\\"default\\" lang=\\"en\\">
 
@@ -345,7 +345,7 @@ exports[`Pages \`pages/additional-resources/some-cool-docs.html\` should have co
 </html>"
 `;
 
-exports[`Pages \`pages/getting-started/configuration.html\` should have constant content 1`] = `
+exports[`Pages pages/getting-started/configuration.html should have constant content 1`] = `
 "<!DOCTYPE html>
 <html class=\\"default\\" lang=\\"en\\">
 
@@ -488,7 +488,7 @@ exports[`Pages \`pages/getting-started/configuration.html\` should have constant
 </html>"
 `;
 
-exports[`Pages \`pages/getting-started/index.html\` should have constant content 1`] = `
+exports[`Pages pages/getting-started/index.html should have constant content 1`] = `
 "<!DOCTYPE html>
 <html class=\\"default\\" lang=\\"en\\">
 
