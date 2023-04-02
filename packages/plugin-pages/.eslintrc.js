@@ -6,7 +6,6 @@ module.exports = {
 		project: [ `${__dirname}/tsconfig.build.json`, `${__dirname}/tsconfig.spec.json` ],
 	},
 	rules: {
-		'no-bitwise': [ 'off' ],
 		'jsdoc/check-tag-names': [ 'error', { definedTags: [ 'experimental', 'category' ] } ],
 	},
 };

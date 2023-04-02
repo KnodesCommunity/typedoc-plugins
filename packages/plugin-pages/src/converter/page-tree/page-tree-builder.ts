@@ -30,8 +30,6 @@ interface IReflectionBuildContext {
  * Class responsible of converting configuration to Typedoc models ({@link import('typedoc').Reflection}).
  *
  * For this, options are first normalized & merged in nodes, then those nodes are converted to {@link PageReflection} or {@link MenuReflection}.
- *
- * @experimental
  */
 export class PageTreeBuilder implements IPluginComponent<PagesPlugin> {
 	private readonly _logger = this.plugin.logger.makeChildLogger( PageTreeBuilder.name );

@@ -1,4 +1,5 @@
 import assert from 'assert';
+// eslint-disable-next-line no-restricted-imports -- OS-specific path manipulation
 import { resolve } from 'path';
 
 import { Many, castArray } from 'lodash';
@@ -36,7 +37,10 @@ export const runPlugin = async (
 		repo.contains = jest.fn().mockReturnValue( true );
 		return repo;
 	} );
+	const errorOnBootstrapSpy = jest.spyOn( console, 'error' );
 	app.bootstrap( fullOpts );
+	expect( errorOnBootstrapSpy ).not.toHaveBeenCalled();
+	errorOnBootstrapSpy.mockRestore();
 	const project = app.convert();
 	expect( project ).toBeTruthy();
 	assert( project );

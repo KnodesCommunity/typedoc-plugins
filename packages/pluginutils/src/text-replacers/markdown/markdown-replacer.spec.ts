@@ -4,15 +4,14 @@ import assert from 'assert';
 import { identity } from 'lodash';
 import { Application, DeclarationReflection, MarkdownEvent, ReflectionKind, SourceReference } from 'typedoc';
 
-jest.mock( '../../base-plugin' );
-const { ABasePlugin, getPlugin, getApplication } = require( '../../base-plugin' ) as jest.Mocked<typeof import( '../../base-plugin' )>;
-getPlugin.mockImplementation( identity );
-getApplication.mockImplementation( jest.requireActual( '../../base-plugin' ).getApplication );
-
 import { CurrentPageMemo } from '../../current-page-memo';
 import { relative, resolve } from '../../utils/path';
 import { MarkdownReplacer } from './markdown-replacer';
 
+jest.mock( '../../base-plugin' );
+const { ABasePlugin, getPlugin, getApplication } = require( '../../base-plugin' ) as jest.Mocked<typeof import( '../../base-plugin' )>;
+getPlugin.mockImplementation( identity );
+getApplication.mockImplementation( jest.requireActual( '../../base-plugin' ).getApplication );
 class TestPlugin extends ABasePlugin {
 	public override application: jest.MockedObjectDeep<Application>;
 	public constructor(){

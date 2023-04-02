@@ -6,7 +6,8 @@ module.exports = {
 		project: [ `${__dirname}/tsconfig.build.json`, `${__dirname}/tsconfig.spec.json` ],
 	},
 	rules: {
-		'no-restricted-imports': [ 'error', 'path' ],
+		'no-bitwise': [ 'off' ],
+		'no-restricted-imports': [ 'error', 'path', 'path/windows', 'path/posix' ], // Use `@knodes/typedoc-pluginutils/path`
 	},
 	settings: {
 		jsdoc: {

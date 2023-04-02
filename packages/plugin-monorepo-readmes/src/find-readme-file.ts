@@ -30,8 +30,8 @@ export const findReadmeFile = ( readmeTargets: string[], moduleMapping: UrlMappi
 		return undefined;
 	}
 	let targetFile;
-	for ( const target of readmeTargets ) {
-		targetFile = findUpSync( target, { cwd: dirname( src ) } );
+	for ( const readmeTarget of readmeTargets ) {
+		targetFile = findUpSync( readmeTarget, { cwd: dirname( src ) } );
 		if ( !targetFile ){
 			continue;
 		}

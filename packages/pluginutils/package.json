@@ -26,7 +26,10 @@
   "main": "dist/index.js",
   "exports": {
     ".": "./dist/index.js",
-    "./path": "./dist/utils/path.js"
+    "./path": {
+      "default": "./dist/utils/path.js",
+      "types": "./dist/utils/path.d.ts"
+    }
   },
   "files": [
     "dist",

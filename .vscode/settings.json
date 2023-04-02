@@ -1,4 +1,8 @@
 {
     "jest.jestCommandLine": "node_modules/.bin/jest",
-    "jest.autoRun": {"watch": false, "onSave": "test-file"}
+    "jest.autoRun": {
+        "watch": false,
+        "onSave": "test-file"
+    },
+    "typescript.tsdk": "node_modules/typescript/lib",
 }
