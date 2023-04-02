@@ -201,7 +201,7 @@ export namespace DeclarativeNodeLoader {
 		/**
 		 * The directory in which children are sourced.\
 		 *
-		 * @see {@page pages-tree.md} for details.
+		 * @see {@page pages-tree} for details.
 		 */
 		childrenDir?: string;
 		/**
@@ -211,12 +211,12 @@ export namespace DeclarativeNodeLoader {
 		/**
 		 * The name of the page/menu.
 		 *
-		 * If setting {@link IRootPageNode.moduleRoot} to `true`, the name is used to lookup the module/package/workspace to attach children to. When a {@link source} is
+		 * If setting {@link moduleRoot} to `true`, the name is used to lookup the module/package/workspace to attach children to. When a {@link source} is
 		 * also provided, the source is prepended to the target module index page.
 		 *
-		 * If set to `'VIRTUAL'`, the node itself is omitted and children are flattened while cumulating the node's source & output.
+		 * If set to `'VIRTUAL'`, the node itself is omitted and children are collected from {@link childrenDir}.
 		 *
-		 * @see {@page pages-tree.md} for details.
+		 * @see {@page pages-tree} for details.
 		 */
 		name: LiteralUnion<'VIRTUAL', string>;
 	}

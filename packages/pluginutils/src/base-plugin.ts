@@ -6,6 +6,8 @@ import { satisfies } from 'semver';
 import { PackageJson, ReadonlyDeep, SetRequired } from 'type-fest';
 import { Application, Context, Converter, LogLevel, SourceReference } from 'typedoc';
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars -- For docs
+import type { autoload } from './autoload';
 import { EventsExtra } from './events-extra';
 import { PluginLogger } from './plugin-logger';
 import * as miscUtils from './utils/misc';
@@ -84,7 +86,7 @@ export abstract class ABasePlugin {
 	/**
 	 * This method is called after the plugin has been instanciated.
 	 *
-	 * @see {@link import('./autoload').autoload}.
+	 * @see {@link autoload}.
 	 */
 	public abstract initialize(): void;
 

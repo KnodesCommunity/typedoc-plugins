@@ -11,15 +11,9 @@ module.exports = {
 		'packages/*',
 	],
 	entryPointStrategy: 'packages',
+	/** @type {import('@knodes/typedoc-plugin-pages').IPluginOptions} */
 	pluginPages: {
 		pages: [
-			{
-				name: 'Knodes TypeDoc Plugins', // The section containing the monorepo root pages
-				moduleRoot: true,
-				children: [
-					{ name: 'Changelog', source: './CHANGELOG.md' },
-				],
-			},
 			// Add `pages/readme-extras.md` at the end of the module's readme in every module containing it. Use function template.
 			{ loader: 'template', match: 'pages/readme-extras.md', template: context => [
 				{ moduleRoot: true, name: `@knodes/typedoc-${basename( context.from )}`, source: context.match },
@@ -30,15 +24,8 @@ module.exports = {
 					{ name: 'Using options', source: '${match.match}' },
 				] },
 			] },
-			{
-				name: '@knodes/typedoc-plugin-pages', // A pages section for the package `@knodes/typedoc-plugin-pages`
-				moduleRoot: true,
-				childrenDir: 'pages',
-				children: [ // Children pages
-					{ name: 'Pages tree', source: 'pages-tree.md' },
-				],
-			},
 			// #endregion
+			{ loader: 'frontMatter', root: 'pages' },
 			{
 				name: '@knodes/typedoc-plugin-code-blocks',
 				moduleRoot: true,
@@ -57,9 +44,9 @@ module.exports = {
 				],
 			},
 			// #region pagesConfig-3
-			{ loader: 'template', match: 'CHANGELOG.md', template: [
-				{ moduleRoot: true, name: '@knodes/typedoc-${path.basename(match.from)}', children: [
-					{ name: 'Changelog', source: '${match.match}' },
+			{ loader: 'template', match: 'CHANGELOG.md', template: context => [
+				{ moduleRoot: true, name: context.module.name, children: [
+					{ name: 'Changelog', source: context.match },
 				] },
 			] },
 		],

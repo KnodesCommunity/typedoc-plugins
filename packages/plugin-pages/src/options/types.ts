@@ -20,7 +20,7 @@ export interface IPluginOptions {
 	pages: AnyLoaderRawPageNode[];
 
 	/**
-	 * Whether or not @page and @pagelink tags should be parsed.
+	 * Whether or not `{@page ...}` tag should be parsed.
 	 *
 	 * @default true
 	 */
