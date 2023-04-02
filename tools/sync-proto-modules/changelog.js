@@ -8,7 +8,7 @@ const { syncFile, tryReadFile } = require( './utils' );
 
 const getOldestVersion = async pkgName => {
 	try {
-		const out = await spawn( 'npm', [ 'show', pkgName, 'versions', '--json' ], { stdio: [ null, captureStream(), captureStream() ] } );
+		const out = await spawn( 'npm', [ 'show', pkgName, 'versions', '--json' ], { stdio: [ null, captureStream(), captureStream() ], shell: true } );
 		const versions = JSON.parse( out.stdout );
 		return versions[0];
 	} catch( e ){

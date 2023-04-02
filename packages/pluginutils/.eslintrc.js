@@ -5,4 +5,12 @@ module.exports = {
 	parserOptions: {
 		project: [ `${__dirname}/tsconfig.build.json`, `${__dirname}/tsconfig.spec.json` ],
 	},
+	rules: {
+		'no-bitwise': [ 'off' ],
+	},
+	settings: {
+		jsdoc: {
+			mode: 'typescript',
+		},
+	},
 };

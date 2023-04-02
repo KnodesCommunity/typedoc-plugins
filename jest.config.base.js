@@ -24,8 +24,8 @@ const baseConfig = package => ( {
 		'^#plugintestbed$': resolveRoot( './packages/plugintestbed/src' ),
 	},
 	setupFilesAfterEnv: [ 'jest-extended/all' ],
-	watchPathIgnorePatterns: [ '<rootDir>/.*/__tests__/mock-fs/.*/docs' ],
-	modulePathIgnorePatterns: [ '<rootDir>/.*/__tests__/mock-fs/.*/' ],
+	watchPathIgnorePatterns: [ '__tests__/mock-fs/.*/docs' ],
+	modulePathIgnorePatterns: [ '__tests__/mock-fs/.*/' ],
 } );
 const anyExt = '.{c,m,}{t,j}s{x,}';
 /** @type {import('ts-jest/dist/types').InitialOptionsTsJest[]} */
