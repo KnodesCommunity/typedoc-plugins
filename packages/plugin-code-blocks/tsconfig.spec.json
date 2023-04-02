@@ -9,6 +9,7 @@
     ],
     "paths": {
       "#plugintestbed": ["packages/plugintestbed/src"],
+      "@knodes/typedoc-pluginutils/*": ["./packages/pluginutils/src/utils/*"],
       "@knodes/typedoc-*": ["packages/*/src"],
     }
   },

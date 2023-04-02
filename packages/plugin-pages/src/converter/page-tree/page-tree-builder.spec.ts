@@ -1,8 +1,8 @@
-import { resolve } from 'path';
-
 import { isString, noop, omit } from 'lodash';
 import { Class } from 'type-fest';
 import { DeclarationReflection, LogLevel, ProjectReflection, Reflection, ReflectionKind, SourceReference, normalizePath } from 'typedoc';
+
+import { resolve } from '@knodes/typedoc-pluginutils/path';
 
 import { MockPlugin, createMockProjectWithPackage, mockPlugin, restoreFs, setVirtualFs } from '#plugintestbed';
 

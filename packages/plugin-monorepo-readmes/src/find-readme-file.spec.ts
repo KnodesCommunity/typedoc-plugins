@@ -1,6 +1,6 @@
-import { resolve } from 'path';
-
 import { DeclarationReflection, ProjectReflection, ReflectionKind, SourceReference, UrlMapping } from 'typedoc';
+
+import { resolve } from '@knodes/typedoc-pluginutils/path';
 
 import { restoreFs, setVirtualFs  } from '#plugintestbed';
 

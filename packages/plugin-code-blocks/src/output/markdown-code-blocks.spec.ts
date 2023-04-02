@@ -1,7 +1,7 @@
-import { resolve } from 'path';
-
 import { noop } from 'lodash';
 import { DeclarationReflection, ReflectionKind, RepositoryType, normalizePath } from 'typedoc';
+
+import { resolve } from '@knodes/typedoc-pluginutils/path';
 
 import { MockPlugin, createMockProjectWithPackage, mockPlugin, restoreFs, setVirtualFs, setupMockMarkdownReplacer, setupMockPageMemo } from '#plugintestbed';
 

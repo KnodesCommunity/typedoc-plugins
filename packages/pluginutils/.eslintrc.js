@@ -7,6 +7,7 @@ module.exports = {
 	},
 	rules: {
 		'no-bitwise': [ 'off' ],
+		'no-restricted-imports': [ 'error', 'path', 'path/windows', 'path/posix' ], // Use `@knodes/typedoc-pluginutils/path`
 	},
 	settings: {
 		jsdoc: {

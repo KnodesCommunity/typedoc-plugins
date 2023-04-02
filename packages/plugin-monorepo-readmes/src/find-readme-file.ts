@@ -1,8 +1,9 @@
 import { readdirSync } from 'fs';
-import { dirname, resolve } from 'path';
 
 import { sync as findUpSync } from 'find-up';
 import { DeclarationReflection, UrlMapping } from 'typedoc';
+
+import { dirname, resolve } from '@knodes/typedoc-pluginutils/path';
 
 const getModuleReflectionSource = ( reflection: DeclarationReflection ) => reflection.sources?.[0]?.fullFileName;
 
@@ -29,8 +30,8 @@ export const findReadmeFile = ( readmeTargets: string[], moduleMapping: UrlMappi
 		return;
 	}
 	let targetFile;
-	for ( const target of readmeTargets ) {
-		targetFile = findUpSync( target, { cwd: dirname( src ) } );
+	for ( const readmeTarget of readmeTargets ) {
+		targetFile = findUpSync( readmeTarget, { cwd: dirname( src ) } );
 		if ( !targetFile ){
 			continue;
 		}

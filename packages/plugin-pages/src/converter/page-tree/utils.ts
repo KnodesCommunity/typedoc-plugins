@@ -1,9 +1,10 @@
 import assert from 'assert';
-import { join as _join } from 'path';
 
 import { isNil, isObject, isString, startCase } from 'lodash';
 import { PascalCase } from 'type-fest';
 import { Reflection, normalizePath } from 'typedoc';
+
+import { join as _join } from '@knodes/typedoc-pluginutils/path';
 
 import { ANodeReflection } from '../../models/reflections';
 import { IPageNode } from '../../options';

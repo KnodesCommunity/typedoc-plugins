@@ -1,11 +1,11 @@
 import assert from 'assert';
-import { relative } from 'path';
 
 import { isString, uniq } from 'lodash';
 import { filter as filterGlob } from 'minimatch';
 import { DeclarationReflection, ReflectionKind, RepositoryType, normalizePath } from 'typedoc';
 
 import { CurrentPageMemo, IPluginComponent, MarkdownReplacer, reflectionKindUtils, reflectionSourceUtils, resolveNamedPath } from '@knodes/typedoc-pluginutils';
+import { relative } from '@knodes/typedoc-pluginutils/path';
 
 import { DEFAULT_BLOCK_NAME, ICodeSample, readCodeSample } from '../code-sample-file';
 import type { CodeBlockPlugin } from '../plugin';

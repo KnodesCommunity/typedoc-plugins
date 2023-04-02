@@ -1,11 +1,11 @@
 import assert from 'assert';
 import { copyFileSync } from 'fs';
-import { join } from 'path';
 
 import { isString } from 'lodash';
 import { DeclarationReflection, DefaultTheme, IndexEvent, JSX, PageEvent, ProjectReflection, Reflection, ReflectionKind, RendererEvent, UrlMapping } from 'typedoc';
 
 import { CurrentPageMemo, IPluginComponent, getReflectionModule, reflectionSourceUtils } from '@knodes/typedoc-pluginutils';
+import { join } from '@knodes/typedoc-pluginutils/path';
 
 import { ANodeReflection, PageReflection, PagesPluginReflectionKind } from '../../models/reflections';
 import type { PagesPlugin } from '../../plugin';

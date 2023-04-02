@@ -1,4 +1,5 @@
 import { readFile } from 'fs/promises';
+// eslint-disable-next-line no-restricted-imports -- OS-specific path manipulation
 import { resolve } from 'path';
 
 import { JSDOM } from 'jsdom';

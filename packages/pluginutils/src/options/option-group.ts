@@ -1,9 +1,10 @@
 import assert from 'assert';
-import { dirname } from 'path';
 
 import { closest } from 'fastest-levenshtein';
 import { defaultsDeep, difference, get, identity, kebabCase } from 'lodash';
 import { DeclarationOption, MixedDeclarationOption, ParameterType } from 'typedoc';
+
+import { dirname } from '@knodes/typedoc-pluginutils/path';
 
 import type { ABasePlugin } from '../base-plugin';
 import { EventsExtra } from '../events-extra';

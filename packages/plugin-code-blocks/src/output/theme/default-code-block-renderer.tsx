@@ -1,10 +1,10 @@
 import assert from 'assert';
 import { copyFileSync } from 'fs';
-import { extname, join } from 'path';
 
 import { DefaultTheme, JSX, PageEvent, RendererEvent } from 'typedoc';
 
 import { IPluginComponent } from '@knodes/typedoc-pluginutils';
+import { extname, join } from '@knodes/typedoc-pluginutils/path';
 
 import type { CodeBlockPlugin } from '../../plugin';
 import { EBlockMode, ICodeBlock, IInlineCodeBlock } from '../../types';

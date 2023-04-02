@@ -20,6 +20,7 @@ const baseConfig = package => ( {
 		},
 	},
 	moduleNameMapper: {
+		'^@knodes/typedoc-pluginutils/(.*)$': resolveRoot( __dirname, './packages/pluginutils/src/utils/$1' ),
 		'^@knodes/typedoc-(plugin.*)$': resolveRoot( __dirname, './packages/$1/src' ),
 		'^#plugintestbed$': resolveRoot( './packages/plugintestbed/src' ),
 	},

@@ -1,9 +1,9 @@
 import { readFileSync } from 'fs';
-import { relative } from 'path';
 
 import { Comment, ProjectReflection, SourceReference, normalizePath } from 'typedoc';
 
 import { miscUtils } from '@knodes/typedoc-pluginutils';
+import { relative } from '@knodes/typedoc-pluginutils/path';
 
 import { ANodeReflection } from './a-node-reflection';
 import { PagesPluginReflectionKind } from './reflection-kind';

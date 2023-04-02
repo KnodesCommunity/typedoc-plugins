@@ -1,4 +1,4 @@
-import { resolve } from 'path';
+import { resolve } from '@knodes/typedoc-pluginutils/path';
 
 import { describeDocsFile, formatHtml, getBreadcrumb, runPluginBeforeAll } from '#plugintestbed';
 
