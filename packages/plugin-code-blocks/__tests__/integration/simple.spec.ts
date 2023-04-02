@@ -18,10 +18,10 @@ describe( '`index.html`', describeDocsFile( rootDir, 'index.html', withContent =
 		const panel = dom.window.document.querySelector( '.col-content > .tsd-panel.tsd-typography' );
 		expect( panel!.children ).toHaveLength( 5 );
 		expect( panel!.children[0].outerHTML ).toEqual( '<p>Hello world</p>' );
-		expect( panel!.children[1].outerHTML ).toEqual( formatExpanded( 'Test inline codeblock from relative', SRC_CODE ) );
-		expect( panel!.children[2].outerHTML ).toEqual( formatExpanded( 'Test inline codeblock from project root', EXAMPLE_CODE ) );
-		expect( panel!.children[3].outerHTML ).toEqual( formatExpanded( 'Test inline codeblock from module root', EXAMPLE_CODE ) );
-		expect( panel!.children[4].outerHTML ).toEqual( formatExpanded( 'example-inline.json', INLINE_CODE ) );
+		expect( panel!.children[1].outerHTML ).toEqual( formatExpanded( 'CodeBlock1.json', SRC_CODE ) );
+		expect( panel!.children[2].outerHTML ).toEqual( formatExpanded( 'CodeBlock2.json', EXAMPLE_CODE ) );
+		expect( panel!.children[3].outerHTML ).toEqual( formatExpanded( 'CodeBlock3.json', EXAMPLE_CODE ) );
+		expect( panel!.children[4].outerHTML ).toEqual( formatExpanded( 'InlineCodeBlock4.json', INLINE_CODE ) );
 	} ) );
 	it( 'should have constant content', withContent( content => {
 		expect( formatHtml( content ) ).toMatchSnapshot();

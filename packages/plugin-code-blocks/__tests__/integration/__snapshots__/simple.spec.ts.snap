@@ -48,31 +48,34 @@ exports[`\`index.html\` should have constant content 1`] = `
 				<p>Hello world</p>
 				<details class=\\"code-block\\" open>
 					<summary>
-						<p>From Test inline codeblock from relative</p>
+						<p>From CodeBlock1.json</p>
 					</summary>
 					<pre><code class=\\"language-json\\"><span class=\\"hl-0\\">{</span><span class=\\"hl-1\\">&quot;Foo&quot;</span><span class=\\"hl-0\\">: </span><span class=\\"hl-2\\">&quot;Bar&quot;</span><span class=\\"hl-0\\">}</span>
 </code></pre>
 				</details>
 
+
 				<details class=\\"code-block\\" open>
 					<summary>
-						<p>From Test inline codeblock from project root</p>
+						<p>From CodeBlock2.json</p>
 					</summary>
 					<pre><code class=\\"language-json\\"><span class=\\"hl-0\\">{</span><span class=\\"hl-1\\">&quot;Hello&quot;</span><span class=\\"hl-0\\">: </span><span class=\\"hl-2\\">&quot;World&quot;</span><span class=\\"hl-0\\">}</span>
 </code></pre>
 				</details>
 
+
 				<details class=\\"code-block\\" open>
 					<summary>
-						<p>From Test inline codeblock from module root</p>
+						<p>From CodeBlock3.json</p>
 					</summary>
 					<pre><code class=\\"language-json\\"><span class=\\"hl-0\\">{</span><span class=\\"hl-1\\">&quot;Hello&quot;</span><span class=\\"hl-0\\">: </span><span class=\\"hl-2\\">&quot;World&quot;</span><span class=\\"hl-0\\">}</span>
 </code></pre>
 				</details>
 
+
 				<details class=\\"code-block\\" open>
 					<summary>
-						<p>From example-inline.json</p>
+						<p>From InlineCodeBlock4.json</p>
 					</summary>
 					<pre><code class=\\"language-json\\"><span class=\\"hl-0\\">{</span><span class=\\"hl-1\\">&quot;hello&quot;</span><span class=\\"hl-0\\">: </span><span class=\\"hl-2\\">&quot;world&quot;</span><span class=\\"hl-0\\">}</span>
 </code></pre>
@@ -1646,7 +1649,7 @@ exports[`Inline Codeblock Block tag \`classes/InlineBlock.TestInlineBlock.html\`
 			</section>
 			<aside class=\\"tsd-sources\\">
 				<ul>
-					<li>Defined in inline-codeblock/block.ts:8</li>
+					<li>Defined in inline-codeblock/block.ts:9</li>
 				</ul>
 			</aside>
 			<section class=\\"tsd-panel-group tsd-index-group\\">

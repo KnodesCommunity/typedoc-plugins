@@ -1,7 +1,8 @@
 /**
  * A test inline code block
  *
- * @inlineCodeblock test.json ```json
+ * @inlineCodeblock test.json
+ * ```json
  * {"hello": "world"}
  * ```
  */
