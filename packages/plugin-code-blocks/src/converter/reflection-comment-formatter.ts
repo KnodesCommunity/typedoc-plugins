@@ -22,7 +22,6 @@ class ReflectionCommentFormatter implements IPluginComponent<CodeBlockPlugin>{
 	 * @param match - The block match.
 	 */
 	private _onReplaceCodeBlockBlockTag( { comment, block }: ReflectionCommentReplacer.MatchBlock ){
-		assert.equal( block.content.length, 1 );
 		assert.equal( block.content[0].kind, 'text' );
 		comment.blockTags = without( comment.blockTags, block );
 		const [ main, ...other ] = block.content[0].text.split( '\n' ).map( s => s.trim() );
@@ -30,6 +29,7 @@ class ReflectionCommentFormatter implements IPluginComponent<CodeBlockPlugin>{
 		if( other.length > 0 ){
 			comment.summary.push( { kind:'text', text: [ '', ...other ].join( '\n' ) } );
 		}
+		comment.summary.push( ...block.content.slice( 1 ) );
 	}
 
 	/**

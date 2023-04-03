@@ -2,7 +2,7 @@ import assert from 'assert';
 
 import { isString, uniq } from 'lodash';
 import { filter as filterGlob } from 'minimatch';
-import { DeclarationReflection, ReflectionKind, RepositoryType, normalizePath } from 'typedoc';
+import { DeclarationReflection, ReflectionKind, RepositoryType } from 'typedoc';
 
 import { CurrentPageMemo, IPluginComponent, MarkdownReplacer, reflectionKindUtils, reflectionSourceUtils, resolveNamedPath } from '@knodes/typedoc-pluginutils';
 import { relative } from '@knodes/typedoc-pluginutils/path';
@@ -46,7 +46,7 @@ export class MarkdownCodeBlocks implements IPluginComponent<CodeBlockPlugin>{
 	private _replaceInlineCodeBlock( match: MarkdownReplacer.Match ) {
 		// Avoid recursion in code blocks
 		if( this._currentPageMemo.currentReflection instanceof DeclarationReflection && this._currentPageMemo.currentReflection.kind === CODEBLOCK_KIND ){
-			return;
+			return undefined;
 		}
 		const [ fileName, blockModeStr, markdownCode ] = match.captures;
 		assert.ok( fileName );
@@ -70,7 +70,7 @@ export class MarkdownCodeBlocks implements IPluginComponent<CodeBlockPlugin>{
 	private _replaceCodeBlock( match: MarkdownReplacer.Match, sourceHint: MarkdownReplacer.SourceHint ) {
 		// Avoid recursion in code blocks
 		if( this._currentPageMemo.currentReflection instanceof DeclarationReflection && this._currentPageMemo.currentReflection.kind === CODEBLOCK_KIND ){
-			return;
+			return undefined;
 		}
 		const [ file, block, blockModeStr, fakedFileName ] = match.captures;
 		try {
@@ -109,9 +109,6 @@ export class MarkdownCodeBlocks implements IPluginComponent<CodeBlockPlugin>{
 			this._currentPageMemo.currentReflection,
 			this.plugin.pluginOptions.getValue().source,
 			file );
-		if( !resolvedFile ){
-			throw new Error( `Could not resolve file ${file}` );
-		}
 		// Get the actual code sample
 		if( !this._fileSamples.has( resolvedFile ) ){
 			this._fileSamples.set( resolvedFile, readCodeSample( resolvedFile ) );
@@ -191,7 +188,7 @@ export class MarkdownCodeBlocks implements IPluginComponent<CodeBlockPlugin>{
 	 * @returns the file name to show in the header.
 	 */
 	private _getHeaderFileName( file: string, lineRange: readonly [number, number] | null ): string {
-		const filePath = normalizePath( relative( this.plugin.rootDir, file ) );
+		const filePath = relative( this.plugin.rootDir, file );
 		const regionMarker = lineRange ? `#${lineRange[0]}~${lineRange[1]}` : '';
 		return `./${filePath}${regionMarker}`;
 	}
