@@ -65,7 +65,6 @@
     "@commitlint/config-conventional": "^17.0.2",
     "@knodes/eslint-config": "^1.6.5",
     "@knodes/typedoc-plugin-code-blocks": "file:./packages/plugin-code-blocks",
-    "@knodes/typedoc-plugin-monorepo-readmes": "file:./packages/plugin-monorepo-readmes",
     "@knodes/typedoc-plugin-pages": "file:./packages/plugin-pages",
     "@knodes/typedoc-plugintestbed": "file:./packages/plugintestbed",
     "@knodes/typedoc-pluginutils": "file:./packages/pluginutils",

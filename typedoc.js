@@ -36,13 +36,6 @@ module.exports = {
 				],
 			},
 			{
-				name: '@knodes/typedoc-plugin-monorepo-readmes',
-				moduleRoot: true,
-				children: [
-					{ name: 'Using options', source: 'options.md' },
-				],
-			},
-			{
 				name: '@knodes/typedoc-pluginutils',
 				moduleRoot: true,
 				children: [
