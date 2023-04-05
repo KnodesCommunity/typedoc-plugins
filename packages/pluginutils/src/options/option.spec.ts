@@ -1,7 +1,15 @@
 import { expectTypeOf } from 'expect-type';
-import { ArrayDeclarationOption as ArrDec, NumberDeclarationOption as NumDec, ParameterType as PType, ParameterType, StringDeclarationOption as StrDec } from 'typedoc';
+import {
+	ArrayDeclarationOption as ArrDec,
+	FlagsDeclarationOption as FlagsDec,
+	MapDeclarationOption as MapDec,
+	NumberDeclarationOption as NumDec,
+	ParameterType as PType,
+	ParameterType,
+	StringDeclarationOption as StrDec,
+} from 'typedoc';
 
-import { InferDeclarationType, Option } from './option';
+import { InferDeclarationType, MapperPart, Option } from './option';
 
 describe( 'Typings', () => {
 	const maybe = true as boolean;
@@ -32,5 +40,15 @@ describe( 'Typings', () => {
 		expectTypeOf( opt2.setValue ).parameter( 0 ).toEqualTypeOf<string>();
 		expectTypeOf( opt2.getValue() ).not.toEqualTypeOf<string>();
 		expectTypeOf( opt2.setValue ).parameter( 0 ).not.toEqualTypeOf<number>();
+	} );
+	it( 'should infer mapper', () => {
+		if( maybe ) return;
+		expectTypeOf<MapperPart<number, NumDec>>().toEqualTypeOf<[mapper?: ( value: number ) => number]>();
+		expectTypeOf<MapperPart<number, NumDec>>().not.toEqualTypeOf<[mapper: ( value: number ) => number]>();
+		expectTypeOf<MapperPart<number, StrDec>>().toEqualTypeOf<[mapper: ( value: string ) => number]>();
+		expectTypeOf<MapperPart<{foo: true}, MapDec<{foo: true}>>>().toEqualTypeOf<[mapper?: ( value: {foo: true} ) => {foo: true}]>();
+		expectTypeOf<MapperPart<{foo: true}, MapDec<{foo: true}>>>().not.toEqualTypeOf<[mapper: ( value: {foo: true} ) => {foo: true}]>();
+		expectTypeOf<MapperPart<{foo: boolean}, FlagsDec<{foo: boolean}>>>().toEqualTypeOf<[mapper?: ( value: {foo: boolean} ) => {foo: boolean}]>();
+		expectTypeOf<MapperPart<{foo: boolean}, FlagsDec<{foo: boolean}>>>().not.toEqualTypeOf<[mapper: ( value: {foo: boolean} ) => {foo: boolean}]>();
 	} );
 } );

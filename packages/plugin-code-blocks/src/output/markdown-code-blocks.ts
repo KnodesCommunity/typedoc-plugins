@@ -2,10 +2,12 @@ import assert from 'assert';
 
 import { isString, uniq } from 'lodash';
 import { filter as filterGlob } from 'minimatch';
-import { DeclarationReflection, ReflectionKind, RepositoryType } from 'typedoc';
+import { DeclarationReflection, ReflectionKind } from 'typedoc';
 
 import { CurrentPageMemo, IPluginComponent, MarkdownReplacer, reflectionKindUtils, reflectionSourceUtils, resolveNamedPath } from '@knodes/typedoc-pluginutils';
 import { relative } from '@knodes/typedoc-pluginutils/path';
+
+// import type { Repository } from '../../../../typedoc/src/lib/converter/utils/repository';
 
 import { DEFAULT_BLOCK_NAME, ICodeSample, readCodeSample } from '../code-sample-file';
 import type { CodeBlockPlugin } from '../plugin';
@@ -205,25 +207,12 @@ export class MarkdownCodeBlocks implements IPluginComponent<CodeBlockPlugin>{
 		if( !sourceComponent ){
 			return undefined;
 		}
-		const repository = ( sourceComponent as any )?.getRepository( file );
+		const repository = ( sourceComponent as any )?.getRepository( file ); // as Repository | undefined;
 		if( !repository ){
 			return;
 		}
-		const url: string | null | undefined = repository?.getURL( file );
-		if( !url ){
-			return undefined;
-		}
-		if( !lineRange ){
-			return url;
-		}
-		const anchor = ( {
-			[RepositoryType.GitHub]: `L${lineRange[0]}-L${lineRange[1]}`,
-			[RepositoryType.GitLab]: `L${lineRange[0]}-L${lineRange[1]}`,
-		} as Record<RepositoryType, string | undefined> )[repository.type as RepositoryType];
-		if( anchor ){
-			return `${url}#${anchor}`;
-		}
-		return url;
+		const url: string | null | undefined = repository?.getURL( file, lineRange?.[0] ?? 1 );
+		return url ?? undefined;
 	}
 }
 export const bindMarkdownCodeBlocks = ( plugin: CodeBlockPlugin, themeMethods: ICodeBlocksPluginThemeMethods ) => new MarkdownCodeBlocks( plugin, themeMethods );

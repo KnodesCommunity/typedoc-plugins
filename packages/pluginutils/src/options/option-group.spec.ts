@@ -11,7 +11,7 @@ const { ABasePlugin } = require( '../base-plugin' ) as jest.Mocked<typeof import
 
 import type { PluginLogger } from '../plugin-logger';
 import { OptionGroup } from './option-group';
-import { TypeErr, _DecOpt } from './utils';
+import { DeclarationOptionConfig, TypeErr } from './utils';
 
 describe( 'Typings', () => {
 	const maybe = true as boolean;
@@ -25,7 +25,7 @@ describe( 'Typings', () => {
 		OptionGroup.factory<ITest>( any );
 		// Simple param
 		expectTypeOf( OptionGroup.factory<{foo: number}>( any )
-			.add ).parameters.toEqualTypeOf<['foo', _DecOpt, ( v: unknown ) => number]>();
+			.add ).parameters.toEqualTypeOf<['foo', DeclarationOptionConfig, ( v: unknown ) => number]>();
 		const grp1 = OptionGroup.factory<{foo: number}>( any )
 			.add( 'foo', { type: ParameterType.Number, help: 'Test' } )
 			.build();
@@ -71,7 +71,7 @@ describe( 'Typings', () => {
 			.build )
 			.toEqualTypeOf<TypeErr<['Missing declarations for keys', 'foo']>>();
 		expectTypeOf( OptionGroup.factory<{foo: number; bar?: string}>( any )
-			.add ).parameters.toEqualTypeOf<['foo' | 'bar', _DecOpt, ( v: unknown ) => string | number | undefined]>();
+			.add ).parameters.toEqualTypeOf<['foo' | 'bar', DeclarationOptionConfig, ( v: unknown ) => string | number | undefined]>();
 
 		const grp3 = OptionGroup.factory<{qux: string; bar: string}>( any )
 			.add( 'qux', { type: ParameterType.Number, help: 'Test' }, ( v => `${v}` as string ) )
