@@ -48,5 +48,19 @@ const packageFiles = [
 
 	await spawn( 'npm', [ 'run', 'format:pkg', ...packageFiles ] );
 	await exec( 'npm run changelog' );
+
+	// Remove duplicate bump versions
+	const changelogContent = await readFile( 'CHANGELOG.md', 'utf-8' );
+	const replacedChangelogContent = changelogContent.split( /^## \[/m )
+		.map( section => section.split( /\n/ ).filter( ( line, index, lines ) => {
+			const match = line.match( /^\* \*\*deps:\*\* update dependency .*? to/ );
+			if( !match ){
+				return true;
+			}
+			return lines.findIndex( otherLine => otherLine.startsWith( match[0] ) ) === index;
+		} ).join( '\n' ) )
+		.join( '## [' ).trimStart();
+	await writeFile( 'CHANGELOG.md', replacedChangelogContent );
+
 	await spawn( 'git', [ 'add', ...packageFiles, 'CHANGELOG.md' ] );
 } )();
