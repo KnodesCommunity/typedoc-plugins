@@ -18,7 +18,7 @@ export class TestBlockRelativeModule{}
 /**
  * A test code block for project path implicitly in `examples` directory
  *
- * @codeblock ~~:example-test.json
+ * @codeblock ~~:typescript-sample.ts#test
  */
 export class TestBlockExplicitProject{}
 // #endregion

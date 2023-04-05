@@ -6,7 +6,7 @@ Hello world
 
 {@codeblock ~~:example-test.json | CodeBlock2.json}
 
-{@codeblock ~:example-test.json | CodeBlock3.json}
+{@codeblock ~:typescript-sample.ts#test | CodeBlock3.ts}
 
 {@inlineCodeblock InlineCodeBlock4.json ```json
 {"hello": "world"}

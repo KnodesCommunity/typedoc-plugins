@@ -2,26 +2,29 @@ import { resolve } from '@knodes/typedoc-pluginutils/path';
 
 import { describeDocsFile, formatHtml, runPluginBeforeAll } from '#plugintestbed';
 
-import { formatExpanded, simpleJson } from '../helpers';
+import { matchExpanded } from '../helpers';
 
-const SRC_CODE = simpleJson( '"Foo"', '"Bar"' );
-const EXAMPLE_CODE = simpleJson( '"Hello"', '"World"' );
-const INLINE_CODE = simpleJson( '"hello"', '"world"' );
+const SAMPLES = {
+	'src-test.json': '{"Foo": "Bar"}',
+	'example-test.json': '{"Hello": "World"}',
+	'typescript-sample.ts': 'const x = `hello`;const y = `world`;',
+	'inline.json': '{"hello": "world"}',
+};
 
 const rootDir = resolve( __dirname, '../mock-fs/simple' );
 process.chdir( rootDir );
 runPluginBeforeAll( rootDir, resolve( __dirname, '../../src/index' ), { options: { gitRemote: undefined }} );
 describe( '`index.html`', describeDocsFile( rootDir, 'index.html', withContent => {
-	it( 'should have correct content', withContent( ( content, dom ) => {
+	it( 'should have correct content', withContent( async ( content, dom ) => {
 		expect( content ).toMatch( /<link\s+rel="stylesheet"\s+href="([^"]*?\/)?assets\/code-blocks\.css"\s*\/>/ );
 
 		const panel = dom.window.document.querySelector( '.col-content > .tsd-panel.tsd-typography' );
 		expect( panel!.children ).toHaveLength( 5 );
 		expect( panel!.children[0].outerHTML ).toEqual( '<p>Hello world</p>' );
-		expect( panel!.children[1].outerHTML ).toEqual( formatExpanded( 'CodeBlock1.json', SRC_CODE ) );
-		expect( panel!.children[2].outerHTML ).toEqual( formatExpanded( 'CodeBlock2.json', EXAMPLE_CODE ) );
-		expect( panel!.children[3].outerHTML ).toEqual( formatExpanded( 'CodeBlock3.json', EXAMPLE_CODE ) );
-		expect( panel!.children[4].outerHTML ).toEqual( formatExpanded( 'InlineCodeBlock4.json', INLINE_CODE ) );
+		expect( panel!.children[1] ).toSatisfy( matchExpanded( 'CodeBlock1.json', SAMPLES['src-test.json'] ) );
+		expect( panel!.children[2] ).toSatisfy( matchExpanded( 'CodeBlock2.json', SAMPLES['example-test.json'] ) );
+		expect( panel!.children[3] ).toSatisfy( matchExpanded( 'CodeBlock3.ts', SAMPLES['typescript-sample.ts'] ) );
+		expect( panel!.children[4] ).toSatisfy( matchExpanded( 'InlineCodeBlock4.json', SAMPLES['inline.json'] ) );
 	} ) );
 	it( 'should have constant content', withContent( content => {
 		expect( formatHtml( content ) ).toMatchSnapshot();
@@ -35,7 +38,7 @@ describe( 'Codeblock', () => {
 
 				const codeblocks = dom.window.document.querySelectorAll( '.code-block' );
 				expect( codeblocks ).toHaveLength( 1 );
-				expect( codeblocks[0].outerHTML ).toEqual( formatExpanded( './examples/example-test.json', EXAMPLE_CODE ) );
+				expect( codeblocks[0] ).toSatisfy( matchExpanded( './examples/typescript-sample.ts#1~4', SAMPLES['typescript-sample.ts'] ) );
 			} ) );
 			it( 'should have constant content', withContent( content => {
 				expect( formatHtml( content ) ).toMatchSnapshot();
@@ -47,7 +50,7 @@ describe( 'Codeblock', () => {
 
 				const codeblocks = dom.window.document.querySelectorAll( '.code-block' );
 				expect( codeblocks ).toHaveLength( 1 );
-				expect( codeblocks[0].outerHTML ).toEqual( formatExpanded( './src/codeblock/src-test.json', SRC_CODE ) );
+				expect( codeblocks[0] ).toSatisfy( matchExpanded( './src/codeblock/src-test.json', SAMPLES['src-test.json'] ) );
 			} ) );
 			it( 'should have constant content', withContent( content => {
 				expect( formatHtml( content ) ).toMatchSnapshot();
@@ -59,7 +62,7 @@ describe( 'Codeblock', () => {
 
 				const codeblocks = dom.window.document.querySelectorAll( '.code-block' );
 				expect( codeblocks ).toHaveLength( 1 );
-				expect( codeblocks[0].outerHTML ).toEqual( formatExpanded( './examples/example-test.json', EXAMPLE_CODE ) );
+				expect( codeblocks[0] ).toSatisfy( matchExpanded( './examples/example-test.json', SAMPLES['example-test.json'] ) );
 			} ) );
 			it( 'should have constant content', withContent( content => {
 				expect( formatHtml( content ) ).toMatchSnapshot();
@@ -73,7 +76,7 @@ describe( 'Codeblock', () => {
 
 				const codeblocks = dom.window.document.querySelectorAll( '.code-block' );
 				expect( codeblocks ).toHaveLength( 1 );
-				expect( codeblocks[0].outerHTML ).toEqual( formatExpanded( './examples/example-test.json', EXAMPLE_CODE ) );
+				expect( codeblocks[0] ).toSatisfy( matchExpanded( './examples/example-test.json', SAMPLES['example-test.json'] ) );
 			} ) );
 			it( 'should have constant content', withContent( content => {
 				expect( formatHtml( content ) ).toMatchSnapshot();
@@ -85,7 +88,7 @@ describe( 'Codeblock', () => {
 
 				const codeblocks = dom.window.document.querySelectorAll( '.code-block' );
 				expect( codeblocks ).toHaveLength( 1 );
-				expect( codeblocks[0].outerHTML ).toEqual( formatExpanded( './src/codeblock/src-test.json', SRC_CODE ) );
+				expect( codeblocks[0] ).toSatisfy( matchExpanded( './src/codeblock/src-test.json', SAMPLES['src-test.json'] ) );
 			} ) );
 			it( 'should have constant content', withContent( content => {
 				expect( formatHtml( content ) ).toMatchSnapshot();
@@ -97,7 +100,7 @@ describe( 'Codeblock', () => {
 
 				const codeblocks = dom.window.document.querySelectorAll( '.code-block' );
 				expect( codeblocks ).toHaveLength( 1 );
-				expect( codeblocks[0].outerHTML ).toEqual( formatExpanded( './examples/example-test.json', EXAMPLE_CODE ) );
+				expect( codeblocks[0] ).toSatisfy( matchExpanded( './examples/example-test.json', SAMPLES['example-test.json'] ) );
 			} ) );
 			it( 'should have constant content', withContent( content => {
 				expect( formatHtml( content ) ).toMatchSnapshot();
@@ -109,7 +112,7 @@ describe( 'Codeblock', () => {
 
 				const codeblocks = dom.window.document.querySelectorAll( '.code-block' );
 				expect( codeblocks ).toHaveLength( 1 );
-				expect( codeblocks[0].outerHTML ).toEqual( formatExpanded( './examples/example-test.json', EXAMPLE_CODE ) );
+				expect( codeblocks[0] ).toSatisfy( matchExpanded( './examples/example-test.json', SAMPLES['example-test.json'] ) );
 
 				const heading = dom.window.document.querySelector( '.tsd-panel > .tsd-comment > h3' );
 				expect( codeblocks[0].previousElementSibling ).toBe( heading );
@@ -129,7 +132,7 @@ describe( 'Inline Codeblock', () => {
 
 				const codeblocks = dom.window.document.querySelectorAll( '.code-block' );
 				expect( codeblocks ).toHaveLength( 1 );
-				expect( codeblocks[0].outerHTML ).toEqual( formatExpanded( 'test.json', INLINE_CODE ) );
+				expect( codeblocks[0] ).toSatisfy( matchExpanded( 'test.json', SAMPLES['inline.json'] ) );
 			} ) );
 			it( 'should have constant content', withContent( content => {
 				expect( formatHtml( content ) ).toMatchSnapshot();
@@ -143,7 +146,7 @@ describe( 'Inline Codeblock', () => {
 
 				const codeblocks = dom.window.document.querySelectorAll( '.code-block' );
 				expect( codeblocks ).toHaveLength( 1 );
-				expect( codeblocks[0].outerHTML ).toEqual( formatExpanded( 'test.json', INLINE_CODE ) );
+				expect( codeblocks[0] ).toSatisfy( matchExpanded( 'test.json', SAMPLES['inline.json'] ) );
 			} ) );
 			it( 'should have constant content', withContent( content => {
 				expect( formatHtml( content ) ).toMatchSnapshot();
@@ -155,7 +158,7 @@ describe( 'Inline Codeblock', () => {
 
 				const codeblocks = dom.window.document.querySelectorAll( '.code-block' );
 				expect( codeblocks ).toHaveLength( 1 );
-				expect( codeblocks[0].outerHTML ).toEqual( formatExpanded( 'test.json', INLINE_CODE ) );
+				expect( codeblocks[0] ).toSatisfy( matchExpanded( 'test.json', SAMPLES['inline.json'] ) );
 
 				const heading = dom.window.document.querySelector( '.tsd-panel > .tsd-comment > h3' );
 				expect( codeblocks[0].previousElementSibling ).toBe( heading );

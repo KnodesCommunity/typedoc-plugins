@@ -11,9 +11,7 @@ export const testDocsFile = ( ...args: [rootDir: string, ...paths: string[], wit
 	await cb( content );
 };
 
-type WithContentFn =
-	& ( ( content: string, dom: JSDOM, document: Document, doneCb: jest.DoneCallback ) => void | undefined )
-	& ( ( content: string, dom: JSDOM, document: Document ) => Promise<unknown> | void )
+type WithContentFn = ( content: string, dom: JSDOM, document: Document ) => void | undefined | Promise<unknown>
 type DescribeDocsFileCb = ( withContentFn: ( fn: WithContentFn ) => jest.ProvidesCallback ) => void;
 export const describeDocsFile = ( ...args: [rootDir: string, ...paths: string[], cb: DescribeDocsFileCb] ) => () => {
 	let content: string;

@@ -257,7 +257,7 @@ exports[`Pkg a \`classes/pkg_a.TestInProjA.html\` should have constant content 1
 			</div>
 			<section class=\\"tsd-panel tsd-comment\\">
 				<div class=\\"tsd-comment tsd-typography\\">
-					<p>A test code block targetting project A</p>
+					<p>A test code block targeting project A</p>
 					<details class=\\"code-block\\" open>
 						<summary>
 							<p>From ./packages/a/examples/test.json</p>
@@ -461,7 +461,7 @@ exports[`Pkg a \`classes/pkg_a.TestInProjB.html\` should have constant content 1
 			</div>
 			<section class=\\"tsd-panel tsd-comment\\">
 				<div class=\\"tsd-comment tsd-typography\\">
-					<p>A test code block targetting project B</p>
+					<p>A test code block targeting project B</p>
 					<details class=\\"code-block\\" open>
 						<summary>
 							<p>From ./packages/b/examples/test.json</p>
@@ -665,7 +665,7 @@ exports[`Pkg a \`classes/pkg_a.TestInProjRoot.html\` should have constant conten
 			</div>
 			<section class=\\"tsd-panel tsd-comment\\">
 				<div class=\\"tsd-comment tsd-typography\\">
-					<p>A test code block targetting root examples</p>
+					<p>A test code block targeting root examples</p>
 					<details class=\\"code-block\\" open>
 						<summary>
 							<p>From ./examples/test.json</p>
@@ -1277,7 +1277,7 @@ exports[`Pkg b \`classes/pkg_b.TestInProjA.html\` should have constant content 1
 			</div>
 			<section class=\\"tsd-panel tsd-comment\\">
 				<div class=\\"tsd-comment tsd-typography\\">
-					<p>A test code block targetting project A</p>
+					<p>A test code block targeting project A</p>
 					<details class=\\"code-block\\" open>
 						<summary>
 							<p>From ./packages/a/examples/test.json</p>
@@ -1481,7 +1481,7 @@ exports[`Pkg b \`classes/pkg_b.TestInProjB.html\` should have constant content 1
 			</div>
 			<section class=\\"tsd-panel tsd-comment\\">
 				<div class=\\"tsd-comment tsd-typography\\">
-					<p>A test code block targetting project B</p>
+					<p>A test code block targeting project B</p>
 					<details class=\\"code-block\\" open>
 						<summary>
 							<p>From ./packages/b/examples/test.json</p>
@@ -1685,7 +1685,7 @@ exports[`Pkg b \`classes/pkg_b.TestInProjRoot.html\` should have constant conten
 			</div>
 			<section class=\\"tsd-panel tsd-comment\\">
 				<div class=\\"tsd-comment tsd-typography\\">
-					<p>A test code block targetting root examples</p>
+					<p>A test code block targeting root examples</p>
 					<details class=\\"code-block\\" open>
 						<summary>
 							<p>From ./examples/test.json</p>
