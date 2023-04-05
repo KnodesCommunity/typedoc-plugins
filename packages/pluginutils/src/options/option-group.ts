@@ -8,30 +8,30 @@ import type { ABasePlugin } from '../base-plugin';
 import { EventsExtra } from '../events-extra';
 import { dirname } from '../utils/path';
 import { MapperPart, Option } from './option';
-import { DecOptType, TypeErr, _DecOpt } from './utils';
+import { DeclarationOptionConfig, ParameterValueType, TypeErr } from './utils';
 
 interface Builder<T extends Record<string, any>, TDecs extends Record<never, DeclarationOption>> {
 	add: <
 		K extends keyof T & Exclude<keyof T, keyof TDecs>,
-		TDec extends _DecOpt
+		TDec extends DeclarationOptionConfig<DeclarationOption>,
 	>(
 		name: K,
 		declaration: TDec,
 		...mapper: MapperPart<T[K], TDec>
 	) => Builder<T, TDecs & {[k in K]: TDec & {name: K}}>;
 	build: [Exclude<keyof T, keyof TDecs>] extends [never] ?
-		TDecs extends Record<keyof T, _DecOpt> ?
+		TDecs extends Record<keyof T, DeclarationOptionConfig> ?
 			() => OptionGroup<T, {[k in keyof TDecs]: TDecs[k] & DeclarationOption;}> :
 			TypeErr<['Invalid case']> :
 		TypeErr<['Missing declarations for keys', Exclude<keyof T, keyof TDecs>]>;
 }
 
-type OptionGroupSetValue<TDeclarations extends Record<string, _DecOpt>> = {
-	[k in keyof TDeclarations]?: DecOptType<TDeclarations[k]>
+type OptionGroupSetValue<TDeclarations extends Record<string, DeclarationOptionConfig>> = {
+	[k in keyof TDeclarations]?: ParameterValueType<TDeclarations[k]>
 };
 export class OptionGroup<
 	T extends Record<string, any>,
-	TDeclarations extends {[k in keyof T]: _DecOpt} = {[k in keyof T]: _DecOpt}
+	TDeclarations extends {[k in keyof T]: DeclarationOptionConfig} = {[k in keyof T]: DeclarationOptionConfig}
 > {
 	private readonly _options: {[k in keyof TDeclarations]: Option<k extends keyof T ? T[k] : unknown, TDeclarations[k] & {name: k} & DeclarationOption>};
 	/**
@@ -59,7 +59,7 @@ export class OptionGroup<
 		mappers: Record<string, ( v: any ) => any>,
 	): Builder<T2, TDecs> {
 		return {
-			add: ( name: Exclude<keyof T2, keyof TDecs>, dec: _DecOpt, ...[ mapper ]: [mapper?: any] ) =>
+			add: ( name: Exclude<keyof T2, keyof TDecs>, dec: DeclarationOptionConfig, ...[ mapper ]: [mapper?: any] ) =>
 				OptionGroup._build(
 					plugin,
 					{ ...decs, [name]: { ...dec, name }},
@@ -113,9 +113,9 @@ export class OptionGroup<
 	 * @param value - The value to set. Paths, JSON & partial options are authorized
 	 */
 	public setValue( value: OptionGroupSetValue<TDeclarations> | string ): void
-	public setValue<TK extends keyof TDeclarations>( key: TK, value: DecOptType<TDeclarations[TK]> ): void
-	public setValue( ...args: [OptionGroupSetValue<TDeclarations> | string] | [key: keyof TDeclarations, value: DecOptType<TDeclarations[keyof TDeclarations]>] ): void
-	public setValue( ...args: [OptionGroupSetValue<TDeclarations> | string] | [key: keyof TDeclarations, value: DecOptType<TDeclarations[keyof TDeclarations]>] ){
+	public setValue<TK extends keyof TDeclarations>( key: TK, value: ParameterValueType<TDeclarations[TK]> ): void
+	public setValue( ...args: [OptionGroupSetValue<TDeclarations> | string] | [key: keyof TDeclarations, value: ParameterValueType<TDeclarations[keyof TDeclarations]>] ): void
+	public setValue( ...args: [OptionGroupSetValue<TDeclarations> | string] | [key: keyof TDeclarations, value: ParameterValueType<TDeclarations[keyof TDeclarations]>] ){
 		if( args.length === 2 ){
 			const [ key, value ] = args;
 			return this._setValue( { [key]: value } as any );

@@ -14,9 +14,6 @@ export const createSourceReference = ( pluginAccessor: PluginAccessor, absoluteF
 	const source = new SourceReference( normalize( absoluteFilename ), line ?? 1, character ?? 1 );
 	source.fileName = getPlugin( pluginAccessor ).relativeToRoot( absoluteFilename );
 	const repo = ( getApplication( pluginAccessor ).converter.getComponent( 'source' ) as any )?.getRepository( source.fullFileName );
-	source.url = repo?.getURL( source.fullFileName );
-	if ( source.url && repo ) {
-		source.url += `#${repo.getLineNumberAnchor( source.line )}`;
-	}
+	source.url = repo?.getURL( source.fullFileName, source.line );
 	return source;
 };

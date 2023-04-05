@@ -25,6 +25,9 @@ const reformatChangelogLines = ( thisProjectId, packagesIds ) => l => {
 		return l;
 	}
 	const [ , scope, right ] = match;
+	if( scope === 'plugin-monorepo-readmes' ){
+		return;
+	}
 	if( scope === thisProjectId ){
 		return `* ${right}`;
 	}

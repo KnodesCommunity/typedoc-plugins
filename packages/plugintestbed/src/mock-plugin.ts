@@ -1,3 +1,4 @@
+import assert from 'assert';
 // eslint-disable-next-line no-restricted-imports -- OS-specific path manipulation
 import { resolve } from 'path';
 
@@ -10,8 +11,8 @@ export type MockPlugin<T extends ABasePlugin = ABasePlugin> = jest.MockedObjectD
 export const mockPlugin = <T extends ABasePlugin = ABasePlugin>( props: Partial<MockPlugin<T>> = {} ): MockPlugin<T> => {
 	const mockLogger = {
 		makeChildLogger: jest.fn(),
-		error: jest.fn().mockImplementation( v => {throw new Error( `Unexpected error log: ${typeof v === 'function' ? v() : v}` ); } ),
-		warn: jest.fn().mockImplementation( v => {throw new Error( `Unexpected warn log: ${typeof v === 'function' ? v() : v}` ); } ),
+		error: jest.fn().mockImplementation( v => assert.fail( `Unexpected error log: ${typeof v === 'function' ? v() : v}` ) ),
+		warn: jest.fn().mockImplementation( v => assert.fail( `Unexpected warn log: ${typeof v === 'function' ? v() : v}` ) ),
 		log: jest.fn(),
 		verbose: jest.fn(),
 		info: jest.fn(),

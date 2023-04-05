@@ -8,7 +8,7 @@ body:
     attributes:
       label: Plugin
       description: What plugin are you encountering a problem with ?
-      options: ["@knodes/typedoc-plugin-code-blocks", "@knodes/typedoc-plugin-monorepo-readmes", "@knodes/typedoc-plugin-pages", "@knodes/typedoc-pluginutils", Unspecified] # !FORMAT options: [${...plugins}, Unspecified]
+      options: ["@knodes/typedoc-plugin-code-blocks", "@knodes/typedoc-plugin-pages", "@knodes/typedoc-pluginutils", Unspecified] # !FORMAT options: [${...plugins}, Unspecified]
     validations:
       required: true
   - type: input
@@ -23,7 +23,7 @@ body:
     id: typedoc-version
     attributes:
       label: Typedoc version
-      placeholder: "Example: 0.23.10" # !FORMAT placeholder: "Example: ${typedocVersion}"
+      placeholder: "Example: 0.23.28" # !FORMAT placeholder: "Example: ${typedocVersion}"
     validations:
       required: true
   - type: textarea
