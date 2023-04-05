@@ -1,3 +1,23 @@
+## [0.23.2](https://github.com/KnodesCommunity/typedoc-plugins/compare/v0.23.1...v0.23.2) (2023-04-05)
+
+
+### Bug Fixes
+
+* **monorepo:** always use normalized paths ([b2dc4ff](https://github.com/KnodesCommunity/typedoc-plugins/commit/b2dc4ff053481795e09b86b21a5371ee17dc6008))
+* **deps:** update dependencies ([413ae46](https://github.com/KnodesCommunity/typedoc-plugins/commit/413ae469d67d2c242bf8eb0b226b19c04f8b4472))
+* **deps:** update dependency memfs to v3.4.10 ([27a52ef](https://github.com/KnodesCommunity/typedoc-plugins/commit/27a52efb9b1eafade2de6ccac46fb41a26f7b5da))
+* **deps:** update dependency semver to v7.3.8 ([c14eae1](https://github.com/KnodesCommunity/typedoc-plugins/commit/c14eae17d3b4aad162d06f472a607d57e0675b6e))
+* properly escape backticks in code blocks ([9654f60](https://github.com/KnodesCommunity/typedoc-plugins/commit/9654f600f64f7e30b5c73fd663dc2062c0870408))
+
+
+### Features
+
+* **dep: @knodes/typedoc-pluginutils:** add `writeDiag` helper ([db07c67](https://github.com/KnodesCommunity/typedoc-plugins/commit/db07c676989a211ffff1aadfc3f0da5d6a6a838c))
+* **dep: @knodes/typedoc-pluginutils:** mutualize markdown replacement exclusion, modify packages ([dea1bd1](https://github.com/KnodesCommunity/typedoc-plugins/commit/dea1bd1715e8da6dec325b995480fe3e3d6cf9de)), closes [#126](https://github.com/KnodesCommunity/typedoc-plugins/issues/126)
+* **dep: @knodes/typedoc-pluginutils:** throw specific error with checked path on failed resolution ([5fbce18](https://github.com/KnodesCommunity/typedoc-plugins/commit/5fbce18feb9f2cf83e6ab408b1e1020c96584db8))
+* **dep: @knodes/typedoc-pluginutils:** validate options object, suggest unknown options ([78284ba](https://github.com/KnodesCommunity/typedoc-plugins/commit/78284ba84bb88613c212a1ca2563a02c5277e942))
+
+
 ## [0.23.1](https://github.com/KnodesCommunity/typedoc-plugins/compare/v0.23.0...v0.23.1) (2022-07-19)
 
 
@@ -43,7 +63,6 @@
 * **monorepo:** continue fixes for Windows scripts ([40f8d1d](https://github.com/KnodesCommunity/typedoc-plugins/commit/40f8d1d63bd54f6d68fb28d6a72f3be238799215))
 * **monorepo:** continue normalize behaviors between windows & non-windows ([c1803ef](https://github.com/KnodesCommunity/typedoc-plugins/commit/c1803ef30033890e5ee8dbb4f94868c15e1e3805))
 * **deps:** update dependency memfs to v3.4.3 ([445a9cc](https://github.com/KnodesCommunity/typedoc-plugins/commit/445a9cc2b588487dc34144130dcc0435e56a37f2))
-* **deps:** update dependency memfs to v3.4.4 ([2d83aa6](https://github.com/KnodesCommunity/typedoc-plugins/commit/2d83aa6758ed3f8cf8d32a0953aee641a3ee46df))
 * **monorepo:** normalize behavior between POSIX & Windows systems ([3ce9434](https://github.com/KnodesCommunity/typedoc-plugins/commit/3ce9434100e9e87d5af8a9dd6536a8ea93e5342c))
 
 

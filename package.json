@@ -1,6 +1,6 @@
 {
   "name": "@knodes/typedoc-plugins",
-  "version": "0.23.1",
+  "version": "0.23.2",
   "description": "A monorepo containing all knodes-published TypeDoc plugins",
   "license": "MIT",
   "private": true,
