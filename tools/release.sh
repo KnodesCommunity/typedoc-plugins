@@ -20,7 +20,7 @@ npm install
 git add package-lock.json
 # Update readmes
 npm run tools:sync-proto -- --no-stash
-find . \( -name README.md -or -name package.json \) -not -path '*/node_modules/*' -not -path './typedoc/*' -not -path '*/__tests__/*' -exec git add {} \;
+find . \( -name README.md -or -name package.json -or -name CHANGELOG.md \) -not -path '*/node_modules/*' -not -path './typedoc/*' -not -path '*/__tests__/*' -exec git add {} \;
 # Run build & tests
 npm run build:clean
 npm run build

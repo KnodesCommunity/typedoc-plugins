@@ -1,6 +1,6 @@
 {
   "name": "@knodes/typedoc-plugin-pages",
-  "version": "0.23.1",
+  "version": "0.23.2",
   "description": "A TypeDoc plugin that lets you integrate your own pages into the documentation output",
   "license": "MIT",
   "repository": {
@@ -40,7 +40,7 @@
   },
   "dependencies": {
     "lodash": "^4.17.21",
-    "@knodes/typedoc-pluginutils": "~0.23.1",
+    "@knodes/typedoc-pluginutils": "~0.23.2",
     "front-matter": "^4.0.2",
     "glob": "^8.0.3",
     "js-yaml": "^4.1.0",
