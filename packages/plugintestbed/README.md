@@ -29,5 +29,5 @@ npm install --save-dev @knodes/typedoc-plugintestbed typedoc@^0.23.0
 
 This plugin version should match TypeDoc `^0.23.0` for compatibility.
 
-> **Note**: this plugin version was released by testing against `^0.23.10`.
+> **Note**: this plugin version was released by testing against `^0.23.28`.
 <!-- INSTALL end -->

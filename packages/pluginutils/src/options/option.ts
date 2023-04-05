@@ -6,12 +6,12 @@ import { DeclarationOption, DeclarationOptionToOptionType, ParameterTypeToOption
 
 import type { ABasePlugin } from '../base-plugin';
 import type { OptionGroup } from './option-group';
-import { DecOptType, _DecOptTypeOnly } from './utils';
+import { DeclarationOptionConfig, ParameterValueType } from './utils';
 
 type MapFn<TIn, TOut> = ( value: TIn ) => TOut;
-export type MapperPart<TOpt, TDeclaration extends _DecOptTypeOnly> = DecOptType<TDeclaration> extends TOpt ?
-	[mapper?: MapFn<DecOptType<TDeclaration>, TOpt>] :
-	[mapper: MapFn<DecOptType<TDeclaration>, TOpt>]
+export type MapperPart<TOpt, TDeclaration extends DeclarationOptionConfig<DeclarationOption>> = ParameterValueType<TDeclaration> extends TOpt ?
+	[mapper?: MapFn<ParameterValueType<TDeclaration>, TOpt>] :
+	[mapper: MapFn<ParameterValueType<TDeclaration>, TOpt>]
 type InferParameterType<T> = keyof {[key in keyof ParameterTypeToOptionTypeMap as ParameterTypeToOptionTypeMap[key] extends T ? key : never]: true};
 export type InferDeclarationType<T> = Simplify<DeclarationOption & {type: InferParameterType<T>}>;
 export class Option<
@@ -19,7 +19,7 @@ export class Option<
 	TDeclaration extends DeclarationOption = DeclarationOption,
 > {
 	public readonly name: string;
-	private readonly _mapper: MapFn<DecOptType<TDeclaration>, T>;
+	private readonly _mapper: MapFn<ParameterValueType<TDeclaration>, T>;
 	private readonly _declaration: TDeclaration;
 	public get fullName(){
 		return this.name === '__' ? this.plugin.optionsPrefix : `${this.plugin.optionsPrefix}:${this.name}`;
@@ -65,7 +65,7 @@ export class Option<
 	 * @returns the value.
 	 */
 	public getValue(): T {
-		const rawValue = this.plugin.application.options.getValue( this.fullName ) as DecOptType<TDeclaration>;
+		const rawValue = this.plugin.application.options.getValue( this.fullName ) as ParameterValueType<TDeclaration>;
 		return this._mapper( rawValue );
 	}
 

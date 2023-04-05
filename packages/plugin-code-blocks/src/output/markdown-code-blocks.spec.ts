@@ -1,7 +1,7 @@
 import { noop } from 'lodash';
-import { DeclarationReflection, ReflectionKind, RepositoryType } from 'typedoc';
+import { DeclarationReflection, ReflectionKind } from 'typedoc';
 
-import { resolve } from '@knodes/typedoc-pluginutils/path';
+import { relative, resolve } from '@knodes/typedoc-pluginutils/path';
 
 import { MockPlugin, createMockProjectWithPackage, mockPlugin, restoreFs, setVirtualFs, setupMockMarkdownReplacer, setupMockPageMemo } from '#plugintestbed';
 
@@ -17,11 +17,9 @@ import { ICodeBlocksPluginThemeMethods } from './theme';
 
 class FakeSource {
 	public static readonly REPO_URL = 'https://example.repo.com';
-	public static readonly getURL = jest.fn().mockReturnValue( FakeSource.REPO_URL );
+	public static readonly getURL = jest.fn().mockImplementation( ( path, line ) => `${FakeSource.REPO_URL}/${relative( process.cwd(), path )}#L${line}` );
 	public static readonly getRepository = jest.fn().mockReturnValue( {
 		getURL: this.getURL,
-		type: RepositoryType.GitHub,
-		getLineNumberAnchor: jest.fn().mockImplementation( v => `L${v}` ),
 	} );
 	public readonly getURL = FakeSource.getURL;
 	public readonly getRepository = FakeSource.getRepository;
@@ -78,8 +76,8 @@ describe( 'Behavior', () => {
 			[ 'Filename ⇒ explicit',          `{@codeblock ${FILE} | hello.txt}`,      { renderCall: { asFile: 'hello.txt' }} ],
 			[ 'Filename ⇒ region',            `{@codeblock ${FILE}#hello}`,            { renderCall: { asFile: `./${FILE}#13~24` }, blocks: helloRegion } ],
 			[ 'Filename ⇒ region + explicit', `{@codeblock ${FILE}#hello | test.txt}`, { renderCall: { asFile: 'test.txt' }, blocks: helloRegion } ],
-			[ 'URL ⇒ default',                `{@codeblock ${FILE}}`,                  { withGitHub: true, renderCall: { url: FakeSource.REPO_URL }} ],
-			[ 'URL ⇒ region',                 `{@codeblock ${FILE}#hello}`,            { withGitHub: true, renderCall: { url: `${FakeSource.REPO_URL}#L13-L24` }, blocks: helloRegion } ],
+			[ 'URL ⇒ default',                `{@codeblock ${FILE}}`,                  { withGitHub: true, renderCall: { url: `${FakeSource.REPO_URL}/${FILE}#L1` }} ],
+			[ 'URL ⇒ region',                 `{@codeblock ${FILE}#hello}`,            { withGitHub: true, renderCall: { url: `${FakeSource.REPO_URL}/${FILE}#L13` }, blocks: helloRegion } ],
 		] )( 'Code block "%s"', ( _label, source, { renderCall, blocks, withGitHub } ) => {
 			if( withGitHub ){
 				plugin.application.converter.addComponent( 'source', FakeSource as any );
@@ -92,7 +90,7 @@ describe( 'Behavior', () => {
 			expect( themeMethods.renderCodeBlock ).toHaveBeenCalledWith( expect.objectContaining( renderCall ) );
 			if( withGitHub ){
 				expect( FakeSource.getURL ).toHaveBeenCalledTimes( 2 );
-				expect( FakeSource.getURL ).toHaveBeenCalledWith( sourceFile );
+				expect( FakeSource.getURL ).toHaveBeenCalledWith( sourceFile, blocks ? blocks[0][1].startLine : 1 );
 				expect( FakeSource.getRepository ).toHaveBeenCalledTimes( 2 );
 				expect( FakeSource.getRepository ).toHaveBeenCalledWith( sourceFile );
 			}
