@@ -23,6 +23,7 @@ describe( 'Pages', () => {
 			expect( primaryNavItems ).toEqual( [
 				menuItemMatcher( 'Getting started', true, 'index.html' ),
 				menuItemMatcher( 'Configuration', false, 'configuration.html' ),
+				menuItemMatcher( 'Another page', false, 'other.html' ),
 				menuItemMatcher( 'Additional resources', false, null ),
 				menuItemMatcher( 'Some cool docs', false, '../additional-resources/some-cool-docs.html' ),
 			] );
@@ -54,6 +55,7 @@ describe( 'Pages', () => {
 			expect( primaryNavItems ).toEqual( [
 				menuItemMatcher( 'Getting started', true, 'index.html' ),
 				menuItemMatcher( 'Configuration', true, 'configuration.html' ),
+				menuItemMatcher( 'Another page', false, 'other.html' ),
 				menuItemMatcher( 'Additional resources', false, null ),
 				menuItemMatcher( 'Some cool docs', false, '../additional-resources/some-cool-docs.html' ),
 			] );
@@ -86,6 +88,7 @@ describe( 'Pages', () => {
 			expect( primaryNavItems ).toEqual( [
 				menuItemMatcher( 'Getting started', false, '../getting-started/index.html' ),
 				menuItemMatcher( 'Configuration', false, '../getting-started/configuration.html' ),
+				menuItemMatcher( 'Another page', false, '../getting-started/other.html' ),
 				menuItemMatcher( 'Additional resources', true, null ),
 				menuItemMatcher( 'Some cool docs', true, 'some-cool-docs.html' ),
 			] );
@@ -122,6 +125,7 @@ describe( 'Documentation', () => {
 			expect( primaryNavItems ).toEqual( [
 				menuItemMatcher( 'Getting started', false, '../pages/getting-started/index.html' ),
 				menuItemMatcher( 'Configuration', false, '../pages/getting-started/configuration.html' ),
+				menuItemMatcher( 'Another page', false, '../pages/getting-started/other.html' ),
 				menuItemMatcher( 'Additional resources', false, null ),
 				menuItemMatcher( 'Some cool docs', false, '../pages/additional-resources/some-cool-docs.html' ),
 			] );
