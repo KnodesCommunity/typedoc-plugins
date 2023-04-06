@@ -181,27 +181,21 @@ export class DefaultPagesRenderer implements IPagesPluginThemeMethods, IPluginCo
 				...( pageEvent.model.module.children?.filter( c => !c.kindOf( ReflectionKind.SomeModule ) ) ?? [] ),
 			];
 			pageEvent.model = newModel;
-		} else if( pageEvent.model instanceof ProjectReflection || ( pageEvent.model instanceof Reflection && pageEvent.model.kindOf( ReflectionKind.Module ) ) ){
+		} else if(
+			( pageEvent.model instanceof ProjectReflection && pageEvent.url === 'index.html' ) ||
+			( pageEvent.model instanceof DeclarationReflection && pageEvent.model.kindOf( ReflectionKind.Module ) )
+		){
 			const modulePage = this._modulesPages.find( p => p.module === pageEvent.model );
 			if( modulePage instanceof PageReflection ){
 				pageEvent.model.sources = [
-					reflectionSourceUtils.createSourceReference( this, modulePage.sourceFilePath ),
 					...( pageEvent.model.sources ?? [] ),
+					reflectionSourceUtils.createSourceReference( this, modulePage.sourceFilePath ),
 				];
-				const prevTemplate = pageEvent.template;
-				const fakeIndexPage: ProjectReflection = Object.assign(
-					new ProjectReflection( modulePage.name ),
-					{ readme: modulePage.comment?.summary, sources: modulePage.sources } );
-				const fakeIndexPageEvent = Object.assign(
-					new PageEvent<ProjectReflection>( PageEvent.BEGIN ),
-					{ project: modulePage.project, url: modulePage.url, model: fakeIndexPage } );
-
-
-				pageEvent.template = props => <>
-					{this._currentPageMemo.fakeWrapPage( modulePage, () => this._theme.indexTemplate( fakeIndexPageEvent ) )}
-					<hr/>
-					{prevTemplate( props )}
-				</>;
+				pageEvent.model.readme = [
+					...( pageEvent.model.readme ?? [] ),
+					{ kind: 'text', text: `\n\n---\n\n<!-- Page ${modulePage.namedPath} -->\n\n` },
+					...( modulePage.comment?.summary ?? [] ),
+				];
 			}
 		}
 	}
