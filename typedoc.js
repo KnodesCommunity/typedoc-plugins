@@ -36,13 +36,6 @@ module.exports = {
 				],
 			},
 			{
-				name: '@knodes/typedoc-plugin-monorepo-readmes',
-				moduleRoot: true,
-				children: [
-					{ name: 'Using options', source: 'options.md' },
-				],
-			},
-			{
 				name: '@knodes/typedoc-pluginutils',
 				moduleRoot: true,
 				children: [
@@ -59,6 +52,7 @@ module.exports = {
 	// #endregion
 	pluginCodeBlocks: {
 		source: '__tests__/mock-fs',
+		excludeMarkdownTags: [ '{@codeblock}', '{@inlineCodeblock}' ],
 	},
 	excludePrivate: true,
 	// #region pagesConfig-5

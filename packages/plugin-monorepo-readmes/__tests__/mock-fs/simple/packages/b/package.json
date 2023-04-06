@@ -1,4 +1,0 @@
-{
-    "name": "@example/package-b",
-    "typedoc": {"entryPoint": "./index.ts"}
-}

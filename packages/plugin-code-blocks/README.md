@@ -30,28 +30,31 @@ In any markdown content, (in README, pages, or doc comments), use the `{@codeblo
 ### Reference a file
 
 Syntax:
+
 ```md
 {@codeblock <path-to-file>[#region] [mode] [ | custom-file-name]}
 ```
 
-* `<path-to-file>`: A path to the code file to embed. Checkout [this documentation page](https://knodescommunity.github.io/typedoc-plugins/_knodes_typedoc_pluginutils/pages/resolving-paths.html) for more infos on the syntax of the path.
-* `[#<region>]`: A named region in the target file. Regions are started with `// #region my-name`, & ended with `// #endregion [my-name]`. Interleaved/nested regions are supported. Note that region markers are not outputted in the generated code block. The `<region>` parameter can be a glob pattern, or a list of block names/patterns separated by a `+`.
-* `[mode]`: optional. Can be any valid {@link EBlockMode}, to override the default settings.
-* `[ | custom-file-name]`: allow to specify an explicit file name to display in the code block header.
-* 
+- `<path-to-file>`: A path to the code file to embed. Checkout [this documentation page](https://knodescommunity.github.io/typedoc-plugins/_knodes_typedoc_pluginutils/pages/resolving-paths.html) for more infos on the syntax of the path.
+- `[#<region>]`: A named region in the target file. Regions are started with `// #region my-name`, & ended with `// #endregion [my-name]`. Interleaved/nested regions are supported. Note that region markers are not outputted in the generated code block. The `<region>` parameter can be a glob pattern, or a list of block names/patterns separated by a `+`.
+- `[mode]`: optional. Can be any valid {@link EBlockMode}, to override the default settings.
+- `[ | custom-file-name]`: allow to specify an explicit file name to display in the code block header.
+-
+
 `{@codeblock ...}` are by default looked up into your [*workspace*](https://knodescommunity.github.io/typedoc-plugins/_knodes_typedoc_pluginutils/pages/resolving-paths.html) `examples` folder, but you can customize it by using the [`source` option](https://knodescommunity.github.io/typedoc-plugins/_knodes_typedoc_plugin_code_blocks/pages/options.html)
 
 ### Wrap standard markdown content
 
 Syntax:
+
 ````md
 {@inlineCodeblock <custom-file-name> [mode] ```
 ....
 ```}
 ````
 
-* `<custom-file-name>`: The file name to set in the header
-* `[mode]`: optional. Can be any valid {@link EBlockMode}, to override the default settings.
+- `<custom-file-name>`: The file name to set in the header
+- `[mode]`: optional. Can be any valid {@link EBlockMode}, to override the default settings.
 
 ## Configuration
 
@@ -68,5 +71,5 @@ npm install --save-dev @knodes/typedoc-plugin-code-blocks typedoc@^0.23.0
 
 This plugin version should match TypeDoc `^0.23.0` for compatibility.
 
-> **Note**: this plugin version was released by testing against `^0.23.10`.
+> **Note**: this plugin version was released by testing against `^0.23.28`.
 <!-- INSTALL end -->

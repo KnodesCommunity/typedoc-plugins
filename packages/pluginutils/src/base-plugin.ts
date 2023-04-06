@@ -1,5 +1,4 @@
 import assert from 'assert';
-import { basename, dirname, relative, resolve } from 'path';
 
 import { camelCase, isString, once } from 'lodash';
 import { sync as pkgUpSync } from 'pkg-up';
@@ -10,6 +9,7 @@ import { Application, Context, Converter, LogLevel, SourceReference, normalizePa
 import { EventsExtra } from './events-extra';
 import { PluginLogger } from './plugin-logger';
 import * as miscUtils from './utils/misc';
+import { basename, dirname, relative, resolve } from './utils/path';
 
 type RequiredPackageJson = SetRequired<PackageJson, 'name' | 'version'>
 export abstract class ABasePlugin {

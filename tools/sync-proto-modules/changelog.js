@@ -8,7 +8,7 @@ const { syncFile, tryReadFile } = require( './utils' );
 
 const getOldestVersion = async pkgName => {
 	try {
-		const out = await spawn( 'npm', [ 'show', pkgName, 'versions', '--json' ], { stdio: [ null, captureStream(), captureStream() ] } );
+		const out = await spawn( 'npm', [ 'show', pkgName, 'versions', '--json' ], { stdio: [ null, captureStream(), captureStream() ], shell: true } );
 		const versions = JSON.parse( out.stdout );
 		return versions[0];
 	} catch( e ){
@@ -20,23 +20,26 @@ const getOldestVersion = async pkgName => {
 };
 
 const reformatChangelogLines = ( thisProjectId, packagesIds ) => l => {
-	const match = l.match( /^\* (?:\*\*(.*?)\*\*: )?(.*)/ );
+	const match = l.match( /^\* (?:\*\*(.+?):\*\* )?(.*)$/ );
 	if( !match ){
 		return l;
 	}
 	const [ , scope, right ] = match;
+	if( scope === 'plugin-monorepo-readmes' ){
+		return;
+	}
 	if( scope === thisProjectId ){
 		return `* ${right}`;
 	}
 	if( !scope ){
-		return `* **monorepo**: ${right}`;
+		return `* **monorepo:** ${right}`;
 	}
 	const depPkg = packagesIds.find( p => p.id === scope );
 	if( !depPkg ) {
 		return l;
 	}
 	if( depPkg.isDep ){
-		return `* **dep: ${depPkg.pkgName}**: ${right}`;
+		return `* **dep: ${depPkg.pkgName}:** ${right}`;
 	}
 };
 
@@ -59,8 +62,8 @@ class Changelog {
 			.map( reformatChangelogLines( id, packagesIds ) )
 			.filter( isString )
 			.join( '\n' )
-			.replace( /^### .*(\n*)^(?=#)/gm, '' )
-			.replace( /^(## .*)(\n*)^(?=##)/gm, '$1\n\n\nNo notable changes were done in this version.\n\n\n' )
+			.replace( /^### .*(\n*)^(?=##)/gm, '' )
+			.replace( /^(## .*)(\n*)^(?=## )/gm, '$1\n\n\nNo notable changes were done in this version.\n\n\n' )
 			.replace( /\n{4,}/g, '\n\n\n' );
 		const firstVersion = oldestVersionCache[pkgName];
 		const pkgChangelogFromFirstVersion = firstVersion ?

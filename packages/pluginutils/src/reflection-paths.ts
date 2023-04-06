@@ -1,10 +1,11 @@
 import assert from 'assert';
 import { existsSync, readdirSync } from 'fs';
-import { dirname, parse, resolve  } from 'path';
 
 import { memoize } from 'lodash';
 import { LiteralUnion } from 'type-fest';
 import { DeclarationReflection, ProjectReflection, Reflection, ReflectionKind, normalizePath } from 'typedoc';
+
+import { dirname, parse, resolve  } from './utils/path';
 
 const isRootFile = ( dir: string, file: string ) => !!( file.match( /^readme.md$/i ) || file.match( /^package.json$/ ) );
 export const findModuleRoot = memoize( ( reflection: Reflection, rootMatcher: ( dir: string, file: string ) => boolean = isRootFile ) => {

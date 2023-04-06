@@ -1,4 +1,5 @@
 import { readFile } from 'fs/promises';
+// eslint-disable-next-line no-restricted-imports -- OS-specific path manipulation
 import { resolve } from 'path';
 
 import { JSDOM } from 'jsdom';
@@ -9,7 +10,9 @@ export const testDocsFile = ( ...args: [rootDir: string, ...paths: string[], wit
 	const cb = args[args.length - 1] as ( text: string ) => Promise<void> | void;
 	await cb( content );
 };
-type DescribeDocsFileCb = ( test: ( label: string, test: ( content: string, dom: JSDOM ) => Promise<void> | void ) => void ) => void;
+
+type WithContentFn = ( content: string, dom: JSDOM, document: Document ) => void | undefined | Promise<unknown>
+type DescribeDocsFileCb = ( withContentFn: ( fn: WithContentFn ) => jest.ProvidesCallback ) => void;
 export const describeDocsFile = ( ...args: [rootDir: string, ...paths: string[], cb: DescribeDocsFileCb] ) => () => {
 	let content: string;
 	let jsdom: JSDOM;
@@ -19,7 +22,12 @@ export const describeDocsFile = ( ...args: [rootDir: string, ...paths: string[],
 		jsdom = new JSDOM( content );
 	} );
 	const cb = args[args.length - 1] as DescribeDocsFileCb;
-	cb( ( label, test ) => it( label, () => test( content, jsdom ) as any ) );
+
+	const withContent = ( fn: ( ...innerArgs: any[] ) => any ): jest.ProvidesCallback =>
+		fn.length === 4 ?
+			( doneCb: jest.DoneCallback ) => fn( content, jsdom, jsdom.window.document, doneCb ) :
+			() => fn( content, jsdom, jsdom.window.document );
+	cb( withContent );
 };
 
 export const getBreadcrumb = ( dom: JSDOM ): Array<{href: string | null; text: string | null}> => {

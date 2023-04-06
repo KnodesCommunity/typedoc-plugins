@@ -119,13 +119,13 @@ executors:
     resource_class: medium
   macos: # macos executor running Xcode
     macos:
-      xcode: 12.5.1
-    resource_class: medium
+      xcode: 14.2.0
+    resource_class: macos.x86.medium.gen2
   windows:
     machine:
       image: windows-server-2019-vs2019:stable
       shell: bash.exe
-    resource_class: windows.medium
+    resource_class:  windows.medium
 
   default:
     docker:
@@ -186,6 +186,7 @@ jobs:
       - attach_workspace:
           at: .
       - run: npm run lint
+      - run: npm run lint:md
   test-sources:
     parameters:
       os:
@@ -539,9 +540,12 @@ workflows:
           requires:
             - npm-install-<<matrix.os>>
 
-  dev-check: # Workflow ran on all features
-    when:
-      matches: { pattern: "^feature/.+$", value: <<pipeline.git.branch>> }
+  check-partial: # Workflow ran on all custom branches (no `main`, `develop` or `renovate/*`)
+    unless:
+      or: 
+        - matches: { pattern: "^main$", value: <<pipeline.git.branch>> }
+        - matches: { pattern: "^develop$", value: <<pipeline.git.branch>> }
+        - matches: { pattern: "^renovate/.+$", value: <<pipeline.git.branch>> }
     jobs:
       - checkout
       - npm-install:
@@ -593,11 +597,11 @@ workflows:
             - test-sources-linux # !FORMAT - test-sources-${*test-matrix-os-default}
             - test-tools-linux-coverage # !FORMAT - test-tools-${!*test-matrix-os-default}-coverage
 
-  check: # Workflow ran on all branches except `main`, `develop` and `renovate/*`
-    unless:
+  check-full: # Workflow ran on `main` & `develop`
+    when:
       or:
-        - matches: { pattern: "^feature/.+$", value: <<pipeline.git.branch>> }
-        - matches: { pattern: "^renovate/.+$", value: <<pipeline.git.branch>> }
+        - matches: { pattern: "^main$", value: <<pipeline.git.branch>> }
+        - matches: { pattern: "^develop$", value: <<pipeline.git.branch>> }
     jobs:
       - checkout
       - npm-install:

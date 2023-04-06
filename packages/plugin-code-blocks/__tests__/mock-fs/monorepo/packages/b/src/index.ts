@@ -1,20 +1,20 @@
 // #region inExplicitPackage
 /**
- * A test code block targetting project A
+ * A test code block targeting project A
  *
  * {@codeblock ~pkg-a:test.json}
  */
 export class TestInProjA{}
 
 /**
- * A test code block targetting project B
+ * A test code block targeting project B
  *
  * {@codeblock ~pkg-b:test.json}
  */
 export class TestInProjB{}
 
 /**
- * A test code block targetting root examples
+ * A test code block targeting root examples
  *
  * {@codeblock ~~:test.json}
  */

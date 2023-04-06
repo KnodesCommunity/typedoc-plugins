@@ -1,9 +1,10 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
 import assert from 'assert';
-import { relative, resolve } from 'path';
 
 import { identity } from 'lodash';
 import { Application, DeclarationReflection, MarkdownEvent, ReflectionKind, SourceReference } from 'typedoc';
+
+import { relative, resolve } from '@knodes/typedoc-pluginutils/path';
 
 jest.mock( '../../base-plugin' );
 const { ABasePlugin, getPlugin, getApplication } = require( '../../base-plugin' ) as jest.Mocked<typeof import( '../../base-plugin' )>;

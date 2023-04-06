@@ -8,8 +8,9 @@
       "node"
     ],
     "paths": {
-      "#plugintestbed": ["./packages/plugintestbed/src"],
-      "@knodes/typedoc-*": ["./packages/*/src"],
+      "#plugintestbed": ["packages/plugintestbed/src"],
+      "@knodes/typedoc-pluginutils/*": ["./packages/pluginutils/src/utils/*"],
+      "@knodes/typedoc-*": ["packages/*/src"],
     }
   },
   "include": ["src", "__tests__", "types/test.d.ts"],

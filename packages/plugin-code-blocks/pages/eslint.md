@@ -1,4 +1,4 @@
-While we recommend using `@codeblock` & `@inlineCodeblock` as *inline tags* (eg. `{@codeblock ...}` in any markdown content), you can also use it as block tags defined in your *Typedoc* comments.
+While **only** `{@codeblock}` & `{@inlineCodeblock}` _inline tags_ works in _Markdown_ files, you can also use them as _block tags_ (`@codeblock` & `@inlineCodeblock`, without curly braces) in your _Typedoc comments_.
 
 Example:
 {@codeblock simple/src/codeblock/block.ts#relPath}

@@ -1,4 +1,5 @@
 import assert from 'assert';
+// eslint-disable-next-line no-restricted-imports -- OS-specific path manipulation
 import { resolve } from 'path';
 
 import { Many, castArray } from 'lodash';
@@ -25,18 +26,18 @@ export const runPlugin = async (
 		...baseOptions,
 		...options,
 	};
-	jest.spyOn( Repository, 'tryCreateRepository' ).mockImplementation( ( path, gitRevision, gitRemote ) => {
+	jest.spyOn( Repository, 'tryCreateRepository' ).mockImplementation( ( _path, _sourceLinkTemplate, gitRevision, gitRemote, _logger ) => {
 		if( !gitRemote || !gitRevision ){
 			return undefined;
 		}
-		const repo = new Repository( process.cwd(), gitRevision, [ `http://stub.git/${gitRemote}` ] );
-		repo.user = 'FAKE-USER';
-		repo.project = 'FAKE-PROJECT';
-		repo.hostname = 'stub.git';
-		repo.contains = jest.fn().mockReturnValue( true );
+		const repo = new Repository( process.cwd(), gitRevision, 'https://stub.git/FAKE-USER/FAKE-PROJECT/blob/{gitRevision}/{path}#L{line}' );
+		jest.spyOn( repo, 'getURL' );
 		return repo;
 	} );
+	const errorOnBootstrapSpy = jest.spyOn( console, 'error' );
 	app.bootstrap( fullOpts );
+	expect( errorOnBootstrapSpy ).not.toHaveBeenCalled();
+	errorOnBootstrapSpy.mockRestore();
 	const project = app.convert();
 	expect( project ).toBeTruthy();
 	assert( project );

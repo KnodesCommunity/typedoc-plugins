@@ -1,6 +1,6 @@
 {
   "name": "@knodes/typedoc-pluginutils",
-  "version": "0.23.1",
+  "version": "0.23.2",
   "description": "A set of utilities for TypeDoc plugins",
   "license": "MIT",
   "repository": {
@@ -24,6 +24,13 @@
     "utils"
   ],
   "main": "dist/index.js",
+  "exports": {
+    ".": "./dist/index.js",
+    "./path": {
+      "default": "./dist/utils/path.js",
+      "types": "./dist/utils/path.d.ts"
+    }
+  },
   "files": [
     "dist",
     "src"
@@ -66,7 +73,7 @@
     "jsdom": "^20.0.0",
     "rimraf": "^3.0.2",
     "ts-jest": "^28.0.5",
-    "typedoc": "^0.23.10",
+    "typedoc": "^0.23.28",
     "typescript": "^4.7.4",
     "@alex_neo/jest-expect-message": "^1.0.5",
     "@types/semver": "^7.3.9",

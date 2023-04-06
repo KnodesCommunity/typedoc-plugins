@@ -1,11 +1,13 @@
 import assert from 'assert';
-import { relative } from 'path';
 
 import { isString, uniq } from 'lodash';
 import { filter as filterGlob } from 'minimatch';
-import { DeclarationReflection, ReflectionKind, RepositoryType, normalizePath } from 'typedoc';
+import { DeclarationReflection, ReflectionKind } from 'typedoc';
 
 import { CurrentPageMemo, IPluginComponent, MarkdownReplacer, reflectionKindUtils, reflectionSourceUtils, resolveNamedPath } from '@knodes/typedoc-pluginutils';
+import { relative } from '@knodes/typedoc-pluginutils/path';
+
+// import type { Repository } from '../../../../typedoc/src/lib/converter/utils/repository';
 
 import { DEFAULT_BLOCK_NAME, ICodeSample, readCodeSample } from '../code-sample-file';
 import type { CodeBlockPlugin } from '../plugin';
@@ -46,7 +48,7 @@ export class MarkdownCodeBlocks implements IPluginComponent<CodeBlockPlugin>{
 	private _replaceInlineCodeBlock( match: MarkdownReplacer.Match ) {
 		// Avoid recursion in code blocks
 		if( this._currentPageMemo.currentReflection instanceof DeclarationReflection && this._currentPageMemo.currentReflection.kind === CODEBLOCK_KIND ){
-			return;
+			return undefined;
 		}
 		const [ fileName, blockModeStr, markdownCode ] = match.captures;
 		assert.ok( fileName );
@@ -70,7 +72,7 @@ export class MarkdownCodeBlocks implements IPluginComponent<CodeBlockPlugin>{
 	private _replaceCodeBlock( match: MarkdownReplacer.Match, sourceHint: MarkdownReplacer.SourceHint ) {
 		// Avoid recursion in code blocks
 		if( this._currentPageMemo.currentReflection instanceof DeclarationReflection && this._currentPageMemo.currentReflection.kind === CODEBLOCK_KIND ){
-			return;
+			return undefined;
 		}
 		const [ file, block, blockModeStr, fakedFileName ] = match.captures;
 		try {
@@ -109,9 +111,6 @@ export class MarkdownCodeBlocks implements IPluginComponent<CodeBlockPlugin>{
 			this._currentPageMemo.currentReflection,
 			this.plugin.pluginOptions.getValue().source,
 			file );
-		if( !resolvedFile ){
-			throw new Error( `Could not resolve file ${file}` );
-		}
 		// Get the actual code sample
 		if( !this._fileSamples.has( resolvedFile ) ){
 			this._fileSamples.set( resolvedFile, readCodeSample( resolvedFile ) );
@@ -191,7 +190,7 @@ export class MarkdownCodeBlocks implements IPluginComponent<CodeBlockPlugin>{
 	 * @returns the file name to show in the header.
 	 */
 	private _getHeaderFileName( file: string, lineRange: readonly [number, number] | null ): string {
-		const filePath = normalizePath( relative( this.plugin.rootDir, file ) );
+		const filePath = relative( this.plugin.rootDir, file );
 		const regionMarker = lineRange ? `#${lineRange[0]}~${lineRange[1]}` : '';
 		return `./${filePath}${regionMarker}`;
 	}
@@ -208,25 +207,12 @@ export class MarkdownCodeBlocks implements IPluginComponent<CodeBlockPlugin>{
 		if( !sourceComponent ){
 			return undefined;
 		}
-		const repository = ( sourceComponent as any )?.getRepository( file );
+		const repository = ( sourceComponent as any )?.getRepository( file ); // as Repository | undefined;
 		if( !repository ){
 			return;
 		}
-		const url: string | null | undefined = repository?.getURL( file );
-		if( !url ){
-			return undefined;
-		}
-		if( !lineRange ){
-			return url;
-		}
-		const anchor = ( {
-			[RepositoryType.GitHub]: `L${lineRange[0]}-L${lineRange[1]}`,
-			[RepositoryType.GitLab]: `L${lineRange[0]}-L${lineRange[1]}`,
-		} as Record<RepositoryType, string | undefined> )[repository.type as RepositoryType];
-		if( anchor ){
-			return `${url}#${anchor}`;
-		}
-		return url;
+		const url: string | null | undefined = repository?.getURL( file, lineRange?.[0] ?? 1 );
+		return url ?? undefined;
 	}
 }
 export const bindMarkdownCodeBlocks = ( plugin: CodeBlockPlugin, themeMethods: ICodeBlocksPluginThemeMethods ) => new MarkdownCodeBlocks( plugin, themeMethods );
