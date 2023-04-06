@@ -61,6 +61,9 @@ export const buildOptions = ( plugin: PagesPlugin ) => OptionGroup.factory<IPlug
 		validate: v => {
 			if( v ){
 				assert( isArray( v ), 'Pages should be an array' );
+				if( !v.length ){
+					return;
+				}
 				v.forEach( ( p, i ): asserts p is IRootPageNode => miscUtils.catchWrap(
 					() => checkRootPage( plugin, p, [] ),
 					wrapPageError( [], i ) ) );
