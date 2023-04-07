@@ -10,10 +10,10 @@ const { readProjectPackageJson, getDocsUrl, assertDiffFile } = require( './utils
 const { formatPackages, resolveRoot } = require( '../utils' );
 
 /**
- * @param {boolean} checkOnly
+ * @param options
  * @returns {import('./utils').ProtoHandler<{getProtoPkg: (v: string) => string, rootJson: any, rootJsonStr: string, rootPath: string}}
  */
-module.exports.packageJson = async checkOnly => ( {
+module.exports.packageJson = async ( { checkOnly } ) => ( {
 	setup: async () => {
 		const getProtoPkg = memoize( proto => readFile( resolve( proto, 'package.json' ), 'utf-8' ) );
 		const rootPath = resolveRoot( 'package.json' );

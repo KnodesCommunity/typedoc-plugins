@@ -25,30 +25,32 @@ const getMinorVersionsToCheck = async () => {
 };
 
 /**
- * @param {boolean} checkOnly
+ * @param options
  * @returns {import('./utils').ProtoHandler}
  */
-module.exports.circleCi = async checkOnly => ( {
+module.exports.circleCi = async ( { checkOnly, loose } ) => ( {
 	tearDown: async() => {
 		const circleCiPath = resolveRoot( '.circleci/config.yml' );
 		const currentCircleCi = await readFile( circleCiPath, 'utf-8' );
 
-		const { default: defaultNodeVersionToCheck, other: otherNodeVersionsToCheck } = await getMinorVersionsToCheck();
-		const doc = parseYamlDocument( currentCircleCi );
-		const xParams = doc.get( 'x-params' );
-		const nonDefaultCiVersions = xParams.get( 'node-version-non-default', true ).toJSON();
-		const defaultCiVersion = xParams.get( 'node-version-default', true ).value;
-
 		let alteredCircleCi = currentCircleCi;
-		if( !semver.satisfies( defaultCiVersion, `~${defaultNodeVersionToCheck.version.version}` ) ){
-			alteredCircleCi = alteredCircleCi.replace( /&test-matrix-nodeversion-default "\S+"/, `&test-matrix-nodeversion-default "${defaultNodeVersionToCheck.version.version}"` );
-		}
-		if( !zip( nonDefaultCiVersions, otherNodeVersionsToCheck )
-			.every( ( [ ciVersion, nodeVersion ] ) => semver.satisfies( ciVersion, `~${nodeVersion.version.version}` ) )
-		){
-			alteredCircleCi = alteredCircleCi.replace(
-				/&test-matrix-nodeversion-nondefault \[.*?\]/,
-				`&test-matrix-nodeversion-nondefault ${JSON.stringify( otherNodeVersionsToCheck.map( v => v.version.version ) )}` );
+		if( !loose ){
+			const { default: defaultNodeVersionToCheck, other: otherNodeVersionsToCheck } = await getMinorVersionsToCheck();
+			const doc = parseYamlDocument( currentCircleCi );
+			const xParams = doc.get( 'x-params' );
+			const nonDefaultCiVersions = xParams.get( 'node-version-non-default', true ).toJSON();
+			const defaultCiVersion = xParams.get( 'node-version-default', true ).value;
+
+			if( !semver.satisfies( defaultCiVersion, `~${defaultNodeVersionToCheck.version.version}` ) ){
+				alteredCircleCi = alteredCircleCi.replace( /&test-matrix-nodeversion-default "\S+"/, `&test-matrix-nodeversion-default "${defaultNodeVersionToCheck.version.version}"` );
+			}
+			if( !zip( nonDefaultCiVersions, otherNodeVersionsToCheck )
+				.every( ( [ ciVersion, nodeVersion ] ) => semver.satisfies( ciVersion, `~${nodeVersion.version.version}` ) )
+			){
+				alteredCircleCi = alteredCircleCi.replace(
+					/&test-matrix-nodeversion-nondefault \[.*?\]/,
+					`&test-matrix-nodeversion-nondefault ${JSON.stringify( otherNodeVersionsToCheck.map( v => v.version.version ) )}` );
+			}
 		}
 
 		const cfgFormatted = postProcessYaml( alteredCircleCi );

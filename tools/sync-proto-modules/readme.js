@@ -94,4 +94,4 @@ This plugin version should match TypeDoc \`${typedocVer}\` for compatibility.
 	}
 }
 
-module.exports.readme = checkOnly => new Readme( checkOnly );
+module.exports.readme = ( { checkOnly } ) => new Readme( checkOnly );

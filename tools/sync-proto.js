@@ -12,18 +12,20 @@ const { typedocSubmodule } = require( './sync-proto-modules/typedoc-submodule' )
 const { selectProjects, createStash } = require( './utils' );
 
 if( require.main === module ){
-	const { explicitProjects, stash, checkOnly } = process.argv.slice( 2 )
+	const { explicitProjects, stash, checkOnly, loose } = process.argv.slice( 2 )
 		.reduce( ( acc, arg ) => {
 			if( arg === '--no-stash' ){
 				return { ...acc, stash: false };
 			} else if( arg === '--check' ){
 				return { ...acc, checkOnly: true, stash: false };
+			} else if( arg === '--loose' ) {
+				return { ...acc, loose: true };
 			} else if( arg.startsWith( '-' ) ){
 				throw new Error( `Unknown arg ${arg}` );
 			} else {
 				return { ...acc, explicitProjects: [ ...acc.explicitProjects, arg ] };
 			}
-		}, { explicitProjects: [], stash: true, checkOnly: false } );
+		}, { explicitProjects: [], stash: true, checkOnly: false, loose: false } );
 	const projects = selectProjects( explicitProjects );
 	const protoDir = normalizePath( resolve( __dirname, 'proto' ) );
 	( async () => {
@@ -42,7 +44,7 @@ if( require.main === module ){
 				changelog,
 				issueTemplate,
 			].reduce(
-				( acc, protoHandlerFactory ) => acc.then( v => Promise.resolve( protoHandlerFactory( checkOnly ) )
+				( acc, protoHandlerFactory ) => acc.then( v => Promise.resolve( protoHandlerFactory( ( { checkOnly, loose } ) ) )
 					.then( w => [ ...v, w ] ) ),
 				initialValue );
 			const setups = new WeakMap();

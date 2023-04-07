@@ -3,10 +3,10 @@ const assert = require( 'assert' );
 const { spawn, captureStream, resolveRoot } = require( '../utils' );
 
 /**
- * @param {boolean} checkOnly
+ * @param options
  * @returns {import('./utils').ProtoHandler}
  */
-module.exports.typedocSubmodule = async checkOnly => ( {
+module.exports.typedocSubmodule = async ( { checkOnly } ) => ( {
 	tearDown: async () => {
 		const typedocDir = resolveRoot( 'typedoc' );
 		const packageTypedoc = require( '../../package.json' ).devDependencies.typedoc.replace( /^\D*/, '' );

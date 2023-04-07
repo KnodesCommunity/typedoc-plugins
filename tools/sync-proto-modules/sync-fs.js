@@ -64,10 +64,10 @@ const getChangedFiles = memoize( async ( proto, handlers ) => {
 } );
 
 /**
- * @param {boolean} checkOnly
+ * @param options
  * @returns {import('./utils').ProtoHandler}
  */
-module.exports.syncFs = checkOnly => {
+module.exports.syncFs = ( { checkOnly } ) => {
 	const conflicting = [];
 	return {
 		name: 'syncFs',

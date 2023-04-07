@@ -7,10 +7,10 @@ const { resolveRoot, globAsync } = require( '../utils' );
 const DIR = resolveRoot( './.github/ISSUE_TEMPLATE' );
 
 /**
- * @param {boolean} checkOnly
+ * @param options
  * @returns {import('./utils').ProtoHandler}
  */
-module.exports.issueTemplate = async checkOnly => ( {
+module.exports.issueTemplate = async ( { checkOnly } ) => ( {
 	tearDown: async ( _, projects ) => {
 		await Promise.all( ( await globAsync( '*.yaml', { cwd: DIR } ) ).map( async f => {
 			const path = resolveRoot( DIR, f );

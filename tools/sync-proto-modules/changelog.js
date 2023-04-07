@@ -99,7 +99,7 @@ class Changelog {
 }
 
 /**
- * @param {boolean} checkOnly
+ * @param options
  * @returns {import('./utils').ProtoHandler<{changelog: string[], oldestVersionCache: Record<string, string|undefined>>}
  */
-module.exports.changelog = async checkOnly => new Changelog( checkOnly );
+module.exports.changelog = async ( { checkOnly } ) => new Changelog( checkOnly );
