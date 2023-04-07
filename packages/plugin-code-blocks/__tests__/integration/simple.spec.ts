@@ -76,7 +76,7 @@ describe( 'Codeblock', () => {
 
 				const codeblocks = dom.window.document.querySelectorAll( '.code-block' );
 				expect( codeblocks ).toHaveLength( 1 );
-				expect( codeblocks[0] ).toSatisfy( matchExpanded( './examples/example-test.json', SAMPLES['example-test.json'] ) );
+				expect( codeblocks[0] ).toSatisfy( matchExpanded( './examples/complex-regions.js#1~8', "const foo = 'FOO'// ...const bar = 'BAR'" ) );
 			} ) );
 			it( 'should have constant content', withContent( content => {
 				expect( formatHtml( content ) ).toMatchSnapshot();

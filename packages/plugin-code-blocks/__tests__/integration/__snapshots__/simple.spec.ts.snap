@@ -1043,9 +1043,9 @@ exports[`Codeblock Inline tag \`classes/BlocInline.TestInlineExplicitProject.htm
 					<p>A test code block for project path implicitly in <code>examples</code> directory</p>
 					<details class="code-block" open>
 						<summary>
-							<p>From ./examples/example-test.json</p>
+							<p>From ./examples/complex-regions.js#1~8</p>
 						</summary>
-						<pre><code class="language-json"><span class="hl-0">{</span><span class="hl-1">&quot;Hello&quot;</span><span class="hl-0">: </span><span class="hl-2">&quot;World&quot;</span><span class="hl-0">}</span>
+						<pre><code class="language-js"><span class="hl-3">const</span><span class="hl-0"> </span><span class="hl-4">foo</span><span class="hl-0"> = </span><span class="hl-2">&#39;FOO&#39;</span><br/><span class="hl-5">// ...</span><br/><span class="hl-3">const</span><span class="hl-0"> </span><span class="hl-4">bar</span><span class="hl-0"> = </span><span class="hl-2">&#39;BAR&#39;</span>
 </code></pre>
 					</details>
 				</div>
