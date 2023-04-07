@@ -1,7 +1,7 @@
 import { Reflection, SourceReference } from 'typedoc';
 
-import { PluginAccessor, getApplication, getPlugin } from '../base-plugin';
 import { normalize } from './path';
+import { PluginAccessor, getApplication, getPlugin } from '../base-plugin';
 
 export const getReflectionSourceFileName = ( reflection?: Reflection ) => {
 	if( !reflection ){

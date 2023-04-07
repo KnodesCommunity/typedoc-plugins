@@ -2,9 +2,9 @@ import assert from 'assert';
 
 import { DefaultTheme, RendererEvent } from 'typedoc';
 
-import type { CodeBlockPlugin } from '../../plugin';
 import { DefaultCodeBlockRenderer } from './default-code-block-renderer';
 import { ICodeBlocksPluginThemeMethods, isCodeBlocksPluginTheme } from './types';
+import type { CodeBlockPlugin } from '../../plugin';
 
 export const getCodeBlocksThemeMethods = ( plugin: CodeBlockPlugin, event: RendererEvent ): ICodeBlocksPluginThemeMethods => {
 	const theme = plugin.application.renderer.theme;

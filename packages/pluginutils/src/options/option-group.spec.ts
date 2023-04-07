@@ -9,9 +9,9 @@ import { Application, LogLevel, ParameterType } from 'typedoc';
 jest.mock( '../base-plugin' );
 const { ABasePlugin } = require( '../base-plugin' ) as jest.Mocked<typeof import( '../base-plugin' )>;
 
-import type { PluginLogger } from '../plugin-logger';
 import { OptionGroup } from './option-group';
 import { DeclarationOptionConfig, TypeErr } from './utils';
+import type { PluginLogger } from '../plugin-logger';
 
 describe( 'Typings', () => {
 	const maybe = true as boolean;

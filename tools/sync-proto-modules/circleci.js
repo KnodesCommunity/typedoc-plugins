@@ -1,7 +1,7 @@
 const { readFile } = require( 'fs/promises' );
 
-const { resolveRoot } = require( '../utils' );
 const { syncFile, postProcessYaml } = require( './utils' );
+const { resolveRoot } = require( '../utils' );
 
 /**
  * @param {boolean} checkOnly

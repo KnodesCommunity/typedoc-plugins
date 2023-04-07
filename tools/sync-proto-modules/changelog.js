@@ -3,8 +3,8 @@ const { resolve } = require( 'path' );
 
 const { isString, escapeRegExp } = require( 'lodash' );
 
-const { resolveRoot, spawn, captureStream } = require( '../utils' );
 const { syncFile, tryReadFile } = require( './utils' );
+const { resolveRoot, spawn, captureStream } = require( '../utils' );
 
 const getOldestVersion = async pkgName => {
 	try {

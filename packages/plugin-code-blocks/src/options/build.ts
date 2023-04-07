@@ -4,9 +4,9 @@ import { LogLevel, ParameterType } from 'typedoc';
 
 import { OptionGroup } from '@knodes/typedoc-pluginutils';
 
+import { EInvalidBlockLinkHandling, IPluginOptions } from './types';
 import type { CodeBlockPlugin } from '../plugin';
 import { EBlockMode } from '../types';
-import { EInvalidBlockLinkHandling, IPluginOptions } from './types';
 
 export const buildOptions = ( plugin: CodeBlockPlugin ) => OptionGroup.factory<IPluginOptions>( plugin )
 	.add( 'invalidBlockLinkHandling', {

@@ -6,10 +6,10 @@ import { DeclarationOption, MixedDeclarationOption, ParameterType } from 'typedo
 
 import { dirname } from '@knodes/typedoc-pluginutils/path';
 
-import type { ABasePlugin } from '../base-plugin';
-import { EventsExtra } from '../events-extra';
 import { MapperPart, Option } from './option';
 import { DeclarationOptionConfig, ParameterValueType, TypeErr } from './utils';
+import type { ABasePlugin } from '../base-plugin';
+import { EventsExtra } from '../events-extra';
 
 interface Builder<T extends Record<string, any>, TDecs extends Record<never, DeclarationOption>> {
 	add: <

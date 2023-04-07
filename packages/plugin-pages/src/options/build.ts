@@ -5,8 +5,8 @@ import { LogLevel, ParameterType } from 'typedoc';
 
 import { OptionGroup, miscUtils } from '@knodes/typedoc-pluginutils';
 
-import type { PagesPlugin } from '../plugin';
 import { EInvalidPageLinkHandling, IPageNode, IPluginOptions, IRootPageNode } from './types';
+import type { PagesPlugin } from '../plugin';
 
 const wrapPageError = ( path: string[], index: number ) => ( err: any ) => {
 	if( err instanceof AssertionError ){

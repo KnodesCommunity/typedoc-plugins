@@ -2,8 +2,8 @@ const { readFile } = require( 'fs/promises' );
 
 const { minVersion } = require( 'semver' );
 
-const { resolveRoot, globAsync } = require( '../utils' );
 const { syncFile, postProcessYaml } = require( './utils' );
+const { resolveRoot, globAsync } = require( '../utils' );
 const DIR = resolveRoot( './.github/ISSUE_TEMPLATE' );
 
 /**

@@ -1,7 +1,7 @@
 const { yellow } = require( 'chalk' );
 
-const { globAsync } = require( '../utils' );
 const { tryReadFile, getDocsUrl, readProjectPackageJson, syncFile } = require( './utils' );
+const { globAsync } = require( '../utils' );
 
 class Readme {
 	constructor( checkOnly ){

@@ -7,9 +7,9 @@ import { DeclarationReflection, DefaultTheme, IndexEvent, JSX, PageEvent, Projec
 import { CurrentPageMemo, IPluginComponent, getReflectionModule, reflectionSourceUtils } from '@knodes/typedoc-pluginutils';
 import { join } from '@knodes/typedoc-pluginutils/path';
 
+import { IPagesPluginThemeMethods, RenderPageLinkProps } from './types';
 import { ANodeReflection, PageReflection, PagesPluginReflectionKind } from '../../models/reflections';
 import type { PagesPlugin } from '../../plugin';
-import { IPagesPluginThemeMethods, RenderPageLinkProps } from './types';
 
 const getPageNameComponents = ( reflection: Reflection ): string[] => reflection.parent instanceof ANodeReflection ?
 	[ ...getPageNameComponents( reflection.parent ), reflection.name ] :
