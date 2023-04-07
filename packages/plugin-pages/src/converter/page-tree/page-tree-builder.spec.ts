@@ -39,7 +39,7 @@ const addChildModule = ( name: string ) => {
 	project.registerReflection( moduleRef );
 	return moduleRef;
 };
-const matchReflection = <T extends Reflection>( proto: Class<T>, sample: Omit<Partial<T>, 'childrenNodes'> & {childrenNodes?: jest.Result[]} ) => expect.toSatisfy( v => {
+const matchReflection = <T extends Reflection>( proto: Class<T>, sample: Partial<T> ) => expect.toSatisfy( v => {
 	expect( v ).toBeInstanceOf( proto );
 	const s = sample as any;
 	if( 'sourceFilePath' in s && isString( s.sourceFilePath ) ){
