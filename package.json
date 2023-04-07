@@ -71,7 +71,7 @@
     "@testing-library/jest-dom": "^5.16.4",
     "@types/concurrently": "^7.0.0",
     "@types/diff": "^5.0.2",
-    "@types/fs-extra": "^9.0.13",
+    "@types/fs-extra": "^11.0.0",
     "@types/jest": "^29.0.0",
     "@types/js-beautify": "^1.13.3",
     "@types/jsdom": "^20.0.0",
