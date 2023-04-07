@@ -527,7 +527,10 @@ workflows:
             - npm-install-linux # !FORMAT - npm-install-${*test-matrix-os-default}
 
       - test-sources:
-          matrix: *params-test-matrix
+          matrix:
+            parameters:
+              os: *test-matrix-os
+          node-version: *test-matrix-nodeversion-default
           requires:
             - npm-install-<<matrix.os>>
       - test-tools:
