@@ -2,6 +2,7 @@
 module.exports = {
 	// #endregion
 	out: 'docs',
+	skipErrorChecking: true,
 	// #region pagesConfig-2
 	name: 'Knodes TypeDoc Plugins',
 	entryPoints: [
