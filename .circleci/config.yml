@@ -2,13 +2,13 @@
 version: 2.1
 
 x-params:
-  node-version-non-default: &test-matrix-nodeversion-nondefault ["14.19.3", "18.4.0"]
-  node-version-default: &test-matrix-nodeversion-default "16.16.0"
+  node-version-non-default: &test-matrix-nodeversion-nondefault ["19.8.1","16.20.0"]
+  node-version-default: &test-matrix-nodeversion-default "18.15.0"
   test-matrix: &params-test-matrix
     parameters: &test-matrix
       # os: &test-matrix-os [&test-matrix-os-default linux, macos, windows]
       os: &test-matrix-os [&test-matrix-os-default linux, windows]
-      node-version: &test-matrix-nodeversion [ "16.16.0", "14.19.3", "18.4.0" ] # !FORMAT node-version: &test-matrix-nodeversion [ ${*test-matrix-nodeversion-default}, ${...*test-matrix-nodeversion-nondefault} ]
+      node-version: &test-matrix-nodeversion [ "18.15.0", "19.8.1", "16.20.0" ] # !FORMAT node-version: &test-matrix-nodeversion [ ${*test-matrix-nodeversion-default}, ${...*test-matrix-nodeversion-nondefault} ]
 
 # Orbs are reusable packages of CircleCI configuration that you may share across projects, enabling you to create encapsulated, parameterized commands, jobs, and executors that can be used across multiple projects.
 # See: https://circleci.com/docs/2.0/orb-intro/
@@ -650,7 +650,7 @@ workflows:
 
       - codeclimate-upload:
           requires:
-            - test-sources-16.16.0-linux # !FORMAT - test-sources-${!*test-matrix-nodeversion-default}-${*test-matrix-os-default}
+            - test-sources-18.15.0-linux # !FORMAT - test-sources-${!*test-matrix-nodeversion-default}-${*test-matrix-os-default}
             - test-tools-linux-coverage # !FORMAT - test-tools-${!*test-matrix-os-default}-coverage
             # - test-tools-16.16.0-macos # !FORMAT # - test-tools-${!*test-matrix-nodeversion-default}-macos
             # - test-tools-16.16.0-windows # !FORMAT # - test-tools-${!*test-matrix-nodeversion-default}-windows
