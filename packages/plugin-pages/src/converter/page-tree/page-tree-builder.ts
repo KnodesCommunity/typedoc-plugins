@@ -4,10 +4,10 @@ import { DeclarationReflection, MinimalSourceFile, ProjectReflection, Reflection
 
 import { IPluginComponent, ResolveError, getWorkspaces, miscUtils, resolveNamedPath } from '@knodes/typedoc-pluginutils';
 
+import { getDir, getNodePath, getNodeUrl, join } from './utils';
 import { ANodeReflection, MenuReflection, NodeReflection, PageReflection } from '../../models/reflections';
 import { IPageNode, IPluginOptions, IRootPageNode } from '../../options';
 import type { PagesPlugin } from '../../plugin';
-import { getDir, getNodePath, getNodeUrl, join } from './utils';
 
 const isModuleRoot = ( pageNode: IPageNode | IRootPageNode ) => 'moduleRoot' in pageNode && !!pageNode.moduleRoot;
 

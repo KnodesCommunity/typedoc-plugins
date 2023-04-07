@@ -3,9 +3,9 @@ import assert from 'assert';
 import { once } from 'lodash';
 import { DefaultTheme, RendererEvent } from 'typedoc';
 
-import type { PagesPlugin } from '../../plugin';
 import { DefaultPagesRenderer } from './default-pages-renderer';
 import { IPagesPluginThemeMethods, isPagesPluginTheme } from './types';
+import type { PagesPlugin } from '../../plugin';
 
 export const getPagesPluginThemeMethods = once( ( plugin: PagesPlugin, event: RendererEvent ): IPagesPluginThemeMethods => {
 	const theme = plugin.application.renderer.theme;

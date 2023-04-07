@@ -9,10 +9,10 @@ import { relative } from '@knodes/typedoc-pluginutils/path';
 
 // import type { Repository } from '../../../../typedoc/src/lib/converter/utils/repository';
 
+import { ICodeBlocksPluginThemeMethods } from './theme';
 import { DEFAULT_BLOCK_NAME, ICodeSample, readCodeSample } from '../code-sample-file';
 import type { CodeBlockPlugin } from '../plugin';
 import { EBlockMode } from '../types';
-import { ICodeBlocksPluginThemeMethods } from './theme';
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires -- Get name from package
 const { name } = require( '../../package.json' );

@@ -6,8 +6,8 @@ const { memoize, cloneDeep, defaultsDeep, uniq } = require( 'lodash' );
 const semver = require( 'semver' );
 const { normalizePath } = require( 'typedoc' );
 
-const { formatPackages, resolveRoot } = require( '../utils' );
 const { readProjectPackageJson, getDocsUrl, assertDiffFile } = require( './utils' );
+const { formatPackages, resolveRoot } = require( '../utils' );
 
 /**
  * @param {boolean} checkOnly

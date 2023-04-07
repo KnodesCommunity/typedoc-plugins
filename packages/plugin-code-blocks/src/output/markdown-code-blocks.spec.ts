@@ -10,10 +10,10 @@ jest.mock( '../code-sample-file' );
 const { DEFAULT_BLOCK_NAME, readCodeSample: readCodeSampleMock } = require( '../code-sample-file' ) as jest.Mocked<typeof import( '../code-sample-file' )>;
 /* eslint-enable @typescript-eslint/no-var-requires */
 
-import { CodeBlockPlugin } from '../plugin';
-import { EBlockMode, ICodeBlock } from '../types';
 import { MarkdownCodeBlocks } from './markdown-code-blocks';
 import { ICodeBlocksPluginThemeMethods } from './theme';
+import { CodeBlockPlugin } from '../plugin';
+import { EBlockMode, ICodeBlock } from '../types';
 
 class FakeSource {
 	public static readonly REPO_URL = 'https://example.repo.com';

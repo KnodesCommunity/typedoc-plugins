@@ -3,8 +3,8 @@ import { Application } from 'typedoc';
 
 import { OptionGroup } from '@knodes/typedoc-pluginutils';
 
-import { PagesPlugin } from '../plugin';
 import { IPluginOptions, IRootPageNode } from './types';
+import { PagesPlugin } from '../plugin';
 
 let application: Application;
 let plugin: PagesPlugin;

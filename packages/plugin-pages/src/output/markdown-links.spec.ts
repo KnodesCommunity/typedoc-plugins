@@ -5,9 +5,9 @@ import { resolve } from '@knodes/typedoc-pluginutils/path';
 
 import { MockPlugin, createMockProjectWithPackage, mockPlugin, setupMockMarkdownReplacer, setupMockPageMemo } from '#plugintestbed';
 
+import { MarkdownPagesLinks } from './markdown-links';
 import { EInvalidPageLinkHandling } from '../options';
 import { PagesPlugin } from '../plugin';
-import { MarkdownPagesLinks } from './markdown-links';
 
 let plugin: MockPlugin<PagesPlugin>;
 const markdownReplacerTestbed = setupMockMarkdownReplacer();

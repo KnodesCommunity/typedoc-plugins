@@ -5,11 +5,11 @@ import { RendererEvent } from 'typedoc';
 
 import { CurrentPageMemo, IPluginComponent, MarkdownReplacer, NamedPath, resolveNamedPath } from '@knodes/typedoc-pluginutils';
 
+import { IPagesPluginThemeMethods } from './theme';
 import { getNodePath } from '../converter/page-tree';
 import { PageReflection, PagesPluginReflectionKind } from '../models/reflections';
 import { EInvalidPageLinkHandling } from '../options';
 import type { PagesPlugin } from '../plugin';
-import { IPagesPluginThemeMethods } from './theme';
 
 const EXTRACT_PAGE_LINK_REGEX = /([^}\s]+)(?:\s+([^}]+?))?\s*/g;
 export class MarkdownPagesLinks implements IPluginComponent<PagesPlugin> {

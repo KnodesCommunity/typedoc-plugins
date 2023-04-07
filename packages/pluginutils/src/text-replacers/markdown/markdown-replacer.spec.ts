@@ -11,8 +11,8 @@ const { ABasePlugin, getPlugin, getApplication } = require( '../../base-plugin' 
 getPlugin.mockImplementation( identity );
 getApplication.mockImplementation( jest.requireActual( '../../base-plugin' ).getApplication );
 
-import { CurrentPageMemo } from '../../current-page-memo';
 import { MarkdownReplacer } from './markdown-replacer';
+import { CurrentPageMemo } from '../../current-page-memo';
 
 class TestPlugin extends ABasePlugin {
 	public override application: jest.MockedObjectDeep<Application>;
