@@ -18,6 +18,8 @@ beforeEach( () => {
 } );
 
 describe( 'Pages', () => {
+	it( 'should not throw if empty pages list', () => expect( () => options.setValue( { pages: [] as IRootPageNode[] } ) )
+		.not.toThrow( 'Every root pages should set `moduleRoot` to true, or none' ) );
 	it( 'should throw if inconsistent "moduleRoot" option given', () => expect( () => options.setValue( { pages: [
 		{ name: 'A', moduleRoot: true },
 		{ name: 'B' },
