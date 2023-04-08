@@ -1,11 +1,12 @@
 #! /bin/bash
 set -e
 
+BASE_BRANCH="$(git -C "$(pwd)" rev-parse --abbrev-ref HEAD)"
 ALPHA_FLAG=""
 if [ -n "$1" ] && [ "$1" == "--alpha" ]; then
 	ALPHA_FLAG="$1"
 elif [ -z "$1" ]; then
-	if [ "$(git -C "$(pwd)" rev-parse --abbrev-ref HEAD)" != "develop" ]; then
+	if [ "$BASE_BRANCH" != "develop" ]; then
 		echo "Non-alpha should be ran on develop only"
 		exit 1
 	fi
@@ -59,7 +60,11 @@ echo "Using docs temp dir ${TEMP_DIR}"
 REMOTE_URL="$(git config --get remote.origin.url)"
 cd "${TEMP_DIR}"
 git clone --depth 1 --branch docs "${REMOTE_URL}" .
-rsync -va --delete --exclude ".git" "${PWD_SV}/docs/" ./
+if [ -z "$ALPHA_FLAG" ]; then
+	rsync -va --delete --exclude ".git" "${PWD_SV}/docs/" ./
+else
+	rsync -va --delete --exclude ".git" "${PWD_SV}/docs/" ./"v${VERSION}"
+fi
 git add .
 git commit -m "docs: publish docs for v${VERSION}
 
@@ -68,4 +73,8 @@ cd "${PWD_SV}"
 # Print publish script
 # BRANCH="$(git rev-parse --abbrev-ref HEAD)"
 echo "All is OK so far. To finish publishing, enter the following command:"
-echo "( cd ${TEMP_DIR} && git push ) && git checkout main && git merge --ff-only develop && git checkout develop && git push origin develop main --follow-tags && npm publish --access public --workspaces"
+if [ -z "$ALPHA_FLAG" ]; then
+	echo "( cd ${TEMP_DIR} && git push ) && git checkout main && git merge --ff-only develop && git checkout develop && git push origin develop main --follow-tags && npm publish --access public --workspaces"
+else
+	echo "( cd ${TEMP_DIR} && git push ) && git checkout $BASE_BRANCH && git push origin $BASE_BRANCH --follow-tags && npm publish --access public --workspaces --tag next"
+fi
