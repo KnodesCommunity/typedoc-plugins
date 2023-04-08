@@ -21,7 +21,7 @@ const comments = Object.entries( {
 	'.?([cm])[tj]s?(x)': '// ...',
 } ).map( ( [ k, v ] ) => {
 	const filter = filterGlob( `**/*${k}` );
-	return { check: ( file: string ) => filter( file, 1, [ file ] ), comment: v };
+	return { check: ( file: string ) => filter( file ), comment: v };
 } );
 const getFirstLineIndent = ( lines?: string[] ) => ( lines?.filter( l => l.trim() )[0]?.match( /^\s*/ ) ?? [ '' ] )[0];
 const CODEBLOCK_KIND = reflectionKindUtils.addReflectionKind( name, 'CodeBlock' ) as ReflectionKind;
