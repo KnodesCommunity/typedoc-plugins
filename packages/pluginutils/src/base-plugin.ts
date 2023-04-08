@@ -13,7 +13,7 @@ import { PluginLogger } from './plugin-logger';
 import * as miscUtils from './utils/misc';
 import { basename, dirname, relative, resolve } from './utils/path';
 
-type RequiredPackageJson = SetRequired<PackageJson, 'name' | 'version'>
+type RequiredPackageJson = ReadonlyDeep<SetRequired<PackageJson.PackageJsonStandard, 'name' | 'version'>>
 export abstract class ABasePlugin {
 	private static readonly _addSourceToProject = once( function( this: ABasePlugin, context: Context ){
 		const packagePlugin: undefined | Partial<Readonly<{readmeFile: string; packageFile: string}>>  = context.converter.getComponent( 'package' ) as any;
@@ -39,7 +39,7 @@ export abstract class ABasePlugin {
 		];
 	} );
 	public readonly optionsPrefix: string;
-	public readonly package: ReadonlyDeep<RequiredPackageJson>;
+	public readonly package: RequiredPackageJson;
 	public readonly logger: PluginLogger;
 	public get name(): string{
 		return `${this.package.name}:${this.constructor.name}`;
@@ -61,7 +61,7 @@ export abstract class ABasePlugin {
 			throw new Error( 'Could not determine package.json' );
 		}
 		// eslint-disable-next-line @typescript-eslint/no-var-requires -- Require package.json
-		const pkg: ReadonlyDeep<PackageJson> = require( pkgFile );
+		const pkg: ReadonlyDeep<PackageJson.PackageJsonStandard> = require( pkgFile );
 		assert( pkg.name );
 		assert( pkg.version );
 		this.pluginDir = dirname( pkgFile );

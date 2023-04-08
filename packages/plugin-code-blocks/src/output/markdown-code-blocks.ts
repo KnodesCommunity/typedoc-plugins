@@ -7,12 +7,10 @@ import { DeclarationReflection, ReflectionKind } from 'typedoc';
 import { CurrentPageMemo, IPluginComponent, MarkdownReplacer, reflectionKindUtils, reflectionSourceUtils, resolveNamedPath } from '@knodes/typedoc-pluginutils';
 import { relative } from '@knodes/typedoc-pluginutils/path';
 
-// import type { Repository } from '../../../../typedoc/src/lib/converter/utils/repository';
-
+import { ICodeBlocksPluginThemeMethods } from './theme';
 import { DEFAULT_BLOCK_NAME, ICodeSample, readCodeSample } from '../code-sample-file';
 import type { CodeBlockPlugin } from '../plugin';
 import { EBlockMode } from '../types';
-import { ICodeBlocksPluginThemeMethods } from './theme';
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires -- Get name from package
 const { name } = require( '../../package.json' );
@@ -21,11 +19,11 @@ const comments = Object.entries( {
 	'.?([cm])[tj]s?(x)': '// ...',
 } ).map( ( [ k, v ] ) => {
 	const filter = filterGlob( `**/*${k}` );
-	return { check: ( file: string ) => filter( file, 1, [ file ] ), comment: v };
+	return { check: ( file: string ) => filter( file ), comment: v };
 } );
 const getFirstLineIndent = ( lines?: string[] ) => ( lines?.filter( l => l.trim() )[0]?.match( /^\s*/ ) ?? [ '' ] )[0];
 const CODEBLOCK_KIND = reflectionKindUtils.addReflectionKind( name, 'CodeBlock' ) as ReflectionKind;
-const EXTRACT_CODE_BLOCKS_REGEX = /(\S+?\w+?)(?:#(.+?))?(?:\s+(\w+))?(?:\s*\|\s*(.*?))?\s*/;
+const EXTRACT_CODE_BLOCKS_REGEX = /(?<file>\S+?\w+?)(?:#(?<regions>[^|\n\s]+))?(?:\s+(?<mode>\w+))?(?:\s*\|\s*(?<name>.*?))?/;
 const EXTRACT_INLINE_CODE_BLOCKS_REGEX = /(\S+?)(?:\s+(\w+))?\s*(```(\w+)?.*?```)/s;
 export class MarkdownCodeBlocks implements IPluginComponent<CodeBlockPlugin>{
 	private readonly _logger = this.plugin.logger.makeChildLogger( MarkdownCodeBlocks.name );

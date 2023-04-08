@@ -3,4 +3,5 @@ module.exports = {
 		'packages/*',
 	],
 	entryPointStrategy: 'packages',
+	skipErrorChecking: true,
 };

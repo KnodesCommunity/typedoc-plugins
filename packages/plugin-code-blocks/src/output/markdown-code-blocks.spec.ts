@@ -10,10 +10,10 @@ jest.mock( '../code-sample-file' );
 const { DEFAULT_BLOCK_NAME, readCodeSample: readCodeSampleMock } = require( '../code-sample-file' ) as jest.Mocked<typeof import( '../code-sample-file' )>;
 /* eslint-enable @typescript-eslint/no-var-requires */
 
-import { CodeBlockPlugin } from '../plugin';
-import { EBlockMode, ICodeBlock } from '../types';
 import { MarkdownCodeBlocks } from './markdown-code-blocks';
 import { ICodeBlocksPluginThemeMethods } from './theme';
+import { CodeBlockPlugin } from '../plugin';
+import { EBlockMode, ICodeBlock } from '../types';
 
 class FakeSource {
 	public static readonly REPO_URL = 'https://example.repo.com';
@@ -67,17 +67,23 @@ describe( 'Behavior', () => {
 			withGitHub: boolean;
 		}
 		const defaultBlock = { startLine: 1, endLine: 1, file: FILE, region: DEFAULT_BLOCK_NAME as string };
-		const helloRegion: IBlockGenerationAssertion['blocks'] = [[ 'hello', { code: 'Content of foo/qux.txt', startLine: 13, endLine: 24 } ]];
+		const regions: IBlockGenerationAssertion['blocks'] = [
+			[ 'hello', { code: 'Content of foo/qux.txt', startLine: 13, endLine: 24 } ],
+			[ 'world', { code: 'stuff', startLine: 18, endLine: 42 } ],
+		];
 		it.each<[label: string, source: string, assertion: Partial<IBlockGenerationAssertion>]>( [
 			[ 'Mode ⇒ code block',            `{@codeblock ${FILE} default}`,          { renderCall: { mode: EBlockMode.DEFAULT }} ],
 			[ 'Mode ⇒ foldable code block',   `{@codeblock ${FILE} expanded}`,         { renderCall: { mode: EBlockMode.EXPANDED }} ],
 			[ 'Mode ⇒ folded code block',     `{@codeblock ${FILE} folded}`,           { renderCall: { mode: EBlockMode.FOLDED }} ],
 			[ 'Filename ⇒ default',           `{@codeblock ${FILE}}`,                  { renderCall: { asFile: `./${FILE}` }} ],
 			[ 'Filename ⇒ explicit',          `{@codeblock ${FILE} | hello.txt}`,      { renderCall: { asFile: 'hello.txt' }} ],
-			[ 'Filename ⇒ region',            `{@codeblock ${FILE}#hello}`,            { renderCall: { asFile: `./${FILE}#13~24` }, blocks: helloRegion } ],
-			[ 'Filename ⇒ region + explicit', `{@codeblock ${FILE}#hello | test.txt}`, { renderCall: { asFile: 'test.txt' }, blocks: helloRegion } ],
+			[ 'Filename ⇒ region',            `{@codeblock ${FILE}#hello}`,            { renderCall: { asFile: `./${FILE}#13~24` }, blocks: [ regions[0] ] } ],
+			[ 'Filename ⇒ region ({a,b})',    `{@codeblock ${FILE}#{hello,world}}`,    { renderCall: { asFile: `./${FILE}#13~42` }, blocks: regions } ],
+			[ 'Filename ⇒ region (a+b)',      `{@codeblock ${FILE}#hello+world}`,      { renderCall: { asFile: `./${FILE}#13~42` }, blocks: regions } ],
+			[ 'Filename ⇒ region + explicit', `{@codeblock ${FILE}#hello | test.txt}`, { renderCall: { asFile: 'test.txt' }, blocks: [ regions[0] ] } ],
 			[ 'URL ⇒ default',                `{@codeblock ${FILE}}`,                  { withGitHub: true, renderCall: { url: `${FakeSource.REPO_URL}/${FILE}#L1` }} ],
-			[ 'URL ⇒ region',                 `{@codeblock ${FILE}#hello}`,            { withGitHub: true, renderCall: { url: `${FakeSource.REPO_URL}/${FILE}#L13` }, blocks: helloRegion } ],
+			[ 'URL ⇒ region',                 `{@codeblock ${FILE}#hello}`,            { withGitHub: true, renderCall: { url: `${FakeSource.REPO_URL}/${FILE}#L13` }, blocks: [ regions[0] ] } ],
+			[ 'Filename ⇒ region+mode+name',  `{@codeblock ${FILE}#*o* folded | qux}`, { renderCall: { asFile: 'qux', mode: EBlockMode.FOLDED }, blocks: regions } ],
 		] )( 'Code block "%s"', ( _label, source, { renderCall, blocks, withGitHub } ) => {
 			if( withGitHub ){
 				plugin.application.converter.addComponent( 'source', FakeSource as any );

@@ -4,9 +4,9 @@ import { identity, memoize, omit } from 'lodash';
 import { Simplify } from 'type-fest';
 import { DeclarationOption, DeclarationOptionToOptionType, ParameterTypeToOptionTypeMap } from 'typedoc';
 
-import type { ABasePlugin } from '../base-plugin';
 import type { OptionGroup } from './option-group';
 import { DeclarationOptionConfig, ParameterValueType } from './utils';
+import type { ABasePlugin } from '../base-plugin';
 
 type MapFn<TIn, TOut> = ( value: TIn ) => TOut;
 export type MapperPart<TOpt, TDeclaration extends DeclarationOptionConfig<DeclarationOption>> = ParameterValueType<TDeclaration> extends TOpt ?

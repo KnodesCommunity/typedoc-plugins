@@ -23,6 +23,7 @@ describe( 'Pages', () => {
 			expect( primaryNavItems ).toEqual( [
 				menuItemMatcher( 'Getting started', true, 'index.html' ),
 				menuItemMatcher( 'Configuration', false, 'configuration.html' ),
+				menuItemMatcher( 'Another page', false, 'another-page.html' ),
 				menuItemMatcher( 'Additional resources', false, null ),
 				menuItemMatcher( 'Some cool docs', false, '../additional-resources/some-cool-docs.html' ),
 				menuItemMatcher( 'Test page front matter', false, '../test-page-front-matter.html' ),
@@ -55,6 +56,7 @@ describe( 'Pages', () => {
 			expect( primaryNavItems ).toEqual( [
 				menuItemMatcher( 'Getting started', true, 'index.html' ),
 				menuItemMatcher( 'Configuration', true, 'configuration.html' ),
+				menuItemMatcher( 'Another page', false, 'another-page.html' ),
 				menuItemMatcher( 'Additional resources', false, null ),
 				menuItemMatcher( 'Some cool docs', false, '../additional-resources/some-cool-docs.html' ),
 				menuItemMatcher( 'Test page front matter', false, '../test-page-front-matter.html' ),
@@ -88,6 +90,7 @@ describe( 'Pages', () => {
 			expect( primaryNavItems ).toEqual( [
 				menuItemMatcher( 'Getting started', false, '../getting-started/index.html' ),
 				menuItemMatcher( 'Configuration', false, '../getting-started/configuration.html' ),
+				menuItemMatcher( 'Another page', false, '../getting-started/another-page.html' ),
 				menuItemMatcher( 'Additional resources', true, null ),
 				menuItemMatcher( 'Some cool docs', true, 'some-cool-docs.html' ),
 				menuItemMatcher( 'Test page front matter', false, '../test-page-front-matter.html' ),
@@ -128,6 +131,7 @@ describe( 'Documentation', () => {
 			expect( primaryNavItems ).toEqual( [
 				menuItemMatcher( 'Getting started', false, '../pages/getting-started/index.html' ),
 				menuItemMatcher( 'Configuration', false, '../pages/getting-started/configuration.html' ),
+				menuItemMatcher( 'Another page', false, '../pages/getting-started/another-page.html' ),
 				menuItemMatcher( 'Additional resources', false, null ),
 				menuItemMatcher( 'Some cool docs', false, '../pages/additional-resources/some-cool-docs.html' ),
 				menuItemMatcher( 'Test page front matter', false, '../pages/test-page-front-matter.html' ),

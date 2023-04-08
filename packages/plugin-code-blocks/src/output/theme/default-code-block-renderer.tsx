@@ -6,9 +6,9 @@ import { DefaultTheme, JSX, PageEvent, RendererEvent } from 'typedoc';
 import { IPluginComponent } from '@knodes/typedoc-pluginutils';
 import { extname, join } from '@knodes/typedoc-pluginutils/path';
 
+import { ICodeBlocksPluginThemeMethods } from './types';
 import type { CodeBlockPlugin } from '../../plugin';
 import { EBlockMode, ICodeBlock, IInlineCodeBlock } from '../../types';
-import { ICodeBlocksPluginThemeMethods } from './types';
 
 const CSS_FILE_NAME = 'assets/code-blocks.css';
 export class DefaultCodeBlockRenderer implements ICodeBlocksPluginThemeMethods, IPluginComponent<CodeBlockPlugin> {

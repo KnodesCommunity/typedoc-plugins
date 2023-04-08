@@ -1,8 +1,7 @@
-
 import { MockPlugin, mockPlugin, restoreFs, setVirtualFs } from '#plugintestbed';
 
-import { PagesPlugin } from '../../plugin';
 import { TemplateNodeLoader } from './template';
+import { PagesPlugin } from '../../plugin';
 
 let plugin: MockPlugin<PagesPlugin>;
 let loader: TemplateNodeLoader;

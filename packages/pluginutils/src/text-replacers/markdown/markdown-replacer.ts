@@ -3,13 +3,13 @@ import assert from 'assert';
 import { escapeRegExp, isNil, isNumber, last, uniq } from 'lodash';
 import { JSX, MarkdownEvent } from 'typedoc';
 
+import { SourceMapContainer } from './source-map-container';
 import { ABasePlugin, IPluginComponent, PluginAccessor, getPlugin } from '../../base-plugin';
 import { CurrentPageMemo } from '../../current-page-memo';
 import { PluginLogger } from '../../plugin-logger';
 import { miscUtils, reflectionSourceUtils } from '../../utils';
 import { jsxToString } from '../../utils/text';
 import { Tag } from '../types';
-import { SourceMapContainer } from './source-map-container';
 
 const spitArgs = ( ...args: Parameters<Parameters<typeof String.prototype.replace>[1]> ) => {
 	const indexIdx = args.findIndex( isNumber );

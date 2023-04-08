@@ -4,11 +4,11 @@ import { closest } from 'fastest-levenshtein';
 import { defaultsDeep, difference, get, identity, kebabCase } from 'lodash';
 import { DeclarationOption, MixedDeclarationOption, ParameterType } from 'typedoc';
 
+import { MapperPart, Option } from './option';
+import { DeclarationOptionConfig, ParameterValueType, TypeErr } from './utils';
 import type { ABasePlugin } from '../base-plugin';
 import { EventsExtra } from '../events-extra';
 import { dirname } from '../utils/path';
-import { MapperPart, Option } from './option';
-import { DeclarationOptionConfig, ParameterValueType, TypeErr } from './utils';
 
 interface Builder<T extends Record<string, any>, TDecs extends Record<never, DeclarationOption>> {
 	add: <

@@ -8,11 +8,11 @@ import { DeclarationReflection, MinimalSourceFile, ProjectReflection, Reflection
 import { IPluginComponent, miscUtils } from '@knodes/typedoc-pluginutils';
 import { join, normalize, resolve } from '@knodes/typedoc-pluginutils/path';
 
+import { NodesTreeBuild, buildNodesTree, getNodePath } from './utils';
 import { ANodeReflection, MenuReflection, NodeReflection, PageReflection } from '../../models/reflections';
 import type { PagesPlugin } from '../../plugin';
 import { ModuleSourceNode, RootNodeLoader, SourceNode } from '../loaders';
 import { urlize } from '../utils';
-import { NodesTreeBuild, buildNodesTree, getNodePath } from './utils';
 
 const nodeReflectionToJson = ( node: ANodeReflection ): any => ( {
 	...pick( node, 'id', 'name', 'originalName' ),

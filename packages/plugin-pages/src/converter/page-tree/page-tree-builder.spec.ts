@@ -4,10 +4,10 @@ import { resolve } from '@knodes/typedoc-pluginutils/path';
 
 import { MockPlugin, createMockProjectWithPackage, mockPlugin, restoreFs } from '#plugintestbed';
 
+import { PageTreeBuilder } from './page-tree-builder';
 import { EInvalidPageLinkHandling, IPluginOptions } from '../../options';
 import { PagesPlugin } from '../../plugin';
 import { RootNodeLoader } from '../loaders';
-import { PageTreeBuilder } from './page-tree-builder';
 
 let plugin: MockPlugin<PagesPlugin>;
 let pageTreeBuilder: PageTreeBuilder;

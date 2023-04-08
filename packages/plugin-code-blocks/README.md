@@ -25,7 +25,9 @@ For more infos, please refer to [the documentation](https://knodescommunity.gith
 
 ## Usage
 
-In any markdown content, (in README, pages, or doc comments), use the `{@codeblock ...}` & `{@inlineCodeblock ...}` macros to use code blocks.
+In the *source code* you want to use as *code blocks*, delimitate *regions*. *Regions* are started with `// #region my-name`, & ended with `// #endregion [my-name]`. Interleaved/nested *regions* are supported. Regions **must** only contain `[a-zA-Z0-9-_.]`.
+
+In any *markdown* content, (in README, pages, or doc comments), use the `{@codeblock ...}` & `{@inlineCodeblock ...}` tags to use *code blocks*.
 
 ### Reference a file
 
@@ -35,11 +37,12 @@ Syntax:
 {@codeblock <path-to-file>[#region] [mode] [ | custom-file-name]}
 ```
 
-- `<path-to-file>`: A path to the code file to embed. Checkout [this documentation page](https://knodescommunity.github.io/typedoc-plugins/_knodes_typedoc_pluginutils/pages/resolving-paths.html) for more infos on the syntax of the path.
-- `[#<region>]`: A named region in the target file. Regions are started with `// #region my-name`, & ended with `// #endregion [my-name]`. Interleaved/nested regions are supported. Note that region markers are not outputted in the generated code block. The `<region>` parameter can be a glob pattern, or a list of block names/patterns separated by a `+`.
+- `<path-to-file>`: A path to the code file to embed. Checkout [this documentation page](https://knodescommunity.github.io/typedoc-plugins/_knodes_typedoc_pluginutils/pages/resolving-paths.html) for more infos on the syntax of the path for monorepo configuration.
+  > Note that the path **must not** contain any of the following characters: `#|`
+- `[#<region>]`: A region selector in the target file. The `<region>` parameter can be a glob pattern, or a list of block names/patterns separated by a `+`. See [minimatch](https://www.npmjs.com/package/minimatch) for details on supported patterns.
+  > Note that region markers are not outputted in the generated code block.
 - `[mode]`: optional. Can be any valid {@link EBlockMode}, to override the default settings.
 - `[ | custom-file-name]`: allow to specify an explicit file name to display in the code block header.
--
 
 `{@codeblock ...}` are by default looked up into your [*workspace*](https://knodescommunity.github.io/typedoc-plugins/_knodes_typedoc_pluginutils/pages/resolving-paths.html) `examples` folder, but you can customize it by using the [`source` option](https://knodescommunity.github.io/typedoc-plugins/_knodes_typedoc_plugin_code_blocks/pages/options.html)
 

@@ -1,10 +1,10 @@
-import glob from 'glob';
+import glob, { GlobOptions } from 'glob';
 import { castArray, difference, isArray, isNil, isString, omit, uniq } from 'lodash';
 import minimatch, { filter as filterMatch } from 'minimatch';
 
 export type GlobMatch = string | string[]
 
-type GlobOpts = Omit<glob.IOptions, 'cwd' | 'root'> & {from?: string} | undefined;
+type GlobOpts = Omit<GlobOptions, 'cwd' | 'root'> & {from?: string} | undefined;
 export const globMatch = ( pattern: GlobMatch, options?: GlobOpts ) => {
 	const optsDefaulted = { ...omit( options, 'from' ), cwd: options?.from, root: options?.from };
 	if( isNil( optsDefaulted.cwd ) ){
@@ -16,7 +16,7 @@ export const globMatch = ( pattern: GlobMatch, options?: GlobOpts ) => {
 				const filtered = difference( acc, acc.filter( filterMatch( p.slice( 1 ), optsDefaulted ) ) );
 				return filtered;
 			} else {
-				const files = glob.sync( p, optsDefaulted );
+				const files = glob.sync( p, optsDefaulted ) as string[];
 				const newAcc = uniq( [ ...acc, ...files ] );
 				return newAcc;
 			}

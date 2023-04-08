@@ -5,9 +5,9 @@ import { join, resolve } from '@knodes/typedoc-pluginutils/path';
 
 import { MockPlugin, NestedDirectoryJSON, mockPlugin, restoreFs, setVirtualFs } from '#plugintestbed';
 
+import { FrontMatterNodeLoader } from './front-matter';
 import { PagesPlugin } from '../../plugin';
 import { trimExt } from '../utils';
-import { FrontMatterNodeLoader } from './front-matter';
 
 const makeMenu = <T extends Record<string, any>>( obj: T ) => ( {
 	file: stringifyToYaml( obj ),

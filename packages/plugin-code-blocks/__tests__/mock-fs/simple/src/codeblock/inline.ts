@@ -18,7 +18,7 @@ export class TestInlineRelativeModule{}
 /**
  * A test code block for project path implicitly in `examples` directory
  *
- * {@codeblock ~~:example-test.json}
+ * {@codeblock ~~:complex-regions.js#{foo,bar}}
  */
 export class TestInlineExplicitProject{}
 // #endregion

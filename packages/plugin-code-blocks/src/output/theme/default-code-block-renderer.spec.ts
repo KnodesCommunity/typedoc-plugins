@@ -2,9 +2,9 @@ import { DefaultTheme, DefaultThemeRenderContext } from 'typedoc';
 
 import { MockPlugin, mockPlugin } from '#plugintestbed';
 
+import { DefaultCodeBlockRenderer } from './default-code-block-renderer';
 import { CodeBlockPlugin } from '../../plugin';
 import { EBlockMode } from '../../types';
-import { DefaultCodeBlockRenderer } from './default-code-block-renderer';
 
 let plugin: MockPlugin<CodeBlockPlugin>;
 let codeBlockRenderer: DefaultCodeBlockRenderer;

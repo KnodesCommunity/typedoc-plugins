@@ -11,13 +11,13 @@ const { resolveRoot } = require( './tools/utils' );
 const baseConfig = package => ( {
 	preset: 'ts-jest',
 	testEnvironment: 'node',
-	globals: {
-		'ts-jest': {
+	transform: {
+		'.*\\.tsx?': [ 'ts-jest', {
 			tsconfig: resolveRoot( 'packages', package, 'tsconfig.spec.json' ),
 			diagnostics: {
 				pathRegex: new RegExp( `^${escapeRegExp( __dirname )}/packages/${package}/.*` ),
 			},
-		},
+		} ],
 	},
 	moduleNameMapper: {
 		'^@knodes/typedoc-pluginutils/(.*)$': resolveRoot( __dirname, './packages/pluginutils/src/utils/$1' ),

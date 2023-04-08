@@ -2,14 +2,14 @@ import assert from 'assert';
 import { copyFileSync } from 'fs';
 
 import { isString } from 'lodash';
-import { DeclarationReflection, DefaultTheme, IndexEvent, JSX, PageEvent, ProjectReflection, Reflection, ReflectionKind, RendererEvent, UrlMapping } from 'typedoc';
+import { CommentDisplayPart, DeclarationReflection, DefaultTheme, IndexEvent, JSX, PageEvent, ProjectReflection, Reflection, ReflectionKind, RendererEvent, UrlMapping } from 'typedoc';
 
 import { CurrentPageMemo, IPluginComponent, getReflectionModule, reflectionSourceUtils } from '@knodes/typedoc-pluginutils';
 import { join } from '@knodes/typedoc-pluginutils/path';
 
+import { IPagesPluginThemeMethods, RenderPageLinkProps } from './types';
 import { ANodeReflection, PageReflection, PagesPluginReflectionKind } from '../../models/reflections';
 import type { PagesPlugin } from '../../plugin';
-import { IPagesPluginThemeMethods, RenderPageLinkProps } from './types';
 
 const getPageNameComponents = ( reflection: Reflection ): string[] => reflection.parent instanceof ANodeReflection ?
 	[ ...getPageNameComponents( reflection.parent ), reflection.name ] :
@@ -181,27 +181,29 @@ export class DefaultPagesRenderer implements IPagesPluginThemeMethods, IPluginCo
 				...( pageEvent.model.module.children?.filter( c => !c.kindOf( ReflectionKind.SomeModule ) ) ?? [] ),
 			];
 			pageEvent.model = newModel;
-		} else if( pageEvent.model instanceof ProjectReflection || ( pageEvent.model instanceof Reflection && pageEvent.model.kindOf( ReflectionKind.Module ) ) ){
+		} else if(
+			( pageEvent.model instanceof ProjectReflection && pageEvent.url === 'index.html' ) ||
+			( pageEvent.model instanceof DeclarationReflection && pageEvent.model.kindOf( ReflectionKind.Module ) )
+		){
 			const modulePage = this._modulesPages.find( p => p.module === pageEvent.model );
+			if( pageEvent.url.endsWith( 'modules/pkg_a.html' ) ){
+				console.dir( { modulePageComments: modulePage?.comment, pageEventComment: pageEvent.model.readme }, { colors: true, depth: 3 } );
+				process.exit();
+			}
 			if( modulePage instanceof PageReflection ){
 				pageEvent.model.sources = [
-					reflectionSourceUtils.createSourceReference( this, modulePage.sourceFilePath ),
 					...( pageEvent.model.sources ?? [] ),
+					reflectionSourceUtils.createSourceReference( this, modulePage.sourceFilePath ),
 				];
-				const prevTemplate = pageEvent.template;
-				const fakeIndexPage: ProjectReflection = Object.assign(
-					new ProjectReflection( modulePage.name ),
-					{ readme: modulePage.comment?.summary, sources: modulePage.sources } );
-				const fakeIndexPageEvent = Object.assign(
-					new PageEvent<ProjectReflection>( PageEvent.BEGIN ),
-					{ project: modulePage.project, url: modulePage.url, model: fakeIndexPage } );
-
-
-				pageEvent.template = props => <>
-					{this._currentPageMemo.fakeWrapPage( modulePage, () => this._theme.indexTemplate( fakeIndexPageEvent ) )}
-					<hr/>
-					{prevTemplate( props )}
-				</>;
+				pageEvent.model.readme = [
+					...( pageEvent.model.readme?.concat( [ { kind: 'text', text: '\n\n---\n\n' } ] ) ?? [] ),
+					...( modulePage.comment?.summary ?
+						[
+							{ kind: 'text', text: `\n\n<!-- Page "${modulePage.namedPath}" from "${this.plugin.relativeToRoot( modulePage.sourceFilePath )}"-->\n\n` } as CommentDisplayPart,
+							...modulePage.comment.summary,
+						] :
+						[] ),
+				];
 			}
 		}
 	}
