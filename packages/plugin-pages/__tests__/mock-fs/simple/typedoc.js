@@ -3,6 +3,7 @@ module.exports = {
 	entryPoints: [
 		'./src/index.ts',
 	],
+	skipErrorChecking: true,
 	pluginPages: {
 		pages: [
 			{ name: 'Getting started', source: 'getting-started.md', children: [

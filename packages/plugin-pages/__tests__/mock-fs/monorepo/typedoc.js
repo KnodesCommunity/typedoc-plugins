@@ -3,6 +3,7 @@ module.exports = {
 		'packages/*',
 	],
 	entryPointStrategy: 'packages',
+	skipErrorChecking: true,
 	pluginPages: {
 		pages: [
 			{ moduleRoot: true, name: 'demo', source: 'root-appendix.md', children: [
