@@ -1,3 +1,17 @@
+## [0.23.5-next.0](https://github.com/KnodesCommunity/typedoc-plugins/compare/v0.23.4...v0.23.5-next.0) (2023-04-08)
+
+
+No notable changes were done in this version.
+
+
+## [0.23.4-next.0](https://github.com/KnodesCommunity/typedoc-plugins/compare/v0.23.3...v0.23.4-next.0) (2023-04-08)
+
+
+### Features
+
+* **monorepo:** rework pretty much everything ([c05cda5](https://github.com/KnodesCommunity/typedoc-plugins/commit/c05cda58af59647fb0cac8fd7d6634fe48e42851))
+
+
 ## [0.23.4](https://github.com/KnodesCommunity/typedoc-plugins/compare/v0.23.3...v0.23.4) (2023-04-08)
 
 
