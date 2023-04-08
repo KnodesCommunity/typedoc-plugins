@@ -1,3 +1,16 @@
+## [0.23.4-next.0](https://github.com/KnodesCommunity/typedoc-plugins/compare/v0.23.3...v0.23.4-next.0) (2023-04-08)
+
+
+### Bug Fixes
+
+* **dep: @knodes/typedoc-pluginutils:** don't use `.at`, incompatible with node<18 ([b15ab2d](https://github.com/KnodesCommunity/typedoc-plugins/commit/b15ab2d91b677e2894a3a1ee9b51d7e9044c596c))
+
+
+### Features
+
+* **monorepo:** rework pretty much everything ([c05cda5](https://github.com/KnodesCommunity/typedoc-plugins/commit/c05cda58af59647fb0cac8fd7d6634fe48e42851))
+
+
 ## [0.23.3](https://github.com/KnodesCommunity/typedoc-plugins/compare/v0.23.2...v0.23.3) (2023-04-08)
 
 

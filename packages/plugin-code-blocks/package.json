@@ -1,6 +1,6 @@
 {
   "name": "@knodes/typedoc-plugin-code-blocks",
-  "version": "0.23.3",
+  "version": "0.23.4-next.0",
   "description": "A TypeDoc plugin to embed source code into your output documentation",
   "license": "MIT",
   "repository": {
@@ -38,7 +38,7 @@
   },
   "dependencies": {
     "lodash": "^4.17.21",
-    "@knodes/typedoc-pluginutils": "~0.23.3"
+    "@knodes/typedoc-pluginutils": "~0.23.4-next.0"
   },
   "peerDependencies": {
     "typedoc": "^0.23.0",
