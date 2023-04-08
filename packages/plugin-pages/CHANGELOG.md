@@ -7,7 +7,7 @@
 * **deps:** update dependencies ([413ae46](https://github.com/KnodesCommunity/typedoc-plugins/commit/413ae469d67d2c242bf8eb0b226b19c04f8b4472))
 * **deps:** update dependency memfs to v3.4.10 ([27a52ef](https://github.com/KnodesCommunity/typedoc-plugins/commit/27a52efb9b1eafade2de6ccac46fb41a26f7b5da))
 * **deps:** update dependency semver to v7.3.8 ([c14eae1](https://github.com/KnodesCommunity/typedoc-plugins/commit/c14eae17d3b4aad162d06f472a607d57e0675b6e))
-* don't output page with explicit children output to {page}/index.html ([937f8ea](https://github.com/KnodesCommunity/typedoc-plugins/commit/937f8ea298e612565b8e268ccd6aa5a700dbdefb))
+* don't output page with explicit children output to \{page\}/index.html ([937f8ea](https://github.com/KnodesCommunity/typedoc-plugins/commit/937f8ea298e612565b8e268ccd6aa5a700dbdefb))
 * module appendix URLs targets the module ([95b5376](https://github.com/KnodesCommunity/typedoc-plugins/commit/95b5376e2c51ade74626afb287b1fa6a862d0805))
 * properly use configuration to handle unresolved links ([a9e1499](https://github.com/KnodesCommunity/typedoc-plugins/commit/a9e149910263d45176e235d1af97ea66a9ff6b4a))
 

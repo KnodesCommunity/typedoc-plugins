@@ -14,7 +14,7 @@ module.exports = {
 			{ moduleRoot: true, name: 'pkg-a', source: 'readme-extras.md', children: [
 				{ name: 'Using pkg-a', source: 'using-pkg-a.md' },
 			] },
-			{ moduleRoot: true, name: 'pkg-b', children: [
+			{ moduleRoot: true, name: 'pkg-b', source: 'readme-extras.md', children: [
 				{ name: 'Using pkg-b', source: 'using-pkg-b.md', children: [
 					{ name: 'pkg-b details', source: 'details.md' },
 				] },
