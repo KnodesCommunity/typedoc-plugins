@@ -16,7 +16,7 @@
 <li><a href="_knodes_typedoc_plugin_code_blocks.html">@knodes/typedoc-plugin-code-blocks</a></li></ul>
 <h1>Module @knodes/typedoc-plugin-code-blocks</h1></div><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/KnodesCommunity/typedoc-plugins/blob/6f6351c0/packages/plugin-code-blocks/src/index.ts#L1">packages/plugin-code-blocks/src/index.ts:1</a></li></ul></aside>
+<li>Defined in <a href="https://github.com/KnodesCommunity/typedoc-plugins/blob/3b1ca840/packages/plugin-code-blocks/src/index.ts#L1">packages/plugin-code-blocks/src/index.ts:1</a></li></ul></aside>
 <section class="tsd-panel-group">
 <section class="tsd-panel tsd-typography"><!-- HEADER -->
 
@@ -50,7 +50,8 @@
 <a href="#usage" id="usage" style="color: inherit; text-decoration: none;">
   <h2>Usage</h2>
 </a>
-<p>In any markdown content, (in README, pages, or doc comments), use the <code>{@codeblock ...}</code> &amp; <code>{@inlineCodeblock ...}</code> macros to use code blocks.</p>
+<p>In the <em>source code</em> you want to use as <em>code blocks</em>, delimitate <em>regions</em>. <em>Regions</em> are started with <code>// #region my-name</code>, &amp; ended with <code>// #endregion [my-name]</code>. Interleaved/nested <em>regions</em> are supported. Regions <strong>must</strong> only contain <code>[a-zA-Z0-9-_.]</code>.</p>
+<p>In any <em>markdown</em> content, (in README, pages, or doc comments), use the <code>{@codeblock ...}</code> &amp; <code>{@inlineCodeblock ...}</code> tags to use <em>code blocks</em>.</p>
 
 <a href="#reference-a-file" id="reference-a-file" style="color: inherit; text-decoration: none;">
   <h3>Reference a file</h3>
@@ -59,11 +60,16 @@
 <pre><code class="language-md"><span class="hl-0">{@codeblock &lt;path-to-file&gt;[</span><span class="hl-1">#region</span><span class="hl-0">] [</span><span class="hl-1">mode</span><span class="hl-0">] [ | custom-file-name]}</span>
 </code></pre>
 <ul>
-<li><code>&lt;path-to-file&gt;</code>: A path to the code file to embed. Checkout <a href="https://knodescommunity.github.io/typedoc-plugins/_knodes_typedoc_pluginutils/pages/resolving-paths.html">this documentation page</a> for more infos on the syntax of the path.</li>
-<li><code>[#&lt;region&gt;]</code>: A named region in the target file. Regions are started with <code>// #region my-name</code>, &amp; ended with <code>// #endregion [my-name]</code>. Interleaved/nested regions are supported. Note that region markers are not outputted in the generated code block. The <code>&lt;region&gt;</code> parameter can be a glob pattern, or a list of block names/patterns separated by a <code>+</code>.</li>
+<li><code>&lt;path-to-file&gt;</code>: A path to the code file to embed. Checkout <a href="https://knodescommunity.github.io/typedoc-plugins/_knodes_typedoc_pluginutils/pages/resolving-paths.html">this documentation page</a> for more infos on the syntax of the path for monorepo configuration.<blockquote>
+<p>Note that the path <strong>must not</strong> contain any of the following characters: <code>#|</code></p>
+</blockquote>
+</li>
+<li><code>[#&lt;region&gt;]</code>: A region selector in the target file. The <code>&lt;region&gt;</code> parameter can be a glob pattern, or a list of block names/patterns separated by a <code>+</code>. See <a href="https://www.npmjs.com/package/minimatch">minimatch</a> for details on supported patterns.<blockquote>
+<p>Note that region markers are not outputted in the generated code block.</p>
+</blockquote>
+</li>
 <li><code>[mode]</code>: optional. Can be any valid <a href="../enums/_knodes_typedoc_plugin_code_blocks.EBlockMode.html">EBlockMode</a>, to override the default settings.</li>
 <li><code>[ | custom-file-name]</code>: allow to specify an explicit file name to display in the code block header.</li>
-<li></li>
 </ul>
 <p><code>{@codeblock ...}</code> are by default looked up into your <a href="https://knodescommunity.github.io/typedoc-plugins/_knodes_typedoc_pluginutils/pages/resolving-paths.html"><em>workspace</em></a> <code>examples</code> folder, but you can customize it by using the <a href="https://knodescommunity.github.io/typedoc-plugins/_knodes_typedoc_plugin_code_blocks/pages/options.html"><code>source</code> option</a></p>
 
