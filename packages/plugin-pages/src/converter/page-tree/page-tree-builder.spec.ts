@@ -2,7 +2,7 @@ import { DeclarationReflection, LogLevel, ProjectReflection, ReflectionKind, Sou
 
 import { resolve } from '@knodes/typedoc-pluginutils/path';
 
-import { MockPlugin, createMockProjectWithPackage, mockPlugin, restoreFs } from '#plugintestbed';
+import { MockPlugin, createMockProjectWithPackage, mockPlugin } from '#plugintestbed';
 
 import { PageTreeBuilder } from './page-tree-builder';
 import { EInvalidPageLinkHandling, IPluginOptions } from '../../options';
@@ -34,7 +34,6 @@ beforeEach( () => {
 	project = createMockProjectWithPackage();
 } );
 process.chdir( __dirname );
-afterEach( restoreFs );
 const addChildModule = ( name: string, path = name ) => {
 	const moduleRef = new DeclarationReflection( name, ReflectionKind.Module, project );
 	moduleRef.sources = [

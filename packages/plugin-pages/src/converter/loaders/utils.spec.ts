@@ -1,12 +1,15 @@
-import { restoreFs, setVirtualFs } from '#plugintestbed';
+
+import { vol } from 'memfs';
 
 import { globMatch } from './utils';
 
+jest.mock( 'fs', () => jest.requireActual( 'memfs' ).fs );
+
 process.chdir( __dirname );
-afterEach( restoreFs );
+afterEach( () => vol.reset() );
 describe( 'Globs matching', () => {
 	beforeEach( () => {
-		setVirtualFs( {
+		vol.fromNestedJSON( {
 			'packages': {
 				foo: {
 					'pages': { 'foo-page.md': '' },
@@ -20,6 +23,11 @@ describe( 'Globs matching', () => {
 			'pages': { 'root-page.md': '' },
 			'root-readme.md': '',
 		} );
+	} );
+	it( 'should match anything', () => {
+		expect( globMatch( [
+			'**/*',
+		] ) ).not.toBeEmpty();
 	} );
 	it( 'should match files correctly', () => {
 		expect( globMatch( [

@@ -9,10 +9,10 @@ import { isObject, last, lowerCase, uniqBy, upperFirst } from 'lodash';
 import { IPluginComponent, PluginAccessor, getPlugin } from '@knodes/typedoc-pluginutils';
 import { basename, extname, join, relative, resolve } from '@knodes/typedoc-pluginutils/path';
 
-import type { PagesPlugin } from '../../plugin';
-import { trimExt } from '../utils';
 import { IBaseRawNode, INodeLoader, IRegisterNodeContext, NodeGenerator, SourceNode, UnknownNode, nodeHasFile } from './nodes';
 import { GlobMatch, globMatch, isValidGlobMatch } from './utils';
+import type { PagesPlugin } from '../../plugin';
+import { trimExt } from '../utils';
 
 const autoName = ( dirOrFile: string ) => upperFirst( lowerCase( basename( dirOrFile, extname( dirOrFile ) ) ) );
 

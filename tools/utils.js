@@ -7,9 +7,6 @@ const glob = require( 'glob' );
 const { once, isArray, omitBy, isNil } = require( 'lodash' );
 const { normalizePath } = require( 'typedoc' );
 
-const globAsync = promisify( glob );
-module.exports.globAsync = globAsync;
-
 const exec = promisify( _exec );
 module.exports.exec = exec;
 

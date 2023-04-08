@@ -1,12 +1,17 @@
-import glob, { GlobOptions } from 'glob';
+import { GlobOptions, GlobOptionsWithFileTypesFalse, globSync } from 'glob';
 import { castArray, difference, isArray, isNil, isString, omit, uniq } from 'lodash';
-import minimatch, { filter as filterMatch } from 'minimatch';
+import { filter as filterMatch, minimatch } from 'minimatch';
 
 export type GlobMatch = string | string[]
 
 type GlobOpts = Omit<GlobOptions, 'cwd' | 'root'> & {from?: string} | undefined;
 export const globMatch = ( pattern: GlobMatch, options?: GlobOpts ) => {
-	const optsDefaulted = { ...omit( options, 'from' ), cwd: options?.from, root: options?.from };
+	const optsDefaulted: GlobOptionsWithFileTypesFalse = {
+		...omit( options, 'from' ),
+		cwd: options?.from,
+		root: options?.from,
+		withFileTypes: false,
+	};
 	if( isNil( optsDefaulted.cwd ) ){
 		delete optsDefaulted.cwd;
 	}
@@ -16,7 +21,7 @@ export const globMatch = ( pattern: GlobMatch, options?: GlobOpts ) => {
 				const filtered = difference( acc, acc.filter( filterMatch( p.slice( 1 ), optsDefaulted ) ) );
 				return filtered;
 			} else {
-				const files = glob.sync( p, optsDefaulted ) as string[];
+				const files = globSync( p, optsDefaulted ) as string[];
 				const newAcc = uniq( [ ...acc, ...files ] );
 				return newAcc;
 			}

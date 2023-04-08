@@ -10,9 +10,9 @@ import { IPluginComponent, PluginAccessor, getPlugin } from '@knodes/typedoc-plu
 import { join, relative, resolve } from '@knodes/typedoc-pluginutils/path';
 
 import type { AnyLoaderRawPageNode } from '.';
+import { IBaseRawNode, ICheckConfigContext, INodeLoader, IRegisterNodeContext, NodeGenerator, SourceNode, UnknownNode, nodeHasFile } from './nodes';
 import type { PagesPlugin } from '../../plugin';
 import { trimExt } from '../utils';
-import { IBaseRawNode, ICheckConfigContext, INodeLoader, IRegisterNodeContext, NodeGenerator, SourceNode, UnknownNode, nodeHasFile } from './nodes';
 
 interface IIOPath {
 	input: string;

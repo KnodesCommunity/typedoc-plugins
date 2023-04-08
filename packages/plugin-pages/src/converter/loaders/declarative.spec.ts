@@ -1,9 +1,13 @@
+import { vol } from 'memfs';
+
 import { resolve } from '@knodes/typedoc-pluginutils/path';
 
-import { MockPlugin, mockPlugin, restoreFs, setVirtualFs } from '#plugintestbed';
+import { MockPlugin, mockPlugin } from '#plugintestbed';
 
-import { PagesPlugin } from '../../plugin';
 import { DeclarativeNodeLoader } from './declarative';
+import { PagesPlugin } from '../../plugin';
+
+jest.mock( 'fs', () => jest.requireActual( 'memfs' ).fs );
 
 let plugin: MockPlugin<PagesPlugin>;
 let loader: DeclarativeNodeLoader;
@@ -12,8 +16,8 @@ beforeEach( () => {
 	plugin = mockPlugin<PagesPlugin>( { rootDir: __dirname } );
 	loader = new DeclarativeNodeLoader( plugin );
 } );
+afterEach( () => vol.reset() );
 process.chdir( __dirname );
-afterEach( restoreFs );
 describe( 'collectNodes', () => {
 	const ROOT_NODE = { name: 'ROOT', path: { fs: resolve( __dirname ), virtual: '~' }};
 	const RECURSE_MOCK = jest.fn( function*(){yield* [];} );
@@ -45,7 +49,7 @@ describe( 'collectNodes', () => {
 			} );
 			it( 'should yield correctly module readme appendix', () => {
 				plugin.pluginOptions.getValue().output = 'OUT';
-				setVirtualFs( { 'test.md': 'hello' } );
+				vol.fromNestedJSON( { 'test.md': 'hello' } );
 				const nodes = [ ...loader.collectNodes( { name: root.name, source: 'test.md', moduleRoot: true }, { ...DEFAULT_COLLECT_CONTEXT, parents: [ root ] } ) ];
 				expect( nodes ).toEqual( [ {
 					node: {
@@ -61,7 +65,7 @@ describe( 'collectNodes', () => {
 			} );
 			it( 'should recurse on children correctly with module readme appendix', () => {
 				plugin.pluginOptions.getValue().output = 'OUT';
-				setVirtualFs( { 'test.md': 'hello' } );
+				vol.fromNestedJSON( { 'test.md': 'hello' } );
 				const children = [ { name: 'bar' }, { name: 'qux' } ];
 				const nodes = [ ...loader.collectNodes( { name: root.name, source: 'test.md', moduleRoot: true, children }, { ...DEFAULT_COLLECT_CONTEXT, parents: [ root ] } ) ];
 				expect( nodes ).toBeArray();

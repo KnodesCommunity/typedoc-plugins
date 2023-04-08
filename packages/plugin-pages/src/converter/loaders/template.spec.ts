@@ -1,7 +1,11 @@
-import { MockPlugin, mockPlugin, restoreFs, setVirtualFs } from '#plugintestbed';
+import { vol } from 'memfs';
+
+import { MockPlugin, mockPlugin } from '#plugintestbed';
 
 import { TemplateNodeLoader } from './template';
 import { PagesPlugin } from '../../plugin';
+
+jest.mock( 'fs', () => jest.requireActual( 'memfs' ).fs );
 
 let plugin: MockPlugin<PagesPlugin>;
 let loader: TemplateNodeLoader;
@@ -10,14 +14,14 @@ beforeEach( () => {
 	plugin = mockPlugin<PagesPlugin>( { rootDir: __dirname } );
 	loader = new TemplateNodeLoader( plugin );
 } );
+afterEach( () => vol.reset() );
 process.chdir( __dirname );
-afterEach( restoreFs );
 describe( 'collectNodes', () => {
 	const ROOT_NODE = { name: 'ROOT', path: { fs: __dirname, virtual: '~' }};
 	const RECURSE_MOCK = jest.fn( function*(){yield* [];} );
 	const DEFAULT_COLLECT_CONTEXT = { parents: [ ROOT_NODE ], recurse: RECURSE_MOCK };
 	it( 'should recurse on matched paths', () => {
-		setVirtualFs( {
+		vol.fromNestedJSON( {
 			test: { a: {}, b: {}},
 			nope: { nope: {}},
 		} );
@@ -33,7 +37,7 @@ describe( 'collectNodes', () => {
 	} );
 	describe( 'Expansion', () => {
 		it( 'should properly expand template object', () => {
-			setVirtualFs( { test: { a: {}}} );
+			vol.fromNestedJSON( { test: { a: {}}} );
 			const nodes = [ ...loader.collectNodes(
 				{
 					match: 'test/*',
@@ -54,7 +58,7 @@ describe( 'collectNodes', () => {
 			}, DEFAULT_COLLECT_CONTEXT.parents, [ expect.objectContaining( { match: 'test/a' } ) ] );
 		} );
 		it( 'should properly expand template array', () => {
-			setVirtualFs( { test: { a: {}}} );
+			vol.fromNestedJSON( { test: { a: {}}} );
 			const nodes = [ ...loader.collectNodes(
 				{
 					match: 'test/*',
@@ -77,7 +81,7 @@ describe( 'collectNodes', () => {
 			}, DEFAULT_COLLECT_CONTEXT.parents, [ expect.objectContaining( { match: 'test/a' } ) ] );
 		} );
 		it( 'should properly expand template function', () => {
-			setVirtualFs( { test: { a: {}}} );
+			vol.fromNestedJSON( { test: { a: {}}} );
 			const template = jest.fn().mockReturnValue( [] );
 			const nodes = [ ...loader.collectNodes(
 				{ match: 'test/*', template, loader: 'template' },

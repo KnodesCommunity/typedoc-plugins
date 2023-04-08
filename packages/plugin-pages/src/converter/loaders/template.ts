@@ -6,9 +6,9 @@ import { LoDashStatic, castArray, isArray, isBoolean, isFunction, isNumber, isOb
 import { IPluginComponent, PluginAccessor, getPlugin } from '@knodes/typedoc-pluginutils';
 import { basename, dirname, normalize, relative, resolve } from '@knodes/typedoc-pluginutils/path';
 
-import type { PagesPlugin } from '../../plugin';
 import { IBaseRawNode, ICheckConfigContext, INodeLoader, IRegisterNodeContext, ModuleSourceNode, NodeGenerator, UnknownNode } from './nodes';
 import { GlobMatch, doesMatch, globMatch, isValidGlobMatch } from './utils';
+import type { PagesPlugin } from '../../plugin';
 
 const imports: Omit<TemplateNodeLoader.ITemplateContext, '_'> = {
 	path: {

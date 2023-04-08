@@ -1,13 +1,17 @@
 import { dump as stringifyToYaml } from 'js-yaml';
 import { last } from 'lodash';
+import { vol } from 'memfs';
+import { NestedDirectoryJSON } from 'memfs/lib/volume';
 
 import { join, resolve } from '@knodes/typedoc-pluginutils/path';
 
-import { MockPlugin, NestedDirectoryJSON, mockPlugin, restoreFs, setVirtualFs } from '#plugintestbed';
+import { MockPlugin, mockPlugin } from '#plugintestbed';
 
 import { FrontMatterNodeLoader } from './front-matter';
 import { PagesPlugin } from '../../plugin';
 import { trimExt } from '../utils';
+
+jest.mock( 'fs', () => jest.requireActual( 'memfs' ).fs );
 
 const makeMenu = <T extends Record<string, any>>( obj: T ) => ( {
 	file: stringifyToYaml( obj ),
@@ -20,6 +24,11 @@ ${stringifyToYaml( obj )}
 ${content}`,
 	node: { ...obj, content },
 } );
+const mkPath = ( { root }: {root: string}, file: string, ext = 'md' ) => ( {
+	virtual: join( root, file ).replace( /(\/index)+$/, '' ),
+	fs: resolve( __dirname, root, `${file}.${ext}` ),
+} );
+const matchNodeByName = ( name: string ) => expect.objectContaining( { name } );
 
 let plugin: MockPlugin<PagesPlugin>;
 let loader: FrontMatterNodeLoader;
@@ -28,20 +37,15 @@ beforeEach( () => {
 	plugin = mockPlugin<PagesPlugin>( { rootDir: __dirname } );
 	loader = new FrontMatterNodeLoader( plugin );
 } );
+afterEach( () => vol.reset() );
 process.chdir( __dirname );
-afterEach( restoreFs );
-const mkPath = ( { root }: {root: string}, file: string, ext = 'md' ) => ( {
-	virtual: join( root, file ).replace( /(\/index)+$/, '' ),
-	fs: resolve( __dirname, root, `${file}.${ext}` ),
-} );
-const matchNodeByName = ( name: string ) => expect.objectContaining( { name } );
 
 describe( 'collectNodes', () => {
 	const ROOT_NODE = { name: 'ROOT', path: { fs: __dirname, virtual: '~' }};
 	const RECURSE_MOCK = jest.fn( () => {throw new Error();} );
 	const DEFAULT_COLLECT_CONTEXT = { parents: [ ROOT_NODE ], recurse: RECURSE_MOCK };
 	it( 'should collect pages & menus for every files', () => {
-		setVirtualFs( {
+		vol.fromNestedJSON( {
 			'pages': { 'root-page.md': '' },
 			'test': { 'index.yaml': '', 'foo.md': '' },
 			'root-readme.md': '',
@@ -75,7 +79,7 @@ describe( 'collectNodes', () => {
 	it( 'should parse front-matter correctly', () => {
 		const file = 'index.md';
 		const page = makePage( { name: 'Hello world' }, '# Sample\n\nThis is a demo page' );
-		setVirtualFs( { [file]: page.file } );
+		vol.fromNestedJSON( { [file]: page.file } );
 		const nodes = [ ...loader.collectNodes( { loader: 'frontMatter', root: '.' }, DEFAULT_COLLECT_CONTEXT ) ];
 		expect( nodes ).toEqual( [
 			expect.objectContaining( {
@@ -87,7 +91,7 @@ describe( 'collectNodes', () => {
 		const FILE = 'foo.md';
 		const page = makePage( { name: 'Hello world' }, '# Sample\n\nThis is a demo page' );
 		const CONTAINER = 'pages';
-		setVirtualFs( { [CONTAINER]: { [FILE]: page.file }} );
+		vol.fromNestedJSON( { [CONTAINER]: { [FILE]: page.file }} );
 		const nodes = [ ...loader.collectNodes( { loader: 'frontMatter', root: CONTAINER }, DEFAULT_COLLECT_CONTEXT ) ];
 		expect( nodes ).toEqual( [ {
 			node: {
@@ -110,7 +114,7 @@ describe( 'collectNodes', () => {
 		const ENTRY_3_2 = makePage( { name: 'ENTRY_3_2' } );
 		const ENTRY_4 = makePage( { name: 'ENTRY_4' } );
 		const CONTAINER = 'pages';
-		setVirtualFs( { [CONTAINER]: {
+		vol.fromNestedJSON( { [CONTAINER]: {
 			'ENTRY_1.md': ENTRY_1.file,
 			'ENTRY_2': {
 				'index.md': ENTRY_2.file,
@@ -140,7 +144,7 @@ describe( 'collectNodes', () => {
 		const page = makePage( { name: 'Hello world' }, '# Sample\n\nThis is a demo page' );
 		const CONTAINER = 'pages';
 		const CONTAINER2 = 'sub-dir';
-		setVirtualFs( { [CONTAINER]: { [CONTAINER2]:{ [FILE]: page.file }}} );
+		vol.fromNestedJSON( { [CONTAINER]: { [CONTAINER2]:{ [FILE]: page.file }}} );
 		const nodes = [ ...loader.collectNodes( { loader: 'frontMatter', root: CONTAINER }, DEFAULT_COLLECT_CONTEXT ) ];
 		expect( nodes ).toEqual( [
 			{
@@ -197,7 +201,7 @@ describe( 'collectNodes', () => {
 					nodes: [ { ...rootMenu.node, path: mkPath( root, 'index', 'yaml' ) }, { ...childMenu.node, path: mkPath( root, 'child/index', 'yaml' ) } ] as const,
 				} ],
 			] )( 'should build tree correctly for %s', ( _, { fs, nodes: expectedNodes } ) => {
-				setVirtualFs( { [root.root]: fs } );
+				vol.fromNestedJSON( { [root.root]: fs } );
 				const nodes = [ ...loader.collectNodes( root, DEFAULT_COLLECT_CONTEXT ) ];
 				expect( nodes ).toEqual( [
 					{ node: expectedNodes[0], parents: [ ROOT_NODE ] },
@@ -214,7 +218,7 @@ describe( 'collectNodes', () => {
 				{ expectedName: 'Explicit in index file', fs: { test: { 'index.md': makePage( { name: 'Explicit in index file' } ).file }}},
 				{ expectedName: 'Implicit in file', fs: { test: { 'implicit-in-file.md': '' }}},
 			] )( 'should output node with name "$expectedName"', ( { expectedName, fs } ) => {
-				setVirtualFs( { [root.root]: fs } );
+				vol.fromNestedJSON( { [root.root]: fs } );
 				const nodes = [ ...loader.collectNodes( root, DEFAULT_COLLECT_CONTEXT ) ];
 				expect( last( nodes ) ).toMatchObject( { node: { name: expectedName }} );
 			} );

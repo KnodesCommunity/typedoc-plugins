@@ -1,10 +1,12 @@
 import { noop } from 'lodash';
+import { vol } from 'memfs';
 import { DeclarationReflection, ReflectionKind } from 'typedoc';
 
 import { relative, resolve } from '@knodes/typedoc-pluginutils/path';
 
-import { MockPlugin, createMockProjectWithPackage, mockPlugin, restoreFs, setVirtualFs, setupMockMarkdownReplacer, setupMockPageMemo } from '#plugintestbed';
+import { MockPlugin, createMockProjectWithPackage, mockPlugin, setupMockMarkdownReplacer, setupMockPageMemo } from '#plugintestbed';
 
+jest.mock( 'fs', () => jest.requireActual( 'memfs' ).fs );
 /* eslint-disable @typescript-eslint/no-var-requires */
 jest.mock( '../code-sample-file' );
 const { DEFAULT_BLOCK_NAME, readCodeSample: readCodeSampleMock } = require( '../code-sample-file' ) as jest.Mocked<typeof import( '../code-sample-file' )>;
@@ -41,7 +43,7 @@ beforeEach( () => {
 	};
 	markdownReplacerTestbed.captureEventRegistration();
 	pageMemoTestbed.captureEventRegistration();
-	setVirtualFs( {
+	vol.fromNestedJSON( {
 		'foo': {
 			'qux.txt': '',
 		},
@@ -53,7 +55,7 @@ beforeEach( () => {
 	const ref = new DeclarationReflection( 'Foo', ReflectionKind.Class, createMockProjectWithPackage() );
 	pageMemoTestbed.setCurrentPage( 'foo.html', 'foo.ts', ref );
 } );
-afterEach( restoreFs );
+afterEach( () => vol.reset() );
 describe( 'Behavior', () => {
 	it( 'should not affect text if no code block', () => {
 		const text = 'Hello world';
@@ -112,7 +114,7 @@ describe( 'Behavior', () => {
 		} );
 		it( 'should throw if invalid mode', () => {
 			plugin.logger.error.mockImplementation( noop );
-			setVirtualFs( { foo: { 'bar.txt': '' }} );
+			vol.fromNestedJSON( { foo: { 'bar.txt': '' }} );
 			readCodeSampleMock.mockReturnValue( new Map( [[ DEFAULT_BLOCK_NAME, { code: FILE_CONTENT, ...defaultBlock } ]] ) );
 			const content = '{@codeblock foo/bar.txt asdasd}';
 			expect( markdownReplacerTestbed.runMarkdownReplace( content ) ).toEqual( content );

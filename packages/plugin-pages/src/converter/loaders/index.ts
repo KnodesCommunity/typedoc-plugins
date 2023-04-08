@@ -5,12 +5,12 @@ import { isNil } from 'lodash';
 
 import { IPluginComponent, PluginAccessor, getPlugin } from '@knodes/typedoc-pluginutils';
 
-import type { PagesPlugin } from '../../plugin';
 import { DeclarativeNodeLoader } from './declarative';
 import { FrontMatterNodeLoader } from './front-matter';
 import { IBaseRawNode, ICheckConfigContext, INodeInParent, INodeLoader, IRegisterNodeContext, ModuleSourceNode, NodeGenerator, NodePath, SourceNode } from './nodes';
 import { TemplateNodeLoader } from './template';
 import { GlobMatch } from './utils';
+import type { PagesPlugin } from '../../plugin';
 
 export class RootNodeLoader implements IPluginComponent<PagesPlugin>, INodeLoader<IBaseRawNode, any> {
 	private readonly _registeredNodes = new Map<IBaseRawNode, boolean>();

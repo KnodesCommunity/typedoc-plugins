@@ -27,6 +27,6 @@ module.exports = {
 			] },
 		],
 		linkModuleBase: 'pages',
-		diagnostics: '.debug'
+		diagnostics: '.debug',
 	},
 };

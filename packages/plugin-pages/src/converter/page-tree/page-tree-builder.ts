@@ -2,7 +2,7 @@ import assert from 'assert';
 import { format } from 'util';
 
 import { pick } from 'lodash';
-import minimatch from 'minimatch';
+import { minimatch } from 'minimatch';
 import { DeclarationReflection, MinimalSourceFile, ProjectReflection, ReflectionKind } from 'typedoc';
 
 import { IPluginComponent, miscUtils } from '@knodes/typedoc-pluginutils';

@@ -1,3 +1,14 @@
+## [0.23.3](https://github.com/KnodesCommunity/typedoc-plugins/compare/v0.23.2...v0.23.3) (2023-04-08)
+
+
+### Bug Fixes
+
+* **deps:** update dependency memfs to v3.4.13 ([#310](https://github.com/KnodesCommunity/typedoc-plugins/issues/310)) ([5379faf](https://github.com/KnodesCommunity/typedoc-plugins/commit/5379faf293223f1e85de8793dbb7c3f62e25e8ad))
+* fix region interpolation incorrectly parsed ([#304](https://github.com/KnodesCommunity/typedoc-plugins/issues/304)) ([3e9cae3](https://github.com/KnodesCommunity/typedoc-plugins/commit/3e9cae320028b86c2a12bfd60feb94bf313d8ed9)), closes [#291](https://github.com/KnodesCommunity/typedoc-plugins/issues/291)
+* **tools:** adapt to glob now being promised instead of callback ([1c48303](https://github.com/KnodesCommunity/typedoc-plugins/commit/1c4830384b90b3288bc0f82972640db0de61f3dd))
+* **tools:** checkout correct branch for docs update ([f6e05ba](https://github.com/KnodesCommunity/typedoc-plugins/commit/f6e05ba8a0f81e4ef41195c14601574c74db9925))
+
+
 ## [0.23.2](https://github.com/KnodesCommunity/typedoc-plugins/compare/v0.23.1...v0.23.2) (2023-04-05)
 
 

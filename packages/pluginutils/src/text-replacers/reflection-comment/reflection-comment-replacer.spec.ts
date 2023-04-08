@@ -11,7 +11,7 @@ const eventResolveCapture = setupCaptureEvent( Converter, Converter.EVENT_RESOLV
 beforeEach( () => {
 	eventResolveCapture.captureEventRegistration();
 	const application = new Application();
-	plugin = new ( class Plug extends ABasePlugin{
+	plugin = new ( class Plug extends ABasePlugin {
 		// eslint-disable-next-line @typescript-eslint/no-empty-function
 		public initialize(): void {}
 	} )( application, __dirname );

@@ -1,15 +1,18 @@
 import { noop } from 'lodash';
+import { vol } from 'memfs';
 import { DeclarationReflection, ProjectReflection, ReflectionKind, SourceReference } from 'typedoc';
 
 import { resolve } from '@knodes/typedoc-pluginutils/path';
 
-import { MockPlugin, createMockProjectWithPackage, mockPlugin, restoreFs, setVirtualFs, setupMockMarkdownReplacer, setupMockPageMemo } from '#plugintestbed';
+import { MockPlugin, createMockProjectWithPackage, mockPlugin, setupMockMarkdownReplacer, setupMockPageMemo } from '#plugintestbed';
 
+import { MarkdownPagesLinks } from './markdown-links';
+import { IPagesPluginThemeMethods } from './theme';
 import { PageReflection, PagesPluginReflectionKind } from '../models/reflections';
 import { EInvalidPageLinkHandling } from '../options';
 import { PagesPlugin } from '../plugin';
-import { MarkdownPagesLinks } from './markdown-links';
-import { IPagesPluginThemeMethods } from './theme';
+
+jest.mock( 'fs', () => jest.requireActual( 'memfs' ).fs );
 
 let plugin: MockPlugin<PagesPlugin>;
 const markdownReplacerTestbed = setupMockMarkdownReplacer();
@@ -19,8 +22,7 @@ beforeEach( () => {
 	markdownReplacerTestbed.captureEventRegistration();
 	currentPageMemoTestbed.captureEventRegistration();
 } );
-afterEach( restoreFs );
-
+afterEach( () => vol.reset() );
 describe( 'Resolution', () => {
 	let project: jest.MockedObject<ProjectReflection>;
 	const mockThemeMethods: jest.Mocked<IPagesPluginThemeMethods> = {
@@ -69,7 +71,7 @@ describe( 'Resolution', () => {
 				[ '~:foo', `~hello:${pathPrefix}foo` ],
 				[ 'foo', `~hello:${pathPrefix}foo` ],
 			] )( 'should convert %s to %s on module "hello"', ( source, expected ) => {
-				setVirtualFs( { hello: { 'readme.md': 'Module A' }} );
+				vol.fromNestedJSON( { hello: { 'readme.md': 'Module A' }} );
 				const module = Object.assign( new DeclarationReflection( 'hello', ReflectionKind.Module, project ), { sources: [
 					new SourceReference( resolve( 'hello/readme.md' ), 1, 1 ),
 				] } );
@@ -90,7 +92,7 @@ describe( 'Resolution', () => {
 			describe( 'Relative path support', () => {
 				it( 'should resolve page in sibling module from module', () => {
 					const wrapInLinkModuleBase = ( content: Record<string, string> ) => linkModuleBase ? { [linkModuleBase]: content } : content;
-					setVirtualFs( {
+					vol.fromNestedJSON( {
 						'module-a': wrapInLinkModuleBase( { 'readme.md': 'Module A' } ),
 						'module-b': wrapInLinkModuleBase( { 'readme.md': 'Module B' } ),
 					} );

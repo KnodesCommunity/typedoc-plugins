@@ -5,9 +5,9 @@ import { LogLevel, ParameterType } from 'typedoc';
 
 import { OptionGroup } from '@knodes/typedoc-pluginutils';
 
+import { EInvalidPageLinkHandling, IPluginOptions } from './types';
 import { AnyLoaderRawPageNode, IBaseRawNode, NodePath, RootNodeLoader } from '../converter/loaders';
 import type { PagesPlugin } from '../plugin';
-import { EInvalidPageLinkHandling, IPluginOptions } from './types';
 
 export const validatePages = ( plugin: PagesPlugin, nodeLoader: RootNodeLoader ) => ( value: unknown ): asserts value is AnyLoaderRawPageNode[] => {
 	try {

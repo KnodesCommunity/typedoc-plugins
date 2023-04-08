@@ -5,10 +5,10 @@ const { readFile, mkdir, access, copyFile, unlink, writeFile } = require( 'fs/pr
 const { resolve, join } = require( 'path' );
 
 const { bold } = require( 'chalk' );
+const { glob } = require( 'glob' );
 const { memoize, partition, isString } = require( 'lodash' );
 
 const { tryReadFile } = require( './utils' );
-const { globAsync } = require( '../utils' );
 
 const checksum = async file => createHash( 'md5' )
 	.update( ( await readFile( file, 'utf-8' ) ).replace( /\r?\n/g, '\n' ), 'utf-8' )
@@ -37,7 +37,7 @@ const readCache = memoize( async () => {
 } );
 
 const protoFs = memoize( async ( proto, handlers ) => {
-	const filesDirs = ( await globAsync( '**', { cwd: proto, ignore: [ '**/node_modules/**' ], mark: true, dot: true } ) )
+	const filesDirs = ( await glob( '**', { cwd: proto, ignore: [ '**/node_modules/**' ], mark: true, dot: true } ) )
 		.filter( fd => !( handlers.some( h => h.handleFile?.( fd ) ?? false ) ) );
 	const [ dirs, files ] = partition( filesDirs, p => p.endsWith( '/' ) );
 	return { dirs, files };
