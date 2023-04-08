@@ -1,3 +1,7 @@
+## [0.23.4](https://github.com/KnodesCommunity/typedoc-plugins/compare/v0.23.3...v0.23.4) (2023-04-08)
+
+
+
 ## [0.23.3](https://github.com/KnodesCommunity/typedoc-plugins/compare/v0.23.2...v0.23.3) (2023-04-08)
 
 
