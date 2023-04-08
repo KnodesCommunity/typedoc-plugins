@@ -2,7 +2,7 @@ import assert from 'assert';
 import { copyFileSync } from 'fs';
 
 import { isString } from 'lodash';
-import { DeclarationReflection, DefaultTheme, IndexEvent, JSX, PageEvent, ProjectReflection, Reflection, ReflectionKind, RendererEvent, UrlMapping } from 'typedoc';
+import { CommentDisplayPart, DeclarationReflection, DefaultTheme, IndexEvent, JSX, PageEvent, ProjectReflection, Reflection, ReflectionKind, RendererEvent, UrlMapping } from 'typedoc';
 
 import { CurrentPageMemo, IPluginComponent, getReflectionModule, reflectionSourceUtils } from '@knodes/typedoc-pluginutils';
 import { join } from '@knodes/typedoc-pluginutils/path';
@@ -192,9 +192,13 @@ export class DefaultPagesRenderer implements IPagesPluginThemeMethods, IPluginCo
 					reflectionSourceUtils.createSourceReference( this, modulePage.sourceFilePath ),
 				];
 				pageEvent.model.readme = [
-					...( pageEvent.model.readme ?? [] ),
-					{ kind: 'text', text: `\n\n---\n\n<!-- Page ${modulePage.namedPath} -->\n\n` },
-					...( modulePage.comment?.summary ?? [] ),
+					...( pageEvent.model.readme?.concat( [ { kind: 'text', text: '\n\n---\n\n' } ] ) ?? [] ),
+					...( modulePage.comment?.summary ?
+						[
+							{ kind: 'text', text: `\n\n<!-- Page ${modulePage.namedPath} -->\n\n` } as CommentDisplayPart,
+							...modulePage.comment.summary,
+						] :
+						[] ),
 				];
 			}
 		}

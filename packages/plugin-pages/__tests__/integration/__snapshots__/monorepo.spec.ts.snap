@@ -925,10 +925,18 @@ exports[`pkg-b modules/pkg_b.html should have constant content 1`] = `
 			<aside class="tsd-sources">
 				<ul>
 					<li>Defined in <a href="https://stub.git/FAKE-USER/FAKE-PROJECT/blob/develop/packages/b/src/index.ts#L4">b/src/index.ts:4</a></li>
+					<li>Defined in <a href="https://stub.git/FAKE-USER/FAKE-PROJECT/blob/develop/packages/b/pages/readme-extras.md#L1">packages/b/pages/readme-extras.md:1</a></li>
 				</ul>
 			</aside>
 			<section class="tsd-panel-group">
-				<section class="tsd-panel tsd-typography"></section>
+				<section class="tsd-panel tsd-typography"><!-- Page ~/pkg-b/readme-extras.md -->
+
+
+					<a href="#this-is-appended-to-the-readme-of-pkg-b" id="this-is-appended-to-the-readme-of-pkg-b" style="color: inherit; text-decoration: none;">
+						<h2>This is appended to the readme of <code>pkg-b</code></h2>
+					</a>
+					<p>See <a href="../variables/pkg_a.stubA.html">stubA</a>, stubA, <a href="../variables/pkg_b.stubB.html">stubB</a> or <a href="../variables/pkg_b.stubB.html">stubB</a></p>
+				</section>
 			</section>
 			<section class="tsd-panel-group tsd-index-group">
 				<section class="tsd-panel tsd-index-panel">

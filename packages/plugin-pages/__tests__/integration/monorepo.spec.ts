@@ -190,10 +190,12 @@ describe( 'pkg-b', () => {
 		it( 'should have correct content', withContent( ( _content, dom ) => {
 			const content = dom.window.document.querySelectorAll( '.col-content' );
 			expect( content ).toHaveLength( 1 );
-			// Check if doc content prepended to the module index
-			const sep = content[0].querySelectorAll( 'hr' );
-			expect( sep ).toHaveLength( 0 );
-			expect( content[0] ).not.toHaveTextContent( /This is appended to/ );
+			expect( content[0].querySelectorAll( 'hr' ) ).toHaveLength( 0 );
+			expect( content[0].querySelector( '.tsd-panel.tsd-typography h2' ) ).toHaveTextContent( 'This is appended to the readme of pkg-b' );
+			const links = content[0].querySelectorAll<HTMLAnchorElement>( '.tsd-panel.tsd-typography > p > a' );
+			expect( links ).toHaveLength( 3 );
+			expect( links[0] ).not.toHaveAttribute( 'href', links[1].href );
+			expect( links[1] ).toHaveAttribute( 'href', links[2].href );
 		} ) );
 		it( 'should have correct primary navigation', withContent( ( _content, dom ) => {
 			const primaryNavItems = Array.from( dom.window.document.querySelectorAll( '.tsd-navigation.primary li.pages-entry' ) );
