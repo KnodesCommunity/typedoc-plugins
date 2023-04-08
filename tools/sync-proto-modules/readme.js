@@ -1,7 +1,7 @@
 const { yellow } = require( 'chalk' );
+const { glob } = require( 'glob' );
 
 const { tryReadFile, getDocsUrl, readProjectPackageJson, syncFile } = require( './utils' );
-const { globAsync } = require( '../utils' );
 
 class Readme {
 	constructor( checkOnly ){
@@ -10,7 +10,7 @@ class Readme {
 	}
 
 	async run( _proto, { path: projectPath } ){
-		const readmeFiles = await globAsync( `${projectPath}/@(readme|README).@(md|MD)` );
+		const readmeFiles = await glob( `${projectPath}/@(readme|README).@(md|MD)` );
 		if( readmeFiles.length > 1 ){
 			throw new Error( 'Multiple README files' );
 		}

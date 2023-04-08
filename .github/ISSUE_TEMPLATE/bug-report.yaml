@@ -8,7 +8,7 @@ body:
     attributes:
       label: Plugin
       description: What plugin are you encountering a problem with ?
-      options: ["@knodes/typedoc-plugin-code-blocks", "@knodes/typedoc-plugin-pages", "@knodes/typedoc-pluginutils", Unspecified] # !FORMAT options: [${...plugins}, Unspecified]
+      options: ["@knodes/typedoc-pluginutils", "@knodes/typedoc-plugin-pages", "@knodes/typedoc-plugin-code-blocks", Unspecified] # !FORMAT options: [${...plugins}, Unspecified]
     validations:
       required: true
   - type: input

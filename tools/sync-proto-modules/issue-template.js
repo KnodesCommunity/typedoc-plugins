@@ -1,9 +1,10 @@
 const { readFile } = require( 'fs/promises' );
 
+const { glob } = require( 'glob' );
 const { minVersion } = require( 'semver' );
 
 const { syncFile, postProcessYaml } = require( './utils' );
-const { resolveRoot, globAsync } = require( '../utils' );
+const { resolveRoot } = require( '../utils' );
 const DIR = resolveRoot( './.github/ISSUE_TEMPLATE' );
 
 /**
@@ -12,7 +13,7 @@ const DIR = resolveRoot( './.github/ISSUE_TEMPLATE' );
  */
 module.exports.issueTemplate = async checkOnly => ( {
 	tearDown: async ( _, projects ) => {
-		await Promise.all( ( await globAsync( '*.yaml', { cwd: DIR } ) ).map( async f => {
+		await Promise.all( ( await glob( '*.yaml', { cwd: DIR } ) ).map( async f => {
 			const path = resolveRoot( DIR, f );
 			const yaml = await readFile( path, 'utf-8' );
 			const yamlFormatted = postProcessYaml( yaml, {

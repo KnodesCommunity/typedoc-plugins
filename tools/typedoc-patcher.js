@@ -4,9 +4,10 @@ const { readFile, access, open } = require( 'fs/promises' );
 const { resolve, dirname, relative } = require( 'path' );
 
 const { red, bold, green } = require( 'chalk' );
+const { glob } = require( 'glob' );
 const { memoize } = require( 'lodash' );
 
-const { spawn, globAsync, createStash, commonPath, selectProjects, captureStream, getStagedFiles } = require( './utils' );
+const { spawn, createStash, commonPath, selectProjects, captureStream, getStagedFiles } = require( './utils' );
 
 const getPatchName = f => `${f}.patch`;
 const assertWritable = memoize( async filePath => {
@@ -87,7 +88,7 @@ const generatePattern = () => {
 				if( stash ){
 					await createStash( 'typedoc-patcher: diff' );
 				}
-				const generatedFiles = await globAsync( pattern, { ignore: [ '**/dist/**', '**/node_modules/**', getPatchName( generatedPattern ) ] } );
+				const generatedFiles = await glob( pattern, { ignore: [ '**/dist/**', '**/node_modules/**', getPatchName( generatedPattern ) ] } );
 				if( generatedFiles.length === 0 ) {
 					console.log( 'No patches generated.' );
 					return;
@@ -121,7 +122,7 @@ const generatePattern = () => {
 				if( stash ){
 					await createStash( 'typedoc-patcher: apply' );
 				}
-				const patchFiles = await globAsync( getPatchName( pattern ), { ignore: [ '**/dist/**', '**/node_modules/**' ] } );
+				const patchFiles = await glob( getPatchName( pattern ), { ignore: [ '**/dist/**', '**/node_modules/**' ] } );
 				if( patchFiles.length === 0 ) {
 					console.log( 'No patches applied.' );
 					return;

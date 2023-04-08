@@ -24,7 +24,6 @@
     "utils"
   ],
   "main": "dist/index.js",
-  "types": "dist/index.d.ts",
   "exports": {
     ".": {
       "default": "./dist/index.js",
@@ -46,6 +45,7 @@
     "prepublishOnly": "npm run build:clean && npm run build",
     "test": "jest --config jest.config.js"
   },
+  "types": "dist/index.d.ts",
   "dependencies": {
     "lodash": "^4.17.21",
     "fastest-levenshtein": "^1.0.16",
