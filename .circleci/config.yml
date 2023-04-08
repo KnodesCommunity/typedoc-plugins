@@ -197,7 +197,7 @@ jobs:
         type: boolean
         default: false
     executor: <<parameters.os>>
-    parallelism: 4
+    parallelism: 2
     steps:
       - node/install:
           node-version: <<parameters.node-version>>
