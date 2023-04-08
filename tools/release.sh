@@ -1,19 +1,41 @@
-#! /bin/zsh
+#! /bin/bash
 set -e
-if [ "$(git -C "$(pwd)" rev-parse --abbrev-ref HEAD)" != "develop" ]; then
-    echo "Should be ran on develop only"
-    exit 1
+
+ALPHA_FLAG=""
+if [ -n "$1" ] && [ "$1" == "--alpha" ]; then
+	ALPHA_FLAG="$1"
+elif [ -z "$1" ]; then
+	if [ "$(git -C "$(pwd)" rev-parse --abbrev-ref HEAD)" != "develop" ]; then
+		echo "Non-alpha should be ran on develop only"
+		exit 1
+	fi
+else
+	echo "Unsupported arg '$1'"
+	exit 1
 fi
-if ! [ -z "$(git update-index --refresh && git diff-index --quiet HEAD --)" ]; then
+if [ -n "$(git update-index --refresh && git diff-index --quiet HEAD --)" ]; then
     echo "Unstaged changes"
     exit 1
 fi
 
-VERSION=$(node tools/infer-next-version)
+
+VERSION="$(node tools/infer-next-version $ALPHA_FLAG)"
 echo "Will publish version '${VERSION}'"
-if ! read -q "REPLY?Are you sure? "; then
-    exit 1
+if ! read -p "Are you sure? (y/n)" yn; then
+	exit 1
 fi
+case $yn in 
+	[Yy])
+		echo 'ok, we will proceed'
+		;;
+	[Nn])
+		echo 'exiting...'
+		exit
+		;;
+	*) echo invalid response;
+		exit 1
+		;;
+esac
 # Bump & reinstall
 npm run tools:bump-versions "${VERSION}"
 npm install
@@ -36,7 +58,7 @@ TEMP_DIR="$(mktemp -d)"
 echo "Using docs temp dir ${TEMP_DIR}"
 REMOTE_URL="$(git config --get remote.origin.url)"
 cd "${TEMP_DIR}"
-git clone --depth 1 --branch docs ${REMOTE_URL} .
+git clone --depth 1 --branch docs "${REMOTE_URL}" .
 rsync -va --delete --exclude ".git" "${PWD_SV}/docs/" ./
 git add .
 git commit -m "docs: publish docs for v${VERSION}
