@@ -73,6 +73,6 @@
     "@types/fs-extra": "^11.0.0",
     "@types/lunr": "^2.3.4",
     "conventional-changelog-cli": "^2.2.2",
-    "type-fest": "^2.16.0"
+    "type-fest": "^3.0.0"
   }
 }
