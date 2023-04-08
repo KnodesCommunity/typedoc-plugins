@@ -1,3 +1,9 @@
+## [0.23.5-next.1](https://github.com/KnodesCommunity/typedoc-plugins/compare/v0.23.5-next.0...v0.23.5-next.1) (2023-04-08)
+
+
+No notable changes were done in this version.
+
+
 ## [0.23.5-next.0](https://github.com/KnodesCommunity/typedoc-plugins/compare/v0.23.4...v0.23.5-next.0) (2023-04-08)
 
 

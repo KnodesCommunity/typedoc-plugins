@@ -1,6 +1,6 @@
 {
   "name": "@knodes/typedoc-pluginutils",
-  "version": "0.23.5-next.0",
+  "version": "0.23.5-next.1",
   "description": "A set of utilities for TypeDoc plugins",
   "license": "MIT",
   "repository": {
@@ -10,7 +10,7 @@
   "bugs": {
     "url": "https://github.com/KnodesCommunity/typedoc-plugins/issues"
   },
-  "homepage": "https://knodescommunity.github.io/typedoc-plugins/modules/_knodes_typedoc_pluginutils.html",
+  "homepage": "https://knodescommunity.github.io/typedoc-plugins/v0.23.5-next.1/modules/_knodes_typedoc_pluginutils.html",
   "author": {
     "email": "gerkin@knodes.org",
     "name": "GerkinDev"
