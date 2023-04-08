@@ -186,10 +186,6 @@ export class DefaultPagesRenderer implements IPagesPluginThemeMethods, IPluginCo
 			( pageEvent.model instanceof DeclarationReflection && pageEvent.model.kindOf( ReflectionKind.Module ) )
 		){
 			const modulePage = this._modulesPages.find( p => p.module === pageEvent.model );
-			if( pageEvent.url.endsWith( 'modules/pkg_a.html' ) ){
-				console.dir( { modulePageComments: modulePage?.comment, pageEventComment: pageEvent.model.readme }, { colors: true, depth: 3 } );
-				process.exit();
-			}
 			if( modulePage instanceof PageReflection ){
 				pageEvent.model.sources = [
 					...( pageEvent.model.sources ?? [] ),

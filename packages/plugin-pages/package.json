@@ -80,6 +80,7 @@
     "@types/lunr": "^2.3.4",
     "@types/minimatch": "^5.0.0",
     "conventional-changelog-cli": "^2.2.2",
+    "memfs": "^3.5.0",
     "type-fest": "^3.0.0"
   }
 }

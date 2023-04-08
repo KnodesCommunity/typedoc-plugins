@@ -22,6 +22,7 @@ module.exports = {
 			{ loader: 'frontMatter', root: 'pagesFront' },
 			// #region config-3
 		],
+		excludeMarkdownTags: [ '{@page ...}' ],
 	},
 };
 // #endregion config-3

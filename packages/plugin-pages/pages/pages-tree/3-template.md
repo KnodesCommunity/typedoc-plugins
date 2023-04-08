@@ -12,7 +12,7 @@ The template loader tries to match files from each modules (unless filtered with
 
 A typical use case of this loader is to append the changelog in your documentation:
 
-@codeblock ../../../../typedoc.js#pagesConfig-3
+@codeblock ../../../../typedoc.config.js#pagesConfig-3
 
 ## Using the JSON-compatible notation
 
