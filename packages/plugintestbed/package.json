@@ -1,6 +1,6 @@
 {
   "name": "@knodes/typedoc-plugintestbed",
-  "version": "0.23.2",
+  "version": "0.23.3",
   "description": "A set of utilities to test TypeDoc plugins",
   "license": "MIT",
   "private": true,
@@ -39,7 +39,7 @@
   },
   "peerDependencies": {
     "typedoc": "^0.23.0",
-    "@knodes/typedoc-pluginutils": "~0.23.2"
+    "@knodes/typedoc-pluginutils": "~0.23.3"
   },
   "devDependencies": {
     "@knodes/eslint-config": "^1.6.5",
