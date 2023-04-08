@@ -24,8 +24,12 @@
     "utils"
   ],
   "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "exports": {
-    ".": "./dist/index.js",
+    ".": {
+      "default": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    },
     "./path": {
       "default": "./dist/utils/path.js",
       "types": "./dist/utils/path.d.ts"
@@ -74,7 +78,7 @@
     "rimraf": "^4.0.0",
     "ts-jest": "^29.0.0",
     "typedoc": "^0.23.28",
-    "typescript": "^4.7.4",
+    "typescript": "^5.0.0",
     "@alex_neo/jest-expect-message": "^1.0.5",
     "@types/semver": "^7.3.9",
     "@types/tmp": "^0.2.3",
