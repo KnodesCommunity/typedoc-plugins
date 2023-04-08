@@ -5,7 +5,7 @@ import { memoize } from 'lodash';
 import { LiteralUnion } from 'type-fest';
 import { DeclarationReflection, ProjectReflection, Reflection, ReflectionKind, normalizePath } from 'typedoc';
 
-import { dirname, parse, resolve  } from './utils/path';
+import { dirname, isAbsolute, parse, resolve  } from './utils/path';
 
 const isRootFile = ( dir: string, file: string ) => !!( file.match( /^readme.md$/i ) || file.match( /^package.json$/ ) );
 export const findModuleRoot = memoize( ( reflection: Reflection, rootMatcher: ( dir: string, file: string ) => boolean = isRootFile ) => {
@@ -14,12 +14,12 @@ export const findModuleRoot = memoize( ( reflection: Reflection, rootMatcher: ( 
 		const { dir, base } = parse( src.fullFileName );
 		return rootMatcher( dir, base );
 	} )?.fullFileName ?? assert.fail( 'Can\'t get the project root' );
-	const projectRootDir = normalizePath( dirname( projectRootFile ) );
+	const projectRootDir = dirname( projectRootFile );
 	if( reflection === projectReflection ){
 		return projectRootDir;
 	}
 	for ( const source of reflection.sources ?? [] ) {
-		const root = _findModuleRoot( normalizePath( dirname( source.fullFileName ) ), projectRootDir, rootMatcher );
+		const root = _findModuleRoot( dirname( source.fullFileName ), projectRootDir, rootMatcher );
 		if( root ){
 			return root;
 		}
@@ -34,10 +34,11 @@ const _findModuleRoot = memoize( ( moduleDir: string, projectRoot: string, rootM
 	if( files.some( f => rootMatcher( moduleDir, f ) ) ){
 		return moduleDir;
 	}
-	return _findModuleRoot( normalizePath( dirname( moduleDir ) ), projectRoot, rootMatcher );
+	return _findModuleRoot( dirname( moduleDir ), projectRoot, rootMatcher );
 } );
 
-export const getWorkspaces = ( project: ProjectReflection ): [ProjectReflection, ...DeclarationReflection[]] => {
+export type Workspaces = [ProjectReflection, ...DeclarationReflection[]];
+export const getWorkspaces = ( project: ProjectReflection ): Workspaces => {
 	const modules = project.getReflectionsByKind( ReflectionKind.Module );
 	assert( modules.every( ( m ): m is DeclarationReflection => m instanceof DeclarationReflection ) );
 	return [
@@ -64,7 +65,7 @@ export const getReflectionParentMatching: {
 export const getReflectionModule = ( reflection: Reflection ) => getReflectionParentMatching( reflection, isModule ) ?? reflection.project;
 
 /**
- * Don't worry about typings, it's just a string with special prefixes. See {@page resolving-paths.md} for details.
+ * Don't worry about typings, it's just a string with special prefixes. See {@page resolving-paths} for details.
  */
 export type NamedPath = LiteralUnion<NamedPath.Relative | NamedPath.Project | NamedPath.ExplicitModule | NamedPath.CurrentModule, string>
 export namespace NamedPath {
@@ -81,14 +82,14 @@ export class ResolveError extends Error {
 }
 
 /**
- * Resolve a named path. See {@page resolving-paths.md} for details.
+ * Resolve a named path. See {@page resolving-paths} for details.
  *
  * @param args - The reflection to resolve from, an optional container folder, and the target path specifier.
  * @returns the resolved path.
  */
 export const resolveNamedPath: {
 	/**
-	 * Resolve a named path. See {@page resolving-paths.md} for details.
+	 * Resolve a named path. See {@page resolving-paths} for details.
 	 *
 	 * @param currentReflection - The reflection to resolve from.
 	 * @param containerFolder - An optional container folder.
@@ -97,7 +98,7 @@ export const resolveNamedPath: {
 	 */
 	( currentReflection: Reflection, containerFolder: string | undefined, path: NamedPath ): string;
 	/**
-	 * Resolve a named path. See {@page resolving-paths.md} for details.
+	 * Resolve a named path. See {@page resolving-paths} for details.
 	 *
 	 * @param currentReflection - The reflection to resolve from.
 	 * @param path - The target path specifier.
@@ -108,6 +109,12 @@ export const resolveNamedPath: {
 	const [ currentReflection, containerFolder, path ] = args.length === 3 ? args : [ args[0], undefined, args[1] ];
 	let containerFolderMut = containerFolder;
 	let pathMut = normalizePath( path );
+	if( isAbsolute( pathMut ) ){
+		if( existsSync( pathMut ) ){
+			return pathMut;
+		}
+		throw new Error( `Resolved file "${pathMut}" does not exists` );
+	}
 	let reflectionRoots = findModuleRoot( getReflectionModule( currentReflection ) );
 	if( pathMut.startsWith( '~~:' ) ){
 		pathMut = pathMut.slice( 3 );
@@ -131,7 +138,7 @@ export const resolveNamedPath: {
 	}
 
 	assert( reflectionRoots );
-	const resolved = normalizePath( resolve( reflectionRoots, containerFolderMut ?? '.', pathMut ) );
+	const resolved = resolve( reflectionRoots, containerFolderMut ?? '.', pathMut );
 	if( existsSync( resolved ) ){
 		return resolved;
 	}

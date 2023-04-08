@@ -4,12 +4,11 @@ import { closest } from 'fastest-levenshtein';
 import { defaultsDeep, difference, get, identity, kebabCase } from 'lodash';
 import { DeclarationOption, MixedDeclarationOption, ParameterType } from 'typedoc';
 
-import { dirname } from '@knodes/typedoc-pluginutils/path';
-
 import { MapperPart, Option } from './option';
 import { DeclarationOptionConfig, ParameterValueType, TypeErr } from './utils';
 import type { ABasePlugin } from '../base-plugin';
 import { EventsExtra } from '../events-extra';
+import { dirname } from '../utils/path';
 
 interface Builder<T extends Record<string, any>, TDecs extends Record<never, DeclarationOption>> {
 	add: <
@@ -135,11 +134,10 @@ export class OptionGroup<
 	 * Set the raw values.
 	 *
 	 * @param value - The value to set. Paths, JSON & partial options are authorized.
-	 * @returns nothing.
 	 */
 	private _setValue( value: OptionGroupSetValue<TDeclarations> | string ): void {
 		if( typeof value === 'object' ){
-			return this._setValueFromObject( value );
+			this._setValueFromObject( value );
 		} else if( value.startsWith( '{' ) && value.endsWith( '}' ) ){
 			const parsedValue = JSON.parse( value ) as OptionGroupSetValue<TDeclarations>;
 			this._setValue( parsedValue );

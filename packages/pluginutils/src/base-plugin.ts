@@ -4,8 +4,10 @@ import { camelCase, isString, once } from 'lodash';
 import { sync as pkgUpSync } from 'pkg-up';
 import { satisfies } from 'semver';
 import { PackageJson, ReadonlyDeep, SetRequired } from 'type-fest';
-import { Application, Context, Converter, LogLevel, SourceReference, normalizePath } from 'typedoc';
+import { Application, Context, Converter, LogLevel, SourceReference } from 'typedoc';
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars -- For docs
+import type { autoload } from './autoload';
 import { EventsExtra } from './events-extra';
 import { PluginLogger } from './plugin-logger';
 import * as miscUtils from './utils/misc';
@@ -84,7 +86,7 @@ export abstract class ABasePlugin {
 	/**
 	 * This method is called after the plugin has been instanciated.
 	 *
-	 * @see {@link import('./autoload').autoload}.
+	 * @see {@link autoload}.
 	 */
 	public abstract initialize(): void;
 
@@ -95,7 +97,7 @@ export abstract class ABasePlugin {
 	 * @returns the relative path.
 	 */
 	public relativeToRoot( path: string ){
-		return normalizePath( relative( this.rootDir, path ) );
+		return relative( this.rootDir, path );
 	}
 	/**
 	 * Resolve the path to a plugin file (resolved from the plugin `package.json`).
@@ -104,7 +106,7 @@ export abstract class ABasePlugin {
 	 * @returns the resolved path.
 	 */
 	public resolvePackageFile( path: string ){
-		return normalizePath( resolve( this.pluginDir, path ) );
+		return resolve( this.pluginDir, path );
 	}
 }
 

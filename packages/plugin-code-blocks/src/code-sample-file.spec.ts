@@ -1,8 +1,10 @@
-import { restoreFs, setVirtualFs } from '#plugintestbed';
+import { vol } from 'memfs';
 
 import { DEFAULT_BLOCK_NAME, readCodeSample } from './code-sample-file';
 
-afterEach( restoreFs );
+jest.mock( 'fs', () => jest.requireActual( 'memfs' ).fs );
+
+afterEach( () => vol.reset() );
 describe( 'Valid parses', () => {
 	it.each( [
 		[ 'No region', `Hello
@@ -87,7 +89,7 @@ Baz
 			C: { startLine: 5, endLine: 9, code: 'Baz\nQux' },
 		} ],
 	] )( 'should parse correctly "%s"', ( _, content, output ) => {
-		setVirtualFs( {
+		vol.fromNestedJSON( {
 			'test.txt': content,
 		} );
 		const res = Object.fromEntries( readCodeSample( 'test.txt' ).entries() );

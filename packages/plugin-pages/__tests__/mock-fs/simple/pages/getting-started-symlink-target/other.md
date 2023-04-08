@@ -1,1 +1,1 @@
-This is a target link from a @page reference in a symlinked folder
+This is a target link from a {@page ...} reference in a symlinked folder

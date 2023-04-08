@@ -6,7 +6,6 @@ export class MenuReflection extends ANodeReflection {
 		name: string,
 		module: ANodeReflection.Module,
 		parent: ANodeReflection.Parent | undefined,
-		public readonly url: string,
 	){
 		super( name, PagesPluginReflectionKind.MENU, module, parent );
 	}

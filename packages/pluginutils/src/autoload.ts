@@ -1,6 +1,6 @@
-import { Application } from 'typedoc';
+import type { Application } from 'typedoc';
 
-import { ABasePlugin } from './base-plugin';
+import type { ABasePlugin } from './base-plugin';
 
 /**
  * Generate a TypeDoc `load` function that instantiate the given plugin constructor & call `initialize` on it.

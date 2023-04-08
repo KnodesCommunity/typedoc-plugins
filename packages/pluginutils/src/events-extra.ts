@@ -77,6 +77,23 @@ export class EventsExtra {
 	}
 
 	/**
+	 * Execute a function just after options freezing.
+	 *
+	 * @param cb - The function to execute.
+	 * @returns this.
+	 */
+	public onOptionsFreeze( cb: () => void ){
+		if( this._beforeOptionsFreezeArgs ){
+			cb();
+		}
+		this._hookInstanceAfter( this.application.options, 'freeze', ret => {
+			cb();
+			return ret;
+		} );
+		return this;
+	}
+
+	/**
 	 * Replace the method {@link key} of {@link instance} with a method calling the original method, then the custom {@link hook}.
 	 * The original method return value is passed as the 1st parameter of the hook.
 	 *

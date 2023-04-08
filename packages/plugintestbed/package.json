@@ -1,6 +1,6 @@
 {
   "name": "@knodes/typedoc-plugintestbed",
-  "version": "0.23.4",
+  "version": "0.23.5-next.1",
   "description": "A set of utilities to test TypeDoc plugins",
   "license": "MIT",
   "private": true,
@@ -11,7 +11,7 @@
   "bugs": {
     "url": "https://github.com/KnodesCommunity/typedoc-plugins/issues"
   },
-  "homepage": "https://knodescommunity.github.io/typedoc-plugins/modules/_knodes_typedoc_plugintestbed.html",
+  "homepage": "https://knodescommunity.github.io/typedoc-plugins/v0.23.5-next.1/modules/_knodes_typedoc_plugintestbed.html",
   "author": {
     "email": "gerkin@knodes.org",
     "name": "GerkinDev"
@@ -34,12 +34,11 @@
   },
   "dependencies": {
     "lodash": "^4.17.21",
-    "memfs": "^3.4.1",
-    "unionfs": "^4.4.0"
+    "memfs": "^3.4.1"
   },
   "peerDependencies": {
     "typedoc": "^0.23.0",
-    "@knodes/typedoc-pluginutils": "~0.23.4"
+    "@knodes/typedoc-pluginutils": "~0.23.5-next.1"
   },
   "devDependencies": {
     "@knodes/eslint-config": "^1.6.5",
@@ -66,7 +65,6 @@
     "typedoc": "^0.23.28",
     "typescript": "^5.0.0",
     "@types/js-beautify": "^1.13.3",
-    "fs-monkey": "^1.0.3",
     "js-beautify": "^1.14.0"
   }
 }

@@ -1,5 +1,7 @@
 import { escapeRegExp } from 'lodash';
 
+import { resolve } from '@knodes/typedoc-pluginutils/path';
+
 const setName = ( fn: any, name: string ) => {
 	Object.defineProperty( fn, 'toString', { value: () => name, writable: true } );
 	return fn;
@@ -48,3 +50,5 @@ export const elementMatcher = ( elemDescriptor: {textContent?: string; attrs?: R
 		} ),
 		`elementMatcher(elemDescriptor: ${JSON.stringify( elemDescriptor )}` ) );
 };
+export const pluginPath = resolve( __dirname, '../src/index' );
+export const mockFs = ( path: string ) => resolve( __dirname, 'mock-fs', path );

@@ -2,14 +2,17 @@ import { Application, Context, Converter, Reflection, RendererEvent } from 'type
 
 import { ABasePlugin, EventsExtra, ReflectionCommentReplacer } from '@knodes/typedoc-pluginutils';
 
+import { RootNodeLoader } from './converter/loaders';
 import { PageTreeBuilder } from './converter/page-tree';
 import { ANodeReflection } from './models/reflections';
 import { buildOptions } from './options';
 import { IPagesPluginThemeMethods, bindReplaceMarkdown, getPagesPluginThemeMethods } from './output';
 
 export class PagesPlugin extends ABasePlugin {
-	public readonly pluginOptions = buildOptions( this );
+	private readonly _rootNodeLoader = new RootNodeLoader( this );
 	private readonly _reflectionCommentReplacer = new ReflectionCommentReplacer( this );
+	// eslint-disable-next-line @typescript-eslint/member-ordering -- Must come after this._rootNodeLoader
+	public readonly pluginOptions = buildOptions( this, this._rootNodeLoader );
 	private _themeMethods?: IPagesPluginThemeMethods;
 	public constructor( application: Application ){
 		super( application, __filename );
@@ -23,7 +26,9 @@ export class PagesPlugin extends ABasePlugin {
 		this.application.renderer.on( RendererEvent.BEGIN, this._onRendererBegin.bind( this ), null, 1 );
 		EventsExtra.for( this.application )
 			.beforeOptionsFreeze( () => {
-				if( this.pluginOptions.getValue().enablePageLinks ){
+				// FIXME: Should merge correctly
+				const pendingOpts = this.application.options.getValue( this.optionsPrefix ) as any;
+				if( pendingOpts.enablePageLinks ?? this.application.options.getValue( `${this.optionsPrefix}:enablePageLinks` ) ){
 					this._reflectionCommentReplacer.registerInlineTag( '@page' ); // Preserve {@page} tags for being replaced in markdown
 				}
 			} );
@@ -36,7 +41,9 @@ export class PagesPlugin extends ABasePlugin {
 	 * @param context - The Typedoc context.
 	 */
 	private _onConverterResolveBegin( context: Context ) {
-		const rootMenu =  new PageTreeBuilder( this ).buildPagesTree( context.project, this.pluginOptions.getValue() );
+		// @LEGACY -- Change for v0.24
+		const pagesTreeBuilder = new PageTreeBuilder( this, this._rootNodeLoader );
+		const rootMenu = pagesTreeBuilder.buildPagesTree( context.project );
 		const registerNodes = ( ref: Reflection ) => {
 			if( ref instanceof ANodeReflection ){
 				context.project.registerReflection( ref );

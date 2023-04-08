@@ -1,4 +1,56 @@
+## [0.23.5-next.1](https://github.com/KnodesCommunity/typedoc-plugins/compare/v0.23.5-next.0...v0.23.5-next.1) (2023-04-08)
+
+
+
+## [0.23.5-next.0](https://github.com/KnodesCommunity/typedoc-plugins/compare/v0.23.4...v0.23.5-next.0) (2023-04-08)
+
+
+
+## [0.23.4-next.0](https://github.com/KnodesCommunity/typedoc-plugins/compare/v0.23.3...v0.23.4-next.0) (2023-04-08)
+
+
+### Bug Fixes
+
+* **plugin-pages:** fix minor issue in child page input concatenation with `null` source ([4cba4d6](https://github.com/KnodesCommunity/typedoc-plugins/commit/4cba4d6d0a978d6c760006f34e987338a0c16d2a))
+* **plugin-pages:** fix windows expansion ([2e950b7](https://github.com/KnodesCommunity/typedoc-plugins/commit/2e950b7e61f40820e56e2e16d6196634e0c5d57d))
+* **plugin-pages:** prefer PageReflection over MenuReflection when deduping nodes ([06e591e](https://github.com/KnodesCommunity/typedoc-plugins/commit/06e591e131d31aecc6f8b359cebce98e35d54095))
+* **plugin-pages:** windows fix from windows ([861a954](https://github.com/KnodesCommunity/typedoc-plugins/commit/861a954c6911d0903707e85a7f9885e64d1810d9))
+* **pluginutils:** don't use `.at`, incompatible with node<18 ([b15ab2d](https://github.com/KnodesCommunity/typedoc-plugins/commit/b15ab2d91b677e2894a3a1ee9b51d7e9044c596c))
+
+
+### Features
+
+* **plugin-pages:** add `linkModuleBase` option ([e3b2f4f](https://github.com/KnodesCommunity/typedoc-plugins/commit/e3b2f4f907ba763a8d379aa4707c3b6e2cc007de))
+* **plugin-pages:** add support of function templates ([2f2d2eb](https://github.com/KnodesCommunity/typedoc-plugins/commit/2f2d2eb5af6af496942934ca5ba4f5588ab5383b))
+* **plugin-pages:** add validation for glob patterns ([62926aa](https://github.com/KnodesCommunity/typedoc-plugins/commit/62926aa73643da35a3fe1138062f6774063d5ee3)), closes [#132](https://github.com/KnodesCommunity/typedoc-plugins/issues/132)
+* **plugin-pages:** implement logic for glob expansion ([022e34b](https://github.com/KnodesCommunity/typedoc-plugins/commit/022e34bc8f4909d0cb33a062af8abfc240bce817)), closes [#132](https://github.com/KnodesCommunity/typedoc-plugins/issues/132)
+* rework pretty much everything ([c05cda5](https://github.com/KnodesCommunity/typedoc-plugins/commit/c05cda58af59647fb0cac8fd7d6634fe48e42851))
+
+
+
 ## [0.23.4](https://github.com/KnodesCommunity/typedoc-plugins/compare/v0.23.3...v0.23.4) (2023-04-08)
+
+
+
+## [0.23.4-next.0](https://github.com/KnodesCommunity/typedoc-plugins/compare/v0.23.3...v0.23.4-next.0) (2023-04-08)
+
+
+### Bug Fixes
+
+* **plugin-pages:** fix minor issue in child page input concatenation with `null` source ([4cba4d6](https://github.com/KnodesCommunity/typedoc-plugins/commit/4cba4d6d0a978d6c760006f34e987338a0c16d2a))
+* **plugin-pages:** fix windows expansion ([2e950b7](https://github.com/KnodesCommunity/typedoc-plugins/commit/2e950b7e61f40820e56e2e16d6196634e0c5d57d))
+* **plugin-pages:** prefer PageReflection over MenuReflection when deduping nodes ([06e591e](https://github.com/KnodesCommunity/typedoc-plugins/commit/06e591e131d31aecc6f8b359cebce98e35d54095))
+* **plugin-pages:** windows fix from windows ([861a954](https://github.com/KnodesCommunity/typedoc-plugins/commit/861a954c6911d0903707e85a7f9885e64d1810d9))
+* **pluginutils:** don't use `.at`, incompatible with node<18 ([b15ab2d](https://github.com/KnodesCommunity/typedoc-plugins/commit/b15ab2d91b677e2894a3a1ee9b51d7e9044c596c))
+
+
+### Features
+
+* **plugin-pages:** add `linkModuleBase` option ([e3b2f4f](https://github.com/KnodesCommunity/typedoc-plugins/commit/e3b2f4f907ba763a8d379aa4707c3b6e2cc007de))
+* **plugin-pages:** add support of function templates ([2f2d2eb](https://github.com/KnodesCommunity/typedoc-plugins/commit/2f2d2eb5af6af496942934ca5ba4f5588ab5383b))
+* **plugin-pages:** add validation for glob patterns ([62926aa](https://github.com/KnodesCommunity/typedoc-plugins/commit/62926aa73643da35a3fe1138062f6774063d5ee3)), closes [#132](https://github.com/KnodesCommunity/typedoc-plugins/issues/132)
+* **plugin-pages:** implement logic for glob expansion ([022e34b](https://github.com/KnodesCommunity/typedoc-plugins/commit/022e34bc8f4909d0cb33a062af8abfc240bce817)), closes [#132](https://github.com/KnodesCommunity/typedoc-plugins/issues/132)
+* rework pretty much everything ([c05cda5](https://github.com/KnodesCommunity/typedoc-plugins/commit/c05cda58af59647fb0cac8fd7d6634fe48e42851))
 
 
 

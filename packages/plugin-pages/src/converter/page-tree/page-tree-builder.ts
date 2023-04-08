@@ -1,71 +1,109 @@
 import assert from 'assert';
+import { format } from 'util';
 
-import { DeclarationReflection, MinimalSourceFile, ProjectReflection, Reflection, normalizePath } from 'typedoc';
+import { pick } from 'lodash';
+import { minimatch } from 'minimatch';
+import { DeclarationReflection, MinimalSourceFile, ProjectReflection, ReflectionKind } from 'typedoc';
 
-import { IPluginComponent, ResolveError, getWorkspaces, miscUtils, resolveNamedPath } from '@knodes/typedoc-pluginutils';
+import { IPluginComponent, miscUtils } from '@knodes/typedoc-pluginutils';
+import { join, normalize, resolve } from '@knodes/typedoc-pluginutils/path';
 
-import { getDir, getNodePath, getNodeUrl, join } from './utils';
+import { NodesTreeBuild, buildNodesTree, getNodePath } from './utils';
 import { ANodeReflection, MenuReflection, NodeReflection, PageReflection } from '../../models/reflections';
-import { IPageNode, IPluginOptions, IRootPageNode } from '../../options';
 import type { PagesPlugin } from '../../plugin';
+import { ModuleSourceNode, RootNodeLoader, SourceNode } from '../loaders';
+import { urlize } from '../utils';
 
-const isModuleRoot = ( pageNode: IPageNode | IRootPageNode ) => 'moduleRoot' in pageNode && !!pageNode.moduleRoot;
+const nodeReflectionToJson = ( node: ANodeReflection ): any => ( {
+	...pick( node, 'id', 'name', 'originalName' ),
+	fullName: node.getFullName(),
+	friendlyFullName: node.getFriendlyFullName(),
+	...pick( node, 'url', 'comment', 'sources', 'pageVirtualPath', 'namedPath' ),
+	childrenNodes: node.childrenNodes?.map( nodeReflectionToJson ),
+} );
 
-type PageNode = IPageNode | IRootPageNode;
-
-interface IIOPath {
-	inputContainer?: string;
-	input?: string;
-	output?: string;
+interface IReflectionBuildContext {
+	url: string;
 }
+
+/**
+ * Class responsible of converting configuration to Typedoc models ({@link import('typedoc').Reflection}).
+ *
+ * For this, options are first normalized & merged in nodes, then those nodes are converted to {@link PageReflection} or {@link MenuReflection}.
+ */
 export class PageTreeBuilder implements IPluginComponent<PagesPlugin> {
 	private readonly _logger = this.plugin.logger.makeChildLogger( PageTreeBuilder.name );
-	public constructor( public readonly plugin: PagesPlugin ){}
+	public constructor( public readonly plugin: PagesPlugin, private readonly _nodeLoader: RootNodeLoader ){}
 
 	/**
 	 * Convert pages specified in the plugin options to reflections.
 	 *
 	 * @param project - The project reflection.
-	 * @param options - The plugin options.
 	 * @returns the nodes tree.
 	 */
-	public buildPagesTree( project: ProjectReflection, options: IPluginOptions ): MenuReflection {
-		const rootMenu = new MenuReflection( 'ROOT', project, undefined, '' );
-		if( !options.pages || options.pages.length === 0 ){
-			return rootMenu;
-		} else {
-			if( options.pages.some( p => p.moduleRoot ) ){
-				rootMenu.childrenNodes = this._mapNodesToReflectionsTree(
-					options.pages,
-					project,
-					{ inputContainer: options.source, output: options.output } );
-			} else {
-				const projectRoot = new MenuReflection( project.name, project, project, project.url ?? '' );
-				projectRoot.childrenNodes = this._mapNodesToReflectionsTree(
-					options.pages,
-					projectRoot,
-					{ inputContainer: options.source, output: options.output } );
-				rootMenu.childrenNodes = projectRoot.childrenNodes.length > 0 ? [ projectRoot ] : [];
-			}
-			return rootMenu;
-		}
-	}
+	public buildPagesTree( project: ProjectReflection ): MenuReflection {
+		const options = this.plugin.pluginOptions.getValue();
+		const rootMenu = new MenuReflection( 'ROOT', project, undefined );
 
-	/**
-	 * Get the module with the given {@link name}.
-	 *
-	 * @param reflection - The reflection to get the project from.
-	 * @param name - The name of the module to search.
-	 * @returns the module declaration reflection, or `undefined`.
-	 */
-	private _getModule( reflection: Reflection, name: string ): ANodeReflection.Module {
-		if( name === reflection.project.name ){
-			return reflection.project;
+		const modulesWithEntrypoint = project.getChildrenByKind( ReflectionKind.Module )
+			.reduce<Array<{entrypoint: string; mod: DeclarationReflection}>>( ( acc, mod ) => {
+				const src = mod.sources?.[0].fullFileName;
+				assert( src );
+				// Sort entrypoints by deepest to higest
+				const entryPoints = this.plugin.application.options.getValue( 'entryPoints' ).map( normalize ).sort( ( a, b ) => b.split( '/' ).length - a.split( '/' ).length );
+				const entryPoint = entryPoints.find( ep => minimatch( src, `${ep}/**` ) );
+				assert(
+					entryPoint,
+					format(
+						'Could not determine the entrypoint of module %s (with source %s). Entrypoints are %j',
+						mod.name,
+						src,
+						entryPoints ) );
+				let entryPointRoot = src;
+				while( !minimatch( entryPointRoot, entryPoint ) ) {
+					const parentDir = resolve( entryPointRoot, '..' );
+					assert( parentDir !== entryPointRoot ); // Ensure we are not stuck at the root
+					entryPointRoot = parentDir;
+				}
+				acc.push( { entrypoint: entryPointRoot, mod } );
+				return acc;
+			}, [] );
+		const rootNodes: ModuleSourceNode[] = [
+			{
+				path: { fs: this.plugin.rootDir, urlFragment: '', virtual: '~' },
+				name: project.name,
+			},
+			...modulesWithEntrypoint.map( ( { entrypoint, mod } ) => ( {
+				path: { fs: entrypoint, virtual: mod.name ?? assert.fail(), urlFragment: mod.name.replace( /[^a-z0-9]/gi, '_' ) },
+				name: mod.name,
+			} ) ),
+		];
+
+		if( options.pages?.length > 0 ) {
+			const allNodes = [
+				...rootNodes.map( node => ( { node, parents: [] } ) ),
+				...options.pages
+					.map( p => Array.from( this._nodeLoader.collectRootNodes( p, rootNodes ) ) )
+					.flat( 1 ),
+			];
+			miscUtils.writeDiag( options.diagnostics, 'raw-loaded-nodes.json', () => JSON.stringify( allNodes, null, 4 ) );
+			const { unregisteredNodes } = this._nodeLoader;
+			if( unregisteredNodes.length > 0 ){
+				this._logger.warn( format( 'Some pages were present in config, but did not matched anything. Please review the configuration for %O', unregisteredNodes ) );
+			}
+			const tree = buildNodesTree( allNodes );
+			miscUtils.writeDiag( options.diagnostics, 'merged-loaded-nodes.json', () => JSON.stringify( tree, null, 4 ) );
+			rootMenu.childrenNodes = tree
+				.map( treeNode => {
+					assert( treeNode.defs[0].path );
+					const treeNodePath = treeNode.defs[0].path;
+					const module = treeNodePath.virtual === '~' ? project : modulesWithEntrypoint.find( mwe => mwe.mod.name === treeNodePath.virtual )?.mod ?? assert.fail();
+					return this._mapNodeToReflection( treeNode, module, module, { url: join( options.output, treeNodePath.urlFragment ?? assert.fail() ) } );
+				} )
+				.flat( 1 );
+			miscUtils.writeDiag( options.diagnostics, 'final-nodes.json', () => JSON.stringify( nodeReflectionToJson( rootMenu ), null, 4 ) );
 		}
-		const modules = getWorkspaces( reflection.project ).slice( 1 );
-		const modulesWithName = modules.filter( m => m.name === name );
-		assert( modulesWithName.length === 1 );
-		return modulesWithName[0] as DeclarationReflection;
+		return rootMenu;
 	}
 
 	/**
@@ -73,12 +111,13 @@ export class PageTreeBuilder implements IPluginComponent<PagesPlugin> {
 	 *
 	 * @param nodes - The nodes.
 	 * @param parent - The parent of this node (project, module or node).
-	 * @param io - The children base input/output paths
+	 * @param module - The module of this node.
+	 * @param context - The current context to build pages from.
 	 * @returns the node reflections.
 	 */
-	private _mapNodesToReflectionsTree( nodes: PageNode[], parent: ANodeReflection.Parent, io: IIOPath ): NodeReflection[] {
+	private _mapNodesToReflectionsTree( nodes: NodesTreeBuild[], parent: ANodeReflection.Parent, module: ANodeReflection.Module, context: IReflectionBuildContext ): NodeReflection[] {
 		return nodes
-			.map( n => this._mapNodeToReflection( n, parent, io ) )
+			.map( n => this._mapNodeToReflection( n, parent, module, { ...context } ) )
 			.flat( 1 );
 	}
 
@@ -87,36 +126,28 @@ export class PageTreeBuilder implements IPluginComponent<PagesPlugin> {
 	 *
 	 * @param node - The node.
 	 * @param parent - The parent of this node (project, module or node).
-	 * @param io - The children base input/output paths
+	 * @param module - The module of this node.
+	 * @param context - The current context to build pages from.
 	 * @returns the node reflections.
 	 */
-	private _mapNodeToReflection( node: PageNode, parent: ANodeReflection.Parent, io: IIOPath ): NodeReflection[] {
-		const childrenIO: IIOPath = isModuleRoot( node ) ? { ...io } : {
-			...io,
-			input: join( io.input, getDir( node, 'source' ) ),
-			output: join( io.output, getDir( node, 'output' ) ),
-		};
-		if( node.name === 'VIRTUAL' ){
-			return node.children ?
-				this._mapNodesToReflectionsTree( node.children, parent, childrenIO ) :
-				[];
+	private _mapNodeToReflection( node: NodesTreeBuild, parent: ANodeReflection.Parent, module: ANodeReflection.Module, { url }: IReflectionBuildContext ): NodeReflection[] {
+		if( parent instanceof ANodeReflection ){
+			const nodeUrl = node.defs.find( d => d.path?.urlFragment )?.path?.urlFragment;
+			if( nodeUrl?.startsWith( '/' ) ){
+				url = nodeUrl;
+			} else {
+				url = join( url, nodeUrl ?? urlize( node.defs[0].name ) );
+			}
 		}
-		const nodeReflection = this._getNodeReflection( node, parent, io );
-		if( !( nodeReflection.module instanceof ProjectReflection ) && nodeReflection.isModuleAppendix ){
-			// If the node is attached to a new module, skip changes in the input tree (stay at root of `pages` in module)
-			childrenIO.input = io.input;
-			// Output is now like `pkg-a/pages/...`
-			childrenIO.output = `${nodeReflection.name.replace( /[^a-z0-9]/gi, '_' )}/${io.output ?? ''}`;
-		}
+		const nodeReflection = this._getNodeReflection( node, parent, module, node.children?.length ?? 0 > 0 ? `${url}/index.html` : `${url}.html` );
 		const children = node.children ?
-			this._mapNodesToReflectionsTree(
-				node.children,
-				nodeReflection,
-				childrenIO ) :
+			this._mapNodesToReflectionsTree( node.children, nodeReflection, module, { url } ) :
 			[];
 		// Strip empty menu items
 		if( nodeReflection instanceof MenuReflection && children.length === 0 ){
-			this._logger.warn( `Stripping menu item ${getNodePath( node, parent )} because it has no children.` );
+			if( !( parent instanceof DeclarationReflection || parent instanceof ProjectReflection ) ){
+				this._logger.warn( `Stripping menu item ${getNodePath( node, parent )} because it has no children.` );
+			}
 			return [];
 		}
 		nodeReflection.childrenNodes = children;
@@ -124,56 +155,35 @@ export class PageTreeBuilder implements IPluginComponent<PagesPlugin> {
 	}
 
 	/**
-	 * Infer the parent & module for the given node.
-	 *
-	 * @param node - The node to get parent & modules for.
-	 * @param parent - The default parent.
-	 * @returns an object containing the final module & parent for the node.
-	 */
-	private _getNodeParent( node: PageNode, parent: ANodeReflection.Parent ){
-		const module: ANodeReflection.Module = isModuleRoot( node ) ?
-			miscUtils.catchWrap(
-				() => this._getModule( parent, node.name ),
-				`Invalid pages configuration: could not find a workspace named "${node.name}"`,
-			) :
-			parent instanceof ANodeReflection ? parent.module : parent.project;
-		return { module, parent: parent instanceof ANodeReflection ? parent : module };
-	}
-
-	/**
 	 * Generate a node reflection.
 	 *
 	 * @param node - The node.
 	 * @param parent - The parent of this node (project, module or node).
-	 * @param io - This node input/output paths.
+	 * @param module - The module of this node.
+	 * @param url - The desired URL of the page.
 	 * @returns the node reflection.
 	 */
-	private _getNodeReflection( node: PageNode, parent: ANodeReflection.Parent, io: IIOPath ){
-		const { module, parent: actualParent } = this._getNodeParent( node, parent );
-		if( node.source ){
-			const nodePath = join( io.input, node.source );
-			const sourceFilePath = miscUtils.catchWrap(
-				() => resolveNamedPath( module, io.inputContainer ?? undefined, nodePath ),
-				err => {
-					const path = err instanceof ResolveError ? `./${this.plugin.relativeToRoot( err.triedPath )}` : nodePath;
-					return new Error( `Could not locate page for ${getNodePath( node, actualParent )}. Searched for "${path}"`, { cause: err } );
-				} );
-			const page = miscUtils.catchWrap(
-				() => new PageReflection(
-					node.name,
-					module,
-					actualParent,
-					sourceFilePath,
-					nodePath,
-					normalizePath( join( io.output, getNodeUrl( node ) ) ) ),
-				`Could not generate a page reflection for ${getNodePath( node, actualParent )}` );
+	private _getNodeReflection( node: NodesTreeBuild, parent: ANodeReflection.Parent, module: ANodeReflection.Module, url: string ){
+		const withContent = node.defs.filter( ( d ): d is SourceNode & {content: string} => !!d.content );
+		if( withContent.length > 0 ){
+			const def = withContent[0];
+			if( withContent.length > 1 ) {
+				this._logger.warn( format( 'Multiple contents for node "%s", having sources %O. Only the 1st one will be used.', def.name, withContent.map( wc => wc.path?.fs ) ) );
+			}
+			const page = new PageReflection(
+				def.name,
+				module,
+				parent,
+				def.content,
+				def.path.fs,
+				def.path.virtual,
+				url );
 			page.comment = this.plugin.application.converter.parseRawComment( new MinimalSourceFile( page.content, page.sourceFilePath ) );
 			return page;
 		}
 		return new MenuReflection(
-			node.name,
+			node.defs[0].name,
 			module,
-			actualParent,
-			normalizePath( join( io.output, getNodeUrl( { output: 'index.html', ...node } ) ) ) );
+			parent );
 	}
 }

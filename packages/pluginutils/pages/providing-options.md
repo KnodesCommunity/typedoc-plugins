@@ -35,7 +35,10 @@ Options can be set in the following ways:
   ```}
 
 * or as an object (for config file only)
-  {@inlineCodeblock typedoc.json ```json
+
+  {@inlineCodeblock typedoc.json
+
+  ```json
   {
       // ...
       "<pluginOptionsPrefix>": {

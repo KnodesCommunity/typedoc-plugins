@@ -37,12 +37,22 @@ export class ReflectionCommentReplacer implements IPluginComponent {
 				const filter = filterDisplayParts( tagName );
 				comment.summary.forEach( ( t, i ) => {
 					if( filter( t ) ){
-						callback( { comment, kind: 'summary', tag: t, context, reflection, replace: v => comment.summary[i] = v } );
+						try {
+							callback( { comment, kind: 'summary', tag: t, context, reflection, replace: v => comment.summary[i] = v } );
+						} catch( e: any ){
+							const sources = reflection.sources?.map( s => `${s.fileName}:${s.line}:${s.character}` )?.join( ' | ' );
+							this.plugin.logger.error( `Failed to replace "${tagName}" in symbol ${reflection.name} declared in ${sources ?? 'unknown source'}: ${e}` );
+						}
 					}
 				} );
 				comment.blockTags.forEach( b => b.content.forEach( ( t, i ) => {
 					if( filter( t ) ){
-						callback( { comment, kind: 'blockComment', tag: t, block: b, context, reflection, replace: v => b.content[i] = v } );
+						try {
+							callback( { comment, kind: 'blockComment', tag: t, block: b, context, reflection, replace: v => b.content[i] = v } );
+						} catch( e: any ){
+							const sources = reflection.sources?.map( s => `${s.fileName}:${s.line}:${s.character}` )?.join( ' | ' );
+							this.plugin.logger.error( `Failed to replace "${tagName}" in symbol ${reflection.name} declared in ${sources ?? 'unknown source'}: ${e}` );
+						}
 					}
 				} ) );
 			}, null, priority );
@@ -69,7 +79,12 @@ export class ReflectionCommentReplacer implements IPluginComponent {
 				}
 				comment.blockTags.forEach( ( b, i ) => {
 					if( b.tag === tagName ){
-						callback( { comment, kind: 'block', block: b, context, reflection, replace: v => comment.blockTags[i] = v } );
+						try {
+							callback( { comment, kind: 'block', block: b, context, reflection, replace: v => comment.blockTags[i] = v } );
+						} catch( e: any ){
+							const sources = reflection.sources?.map( s => `${s.fileName}:${s.line}:${s.character}` )?.join( ' | ' );
+							this.plugin.logger.error( `Failed to replace "${tagName}" in symbol ${reflection.name} declared in ${sources ?? 'unknown source'}: ${e}` );
+						}
 					}
 				} );
 			}, null, priority );

@@ -4,16 +4,14 @@ import assert from 'assert';
 import { identity } from 'lodash';
 import { Application, DeclarationReflection, MarkdownEvent, ReflectionKind, SourceReference } from 'typedoc';
 
-import { relative, resolve } from '@knodes/typedoc-pluginutils/path';
+import { MarkdownReplacer } from './markdown-replacer';
+import { CurrentPageMemo } from '../../current-page-memo';
+import { relative, resolve } from '../../utils/path';
 
 jest.mock( '../../base-plugin' );
 const { ABasePlugin, getPlugin, getApplication } = require( '../../base-plugin' ) as jest.Mocked<typeof import( '../../base-plugin' )>;
 getPlugin.mockImplementation( identity );
 getApplication.mockImplementation( jest.requireActual( '../../base-plugin' ).getApplication );
-
-import { MarkdownReplacer } from './markdown-replacer';
-import { CurrentPageMemo } from '../../current-page-memo';
-
 class TestPlugin extends ABasePlugin {
 	public override application: jest.MockedObjectDeep<Application>;
 	public constructor(){
@@ -58,10 +56,10 @@ describe( MarkdownReplacer.name, () => {
 	beforeEach( () => {
 		plugin = new TestPlugin();
 		replacer = new MarkdownReplacer( plugin );
+		mockCurrentPage( 'Test', resolve( 'hello.ts' ), 1, 1 );
 	} );
 	it( 'should replace correctly inline tag in markdown event', () =>{
 		// Arrange
-		mockCurrentPage( 'Test', resolve( 'hello.ts' ), 1, 1 );
 		const fn = jest.fn().mockReturnValueOnce( 'REPLACE 1' ).mockReturnValueOnce( 'REPLACE 2' );
 		replacer.registerMarkdownTag( '@test', /(foo)?/g, fn );
 		const source = 'Hello {@test foo} {@test} @test';
@@ -80,7 +78,6 @@ describe( MarkdownReplacer.name, () => {
 	} );
 	it( 'should ignore excluded matches', () =>{
 		// Arrange
-		mockCurrentPage( 'Test', resolve( 'hello.ts' ), 1, 1 );
 		const fn = jest.fn().mockReturnValueOnce( '1' ).mockReturnValueOnce( '2' ).mockReturnValueOnce( '3' );
 		replacer.registerMarkdownTag( '@test', /(foo\d?)?/g, fn, { excludedMatches: [ '{@test foo1}', '{@test foo4}' ] } );
 		const source = 'Hello {@test} {@test foo1} {@test foo2} {@test foo3} {@test foo4} @test';
@@ -97,6 +94,22 @@ describe( MarkdownReplacer.name, () => {
 		expect( fn ).toHaveBeenNthCalledWith( 1, { captures: [], fullMatch: 'test', event }, expect.toBeFunction() );
 		expect( fn ).toHaveBeenNthCalledWith( 2, { captures: [ 'foo2' ], fullMatch: 'test foo2', event }, expect.toBeFunction() );
 		expect( fn ).toHaveBeenNthCalledWith( 3, { captures: [ 'foo3' ], fullMatch: 'test foo3', event }, expect.toBeFunction() );
+	} );
+	it( 'should preserve indentation of base block tags', () => {
+		// Arrange
+		const replacedContent = 'REPLACED\nWITH\nNEWLINES';
+		const fn = jest.fn().mockReturnValue( replacedContent );
+		replacer.registerMarkdownTag( '@test', /(foo)?/g, fn );
+		const source = '* Hello\n  {@test}\n';
+		const event = new MarkdownEvent( MarkdownEvent.PARSE, source, source );
+		const listeners = getMarkdownEventParseListeners( plugin );
+		expect( listeners ).toHaveLength( 1 );
+
+		// Act
+		listeners[0]( event );
+
+		// Assert
+		expect( event.parsedText ).toEqual( `* Hello\n  ${replacedContent.replace( /\n/g, '\n  ' )}\n` );
 	} );
 	describe( 'Source map', () => {
 		describe( 'Once', () => {

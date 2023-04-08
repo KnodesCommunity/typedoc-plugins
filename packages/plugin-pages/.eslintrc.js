@@ -5,4 +5,7 @@ module.exports = {
 	parserOptions: {
 		project: [ `${__dirname}/tsconfig.build.json`, `${__dirname}/tsconfig.spec.json` ],
 	},
+	rules: {
+		'jsdoc/check-tag-names': [ 'error', { definedTags: [ 'experimental', 'category' ] } ],
+	},
 };

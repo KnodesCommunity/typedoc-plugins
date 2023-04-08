@@ -1,44 +1,28 @@
-import assert, { AssertionError } from 'assert';
+import assert from 'assert';
 
-import { difference, groupBy, isArray, isNil, isObject, isString, uniq } from 'lodash';
+import { isArray, isNil } from 'lodash';
 import { LogLevel, ParameterType } from 'typedoc';
 
-import { OptionGroup, miscUtils } from '@knodes/typedoc-pluginutils';
+import { OptionGroup } from '@knodes/typedoc-pluginutils';
 
-import { EInvalidPageLinkHandling, IPageNode, IPluginOptions, IRootPageNode } from './types';
+import { EInvalidPageLinkHandling, IPluginOptions } from './types';
+import { AnyLoaderRawPageNode, IBaseRawNode, NodePath, RootNodeLoader } from '../converter/loaders';
 import type { PagesPlugin } from '../plugin';
 
-const wrapPageError = ( path: string[], index: number ) => ( err: any ) => {
-	if( err instanceof AssertionError ){
-		const pathStr = path.length > 0 ? ` in ${path.map( p => JSON.stringify( p ) ).join( ' ⇒ ' )}` : '';
-		return new Error( `Invalid page${pathStr} @ index ${index}: ${err.message ?? err}`, { cause: err } );
-	} else {
-		return err;
+export const validatePages = ( plugin: PagesPlugin, nodeLoader: RootNodeLoader ) => ( value: unknown ): asserts value is AnyLoaderRawPageNode[] => {
+	try {
+		const recurse = ( upPath: NodePath, node: IBaseRawNode, recursionPath: NodePath ): asserts node is IBaseRawNode => {
+			const newPath = [ ...upPath, ...recursionPath ];
+			nodeLoader.checkConfigNode( node, { recurse: recurse.bind( null, newPath ), path: newPath } );
+		};
+		assert( isArray( value ) || isNil( value ) );
+		value?.forEach( ( p, i ) => recurse( [], p, [ '#', i ] ) );
+	} catch( e ){
+		plugin.logger.warn( `Options given does not match the new definition format. If you set "useLegacyTreeBuilder", you can ignore this error. ${e}` );
 	}
 };
-const pageKeys: Array<keyof IPageNode> = [ 'children', 'childrenDir', 'childrenOutputDir', 'childrenSourceDir', 'output', 'source', 'name' ];
-const checkPageFactory = <T extends IPageNode>( allowedKeys: Array<keyof T> ) => ( plugin: PagesPlugin, page: unknown, path: string[] ): asserts page is T => {
-	assert( page && isObject( page ), 'Page should be an object' );
-	const _page = page as Record<string, unknown>;
-	if( 'title' in _page && !( 'name' in _page ) ){
-		_page.name = _page.title;
-		delete _page.title;
-		plugin.logger.warn( `Page ${[ ...path, _page.name ].map( p => `"${p}"` ).join( ' ⇒ ' )} is using deprecated "title" property. Use "name" instead.` );
-	}
-	assert( 'name' in _page && isString( _page.name ), 'Page should have a name' );
-	const extraProps = difference( Object.keys( _page ), allowedKeys as string[] );
-	assert.equal( extraProps.length, 0, `Page ${[ ...path, _page.name ].map( p => `"${p}"` ).join( ' ⇒ ' )} have extra properties ${JSON.stringify( extraProps )}` );
-	if( 'children' in _page && !isNil( _page.children ) ){
-		assert( isArray( _page.children ), 'Page children should be an array' );
-		const thisPath = [ ...path, _page.name as string ];
-		_page.children.forEach( ( c, i ) => miscUtils.catchWrap(
-			() => checkPage( plugin, c, thisPath ),
-			wrapPageError( thisPath, i ) ) );
-	}
-};
-const checkPage = checkPageFactory<IPageNode>( pageKeys );
-const checkRootPage = checkPageFactory<IRootPageNode>( [ ...pageKeys, 'moduleRoot' ] );
-export const buildOptions = ( plugin: PagesPlugin ) => OptionGroup.factory<IPluginOptions>( plugin )
+
+export const buildOptions = ( plugin: PagesPlugin, nodeLoader: RootNodeLoader ) => OptionGroup.factory<IPluginOptions>( plugin )
 	.add( 'enablePageLinks', {
 		help: 'Whether or not @page and @pagelink tags should be parsed.',
 		type: ParameterType.Boolean,
@@ -58,22 +42,7 @@ export const buildOptions = ( plugin: PagesPlugin ) => OptionGroup.factory<IPlug
 	.add( 'pages', {
 		help: 'Actual pages definitions.',
 		type: ParameterType.Mixed,
-		validate: v => {
-			if( v ){
-				assert( isArray( v ), 'Pages should be an array' );
-				if( !v.length ){
-					return;
-				}
-				v.forEach( ( p, i ): asserts p is IRootPageNode => miscUtils.catchWrap(
-					() => checkRootPage( plugin, p, [] ),
-					wrapPageError( [], i ) ) );
-				const rootFlags = groupBy( v, p => !!p.moduleRoot );
-				assert.equal( Object.keys( rootFlags ).length, 1, 'Every root pages should set `moduleRoot` to true, or none' );
-				if( rootFlags.true ) {
-					assert.equal( uniq( v.map( p => p.name ) ).length, v.length, 'Every root pages should have a different name' );
-				}
-			}
-		},
+		validate: validatePages( plugin, nodeLoader ),
 	}, v => {
 		v = v ?? [];
 		return v as any;
@@ -83,11 +52,6 @@ export const buildOptions = ( plugin: PagesPlugin ) => OptionGroup.factory<IPlug
 		type: ParameterType.String,
 		defaultValue: 'pages',
 	}, v => plugin.relativeToRoot( v ) )
-	.add( 'source', {
-		help: 'Root directory where all page source files live.',
-		type: ParameterType.String,
-		defaultValue: 'pages',
-	} )
 	.add( 'logLevel', {
 		help: 'The plugin log level.',
 		type: ParameterType.Map,
@@ -99,4 +63,13 @@ export const buildOptions = ( plugin: PagesPlugin ) => OptionGroup.factory<IPlug
 		type: ParameterType.Array,
 		validate: patterns => patterns?.forEach( p => assert.match( p, /^\{@.*\}$/, `Pattern ${JSON.stringify( p )} should match "{@...}"` ) ),
 	}, v => v ?? [] )
+	.add( 'linkModuleBase', {
+		help: 'The container in packages to search for pages in "{@link ...}" tags.',
+		type: ParameterType.String,
+	}, v => v || null )
+	.add( 'diagnostics', {
+		help: 'The directory name where to output diagnostics data.',
+		type: ParameterType.String,
+		defaultValue: undefined,
+	} )
 	.build();

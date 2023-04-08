@@ -1,6 +1,6 @@
 /**
- * See also {@page ~~:root-doc.md the root doc page}.
- * This should point to {@page ~:readme-extras.md the README}
+ * See also {@page ~~:root-doc the root doc page}.
+ * This should point to {@page ~ the README}
  *
  * {@link pkg-b.stubB}
  */

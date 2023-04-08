@@ -195,7 +195,7 @@ export class DefaultPagesRenderer implements IPagesPluginThemeMethods, IPluginCo
 					...( pageEvent.model.readme?.concat( [ { kind: 'text', text: '\n\n---\n\n' } ] ) ?? [] ),
 					...( modulePage.comment?.summary ?
 						[
-							{ kind: 'text', text: `\n\n<!-- Page ${modulePage.namedPath} -->\n\n` } as CommentDisplayPart,
+							{ kind: 'text', text: `\n\n<!-- Page "${modulePage.namedPath}" from "${this.plugin.relativeToRoot( modulePage.sourceFilePath )}"-->\n\n` } as CommentDisplayPart,
 							...modulePage.comment.summary,
 						] :
 						[] ),

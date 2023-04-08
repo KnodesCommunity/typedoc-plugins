@@ -13,16 +13,17 @@
 [![Code Climate coverage](https://img.shields.io/codeclimate/coverage-letter/KnodesCommunity/typedoc-plugins?style=for-the-badge)](https://codeclimate.com/github/KnodesCommunity/typedoc-plugins)
 [![Code Climate maintainability](https://img.shields.io/codeclimate/maintainability/KnodesCommunity/typedoc-plugins?style=for-the-badge)](https://codeclimate.com/github/KnodesCommunity/typedoc-plugins)
 
-For more infos, please refer to [the documentation](https://knodescommunity.github.io/typedoc-plugins/modules/_knodes_typedoc_plugin_pages.html)
+For more infos, please refer to [the documentation](https://knodescommunity.github.io/typedoc-plugins/v0.23.5-next.1/modules/_knodes_typedoc_plugin_pages.html)
 <!-- HEADER end -->
 
 ## Features
 
 - 🔍 Search integration
 - 🔗 Interpage hyperlinks
-- 🎨 Compatible with the default theme
+- 🎨 Compatible with default & custom themes
 - 📁 Monorepo support
 - 🎯 Locate invalid markups
+- 🔅 [Glob](https://www.npmjs.com/package/glob) support
 
 ## Usage
 
@@ -43,7 +44,7 @@ For more infos, please refer to [the documentation](https://knodescommunity.gith
    }
    ```
 
-   See [the *pages* tree guide](https://knodescommunity.github.io/typedoc-plugins/_knodes_typedoc_plugin_pages/pages/pages-tree.html), or [the *options* documentation page](https://knodescommunity.github.io/typedoc-plugins/_knodes_typedoc_plugin_pages/pages/options.html) for more infos.
+   See [the *pages* tree guide](https://knodescommunity.github.io/typedoc-plugins/_knodes_typedoc_plugin_pages/pages/pages-tree/index.html), or [the *options* documentation page](https://knodescommunity.github.io/typedoc-plugins/_knodes_typedoc_plugin_pages/pages/options.html) for more infos.
 3. In any markdown content (in README, pages, or doc comments), use the `{@page ...}` tag to create a link to a page.
 
 Syntax:

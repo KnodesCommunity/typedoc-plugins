@@ -13,7 +13,7 @@
 [![Code Climate coverage](https://img.shields.io/codeclimate/coverage-letter/KnodesCommunity/typedoc-plugins?style=for-the-badge)](https://codeclimate.com/github/KnodesCommunity/typedoc-plugins)
 [![Code Climate maintainability](https://img.shields.io/codeclimate/maintainability/KnodesCommunity/typedoc-plugins?style=for-the-badge)](https://codeclimate.com/github/KnodesCommunity/typedoc-plugins)
 
-For more infos, please refer to [the documentation](https://knodescommunity.github.io/typedoc-plugins/modules/_knodes_typedoc_plugintestbed.html)
+For more infos, please refer to [the documentation](https://knodescommunity.github.io/typedoc-plugins/v0.23.5-next.1/modules/_knodes_typedoc_plugintestbed.html)
 <!-- HEADER end -->
 
 > Please note that this package is monorepo only; it is not published on NPM.

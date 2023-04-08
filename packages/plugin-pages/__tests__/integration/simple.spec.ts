@@ -6,11 +6,11 @@ import { resolve } from '@knodes/typedoc-pluginutils/path';
 import { describeDocsFile, formatHtml, getBreadcrumb, runPluginBeforeAll } from '#plugintestbed';
 
 import { name as packageName } from '../../package.json';
-import { elementMatcher, menuItemMatcher } from '../helpers';
+import { elementMatcher, menuItemMatcher, mockFs, pluginPath } from '../helpers';
 
-const rootDir = resolve( __dirname, '../mock-fs/simple' );
+const rootDir = mockFs( 'simple' );
 process.chdir( rootDir );
-runPluginBeforeAll( rootDir, resolve( __dirname, '../../src/index' ) );
+runPluginBeforeAll( rootDir, pluginPath );
 describe( 'Pages', () => {
 	describe( 'pages/getting-started/index.html', describeDocsFile( rootDir, 'pages/getting-started/index.html', withContent => {
 		it( 'should have correct content', withContent( ( _content, dom ) => {
@@ -23,9 +23,10 @@ describe( 'Pages', () => {
 			expect( primaryNavItems ).toEqual( [
 				menuItemMatcher( 'Getting started', true, 'index.html' ),
 				menuItemMatcher( 'Configuration', false, 'configuration.html' ),
-				menuItemMatcher( 'Another page', false, 'other.html' ),
+				menuItemMatcher( 'Another page', false, 'another-page.html' ),
 				menuItemMatcher( 'Additional resources', false, null ),
 				menuItemMatcher( 'Some cool docs', false, '../additional-resources/some-cool-docs.html' ),
+				menuItemMatcher( 'Test page front matter', false, '../test-page-front-matter.html' ),
 			] );
 		} ) );
 		it( 'should have correct secondary navigation', withContent( ( _content, dom ) => {
@@ -55,9 +56,10 @@ describe( 'Pages', () => {
 			expect( primaryNavItems ).toEqual( [
 				menuItemMatcher( 'Getting started', true, 'index.html' ),
 				menuItemMatcher( 'Configuration', true, 'configuration.html' ),
-				menuItemMatcher( 'Another page', false, 'other.html' ),
+				menuItemMatcher( 'Another page', false, 'another-page.html' ),
 				menuItemMatcher( 'Additional resources', false, null ),
 				menuItemMatcher( 'Some cool docs', false, '../additional-resources/some-cool-docs.html' ),
+				menuItemMatcher( 'Test page front matter', false, '../test-page-front-matter.html' ),
 			] );
 		} ) );
 		it( 'should have correct secondary navigation', withContent( ( _content, dom ) => {
@@ -88,9 +90,10 @@ describe( 'Pages', () => {
 			expect( primaryNavItems ).toEqual( [
 				menuItemMatcher( 'Getting started', false, '../getting-started/index.html' ),
 				menuItemMatcher( 'Configuration', false, '../getting-started/configuration.html' ),
-				menuItemMatcher( 'Another page', false, '../getting-started/other.html' ),
+				menuItemMatcher( 'Another page', false, '../getting-started/another-page.html' ),
 				menuItemMatcher( 'Additional resources', true, null ),
 				menuItemMatcher( 'Some cool docs', true, 'some-cool-docs.html' ),
+				menuItemMatcher( 'Test page front matter', false, '../test-page-front-matter.html' ),
 			] );
 		} ) );
 		it( 'should have correct secondary navigation', withContent( ( _content, dom ) => {
@@ -114,20 +117,24 @@ describe( 'Pages', () => {
 describe( 'Documentation', () => {
 	describe( 'classes/Test.html', describeDocsFile( rootDir, 'classes/Test.html', withContent => {
 		it( 'should have correct content', withContent( ( _content, dom ) => {
-			const link = dom.window.document.querySelector( '.tsd-comment a' );
-			expect( link ).toBeTruthy();
-			expect( link ).toHaveTextContent( /^Configuration$/ );
-			expect( link ).toHaveAttribute( 'href', '../pages/getting-started/configuration.html' );
-			expect( link?.parentElement ).toHaveTextContent( 'See the Configuration page for infos.' );
+			const links = dom.window.document.querySelectorAll( '.tsd-comment a' );
+			expect( links ).toHaveLength( 2 );
+			expect( links[0] ).toHaveTextContent( /^Configuration$/ );
+			expect( links[0] ).toHaveAttribute( 'href', '../pages/getting-started/configuration.html' );
+			expect( links[0]?.parentElement ).toHaveTextContent( 'See the Configuration page for infos.' );
+			expect( links[1] ).toHaveTextContent( /^Test page front matter$/ );
+			expect( links[1] ).toHaveAttribute( 'href', '../pages/test-page-front-matter.html' );
+			expect( links[1]?.parentElement ).toHaveTextContent( 'Checkout also the Test page front matter page.' );
 		} ) );
 		it( 'should have correct primary navigation', withContent( ( _content, dom ) => {
 			const primaryNavItems = Array.from( dom.window.document.querySelectorAll( '.tsd-navigation.primary li.pages-entry' ) );
 			expect( primaryNavItems ).toEqual( [
 				menuItemMatcher( 'Getting started', false, '../pages/getting-started/index.html' ),
 				menuItemMatcher( 'Configuration', false, '../pages/getting-started/configuration.html' ),
-				menuItemMatcher( 'Another page', false, '../pages/getting-started/other.html' ),
+				menuItemMatcher( 'Another page', false, '../pages/getting-started/another-page.html' ),
 				menuItemMatcher( 'Additional resources', false, null ),
 				menuItemMatcher( 'Some cool docs', false, '../pages/additional-resources/some-cool-docs.html' ),
+				menuItemMatcher( 'Test page front matter', false, '../pages/test-page-front-matter.html' ),
 			] );
 		} ) );
 		it( 'should have constant content', withContent( ( content, _dom ) => {
@@ -150,6 +157,7 @@ describe( 'Search index', () => {
 			{ name: 'Getting started' },
 			{ name: 'Getting started > Configuration' },
 			{ name: 'Additional resources > Some cool docs' },
+			{ name: 'Test page front matter' },
 		] );
 	} );
 } );
