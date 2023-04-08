@@ -1,10 +1,11 @@
-const { resolve } = require( 'path' );
+import { readFile } from 'fs/promises';
+import { resolve } from 'path';
 
-const { SemVer } = require( 'semver' );
+import { SemVer } from 'semver';
 
-const { syncFile } = require( './utils/diff' );
-const { formatPackage } = require( './utils/package-json' );
-const { resolveRoot } = require( '../utils' );
+import { syncFile } from './utils/diff.mjs';
+import { formatPackage } from './utils/package-json.mjs';
+import { resolveRoot } from '../utils.js';
 
 /**
  * @param {boolean} checkOnly
@@ -27,15 +28,15 @@ const syncPkgTypedocVersion = ( checkOnly, version ) => async ( pkg, path ) => {
 
 /**
  * @param {boolean} checkOnly
- * @returns {import('./utils').ProtoHandler<ReturnType<typeof syncPkgTypedocVersion>>}
+ * @returns {import('./utils/index.mjs').ProtoHandler<ReturnType<typeof syncPkgTypedocVersion>>}
  */
-module.exports.typedocSubmodule = async checkOnly => ( {
+export const typedocSubmodule = async checkOnly => ( {
 	setup: async proto => {
-		const submoduleDir = resolveRoot( 'typedoc' );
-		const submoduleVersion = require( resolve( submoduleDir, 'package.json' ) ).version;
+		const submodulePkgPath = resolveRoot( 'typedoc', 'package.json' );
+		const submoduleVersion = JSON.parse( await readFile( submodulePkgPath, 'utf-8' ) ).version;
 		const doSync = syncPkgTypedocVersion( checkOnly, new SemVer( submoduleVersion ) );
 		const protoPkgPath = resolve( proto, 'package.json' );
-		const protoPkgJson = require( protoPkgPath );
+		const protoPkgJson = JSON.parse( await readFile( protoPkgPath, 'utf-8' ) );
 		await doSync( protoPkgJson, protoPkgPath );
 		return doSync;
 	},

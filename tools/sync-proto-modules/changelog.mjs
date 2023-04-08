@@ -1,10 +1,11 @@
-const { readFile, writeFile } = require( 'fs/promises' );
-const { resolve } = require( 'path' );
+import { readFile, writeFile } from 'fs/promises';
+import { resolve } from 'path';
+import { fileURLToPath } from 'url';
 
-const { isString, escapeRegExp } = require( 'lodash' );
+import _ from 'lodash';
 
-const { syncFile, tryReadFile } = require( './utils' );
-const { resolveRoot, spawn, captureStream } = require( '../utils' );
+import { syncFile, tryReadFile } from './utils/index.mjs';
+import { captureStream, resolveRoot, spawn } from '../utils.js';
 
 const getOldestVersion = async pkgName => {
 	try {
@@ -12,7 +13,7 @@ const getOldestVersion = async pkgName => {
 		const versions = JSON.parse( out.stdout );
 		return versions[0];
 	} catch( e ){
-		if( e.code === 1 && e.stderr.match( new RegExp( `404\\s+'${escapeRegExp( pkgName )}@latest' is not in this registry.` ) ) ){
+		if( e.code === 1 && e.stderr.match( new RegExp( `404\\s+'${_.escapeRegExp( pkgName )}@latest' is not in this registry.` ) ) ){
 			return null;
 		}
 		throw e;
@@ -48,19 +49,24 @@ class Changelog {
 		this.checkOnly = checkOnly;
 	}
 
-	async setup( _, projects ){
+	async setup( _proto, projects ){
 		return {
-			changelog: ( await readFile( resolve( __dirname, '../../CHANGELOG.md' ), 'utf-8' ) ).split( '\n' ),
+			changelog: ( await readFile(
+				resolve(
+					fileURLToPath( new URL( '.', import.meta.url ) ),
+					'../../CHANGELOG.md' ),
+				'utf-8' )
+			).split( '\n' ),
 			oldestVersionCache: await this._getVersionsCache( projects ),
 		};
 	}
 
-	async run( _, project, projects, ___, { changelog: fullChangelogStrs, oldestVersionCache } ){
+	async run( _proto, project, projects, _handlers, { changelog: fullChangelogStr, oldestVersionCache } ){
 		const { pkgName, pkgJson, id, path } = project;
 		const packagesIds = projects.map( p => ( { isDep: p.pkgName in ( pkgJson.dependencies ?? {} ), ...p } ) );
-		const pkgChangelogFull = fullChangelogStrs
+		const pkgChangelogFull = fullChangelogStr
 			.map( reformatChangelogLines( id, packagesIds ) )
-			.filter( isString )
+			.filter( _.isString )
 			.join( '\n' )
 			.replace( /^### .*(\n*)^(?=##)/gm, '' )
 			.replace( /^(## .*)(\n*)^(?=## )/gm, '$1\n\n\nNo notable changes were done in this version.\n\n\n' )
@@ -68,21 +74,25 @@ class Changelog {
 		const firstVersion = oldestVersionCache[pkgName];
 		const pkgChangelogFromFirstVersion = firstVersion ?
 			pkgChangelogFull.replace(
-				new RegExp( `(\n## .*\\W?${escapeRegExp( firstVersion )}\\W.*)\n((?:.|\n)*?\n)(## (.|\n)*)$` ),
+				new RegExp( `(\n## .*\\W?${_.escapeRegExp( firstVersion )}\\W.*)\n((?:.|\n)*?\n)(## (.|\n)*)$` ),
 				'$1\n\n\n**First release**\n$2' ) :
 			pkgChangelogFull;
 		const changelogPath = resolveRoot( path, 'CHANGELOG.md' );
 		await syncFile( this.checkOnly, changelogPath, `${pkgChangelogFromFirstVersion.trim()  }\n` );
 	}
 
-	tearDown( _, __, ___, { oldestVersionCache } ){
-		return writeFile( resolve( __dirname, '.changelog-cache.json' ), JSON.stringify( oldestVersionCache, null, 4 ), 'utf-8' );
+	tearDown( _proto, _projects, _handlers, { oldestVersionCache } ){
+		return writeFile(
+			resolve(
+				fileURLToPath( new URL( '.', import.meta.url ) ),
+				'.changelog-cache.json' ),
+			JSON.stringify( oldestVersionCache, null, 4 ), 'utf-8' );
 	}
 
 	async _getVersionsCache( projects ) {
 		const prevVersionsCache = Object.assign(
 			Object.fromEntries( projects.filter( p => p.pkgJson.private ).map( p => [ p.pkgName, '0.0.0' ] ) ),
-			JSON.parse( await tryReadFile( resolve( __dirname, '.changelog-cache.json' ) ) ?? '{}' ) );
+			JSON.parse( await tryReadFile( resolve( fileURLToPath( new URL( '.', import.meta.url ) ), '.changelog-cache.json' ) ) ?? '{}' ) );
 		await Promise.all( projects.map( async ( { pkgJson, pkgName } ) => {
 			if( pkgJson.changelogStartsAt ){
 				prevVersionsCache[pkgName] = pkgJson.changelogStartsAt;
@@ -100,6 +110,6 @@ class Changelog {
 
 /**
  * @param {boolean} checkOnly
- * @returns {import('./utils').ProtoHandler<{changelog: string[], oldestVersionCache: Record<string, string|undefined>>}
+ * @returns {import('./utils/index.mjs').ProtoHandler<{changelog: string[], oldestVersionCache: Record<string, string|undefined>>}
  */
-module.exports.changelog = async checkOnly => new Changelog( checkOnly );
+export const changelog = async checkOnly => new Changelog( checkOnly );

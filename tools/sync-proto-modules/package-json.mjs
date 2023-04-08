@@ -1,31 +1,31 @@
-const { readFile } = require( 'fs/promises' );
-const { resolve } = require( 'path' );
+import { readFile } from 'fs/promises';
+import { resolve } from 'path';
 
-const { memoize, cloneDeep, defaultsDeep, uniq } = require( 'lodash' );
-const semver = require( 'semver' );
+import _ from 'lodash';
+import { minVersion, satisfies } from 'semver';
 
-const { syncFile, formatPackage, getDocsUrl } = require( './utils' );
-const { resolveRoot } = require( '../utils' );
+import { formatPackage, getDocsUrl, syncFile } from './utils/index.mjs';
+import { resolveRoot } from '../utils.js';
 
 /**
  * @param {boolean} checkOnly
- * @returns {import('./utils').ProtoHandler<{getProtoPkg: (v: string) => Promise<string>, rootJson: any, rootJsonStr: string, rootPath: string}}
+ * @returns {import('./utils/index.mjs').ProtoHandler<{getProtoPkg: (v: string) => Promise<string>, rootJson: any, rootJsonStr: string, rootPath: string}}
  */
-module.exports.packageJson = async checkOnly => ( {
+export const packageJson = async checkOnly => ( {
 	setup: async () => {
-		const getProtoPkg = memoize( proto => readFile( resolve( proto, 'package.json' ), 'utf-8' ) );
+		const getProtoPkg = _.memoize( proto => readFile( resolve( proto, 'package.json' ), 'utf-8' ) );
 		const rootPath = resolveRoot( 'package.json' );
 		const rootJsonStr = await readFile( rootPath, 'utf-8' );
 		const rootJson = JSON.parse( rootJsonStr );
 		return { getProtoPkg, rootJson, rootJsonStr, rootPath };
 	},
-	run: async ( proto, { path: projectPath, pkgJsonPath, pkgJson }, projects, _, { getProtoPkg, rootJson: rootPackageJson } ) => {
+	run: async ( proto, { path: projectPath, pkgJsonPath, pkgJson }, projects, _handlers, { getProtoPkg, rootJson: rootPackageJson } ) => {
 		const protoPkgContent = await getProtoPkg( proto );
 		const protoPkg = JSON.parse( protoPkgContent
 			.replace( /\{projectRelDir\}/g, projectPath )
 			.replace( /\{projectTypeDocUrl\}/g, getDocsUrl( pkgJson ) ) );
-		const newProjectPkg = defaultsDeep( cloneDeep( protoPkg ), pkgJson );
-		[ 'keywords', 'files' ].forEach( prop => newProjectPkg[prop] = uniq( [
+		const newProjectPkg = _.defaultsDeep( _.cloneDeep( protoPkg ), pkgJson );
+		[ 'keywords', 'files' ].forEach( prop => newProjectPkg[prop] = _.uniq( [
 			...( protoPkg[prop] ?? [] ),
 			...( pkgJson[prop] ?? [] ),
 		]
@@ -43,7 +43,7 @@ module.exports.packageJson = async checkOnly => ( {
 						if( projects.some( p => p.pkgName === depName ) ){
 							return false;
 						}
-						if( k === 'peerDependencies' && semver.satisfies( semver.minVersion( rootPkgDeps[depName] ), depV ) ){
+						if( k === 'peerDependencies' && satisfies( minVersion( rootPkgDeps[depName] ), depV ) ){
 							return false;
 						}
 						if( depName in rootPkgDeps && rootPkgDeps[depName] !== depV ){
@@ -57,7 +57,7 @@ module.exports.packageJson = async checkOnly => ( {
 				};
 			} );
 	},
-	tearDown: async( proto, projects, _, { rootJson, rootPath } ) => {
+	tearDown: async( proto, projects, _handlers, { rootJson, rootPath } ) => {
 		rootJson['devDependencies'] = {
 			...rootJson['devDependencies'],
 			...Object.fromEntries( projects.map( p => [ p.pkgName, `file:${p.path}` ] ) ),

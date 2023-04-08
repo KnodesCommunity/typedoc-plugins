@@ -1,7 +1,7 @@
-const { yellow } = require( 'chalk' );
-const { glob } = require( 'glob' );
+import chalk from 'chalk';
+import { glob } from 'glob';
 
-const { tryReadFile, getDocsUrl, syncFile } = require( './utils' );
+import { getDocsUrl, syncFile, tryReadFile } from './utils/index.mjs';
 
 class Readme {
 	constructor( checkOnly ){
@@ -55,7 +55,7 @@ ${newHeader}
 `;
 		const headerRegex = /^<!-- HEADER -->(.*)<!-- HEADER end -->(\r?\n|$)/sm;
 		if( !headerRegex.test( readmeContent ) ){
-			console.log( yellow( `Header not found in ${readmeContent}` ) );
+			console.log( chalk.yellow( `Header not found in ${readmeContent}` ) );
 		}
 		return newHeader + readmeContent.replace( headerRegex, '' );
 	}
@@ -83,11 +83,11 @@ This plugin version should match TypeDoc \`${typedocVer}\` for compatibility.
 `;
 		const installRegex = /^<!-- INSTALL -->(.*)<!-- INSTALL end -->(\r?\n|$)/sm;
 		if( !installRegex.test( readmeContent ) ){
-			console.log( yellow( `Install not found in ${readmeContent}` ) );
+			console.log( chalk.yellow( `Install not found in ${readmeContent}` ) );
 			return `${readmeContent  }\n\n${newInstall}`;
 		}
 		return readmeContent.replace( installRegex, newInstall );
 	}
 }
 
-module.exports.readme = checkOnly => new Readme( checkOnly );
+export const readme = checkOnly => new Readme( checkOnly );

@@ -1,24 +1,25 @@
-const { readFile } = require( 'fs/promises' );
+import { readFile } from 'fs/promises';
 
-const { glob } = require( 'glob' );
-const { minVersion } = require( 'semver' );
+import { glob } from 'glob';
+import { minVersion } from 'semver';
 
-const { syncFile, postProcessYaml } = require( './utils' );
-const { resolveRoot } = require( '../utils' );
+import { postProcessYaml, syncFile } from './utils/index.mjs';
+import { resolveRoot } from '../utils.js';
+
 const DIR = resolveRoot( './.github/ISSUE_TEMPLATE' );
 
 /**
  * @param {boolean} checkOnly
- * @returns {import('./utils').ProtoHandler}
+ * @returns {import('./utils/index.mjs').ProtoHandler}
  */
-module.exports.issueTemplate = async checkOnly => ( {
+export const issueTemplate = async checkOnly => ( {
 	tearDown: async ( _, projects ) => {
 		await Promise.all( ( await glob( '*.yaml', { cwd: DIR } ) ).map( async f => {
 			const path = resolveRoot( DIR, f );
 			const yaml = await readFile( path, 'utf-8' );
 			const yamlFormatted = postProcessYaml( yaml, {
 				plugins: projects.filter( p => !p.pkgJson.private ).map( p => p.pkgName ),
-				typedocVersion: minVersion( require( resolveRoot( 'package.json' ) ).devDependencies.typedoc ),
+				typedocVersion: minVersion( JSON.parse( await readFile( resolveRoot( 'package.json' ), 'utf-8' ) ).devDependencies.typedoc ),
 			} );
 			await syncFile( checkOnly, path, yamlFormatted );
 		} ) );

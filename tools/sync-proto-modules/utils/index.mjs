@@ -1,8 +1,8 @@
-const assert = require( 'assert' );
+import { fail } from 'assert';
 
-const { readFile } = require( 'fs/promises' );
+import { readFile } from 'fs/promises';
 
-const SemVer = require( 'semver' );
+import { parse } from 'semver';
 
 /**
  * @typedef {import('../../utils').Project} Project
@@ -19,7 +19,7 @@ const SemVer = require( 'semver' );
 /**
  * @param {string} file
  */
-module.exports.tryReadFile = async file => {
+export const tryReadFile = async file => {
 	try{
 		return await readFile( file, 'utf-8' );
 	} catch( e ){
@@ -28,16 +28,13 @@ module.exports.tryReadFile = async file => {
 };
 
 const BASE_DOCS_URL = 'https://knodescommunity.github.io/typedoc-plugins';
-module.exports.getDocsUrl = pkgJson => {
-	const docsUrl = SemVer.parse( pkgJson.version ).prerelease.length === 0 ?
+export const getDocsUrl = pkgJson => {
+	const docsUrl = parse( pkgJson.version ).prerelease.length === 0 ?
 		BASE_DOCS_URL :
 		`${BASE_DOCS_URL}/v${pkgJson.version}`;
-	return `${docsUrl}/modules/${( pkgJson.name ?? assert.fail( 'No name' ) ).replace( /[^a-z0-9]/gi, '_' )}.html`;
+	return `${docsUrl}/modules/${( pkgJson.name ?? fail( 'No name' ) ).replace( /[^a-z0-9]/gi, '_' )}.html`;
 };
 
-module.exports = {
-	...module.exports,
-	...require( './yaml' ),
-	...require( './diff' ),
-	...require( './package-json' ),
-};
+export * from  './yaml.mjs';
+export * from  './diff.mjs';
+export * from  './package-json.mjs';

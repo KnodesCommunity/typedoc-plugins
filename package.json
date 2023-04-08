@@ -49,7 +49,7 @@
     "tools:bump-versions": "node tools/bump-versions",
     "tools:infer-next-version": "node tools/infer-next-version",
     "tools:patch": "node ./tools/typedoc-patcher --no-stash",
-    "tools:sync-proto": "node tools/sync-proto"
+    "tools:sync-proto": "node tools/sync-proto.mjs"
   },
   "commitlint": {
     "extends": [

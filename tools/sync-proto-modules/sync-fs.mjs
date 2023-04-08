@@ -1,21 +1,21 @@
-const assert = require( 'assert' );
-const { createHash } = require( 'crypto' );
-const { readFile, mkdir, access, copyFile, unlink } = require( 'fs/promises' );
+import assert, { equal, fail } from 'assert';
+import { createHash } from 'crypto';
+import { access, copyFile, mkdir, readFile, unlink } from 'fs/promises';
+import { join, resolve } from 'path';
+import { fileURLToPath } from 'url';
 
-const { resolve, join } = require( 'path' );
+import chalk from 'chalk';
+import { glob } from 'glob';
+import _ from 'lodash';
 
-const { bold } = require( 'chalk' );
-const { glob } = require( 'glob' );
-const { memoize, partition, isString } = require( 'lodash' );
-
-const { syncFile, tryReadFile } = require( './utils' );
+import { syncFile, tryReadFile } from './utils/index.mjs';
 
 const checksum = async file => createHash( 'md5' )
 	.update( ( await readFile( file, 'utf-8' ) ).replace( /\r?\n/g, '\n' ), 'utf-8' )
 	.digest( 'hex' );
 
-const cacheFile = resolve( __dirname, '../.sync-proto-cache' );
-const readCache = memoize( async () => {
+const cacheFile = resolve( fileURLToPath( new URL( '.', import.meta.url ) ), '../.sync-proto-cache' );
+const readCache = _.memoize( async () => {
 	try {
 		const cacheContent = ( await tryReadFile( cacheFile, 'utf-8' ) ) ?? '';
 		return cacheContent
@@ -36,14 +36,14 @@ const readCache = memoize( async () => {
 	}
 } );
 
-const protoFs = memoize( async ( proto, handlers ) => {
+const protoFs = _.memoize( async ( proto, handlers ) => {
 	const filesDirs = ( await glob( '**', { cwd: proto, ignore: [ '**/node_modules/**' ], mark: true, dot: true } ) )
 		.filter( fd => !( handlers.some( h => h.handleFile?.( fd ) ?? false ) ) );
-	const [ dirs, files ] = partition( filesDirs, p => p.endsWith( '/' ) );
+	const [ dirs, files ] = _.partition( filesDirs, p => p.endsWith( '/' ) );
 	return { dirs, files };
 } );
 
-const getChangedFiles = memoize( async ( proto, handlers ) => {
+const getChangedFiles = _.memoize( async ( proto, handlers ) => {
 	const [ cacheContent, { files } ] = await Promise.all( [
 		readCache(),
 		protoFs( proto, handlers ),
@@ -65,9 +65,9 @@ const getChangedFiles = memoize( async ( proto, handlers ) => {
 
 /**
  * @param {boolean} checkOnly
- * @returns {import('./utils').ProtoHandler}
+ * @returns {import('./utils/index.mjs').ProtoHandler}
  */
-module.exports.syncFs = checkOnly => {
+export const syncFs = checkOnly => {
 	const conflicting = [];
 	return {
 		name: 'syncFs',
@@ -80,7 +80,7 @@ module.exports.syncFs = checkOnly => {
 				const changedFiles = await getChangedFiles( proto, handlers );
 				if( checkOnly ){
 					const changedFilesNames = Object.keys( changedFiles );
-					assert.equal( changedFilesNames.length, 0, `Some files has changed compared to prototype. ${changedFilesNames.join( ' ' )}` );
+					equal( changedFilesNames.length, 0, `Some files has changed compared to prototype. ${changedFilesNames.join( ' ' )}` );
 				} else {
 					await Promise.all( Object.entries( changedFiles ).map( async ( [ file, protoSum ] ) => {
 						const source = resolve( proto, file );
@@ -116,7 +116,7 @@ module.exports.syncFs = checkOnly => {
 						await access( absFile );
 					} catch( e ){
 						if( checkOnly ){
-							assert.fail( `Missing ${absFile}` );
+							fail( `Missing ${absFile}` );
 						}
 						await copyFile( resolve( proto, file ), absFile );
 					}
@@ -130,7 +130,7 @@ module.exports.syncFs = checkOnly => {
 				return;
 			}
 			conflicting.forEach( c => {
-				console.error( `File ${bold( c )} has been changed compared to prototype. Please review git changes.` );
+				console.error( `File ${chalk.bold( c )} has been changed compared to prototype. Please review git changes.` );
 			} );
 			const [ cache, changed ] = await Promise.all( [
 				readCache(),
@@ -141,7 +141,7 @@ module.exports.syncFs = checkOnly => {
 				...changed,
 			};
 			await syncFile( checkOnly, cacheFile, Object.entries( newCache )
-				.filter( ( [ , v ] ) => isString( v ) )
+				.filter( ( [ , v ] ) => _.isString( v ) )
 				.map( entry => entry.join( ' :: ' ) )
 				.join( '\n' ) );
 		},

@@ -1,13 +1,13 @@
-const { readFile } = require( 'fs/promises' );
+import { readFile } from 'fs/promises';
 
-const { syncFile, postProcessYaml } = require( './utils' );
-const { resolveRoot } = require( '../utils' );
+import { postProcessYaml, syncFile } from './utils/index.mjs';
+import { resolveRoot } from '../utils.js';
 
 /**
  * @param {boolean} checkOnly
- * @returns {import('./utils').ProtoHandler}
+ * @returns {import('./utils/index.mjs').ProtoHandler}
  */
-module.exports.circleCi = async checkOnly => ( {
+export const circleCi = async checkOnly => ( {
 	tearDown: async() => {
 		const circleCiPath = resolveRoot( '.circleci/config.yml' );
 		const currentCircleCi = await readFile( circleCiPath, 'utf-8' );
