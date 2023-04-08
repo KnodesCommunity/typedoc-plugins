@@ -1,7 +1,7 @@
 const { yellow } = require( 'chalk' );
 const { glob } = require( 'glob' );
 
-const { tryReadFile, getDocsUrl, readProjectPackageJson, syncFile } = require( './utils' );
+const { tryReadFile, getDocsUrl, syncFile } = require( './utils' );
 
 class Readme {
 	constructor( checkOnly ){
@@ -9,20 +9,16 @@ class Readme {
 		this.checkOnly = checkOnly;
 	}
 
-	async run( _proto, { path: projectPath } ){
+	async run( _proto, { path: projectPath, pkgJson } ){
 		const readmeFiles = await glob( `${projectPath}/@(readme|README).@(md|MD)` );
 		if( readmeFiles.length > 1 ){
 			throw new Error( 'Multiple README files' );
 		}
 		const readmeFile = readmeFiles[0] ?? `${projectPath}/README.md`;
 		const readmeContent = ( await tryReadFile( readmeFile, 'utf-8' ) ) ?? '';
-		const { packageContent } = await readProjectPackageJson( projectPath );
-		if( !packageContent ){
-			throw new Error();
-		}
 		const result = ( await [ this._replaceHeader, this._replaceInstall ].reduce( async ( content, fn ) => {
 			const c = await content;
-			return fn( c, packageContent );
+			return fn( c, pkgJson );
 		}, Promise.resolve( readmeContent ) ) ).replace( /\r\n/g, '\n' );
 		await syncFile( this.checkOnly, readmeFile, result );
 	}

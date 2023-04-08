@@ -6,7 +6,7 @@ const { parseDocument: parseYamlDocument, visit, stringify: stringifyYaml, YAMLS
 const resolveRefFactory = ( anchorsMap, vars ) => ( ref, src ) => {
 	if( ref.startsWith( '*' ) ){
 		const node = anchorsMap[ref.slice( 1 )]?.clone() ??
-            assert.fail( `Missing alias "${ref}" in expression "${JSON.stringify( src )}"` );
+			assert.fail( `Missing alias "${ref}" in expression "${JSON.stringify( src )}"` );
 		node.anchor = undefined;
 		return {
 			'': () => stringifyYaml( node ).trim(),
@@ -18,7 +18,7 @@ const resolveRefFactory = ( anchorsMap, vars ) => ( ref, src ) => {
 		};
 	} else {
 		const val = vars[ref] ??
-            assert.fail( `Missing variable "${ref}" in expression "${JSON.stringify( src )}"` );
+			assert.fail( `Missing variable "${ref}" in expression "${JSON.stringify( src )}"` );
 		return {
 			'': () => val,
 			'!': () => val.toString(),

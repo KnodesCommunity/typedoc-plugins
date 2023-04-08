@@ -12,7 +12,10 @@
     "email": "gerkin@knodes.org",
     "name": "GerkinDev"
   },
-  "keywords": ["typedoc","documentation"],
+  "keywords": [
+    "typedoc",
+    "documentation"
+  ],
   "main": "dist/index.js",
   "files": [
     "src",

@@ -75,7 +75,8 @@ module.exports.captureStream = captureStream;
  * 	path: string,
  * 	absPath: string,
  * 	pkgName: string,
- * 	pkgJon: any
+ * 	pkgJson: import('type-fest').PackageJson.PackageJsonStandard,
+ * 	pkgJsonPath: string
  * }} Project
  */
 /**
@@ -91,7 +92,8 @@ const getProjects = once( () => {
 	}
 	return packages
 		.map( ( p, i ) => {
-			const pkgJson = require( resolve( __dirname, '..', p, 'package.json' ) );
+			const pkgJsonPath = resolve( __dirname, '..', p, 'package.json' );
+			const pkgJson = require( pkgJsonPath );
 			return {
 				id: relative( './packages', p ),
 				path: p,
@@ -99,6 +101,7 @@ const getProjects = once( () => {
 				name: names[i],
 				pkgJson,
 				pkgName: pkgJson.name,
+				pkgJsonPath,
 			};
 		} );
 } );
@@ -192,3 +195,4 @@ module.exports.getStagedFiles = async ( ...filesList ) => {
 };
 
 module.exports.resolveRoot = ( ...paths ) => resolve( __dirname, '..', ...paths );
+module.exports.relativeToRoot = path => relative( resolve( __dirname, '..' ), path );

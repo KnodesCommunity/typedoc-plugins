@@ -9,6 +9,7 @@ const { packageJson } = require( './sync-proto-modules/package-json' );
 const { readme } = require( './sync-proto-modules/readme' );
 const { syncFs } = require( './sync-proto-modules/sync-fs' );
 const { typedocSubmodule } = require( './sync-proto-modules/typedoc-submodule' );
+const { summarizeErrors } = require( './sync-proto-modules/utils' );
 const { selectProjects, createStash } = require( './utils' );
 
 if( require.main === module ){
@@ -35,9 +36,9 @@ if( require.main === module ){
 			const initialValue = Promise.resolve( [] );
 			const handlers = await [
 				syncFs,
+				typedocSubmodule,
 				packageJson,
 				readme,
-				typedocSubmodule,
 				circleCi,
 				changelog,
 				issueTemplate,
@@ -55,6 +56,7 @@ if( require.main === module ){
 			for( const handler of handlers ){
 				await handler.tearDown?.( protoDir, projects, handlers, setups.get( handler ) );
 			}
+			summarizeErrors();
 		} catch( e ){
 			console.error( e );
 			process.exit( 1 );

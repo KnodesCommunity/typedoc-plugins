@@ -1,7 +1,6 @@
 const assert = require( 'assert' );
 
 const { readFile } = require( 'fs/promises' );
-const { resolve } = require( 'path' );
 
 const SemVer = require( 'semver' );
 
@@ -36,24 +35,9 @@ module.exports.getDocsUrl = pkgJson => {
 	return `${docsUrl}/modules/${( pkgJson.name ?? assert.fail( 'No name' ) ).replace( /[^a-z0-9]/gi, '_' )}.html`;
 };
 
-module.exports.readProjectPackageJson = async projectPath => {
-	const projectPkgPath = resolve( projectPath, 'package.json' );
-	const content = await module.exports.tryReadFile( projectPkgPath );
-	if( content ){
-		return {
-			packageContent: JSON.parse( content ),
-			path: projectPkgPath,
-		};
-	} else {
-		return {
-			packageContent: undefined,
-			path: projectPkgPath,
-		};
-	}
-};
-
 module.exports = {
 	...module.exports,
 	...require( './yaml' ),
 	...require( './diff' ),
+	...require( './package-json' ),
 };

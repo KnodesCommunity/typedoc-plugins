@@ -1,6 +1,6 @@
 const assert = require( 'assert' );
 const { createHash } = require( 'crypto' );
-const { readFile, mkdir, access, copyFile, unlink, writeFile } = require( 'fs/promises' );
+const { readFile, mkdir, access, copyFile, unlink } = require( 'fs/promises' );
 
 const { resolve, join } = require( 'path' );
 
@@ -8,7 +8,7 @@ const { bold } = require( 'chalk' );
 const { glob } = require( 'glob' );
 const { memoize, partition, isString } = require( 'lodash' );
 
-const { tryReadFile } = require( './utils' );
+const { syncFile, tryReadFile } = require( './utils' );
 
 const checksum = async file => createHash( 'md5' )
 	.update( ( await readFile( file, 'utf-8' ) ).replace( /\r?\n/g, '\n' ), 'utf-8' )
@@ -140,7 +140,7 @@ module.exports.syncFs = checkOnly => {
 				...cache,
 				...changed,
 			};
-			await writeFile( cacheFile, Object.entries( newCache )
+			await syncFile( checkOnly, cacheFile, Object.entries( newCache )
 				.filter( ( [ , v ] ) => isString( v ) )
 				.map( entry => entry.join( ' :: ' ) )
 				.join( '\n' ) );

@@ -1,8 +1,10 @@
 const { writeFile, readFile } = require( 'fs/promises' );
 
-const { bgRed, bgGreen, grey, bold } = require( 'chalk' );
+const { bgRed, bgGreen, grey, bold, bgGrey } = require( 'chalk' );
 const Diff = require( 'diff' );
 const { pad } = require( 'lodash' );
+
+const { relativeToRoot } = require( '../../utils' );
 
 const linesCount = str => ( str.match( /\n/g )?.length ?? 0 ) + 1;
 const formatNl = fn => ( str, newLine = true ) => fn( str === '' && newLine ? '↵' : str );
@@ -38,13 +40,16 @@ const getLinesDiff = ( { lines, color, printLine, sameLine, isAdd, totalLines0, 
 	return lines.join( '\n' );
 };
 
+const errors = [];
 module.exports.assertDiffFile = async ( filename, expectedContent, invert = false ) => {
 	const actualContent = await readFile( filename, 'utf-8' );
 
-	const diff = Diff.diffWords( expectedContent, actualContent );
+	const diff = Diff.diffLines( expectedContent, actualContent );
 	if( diff.length === 1 ){
 		return;
 	}
+
+	console.log( bgGrey( relativeToRoot( filename ) ) );
 
 	let line = 1;
 	let lineDelta = 0;
@@ -81,7 +86,13 @@ module.exports.assertDiffFile = async ( filename, expectedContent, invert = fals
 		}
 	} );
 	console.log();
-	throw new Error( `File ${filename} does not match the expected content` );
+	errors.push( new Error( `File ${filename} does not match the expected content` ) );
+};
+module.exports.summarizeErrors = () => {
+	if( errors.length ){
+		// eslint-disable-next-line no-undef -- Actually exists
+		throw new AggregateError( errors, 'Some files are incorrect' );
+	}
 };
 
 module.exports.syncFile = async ( checkOnly, filename, expectedContent ) => {
