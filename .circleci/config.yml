@@ -240,6 +240,9 @@ jobs:
           path: ./junit.xml
   test-tools:
     parameters:
+      strict-proto:
+        type: boolean
+        default: false
       os:
         type: string
       coverage:
@@ -260,7 +263,7 @@ jobs:
                 name: Run precommit with coverage
                 command: |
                   set -eo pipefail
-                  npx nyc --reporter json-summary --reporter json npm run precommit
+                  npx nyc --reporter json-summary --reporter json npm run precommit $(<<parameters.strict-proto>> || echo '--proto_opts=--loose')
                   echo $? > EXIT_CODE
             - knodes-typedoc-orb/coverage-arrange:
                 os: <<parameters.os>>
@@ -273,7 +276,7 @@ jobs:
                 bins: eslint jest tsc typedoc
             - run:
                 name: Run precommit
-                command: npm run precommit
+                command: npm run precommit $(<<parameters.strict-proto>> || echo '--proto_opts=--loose')
   build:
     parameters:
       store_artifacts:
@@ -650,6 +653,7 @@ workflows:
           name: test-tools-linux-coverage # !FORMAT name: test-tools-${!*test-matrix-os-default}-coverage
           os: *test-matrix-os-default
           coverage: true
+          strict-proto: true
           requires:
             - npm-install-linux # !FORMAT - npm-install-${!*test-matrix-os-default}
             - build
