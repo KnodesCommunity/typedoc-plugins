@@ -3,6 +3,8 @@ const assert = require( 'assert' );
 const { readFile } = require( 'fs/promises' );
 const { resolve } = require( 'path' );
 
+const SemVer = require( 'semver' );
+
 /**
  * @typedef {import('../../utils').Project} Project
  */
@@ -26,7 +28,13 @@ module.exports.tryReadFile = async file => {
 	}
 };
 
-module.exports.getDocsUrl = pkgJson => `https://knodescommunity.github.io/typedoc-plugins/modules/${( pkgJson.name ?? assert.fail( 'No name' ) ).replace( /[^a-z0-9]/gi, '_' )}.html`;
+const BASE_DOCS_URL = 'https://knodescommunity.github.io/typedoc-plugins';
+module.exports.getDocsUrl = pkgJson => {
+	const docsUrl = SemVer.parse( pkgJson.version ).prerelease.length === 0 ?
+		BASE_DOCS_URL :
+		`${BASE_DOCS_URL}/v${pkgJson.version}`;
+	return `${docsUrl}/modules/${( pkgJson.name ?? assert.fail( 'No name' ) ).replace( /[^a-z0-9]/gi, '_' )}.html`;
+};
 
 module.exports.readProjectPackageJson = async projectPath => {
 	const projectPkgPath = resolve( projectPath, 'package.json' );
