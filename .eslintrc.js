@@ -8,7 +8,7 @@ module.exports = {
 	env: { node: true },
 	overrides: packagesWithEslintrc
 		.map( p => {
-			const required = { ...require( p ) };
+			const required = { ...require( resolve( '.', p ) ) };
 			delete required.root;
 			return ( {
 				files: [ relative( process.cwd(), resolve( dirname( p ), '**/*' ) ) ],
