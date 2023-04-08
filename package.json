@@ -125,7 +125,7 @@
     "ts-jest": "^29.0.0",
     "type-fest": "^2.16.0",
     "typedoc": "^0.23.28",
-    "typescript": "^4.7.4",
+    "typescript": "^5.0.0",
     "unionfs": "^4.4.0",
     "yaml": "^2.1.1",
     "fastest-levenshtein": "^1.0.16"
