@@ -97,7 +97,7 @@
     "eslint-plugin-jsdoc": "^39.3.3",
     "eslint-plugin-prefer-arrow": "^1.2.3",
     "eslint-plugin-sort-export-all": "^1.2.2",
-    "expect-type": "^0.15.0",
+    "expect-type": "^0.16.0",
     "find-up": "^4.1.0",
     "format-package": "^7.0.0",
     "fs-monkey": "^1.0.3",
