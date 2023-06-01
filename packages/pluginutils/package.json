@@ -83,7 +83,7 @@
     "@types/semver": "^7.3.9",
     "@types/tmp": "^0.2.3",
     "conventional-changelog-cli": "^2.2.2",
-    "expect-type": "^0.15.0",
+    "expect-type": "^0.16.0",
     "tmp": "^0.2.1",
     "type-fest": "^3.0.0"
   }
