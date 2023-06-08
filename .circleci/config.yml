@@ -157,8 +157,26 @@ jobs:
         type: string
     executor: <<parameters.os>>
     steps:
-      - node/install:
-          node-version: <<parameters.node-version>>
+      - when: &node-install-windows
+          condition:
+            equal: [ <<parameters.os>>, windows ]
+          steps:
+            - run: 
+                name: Install Node <<parameters.node-version>>
+                shell: cmd.exe
+                command: |
+                    nvm list
+                    nvm install <<parameters.node-version>>
+                    nvm use <<parameters.node-version>>
+
+                    node --version
+                    npm --version
+      - unless: &node-install-non-windows
+          condition:
+            equal: [ <<parameters.os>>, windows ]
+          steps:
+          - node/install:
+              node-version: <<parameters.node-version>>
       - attach_workspace:
           at: .
       - knodes-typedoc-orb/install:
@@ -199,8 +217,8 @@ jobs:
     executor: <<parameters.os>>
     parallelism: 2
     steps:
-      - node/install:
-          node-version: <<parameters.node-version>>
+      - when: *node-install-windows
+      - unless: *node-install-non-windows
       - attach_workspace:
           at: .
       - run:
