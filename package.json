@@ -112,7 +112,7 @@
     "lodash": "^4.17.21",
     "lunr": "^2.3.0",
     "markdownlint-cli": "^0.35.0",
-    "marked": "^4.0.12",
+    "marked": "^6.0.0",
     "memfs": "^3.4.1",
     "minimatch": "^9.0.0",
     "nyc": "^15.1.0",
