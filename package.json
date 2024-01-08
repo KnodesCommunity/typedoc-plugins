@@ -57,7 +57,7 @@
     ]
   },
   "peerDependencies": {
-    "typedoc": "^0.23.0"
+    "typedoc": "^0.23.0 || ^0.25.0"
   },
   "devDependencies": {
     "@alex_neo/jest-expect-message": "^1.0.5",
@@ -124,7 +124,7 @@
     "tmp": "^0.2.1",
     "ts-jest": "^29.0.0",
     "type-fest": "^3.0.0",
-    "typedoc": "^0.23.28",
+    "typedoc": "^0.25.0",
     "typescript": "^5.0.0",
     "unionfs": "^4.4.0",
     "yaml": "^2.1.1",

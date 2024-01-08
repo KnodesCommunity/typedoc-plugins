@@ -43,7 +43,7 @@
     "@knodes/typedoc-pluginutils": "~0.23.4"
   },
   "peerDependencies": {
-    "typedoc": "^0.23.0",
+    "typedoc": "^0.23.0 || ^0.25.0",
     "lunr": "^2.3.0"
   },
   "devDependencies": {
@@ -68,7 +68,7 @@
     "jsdom": "^21.0.0",
     "rimraf": "^5.0.0",
     "ts-jest": "^29.0.0",
-    "typedoc": "^0.23.28",
+    "typedoc": "^0.25.0",
     "typescript": "^5.0.0",
     "@types/fs-extra": "^11.0.0",
     "@types/lunr": "^2.3.4",
