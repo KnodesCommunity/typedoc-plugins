@@ -28,7 +28,7 @@ export class ANodeReflection extends ContainerReflection {
 	public override traverse( callback: TraverseCallback ): void {
 		super.traverse( callback );
 		for( const c of this.childrenNodes?.slice() ?? [] ){
-			if ( callback( c, TraverseProperty.Children ) === false ) {
+			if ( !callback( c, TraverseProperty.Children ) ) {
 				return;
 			}
 		}

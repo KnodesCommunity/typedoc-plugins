@@ -5,7 +5,7 @@
 
 [![npm version](https://img.shields.io/npm/v/@knodes/typedoc-plugin-pages?style=for-the-badge)](https://www.npmjs.com/package/@knodes/typedoc-plugin-pages)
 [![npm downloads](https://img.shields.io/npm/dm/@knodes/typedoc-plugin-pages?style=for-the-badge)](https://www.npmjs.com/package/@knodes/typedoc-plugin-pages)
-[![Compatible with TypeDoc](https://img.shields.io/badge/For%20typedoc-^0.23.0-green?logo=npm&style=for-the-badge)](https://www.npmjs.com/package/typedoc)
+[![Compatible with TypeDoc](https://img.shields.io/badge/For%20typedoc-^0.25.0-green?logo=npm&style=for-the-badge)](https://www.npmjs.com/package/typedoc)
 
 ---
 
@@ -59,14 +59,14 @@ Syntax:
 ## Quick start
 
 ```sh
-npm install --save-dev @knodes/typedoc-plugin-pages typedoc@^0.23.0
+npm install --save-dev @knodes/typedoc-plugin-pages typedoc@^0.25.0
 ```
 
 ## Compatibility
 
-This plugin version should match TypeDoc `^0.23.0` for compatibility.
+This plugin version should match TypeDoc `^0.25.0` for compatibility.
 
-> **Note**: this plugin version was released by testing against `^0.23.28`.
+> **Note**: this plugin version was released by testing against `^0.25.7`.
 <!-- INSTALL end -->
 
 > **NOTE:** This plugin is based on [typedoc-plugin-loopingz-pages](https://github.com/loopingz/typedoc-plugin-loopingz-pages), which is in turn a fork of [typedoc-plugin-pages](https://github.com/mipatterson/typedoc-plugin-pages). Integrating it in this monorepo should (I hope) make easier maintenance.<!-- INSTALL -->

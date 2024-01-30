@@ -5,7 +5,7 @@
 
 [![npm version](https://img.shields.io/npm/v/@knodes/typedoc-plugintestbed?style=for-the-badge)](https://www.npmjs.com/package/@knodes/typedoc-plugintestbed)
 [![npm downloads](https://img.shields.io/npm/dm/@knodes/typedoc-plugintestbed?style=for-the-badge)](https://www.npmjs.com/package/@knodes/typedoc-plugintestbed)
-[![Compatible with TypeDoc](https://img.shields.io/badge/For%20typedoc-^0.23.0-green?logo=npm&style=for-the-badge)](https://www.npmjs.com/package/typedoc)
+[![Compatible with TypeDoc](https://img.shields.io/badge/For%20typedoc-^0.25.0-green?logo=npm&style=for-the-badge)](https://www.npmjs.com/package/typedoc)
 
 ---
 
@@ -22,12 +22,12 @@ For more infos, please refer to [the documentation](https://knodescommunity.gith
 ## Quick start
 
 ```sh
-npm install --save-dev @knodes/typedoc-plugintestbed typedoc@^0.23.0
+npm install --save-dev @knodes/typedoc-plugintestbed typedoc@^0.25.0
 ```
 
 ## Compatibility
 
-This plugin version should match TypeDoc `^0.23.0` for compatibility.
+This plugin version should match TypeDoc `^0.25.0` for compatibility.
 
-> **Note**: this plugin version was released by testing against `^0.23.28`.
+> **Note**: this plugin version was released by testing against `^0.25.7`.
 <!-- INSTALL end -->
