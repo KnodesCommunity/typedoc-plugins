@@ -10,7 +10,7 @@ const { patchFs } = require( 'fs-monkey' );
 let cleanupFns: Array<() => void> = [];
 const ofs = { ...fs };
 
-export const setVirtualFs = ( dir: NestedDirectoryJSON, cwd?: string ) => {
+export const setVirtualFs = ( dir: NestedDirectoryJSON, cwd: string = process.cwd() ) => {
 	restoreFs();
 	const virtual = Volume.fromNestedJSON( dir, cwd );
 	const ufs = new Union();

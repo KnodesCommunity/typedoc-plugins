@@ -2,7 +2,7 @@ import assert from 'assert';
 
 import { closest } from 'fastest-levenshtein';
 import { defaultsDeep, difference, get, identity, kebabCase } from 'lodash';
-import { DeclarationOption, MixedDeclarationOption, ParameterType } from 'typedoc';
+import { DeclarationOption, ParameterType } from 'typedoc';
 
 import { dirname } from '@knodes/typedoc-pluginutils/path';
 
@@ -70,7 +70,7 @@ export class OptionGroup<
 		} as any as Builder<T2, TDecs>;
 	}
 
-	private get _rootOption(): MixedDeclarationOption {
+	private get _rootOption() {
 		const linkAppendix = 'documentation' in this.plugin.package ?
 			` See \u001b[96m${( this.plugin.package as any ).documentation}\u001b[0m for more informations.` : // Cyan
 			'';
@@ -78,7 +78,7 @@ export class OptionGroup<
 			name: this.plugin.optionsPrefix,
 			type: ParameterType.Mixed,
 			help: `[${this.plugin.package.name}]: Set all plugin options below as an object, a JSON string or from a file.${linkAppendix}`,
-		};
+		} satisfies Readonly<DeclarationOption>;
 	}
 
 	public constructor(

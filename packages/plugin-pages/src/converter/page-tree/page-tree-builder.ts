@@ -153,10 +153,10 @@ export class PageTreeBuilder implements IPluginComponent<PagesPlugin> {
 		if( node.source ){
 			const nodePath = join( io.input, node.source );
 			const sourceFilePath = miscUtils.catchWrap(
-				() => resolveNamedPath( module, io.inputContainer ?? undefined, nodePath ),
-				err => {
-					const path = err instanceof ResolveError ? `./${this.plugin.relativeToRoot( err.triedPath )}` : nodePath;
-					return new Error( `Could not locate page for ${getNodePath( node, actualParent )}. Searched for "${path}"`, { cause: err } );
+				() => resolveNamedPath( this.plugin, module, nodePath, io.inputContainer ?? undefined ),
+				cause => {
+					const path = cause instanceof ResolveError ? `./${this.plugin.relativeToRoot( cause.triedPath )}` : nodePath;
+					return new Error( `Could not locate page for ${getNodePath( node, actualParent )}. Searched for "${path}"`, { cause } );
 				} );
 			const page = miscUtils.catchWrap(
 				() => new PageReflection(

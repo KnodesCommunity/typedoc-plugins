@@ -108,8 +108,8 @@ describe( 'Behavior', () => {
 	let app: Application;
 	let plugin: TestPlugin;
 	let opts: OptionGroup<{foo: number;bar?: string | undefined}, any>;
-	beforeEach( () => {
-		app = new Application();
+	beforeEach( async () => {
+		app = await Application.bootstrap( undefined, [] );
 		plugin = new TestPlugin( app );
 		opts = OptionGroup.factory<{foo: number; bar?: string}>( plugin )
 			.add( 'bar', { type: ParameterType.String, help: '' } )

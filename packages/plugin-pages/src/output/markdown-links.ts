@@ -46,7 +46,7 @@ export class MarkdownPagesLinks implements IPluginComponent<PagesPlugin> {
 				this._logger.verbose( () => `Created a link from ${sourceHint()} to ${getNodePath( targetPage )}` );
 				return this._themeMethods.renderPageLink( { label: label ?? undefined, page: targetPage } );
 			}
-		} catch( err: any ){
+		} catch( err ){
 			this._handleResolveError( err, page, sourceHint );
 		}
 	}
@@ -58,8 +58,8 @@ export class MarkdownPagesLinks implements IPluginComponent<PagesPlugin> {
 	 * @param page - The page in the inline tag.
 	 * @param sourceHint - The best guess to the source of the match,
 	 */
-	private _handleResolveError( err: any, page: string | null, sourceHint: MarkdownReplacer.SourceHint ) {
-		const message = `Could not resolve page "${page}" from reflection ${this._currentPageMemo.currentReflection.name}: ${err.message ?? err}`;
+	private _handleResolveError( err: unknown, page: string | null, sourceHint: MarkdownReplacer.SourceHint ) {
+		const message = `Could not resolve page "${page}" from reflection ${this._currentPageMemo.currentReflection.name}: ${err instanceof Error ? err.message : err}`;
 		switch( this.plugin.pluginOptions.getValue().invalidPageLinkHandling ){
 			case EInvalidPageLinkHandling.FAIL: {
 				throw new Error( message, { cause: err } );
@@ -89,9 +89,10 @@ export class MarkdownPagesLinks implements IPluginComponent<PagesPlugin> {
 		assert( this._nodesReflections );
 		assert( isString( pageAlias ) );
 		const resolvedFile = resolveNamedPath(
+			this.plugin,
 			this._currentPageMemo.currentReflection,
-			this.plugin.pluginOptions.getValue().source ?? undefined,
-			pageAlias as NamedPath );
+			pageAlias as NamedPath,
+			this.plugin.pluginOptions.getValue().source ?? undefined );
 		const page = this._nodesReflections.find( m => m.sourceFilePath === resolvedFile );
 		assert( page, new Error( 'Page not found' ) );
 		return page;

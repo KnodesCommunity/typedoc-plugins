@@ -9,8 +9,8 @@ import { PagesPlugin } from '../plugin';
 let application: Application;
 let plugin: PagesPlugin;
 let options: OptionGroup<IPluginOptions, any>;
-beforeEach( () => {
-	application = new Application();
+beforeEach( async () => {
+	application = await Application.bootstrap( { options: process.cwd() }, [] );
 	jest.spyOn( application.logger, 'warn' ).mockImplementation( noop );
 	jest.spyOn( application.logger, 'error' ).mockImplementation( noop );
 	plugin = new PagesPlugin( application );
@@ -19,7 +19,11 @@ beforeEach( () => {
 
 describe( 'Pages', () => {
 	it( 'should not throw if empty pages list', () => expect( () => options.setValue( { pages: [] as IRootPageNode[] } ) )
-		.not.toThrow( 'Every root pages should set `moduleRoot` to true, or none' ) );
+		.not.toThrow() );
+	it( 'should not if all "moduleRoot" are different', () => expect( () => options.setValue( { pages: [
+		{ name: 'A', moduleRoot: true },
+		{ name: 'B', moduleRoot: true },
+	] as IRootPageNode[] } ) ).not.toThrow() );
 	it( 'should throw if inconsistent "moduleRoot" option given', () => expect( () => options.setValue( { pages: [
 		{ name: 'A', moduleRoot: true },
 		{ name: 'B' },

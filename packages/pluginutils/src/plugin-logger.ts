@@ -102,6 +102,9 @@ export class PluginLogger extends Logger {
 				[LogLevel.Info]: 'info',
 				[LogLevel.Verbose]: 'verbose',
 			} as const;
+			if( level === LogLevel.None ){
+				return;
+			}
 			const parentMethod = loggerMethodMapper[level];
 			const orignalLevel = this._parent.level;
 			this._parent.level = LogLevel.Verbose;

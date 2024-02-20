@@ -8,9 +8,9 @@ import { ABasePlugin } from '../../base-plugin';
 let plugin: ABasePlugin;
 let replacer: ReflectionCommentReplacer;
 const eventResolveCapture = setupCaptureEvent( Converter, Converter.EVENT_RESOLVE );
-beforeEach( () => {
+beforeEach( async () => {
 	eventResolveCapture.captureEventRegistration();
-	const application = new Application();
+	const application = await Application.bootstrap( undefined, [] );
 	plugin = new ( class Plug extends ABasePlugin{
 		// eslint-disable-next-line @typescript-eslint/no-empty-function
 		public initialize(): void {}

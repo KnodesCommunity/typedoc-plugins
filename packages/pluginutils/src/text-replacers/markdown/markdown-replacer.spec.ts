@@ -2,7 +2,7 @@
 import assert from 'assert';
 
 import { identity } from 'lodash';
-import { Application, DeclarationReflection, MarkdownEvent, ReflectionKind, SourceReference } from 'typedoc';
+import { Application, DeclarationReflection, MarkdownEvent, PageEvent, ReflectionKind, SourceReference } from 'typedoc';
 
 import { relative, resolve } from '@knodes/typedoc-pluginutils/path';
 
@@ -45,6 +45,7 @@ const mockCurrentPage = ( name: string, source: string, line: number, character:
 	Object.defineProperty( CurrentPageMemo.prototype, 'currentReflection', { writable: true, value: ref } );
 	Object.defineProperty( CurrentPageMemo.prototype, 'hasCurrent', { writable: true, value: true } );
 };
+const createMarkdownEvent = ( source: string ) => new MarkdownEvent( MarkdownEvent.PARSE, new PageEvent( 'test', {} ), source, source );
 afterEach( () => {
 	Object.defineProperty( CurrentPageMemo.prototype, 'currentReflection', { writable: true, value: undefined } );
 	Object.defineProperty( CurrentPageMemo.prototype, 'hasCurrent', { writable: true, value: false } );
@@ -65,7 +66,7 @@ describe( MarkdownReplacer.name, () => {
 		const fn = jest.fn().mockReturnValueOnce( 'REPLACE 1' ).mockReturnValueOnce( 'REPLACE 2' );
 		replacer.registerMarkdownTag( '@test', /(foo)?/g, fn );
 		const source = 'Hello {@test foo} {@test} @test';
-		const event = new MarkdownEvent( MarkdownEvent.PARSE, source, source );
+		const event = createMarkdownEvent( source );
 		const listeners = getMarkdownEventParseListeners( plugin );
 		expect( listeners ).toHaveLength( 1 );
 
@@ -84,7 +85,7 @@ describe( MarkdownReplacer.name, () => {
 		const fn = jest.fn().mockReturnValueOnce( '1' ).mockReturnValueOnce( '2' ).mockReturnValueOnce( '3' );
 		replacer.registerMarkdownTag( '@test', /(foo\d?)?/g, fn, { excludedMatches: [ '{@test foo1}', '{@test foo4}' ] } );
 		const source = 'Hello {@test} {@test foo1} {@test foo2} {@test foo3} {@test foo4} @test';
-		const event = new MarkdownEvent( MarkdownEvent.PARSE, source, source );
+		const event = createMarkdownEvent( source );
 		const listeners = getMarkdownEventParseListeners( plugin );
 		expect( listeners ).toHaveLength( 1 );
 
@@ -109,7 +110,7 @@ describe( MarkdownReplacer.name, () => {
 				mockCurrentPage( 'Test', 'hello.ts', 1, 1 );
 				const fn = jest.fn().mockReturnValue( '#' );
 				replacer.registerMarkdownTag( '@test', /##/g, fn );
-				const evt = new MarkdownEvent( MarkdownEvent.PARSE, source, source );
+				const evt = createMarkdownEvent( source );
 				const listeners = getMarkdownEventParseListeners( plugin );
 				expect( listeners ).toHaveLength( 1 );
 				listeners[0]( evt );
@@ -183,7 +184,7 @@ describe( MarkdownReplacer.name, () => {
 			] )( 'should match %j with sourcemaps (%s) %#', ( source, _label, binds ) => {
 				mockCurrentPage( 'Test', 'hello.ts', 1, 1 );
 				binds.forEach( b => replacer.registerMarkdownTag( b.tag as any, null, b.replacer ) );
-				const evt = new MarkdownEvent( MarkdownEvent.PARSE, source, source );
+				const evt = createMarkdownEvent( source );
 				const listeners = getMarkdownEventParseListeners( plugin );
 				expect( listeners ).toHaveLength( binds.length );
 				binds.forEach( ( _b, i ) => listeners[i]( evt ) );

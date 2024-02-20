@@ -1,10 +1,10 @@
-import { Reflection, SourceReference } from 'typedoc';
+import { DeclarationReflection, Reflection, SourceReference } from 'typedoc';
 
 import { normalize } from './path';
 import { PluginAccessor, getApplication, getPlugin } from '../base-plugin';
 
 export const getReflectionSourceFileName = ( reflection?: Reflection ) => {
-	if( !reflection ){
+	if( !reflection || !( reflection instanceof DeclarationReflection ) ){
 		return;
 	}
 	return reflection.sources?.[0].fullFileName;

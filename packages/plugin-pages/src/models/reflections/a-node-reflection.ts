@@ -3,6 +3,7 @@ import { ContainerReflection, DeclarationReflection, ProjectReflection, Traverse
 import { PagesPluginReflectionKind } from './reflection-kind';
 
 export class ANodeReflection extends ContainerReflection {
+	public readonly variant = 'declaration';
 	public get depth(): number {
 		return this.parent instanceof ANodeReflection ? this.parent.depth + 1 : 0;
 	}
@@ -28,7 +29,7 @@ export class ANodeReflection extends ContainerReflection {
 	public override traverse( callback: TraverseCallback ): void {
 		super.traverse( callback );
 		for( const c of this.childrenNodes?.slice() ?? [] ){
-			if ( !callback( c, TraverseProperty.Children ) ) {
+			if ( callback( c, TraverseProperty.Children ) === false ) {
 				return;
 			}
 		}

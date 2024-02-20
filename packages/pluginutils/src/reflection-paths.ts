@@ -3,20 +3,24 @@ import { existsSync, readdirSync } from 'fs';
 
 import { memoize } from 'lodash';
 import { LiteralUnion } from 'type-fest';
-import { DeclarationReflection, ProjectReflection, Reflection, ReflectionKind, normalizePath } from 'typedoc';
+import { Application, DeclarationReflection, ProjectReflection, Reflection, ReflectionKind, normalizePath } from 'typedoc';
 
+import type { ABasePlugin } from './base-plugin';
 import { dirname, parse, resolve  } from './utils/path';
 
 const isRootFile = ( dir: string, file: string ) => !!( file.match( /^readme.md$/i ) || file.match( /^package.json$/ ) );
-export const findModuleRoot = memoize( ( reflection: Reflection, rootMatcher: ( dir: string, file: string ) => boolean = isRootFile ) => {
+export const findModuleRoot = memoize( ( plugin: ABasePlugin, reflection: Reflection, rootMatcher: ( dir: string, file: string ) => boolean = isRootFile ) => {
 	const projectReflection = reflection.project;
-	const projectRootFile = projectReflection.sources?.find( src => {
+	const projectRootFile = projectReflection.children?.[0].sources?.find( src => {
 		const { dir, base } = parse( src.fullFileName );
 		return rootMatcher( dir, base );
-	} )?.fullFileName ?? assert.fail( 'Can\'t get the project root' );
+	} )?.fullFileName ?? resolve( plugin.rootDir, 'stub.json' ) ?? assert.fail( 'Can\'t get the project root' );
 	const projectRootDir = normalizePath( dirname( projectRootFile ) );
 	if( reflection === projectReflection ){
 		return projectRootDir;
+	}
+	if( !( reflection instanceof DeclarationReflection ) ){
+		return;
 	}
 	for ( const source of reflection.sources ?? [] ) {
 		const root = _findModuleRoot( normalizePath( dirname( source.fullFileName ) ), projectRootDir, rootMatcher );
@@ -25,7 +29,7 @@ export const findModuleRoot = memoize( ( reflection: Reflection, rootMatcher: ( 
 		}
 	}
 	return dirname( reflection.sources?.[0].fullFileName ?? assert.fail( `Reflection ${reflection.getFriendlyFullName()} has no known source` ) );
-} );
+}, ( _, reflection ) => reflection );
 const _findModuleRoot = memoize( ( moduleDir: string, projectRoot: string, rootMatcher: ( dir: string, file: string ) => boolean ): string | null => {
 	if( moduleDir === projectRoot ){
 		return null;
@@ -83,35 +87,19 @@ export class ResolveError extends Error {
 /**
  * Resolve a named path. See {@page resolving-paths.md} for details.
  *
- * @param args - The reflection to resolve from, an optional container folder, and the target path specifier.
+ * @param plugin
+ * @param currentReflection - The reflection to resolve from.
+ * @param path - The target path specifier.
+ * @param containerFolder - An optional container folder.
  * @returns the resolved path.
  */
-export const resolveNamedPath: {
-	/**
-	 * Resolve a named path. See {@page resolving-paths.md} for details.
-	 *
-	 * @param currentReflection - The reflection to resolve from.
-	 * @param containerFolder - An optional container folder.
-	 * @param path - The target path specifier.
-	 * @returns the resolved path.
-	 */
-	( currentReflection: Reflection, containerFolder: string | undefined, path: NamedPath ): string;
-	/**
-	 * Resolve a named path. See {@page resolving-paths.md} for details.
-	 *
-	 * @param currentReflection - The reflection to resolve from.
-	 * @param path - The target path specifier.
-	 * @returns the resolved path.
-	 */
-	( currentReflection: Reflection, path: NamedPath ): string;
-} = ( ...args: [Reflection, string | undefined, NamedPath] | [Reflection, NamedPath] ) => {
-	const [ currentReflection, containerFolder, path ] = args.length === 3 ? args : [ args[0], undefined, args[1] ];
+export const resolveNamedPath = ( plugin: ABasePlugin, currentReflection: Reflection, path: NamedPath, containerFolder: string | undefined ) => {
 	let containerFolderMut = containerFolder;
 	let pathMut = normalizePath( path );
-	let reflectionRoots = findModuleRoot( getReflectionModule( currentReflection ) );
+	let reflectionRoots = findModuleRoot( plugin, getReflectionModule( currentReflection ) );
 	if( pathMut.startsWith( '~~:' ) ){
 		pathMut = pathMut.slice( 3 );
-		reflectionRoots = findModuleRoot( currentReflection.project );
+		reflectionRoots = findModuleRoot( plugin, currentReflection.project );
 	} else if( pathMut.match( /^~.+?:/ ) ){
 		const workspaces = getWorkspaces( currentReflection.project ).slice( 1 ).filter( w => pathMut.startsWith( `~${w.name}:` ) );
 		const workspace = workspaces[0];
@@ -121,13 +109,14 @@ export const resolveNamedPath: {
 			throw new Error( `Ambiguous reference for path ${pathMut}. Matched ${workspaces.map( w => w.name ).join( ', ' )}` );
 		}
 		pathMut = pathMut.slice( workspace.name.length + 2 );
-		reflectionRoots = findModuleRoot( workspace );
+		reflectionRoots = findModuleRoot( plugin, workspace );
 	} else if( pathMut.match( /^~:/ ) ){
 		pathMut = pathMut.slice( 2 );
-		reflectionRoots = findModuleRoot( getReflectionModule( currentReflection ) );
+		reflectionRoots = findModuleRoot( plugin, getReflectionModule( currentReflection ) );
 	} else if( pathMut.match( /^\.{1,2}\// ) ) {
 		containerFolderMut = undefined;
-		reflectionRoots = dirname( currentReflection.sources?.[0].fullFileName ?? assert.fail() );
+		reflectionRoots = dirname( ( currentReflection instanceof DeclarationReflection ? currentReflection : undefined )?.sources?.[0].fullFileName ??
+			assert.fail( 'Failed to get reflection source' ) );
 	}
 
 	assert( reflectionRoots );

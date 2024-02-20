@@ -22,7 +22,7 @@ export const catchWrap = <T>( block: () => T, contextMessage: string | ( ( err: 
 	rethrow( block, err => isFunction( contextMessage ) ? contextMessage( err ) : new Error( contextMessage, { cause: err } ) );
 
 export const rootDir = memoize( ( app: Application ) => {
-	const opts = app.options.getValue( 'options' );
+	const opts = app.options.getValue( 'options' ) || process.cwd();//app.options.getValue( 'entryPoints' )[0];
 	const stat = statSync( opts );
 	if( stat.isDirectory() ){
 		return opts;

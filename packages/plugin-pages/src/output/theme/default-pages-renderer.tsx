@@ -36,7 +36,8 @@ export class DefaultPagesRenderer implements IPagesPluginThemeMethods, IPluginCo
 		const pages = event.project.getReflectionsByKind( PagesPluginReflectionKind.PAGE as any ).filter( p => !p.kindOf( PagesPluginReflectionKind.ROOT as any ) );
 		assert( pages.every( ( n ): n is PageReflection => n instanceof PageReflection ) );
 		this._allPages = pages;
-		event.urls = [ ...( event.urls ?? [] ), ...pages.map( p => new UrlMapping( p.url, p, this._renderPage.bind( this ) ) ) ];
+		event.urls ??= [];
+		event.urls.push( ...pages.map( p => new UrlMapping<Reflection>( p.url, p, this._renderPage.bind( this ) ) ) );
 
 		plugin.application.renderer.on( PageEvent.BEGIN, this._onRendererBeginPage.bind( this ) );
 		plugin.application.renderer.on( PageEvent.END, this._onRendererEndPage.bind( this ) );
@@ -52,7 +53,7 @@ export class DefaultPagesRenderer implements IPagesPluginThemeMethods, IPluginCo
 	 * @returns the generated link.
 	 */
 	public renderPageLink( { page, label }: RenderPageLinkProps ): JSX.Element {
-		return <a href={this._theme.markedPlugin.getRelativeUrl( page.isModuleAppendix ? page.module.url ?? assert.fail() : page.url )}>{label ?? page.originalName}</a>;
+		return <a href={this._theme.markedPlugin.getRelativeUrl( page.isModuleAppendix ? page.module.url ?? assert.fail() : page.url )}>{label ?? page.name}</a>;
 	}
 
 	/**
@@ -61,7 +62,8 @@ export class DefaultPagesRenderer implements IPagesPluginThemeMethods, IPluginCo
 	 * @param props - The page event for the page reflection.
 	 * @returns the rendered page.
 	 */
-	private _renderPage( props: PageEvent<PageReflection> ): JSX.Element {
+	private _renderPage( props: PageEvent<Reflection> ): JSX.Element {
+		assert( props.model instanceof PageReflection );
 		const { icons } = this._theme.getRenderContext( props );
 		const icon = () => icons[ReflectionKind.Module]();
 		( icons as any )[PagesPluginReflectionKind.PAGE] = icon;
@@ -84,13 +86,13 @@ export class DefaultPagesRenderer implements IPagesPluginThemeMethods, IPluginCo
 		const declaration = new DeclarationReflection( node.name, ReflectionKind.Namespace, parent );
 		declaration.url = node instanceof PageReflection ? node.url : undefined;
 		declaration.children = node.childrenNodes?.map( c => this._mapNode( c, node.isModuleAppendix ? node.module : declaration ) );
-		declaration.cssClasses = [
-			'pages-entry',
-			`pages-entry-${node instanceof PageReflection ? 'page' : 'menu'}`,
-			`pages-entry-depth-${node.depth}`,
-		].filter( isString ).join( ' ' );
+		// declaration.cssClasses = [
+		// 	'pages-entry',
+		// 	`pages-entry-${node instanceof PageReflection ? 'page' : 'menu'}`,
+		// 	`pages-entry-depth-${node.depth}`,
+		// ].filter( isString ).join( ' ' );
 		declaration.readme = node.comment?.summary;
-		declaration.sources = node.sources;
+		// declaration.sources = node.sources;
 		this._nodeDeclarationMappingCache.set( node, declaration );
 		return declaration;
 	}
@@ -134,75 +136,75 @@ export class DefaultPagesRenderer implements IPagesPluginThemeMethods, IPluginCo
 	 * @param pageEvent - The page event to alter.
 	 */
 	private _onRendererBeginPage( pageEvent: PageEvent<any> ){
-		this._onRendererBeginPageAlterModel( pageEvent );
-		this._onRendererBeginPageAlterNavigation( pageEvent );
+		// this._onRendererBeginPageAlterModel( pageEvent );
+		// this._onRendererBeginPageAlterNavigation( pageEvent );
 	}
 
-	/**
-	 * Partial implementation of {@link _onRendererBeginPage} that prepares the navigation for a single page.
-	 *
-	 * @param pageEvent - The page event to alter.
-	 */
-	private _onRendererBeginPageAlterNavigation( pageEvent: PageEvent<any> ) {
-		this._addRestore( () => pageEvent.project.children, prev => pageEvent.project.children = prev );
-		const modelModule = getReflectionModule( pageEvent.model );
-		const projectPages = this._modulesPages.find( p => p.module === pageEvent.project );
-		pageEvent.project.children = [
-			...this._mapNodeReflectionsToDeclarations( projectPages?.childrenNodes ),
-			...( pageEvent.project.children ?? [] ).map( projectChild => {
-				if( projectChild.kindOf( ReflectionKind.Module ) && modelModule === projectChild ) {
-					const modulePage = this._modulesPages.find( p => p.module === projectChild );
-					if( modulePage ){
-						this._addRestore( () => projectChild.children, prev => projectChild.children = prev );
-						projectChild.children = [
-							...this._mapNodeReflectionsToDeclarations( modulePage.childrenNodes ),
-							...( projectChild.children ?? [] ),
-						];
-					}
-				}
-				return projectChild;
-			} ),
-		];
-	}
+	// /**
+	//  * Partial implementation of {@link _onRendererBeginPage} that prepares the navigation for a single page.
+	//  *
+	//  * @param pageEvent - The page event to alter.
+	//  */
+	// private _onRendererBeginPageAlterNavigation( pageEvent: PageEvent<any> ) {
+	// 	this._addRestore( () => pageEvent.project.children, prev => pageEvent.project.children = prev );
+	// 	const modelModule = getReflectionModule( pageEvent.model );
+	// 	const projectPages = this._modulesPages.find( p => p.module === pageEvent.project );
+	// 	pageEvent.project.children = [
+	// 		...this._mapNodeReflectionsToDeclarations( projectPages?.childrenNodes ),
+	// 		...( pageEvent.project.children ?? [] ).map( projectChild => {
+	// 			if( projectChild.kindOf( ReflectionKind.Module ) && modelModule === projectChild ) {
+	// 				const modulePage = this._modulesPages.find( p => p.module === projectChild );
+	// 				if( modulePage ){
+	// 					this._addRestore( () => projectChild.children, prev => projectChild.children = prev );
+	// 					projectChild.children = [
+	// 						...this._mapNodeReflectionsToDeclarations( modulePage.childrenNodes ),
+	// 						...( projectChild.children ?? [] ),
+	// 					];
+	// 				}
+	// 			}
+	// 			return projectChild;
+	// 		} ),
+	// 	];
+	// }
 
-	/**
-	 * Partial implementation of {@link _onRendererBeginPage} responsible of modifying the page mode. Node reflections are replaced with a similar declaration,
-	 * and modules/projects are prepended with root pages sources.
-	 *
-	 * @param pageEvent - The page event to alter.
-	 */
-	private _onRendererBeginPageAlterModel( pageEvent: PageEvent<any> ) {
-		if( pageEvent.model instanceof ANodeReflection ){
-			const newModel = this._nodeDeclarationMappingCache.get( pageEvent.model );
-			assert( newModel );
-			this._addRestore( () => newModel.children, v => newModel.children = v );
-			newModel.children = [
-				...( newModel.children ?? [] ),
-				...( pageEvent.model.module.children?.filter( c => !c.kindOf( ReflectionKind.SomeModule ) ) ?? [] ),
-			];
-			pageEvent.model = newModel;
-		} else if(
-			( pageEvent.model instanceof ProjectReflection && pageEvent.url === 'index.html' ) ||
-			( pageEvent.model instanceof DeclarationReflection && pageEvent.model.kindOf( ReflectionKind.Module ) )
-		){
-			const modulePage = this._modulesPages.find( p => p.module === pageEvent.model );
-			if( modulePage instanceof PageReflection ){
-				pageEvent.model.sources = [
-					...( pageEvent.model.sources ?? [] ),
-					reflectionSourceUtils.createSourceReference( this, modulePage.sourceFilePath ),
-				];
-				pageEvent.model.readme = [
-					...( pageEvent.model.readme?.concat( [ { kind: 'text', text: '\n\n---\n\n' } ] ) ?? [] ),
-					...( modulePage.comment?.summary ?
-						[
-							{ kind: 'text', text: `\n\n<!-- Page ${modulePage.namedPath} -->\n\n` } as CommentDisplayPart,
-							...modulePage.comment.summary,
-						] :
-						[] ),
-				];
-			}
-		}
-	}
+	// /**
+	//  * Partial implementation of {@link _onRendererBeginPage} responsible of modifying the page mode. Node reflections are replaced with a similar declaration,
+	//  * and modules/projects are prepended with root pages sources.
+	//  *
+	//  * @param pageEvent - The page event to alter.
+	//  */
+	// private _onRendererBeginPageAlterModel( pageEvent: PageEvent<any> ) {
+	// 	if( pageEvent.model instanceof ANodeReflection ){
+	// 		const newModel = this._nodeDeclarationMappingCache.get( pageEvent.model );
+	// 		assert( newModel );
+	// 		this._addRestore( () => newModel.children, v => newModel.children = v );
+	// 		newModel.children = [
+	// 			...( newModel.children ?? [] ),
+	// 			...( pageEvent.model.module.children?.filter( c => !c.kindOf( ReflectionKind.SomeModule ) ) ?? [] ),
+	// 		];
+	// 		pageEvent.model = newModel;
+	// 	} else if(
+	// 		// ( pageEvent.model instanceof ProjectReflection && pageEvent.url === 'index.html' ) ||
+	// 		( pageEvent.model instanceof DeclarationReflection && pageEvent.model.kindOf( ReflectionKind.Module ) )
+	// 	){
+	// 		const modulePage = this._modulesPages.find( p => p.module === pageEvent.model );
+	// 		if( modulePage instanceof PageReflection ){
+	// 			pageEvent.model.sources = [
+	// 				...( pageEvent.model.sources ?? [] ),
+	// 				reflectionSourceUtils.createSourceReference( this, modulePage.sourceFilePath ),
+	// 			];
+	// 			pageEvent.model.readme = [
+	// 				...( pageEvent.model.readme?.concat( [ { kind: 'text', text: '\n\n---\n\n' } ] ) ?? [] ),
+	// 				...( modulePage.comment?.summary ?
+	// 					[
+	// 						{ kind: 'text', text: `\n\n<!-- Page ${modulePage.namedPath} -->\n\n` } as CommentDisplayPart,
+	// 						...modulePage.comment.summary,
+	// 					] :
+	// 					[] ),
+	// 			];
+	// 		}
+	// 	}
+	// }
 
 	/**
 	 * Event callback executed on every page on {@link PageEvent.END}.
@@ -211,8 +213,8 @@ export class DefaultPagesRenderer implements IPagesPluginThemeMethods, IPluginCo
 	 * @param _pageEvent - The page event to alter.
 	 */
 	private _onRendererEndPage( _pageEvent: PageEvent<any> ){
-		assert( this._renderPageRestore );
-		this._renderPageRestore();
+		// assert( this._renderPageRestore );
+		// this._renderPageRestore();
 	}
 	/**
 	 * Event callback executed once on {@link RendererEvent.END}.
@@ -237,7 +239,7 @@ export class DefaultPagesRenderer implements IPagesPluginThemeMethods, IPluginCo
 			...indexEvent.searchResults,
 			...this._allPages.map( r => {
 				const searchResPage = new DeclarationReflection( getFullPageName( r ), PagesPluginReflectionKind.PAGE as any, undefined );
-				searchResPage.cssClasses = 'pages-entry pages-entry-page';
+				// searchResPage.cssClasses = 'pages-entry pages-entry-page';
 				searchResPage.url = r.url;
 				return searchResPage;
 			} ),

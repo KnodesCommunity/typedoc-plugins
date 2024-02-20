@@ -4,7 +4,7 @@ import { camelCase, isString, once } from 'lodash';
 import { sync as pkgUpSync } from 'pkg-up';
 import { satisfies } from 'semver';
 import { PackageJson, ReadonlyDeep, SetRequired } from 'type-fest';
-import { Application, Context, Converter, LogLevel, SourceReference, normalizePath } from 'typedoc';
+import { Application, Context, Converter, LogLevel, normalizePath } from 'typedoc';
 
 import { EventsExtra } from './events-extra';
 import { PluginLogger } from './plugin-logger';
@@ -24,17 +24,6 @@ export abstract class ABasePlugin {
 			this.logger.warn( `Missing \`readmeFile\` in \`package\` plugin. ${errMsg}` );
 			return;
 		}
-
-		const extraSources = [
-			new SourceReference( packagePlugin.readmeFile, 1, 1 ),
-		];
-		if( 'packageFile' in packagePlugin && isString( packagePlugin.packageFile ) ){
-			extraSources.push( new SourceReference( packagePlugin.packageFile, 1, 1 ) );
-		}
-		context.project.sources = [
-			...extraSources,
-			...( context.project.sources ?? [] ),
-		];
 	} );
 	public readonly optionsPrefix: string;
 	public readonly package: RequiredPackageJson;

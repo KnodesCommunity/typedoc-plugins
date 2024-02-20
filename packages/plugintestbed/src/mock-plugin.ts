@@ -1,9 +1,7 @@
 import assert from 'assert';
-// eslint-disable-next-line no-restricted-imports -- OS-specific path manipulation
-import { resolve } from 'path';
 
 import { isNil } from 'lodash';
-import { Converter, LogLevel, ProjectReflection, Renderer, SourceReference } from 'typedoc';
+import { Converter, LogLevel, ProjectReflection, Renderer } from 'typedoc';
 
 import { ABasePlugin } from '@knodes/typedoc-pluginutils';
 
@@ -28,10 +26,12 @@ export const mockPlugin = <T extends ABasePlugin = ABasePlugin>( props: Partial<
 			getValue: jest.fn().mockImplementation( k => isNil( k ) ? opts : opts[k] ),
 			_setOptions: new Set(),
 		},
+		on: jest.fn(),
+		internalOn: jest.fn(),
 	};
+	application.application = application;
 	application.converter = new Converter( application );
 	application.renderer = new Renderer( application );
-	application.application = application;
 	const plugin = Object.create( ABasePlugin.prototype, Object.fromEntries( Object.entries( {
 		application,
 		rootDir: process.cwd(),
@@ -46,8 +46,5 @@ export const mockPlugin = <T extends ABasePlugin = ABasePlugin>( props: Partial<
 
 export const createMockProjectWithPackage = () => {
 	const project = new ProjectReflection( 'TEST' );
-	project.sources = [
-		new SourceReference( resolve( process.cwd(), 'package.json' ), 1, 1 ),
-	];
 	return project;
 };

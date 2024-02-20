@@ -5,17 +5,13 @@ import { resolve } from 'path';
 import { Many, castArray } from 'lodash';
 import { Application, ArgumentsReader, LogLevel, TSConfigReader, TypeDocOptions, TypeDocReader } from 'typedoc';
 
-import { Repository } from '../../../node_modules/typedoc/dist/lib/converter/utils/repository';
+import { GitRepository } from '../../../node_modules/typedoc/dist/lib/converter/utils/repository';
 
 export const runPlugin = async (
 	testDir: string,
 	pluginPaths: Many<string>,
 	{ options, output = resolve( testDir, './docs' ) }: {options?: Partial<TypeDocOptions>; output?: string} = {},
 ) => {
-	const app = new Application();
-	app.options.addReader( new ArgumentsReader( 0, [] ) );
-	app.options.addReader( new TypeDocReader() );
-	app.options.addReader( new TSConfigReader() );
 	const baseOptions: Partial<TypeDocOptions> = {
 		treatWarningsAsErrors: true,
 		plugin: castArray( pluginPaths ),
@@ -26,19 +22,23 @@ export const runPlugin = async (
 		...baseOptions,
 		...options,
 	};
-	jest.spyOn( Repository, 'tryCreateRepository' ).mockImplementation( ( _path, _sourceLinkTemplate, gitRevision, gitRemote, _logger ) => {
+	const app = await Application.bootstrapWithPlugins( fullOpts, [
+		new ArgumentsReader( 0, [] ),
+		new TypeDocReader(),
+		new TSConfigReader(),
+	] );
+	jest.spyOn( GitRepository, 'tryCreateRepository' ).mockImplementation( ( _path, _sourceLinkTemplate, gitRevision, gitRemote, _logger ) => {
 		if( !gitRemote || !gitRevision ){
 			return undefined;
 		}
-		const repo = new Repository( process.cwd(), gitRevision, 'https://stub.git/FAKE-USER/FAKE-PROJECT/blob/{gitRevision}/{path}#L{line}' );
+		const repo = new GitRepository( process.cwd(), gitRevision, 'https://stub.git/FAKE-USER/FAKE-PROJECT/blob/{gitRevision}/{path}#L{line}' );
 		jest.spyOn( repo, 'getURL' );
 		return repo;
 	} );
 	const errorOnBootstrapSpy = jest.spyOn( console, 'error' );
-	app.bootstrap( fullOpts );
 	expect( errorOnBootstrapSpy ).not.toHaveBeenCalled();
 	errorOnBootstrapSpy.mockRestore();
-	const project = app.convert();
+	const project = await app.convert();
 	expect( project ).toBeTruthy();
 	assert( project );
 	app.validate( project );
@@ -50,9 +50,8 @@ export const runPluginBeforeAll = (
 	opts?: {options?: Partial<TypeDocOptions>; output?: string},
 ) => beforeAll( () => runPlugin( testDir, pluginPaths, opts ), ( process.env.CI === 'true' ? 120 : 60 ) * 1000 );
 
-export const setupTypedocApplication = ( options?: Partial<TypeDocOptions> | undefined ) => {
-	const app = new Application();
-	app.bootstrap( {
+export const setupTypedocApplication = async ( options?: Partial<TypeDocOptions> | undefined ) => {
+	const app = await Application.bootstrap( {
 		logLevel: LogLevel.Error,
 		...options,
 	} );

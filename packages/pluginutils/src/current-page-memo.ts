@@ -48,12 +48,11 @@ export class CurrentPageMemo {
 	 * @returns the {@link callback} return value.
 	 */
 	public fakeWrapPage<T, Model extends Reflection>( pageOrModel: PageEvent<Model> | Model, callback: () => T ): T {
-		let newPage: PageEvent<Reflection>;
+		let newPage: PageEvent<Model>;
 		if( pageOrModel instanceof PageEvent ){
-			newPage = pageOrModel as any;
+			newPage = pageOrModel;
 		} else {
-			newPage = new PageEvent( PageEvent.BEGIN );
-			newPage.model = pageOrModel;
+			newPage = new PageEvent( PageEvent.BEGIN, pageOrModel );
 		}
 		const bck = this._currentPage;
 		this._currentPage = newPage;

@@ -11,6 +11,11 @@ import { PagesPluginReflectionKind } from './reflection-kind';
 export class PageReflection extends ANodeReflection {
 	public readonly content: string;
 	public readonly namedPath: string;
+	public readonly relevanceBoost = 5;
+	public readonly sources: SourceReference[];
+	public get readme(){
+		return this.content;
+	}
 	public constructor(
 		name: string,
 		module: ANodeReflection.Module,

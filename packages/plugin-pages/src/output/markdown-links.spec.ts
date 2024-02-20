@@ -1,5 +1,5 @@
 import { noop } from 'lodash';
-import { DeclarationReflection, ReflectionKind, normalizePath } from 'typedoc';
+import { DeclarationReflection, ReflectionKind, SourceReference, normalizePath } from 'typedoc';
 
 import { resolve } from '@knodes/typedoc-pluginutils/path';
 
@@ -18,7 +18,11 @@ beforeEach( () => {
 	currentPageMemoTestbed.captureEventRegistration();
 	new MarkdownPagesLinks( plugin, {} as any, { project: { getReflectionsByKind: jest.fn().mockReturnValue( [] ) }} as any );
 	const project = createMockProjectWithPackage();
-	currentPageMemoTestbed.setCurrentPage( 'test', 'test.ts', new DeclarationReflection( 'test', ReflectionKind.Accessor, project ) );
+	const model = new DeclarationReflection( 'test', ReflectionKind.Accessor, project );
+	model.sources = [
+		new SourceReference( 'test.ts', 1, 1 ),
+	];
+	currentPageMemoTestbed.setCurrentPage( 'test', model );
 } );
 
 describe( 'Resolution error handling', () => {
