@@ -68,7 +68,7 @@
     "@knodes/typedoc-plugin-pages": "file:packages/plugin-pages",
     "@knodes/typedoc-plugintestbed": "file:packages/plugintestbed",
     "@knodes/typedoc-pluginutils": "file:packages/pluginutils",
-    "@testing-library/jest-dom": "^5.16.4",
+    "@testing-library/jest-dom": "^6.0.0",
     "@types/concurrently": "^7.0.0",
     "@types/diff": "^5.0.2",
     "@types/fs-extra": "^11.0.0",
