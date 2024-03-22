@@ -34,7 +34,7 @@
   },
   "dependencies": {
     "lodash": "^4.17.21",
-    "memfs": "^3.4.1",
+    "memfs": "^4.0.0",
     "unionfs": "^4.4.0"
   },
   "peerDependencies": {
