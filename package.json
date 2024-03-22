@@ -113,7 +113,7 @@
     "lunr": "^2.3.0",
     "markdownlint-cli": "^0.36.0",
     "marked": "^4.0.12",
-    "memfs": "^3.4.1",
+    "memfs": "^4.0.0",
     "minimatch": "^9.0.0",
     "nyc": "^15.1.0",
     "pkg-up": "^3.1.0",
