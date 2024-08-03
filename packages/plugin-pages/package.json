@@ -44,7 +44,7 @@
   },
   "peerDependencies": {
     "typedoc": "^0.25.0",
-    "lunr": "^2.3.0"
+    "lunr": "^2.3.9"
   },
   "devDependencies": {
     "@knodes/eslint-config": "^1.6.5",
