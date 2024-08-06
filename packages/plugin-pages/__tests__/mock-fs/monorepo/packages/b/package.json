@@ -1,4 +1,6 @@
 {
-    "name": "pkg-b",
-    "typedoc": {"entryPoint": "./src/index.ts"}
+  "name": "pkg-b",
+  "typedoc": {
+    "entryPoint": "./src/index.ts"
+  }
 }

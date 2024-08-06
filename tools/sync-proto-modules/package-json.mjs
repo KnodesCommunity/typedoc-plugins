@@ -60,7 +60,7 @@ export const packageJson = async checkOnly => ( {
 	tearDown: async( proto, projects, _handlers, { rootJson, rootPath } ) => {
 		rootJson['devDependencies'] = {
 			...rootJson['devDependencies'],
-			...Object.fromEntries( projects.map( p => [ p.pkgName, `file:${p.path}` ] ) ),
+			...Object.fromEntries( projects.map( p => [ p.pkgName, 'workspace:*' ] ) ),
 		};
 		await syncFile( checkOnly, rootPath, await formatPackage( rootJson ) );
 	},

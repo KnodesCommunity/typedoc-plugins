@@ -1,6 +1,6 @@
 {
-    "name": "demo",
-    "scripts": {
-        "docs": "typedoc"
-    }
+  "name": "demo",
+  "scripts": {
+    "docs": "typedoc"
+  }
 }
