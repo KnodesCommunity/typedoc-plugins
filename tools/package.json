@@ -1,0 +1,17 @@
+{
+    "name": "@knodes/typedoc-plugin-tools",
+    "private": true,
+    "dependencies": {
+        "diff": "^5.1.0",
+        "chalk": "^4.1.2",
+        "semver": "^7.3.5",
+        "glob": "^10.0.0",
+        "format-package": "^7.0.0",
+        "yaml": "^2.1.1",
+        "lodash": "^4.17.21"
+    },
+    "devDependencies": {
+        "@types/semver": "^7.3.9",
+        "@types/lodash": "^4.14.182"
+    }
+}

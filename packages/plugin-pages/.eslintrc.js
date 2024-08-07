@@ -5,4 +5,13 @@ module.exports = {
 	parserOptions: {
 		project: [ `${__dirname}/tsconfig.build.json`, `${__dirname}/tsconfig.spec.json` ],
 	},
+	overrides: [
+		{
+			files: [ '**/*.mjs' ],
+			parserOptions: {
+				sourceType: 'module',
+				ecmaVersion: 2022,
+			},
+		},
+	],
 };

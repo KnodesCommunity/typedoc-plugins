@@ -20,7 +20,7 @@ if [ -n "$(git update-index --refresh && git diff-index --quiet HEAD --)" ]; the
 fi
 
 
-VERSION="$(node tools/infer-next-version $ALPHA_FLAG)"
+VERSION="$(node tools/infer-next-version.mjs $ALPHA_FLAG)"
 echo "Will publish version '${VERSION}'"
 if ! read -p "Are you sure? (y/n)" yn; then
 	exit 1
@@ -38,22 +38,21 @@ case $yn in
 		;;
 esac
 # Bump & reinstall
-npm run tools:bump-versions "${VERSION}"
-npm install
-git add package-lock.json
+node tools/bump-versions.mjs "${VERSION}"
+git add -- packages/*/package.json ./package.json
 # Update readmes
-npm run tools:sync-proto -- --no-stash
+pnpm run tools:sync-proto --no-stash
 find . \( -name README.md -or -name package.json -or -name CHANGELOG.md \) -not -path '*/node_modules/*' -not -path './typedoc/*' -not -path '*/__tests__/*' -exec git add {} \;
 # Run build & tests
-npm run build:clean
-npm run build
-npm run lint
-npm run ci:test
+pnpm run build:clean
+pnpm run build
+pnpm run lint
+pnpm run ci:test
 # Commit
 git commit -m "chore: bump to version ${VERSION}" --no-verify
 git tag "v${VERSION}"
 # Publish docs
-npm run docs
+pnpm run docs
 PWD_SV="${PWD}"
 TEMP_DIR="$(mktemp -d)"
 echo "Using docs temp dir ${TEMP_DIR}"
@@ -74,7 +73,7 @@ cd "${PWD_SV}"
 # BRANCH="$(git rev-parse --abbrev-ref HEAD)"
 echo "All is OK so far. To finish publishing, enter the following command:"
 if [ -z "$ALPHA_FLAG" ]; then
-	echo "( cd ${TEMP_DIR} && git push ) && git checkout main && git merge --ff-only develop && git checkout develop && git push origin develop main --follow-tags && npm publish --access public --workspaces"
+	echo "( cd ${TEMP_DIR} && git push ) && git checkout main && git merge --ff-only develop && git checkout develop && git push origin develop main --follow-tags && pnpm publish --access public --recursive"
 else
-	echo "( cd ${TEMP_DIR} && git push ) && git checkout $BASE_BRANCH && git push origin $BASE_BRANCH --follow-tags && npm publish --access public --workspaces --tag next"
+	echo "( cd ${TEMP_DIR} && git push ) && git checkout $BASE_BRANCH && git push origin $BASE_BRANCH --follow-tags && pnpm publish --access public --recursive --tag next"
 fi

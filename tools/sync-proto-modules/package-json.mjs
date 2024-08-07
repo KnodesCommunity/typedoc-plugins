@@ -2,10 +2,9 @@ import { readFile } from 'fs/promises';
 import { resolve } from 'path';
 
 import _ from 'lodash';
-import { minVersion, satisfies } from 'semver';
 
 import { formatPackage, getDocsUrl, syncFile } from './utils/index.mjs';
-import { resolveRoot } from '../utils.js';
+import { resolveRoot } from '../utils.mjs';
 
 /**
  * @param {boolean} checkOnly
@@ -19,7 +18,7 @@ export const packageJson = async checkOnly => ( {
 		const rootJson = JSON.parse( rootJsonStr );
 		return { getProtoPkg, rootJson, rootJsonStr, rootPath };
 	},
-	run: async ( proto, { path: projectPath, pkgJsonPath, pkgJson }, projects, _handlers, { getProtoPkg, rootJson: rootPackageJson } ) => {
+	run: async ( proto, { path: projectPath, pkgJsonPath, pkgJson }, projects, _handlers, { getProtoPkg } ) => {
 		const protoPkgContent = await getProtoPkg( proto );
 		const protoPkg = JSON.parse( protoPkgContent
 			.replace( /\{projectRelDir\}/g, projectPath )
@@ -32,35 +31,11 @@ export const packageJson = async checkOnly => ( {
 			.map( k => k.toLowerCase() ) )
 			.sort() );
 		await syncFile( checkOnly, pkgJsonPath, await formatPackage( newProjectPkg ) );
-
-		rootPackageJson['devDependencies'] = rootPackageJson['devDependencies'] ?? {};
-		Object.entries( syncFile )
-			.filter( ( [ k ] ) => k.toLowerCase().includes( 'dependencies' ) )
-			.forEach( ( [ k, v ] ) => {
-				const rootPkgDeps = rootPackageJson['devDependencies'] ?? {};
-				const filteredDeps = Object.fromEntries( Object.entries( v )
-					.filter( ( [ depName, depV ] ) => {
-						if( projects.some( p => p.pkgName === depName ) ){
-							return false;
-						}
-						if( k === 'peerDependencies' && satisfies( minVersion( rootPkgDeps[depName] ), depV ) ){
-							return false;
-						}
-						if( depName in rootPkgDeps && rootPkgDeps[depName] !== depV ){
-							console.warn( `Mismatching ${k} ${depName} from ${projectPath}: ${rootPkgDeps[depName]} in root vs ${depV} in pkg` );
-						}
-						return true;
-					} ) );
-				rootPackageJson['devDependencies'] = {
-					...rootPkgDeps,
-					...filteredDeps,
-				};
-			} );
 	},
 	tearDown: async( proto, projects, _handlers, { rootJson, rootPath } ) => {
 		rootJson['devDependencies'] = {
 			...rootJson['devDependencies'],
-			...Object.fromEntries( projects.map( p => [ p.pkgName, `file:${p.path}` ] ) ),
+			...Object.fromEntries( projects.map( p => [ p.pkgName, 'workspace:*' ] ) ),
 		};
 		await syncFile( checkOnly, rootPath, await formatPackage( rootJson ) );
 	},

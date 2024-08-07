@@ -1,21 +1,22 @@
-const { exec: _exec, spawn: _spawn } = require( 'child_process' );
-const { resolve, relative } = require( 'path' );
-const { Writable, Stream, Readable } = require( 'stream' );
-const { promisify } = require( 'util' );
+import { exec as _exec, spawn as _spawn } from 'child_process';
+import { createRequire } from 'module';
+import { relative, resolve } from 'path';
+import { Readable, Stream, Writable } from 'stream';
+import { fileURLToPath } from 'url';
+import { promisify } from 'util';
 
-const glob = require( 'glob' );
-const { once, isArray, omitBy, isNil } = require( 'lodash' );
-const { normalizePath } = require( 'typedoc' );
+import { sync as globSync } from 'glob';
+import _ from 'lodash';
+const { isArray, isNil, omitBy, once } = _;
 
-const exec = promisify( _exec );
-module.exports.exec = exec;
+export const exec = promisify( _exec );
 
 /**
  * @param {string} cmd
  * @param {string[]=} args
  * @param {import('child_process').SpawnOptionsWithoutStdio=} opts
  */
-const spawn = ( cmd, args, opts = {} ) => new Promise( ( res, rej ) => {
+export const spawn = ( cmd, args, opts = {} ) => new Promise( ( res, rej ) => {
 	const { stdio } = opts;
 	if( !opts.stdio ){
 		opts.stdio = [ null, process.stdout, process.stderr ];
@@ -46,12 +47,11 @@ const spawn = ( cmd, args, opts = {} ) => new Promise( ( res, rej ) => {
 		}
 	} );
 } );
-module.exports.spawn = spawn;
 
 /**
  * @returns {Writable & {read: () => string}}
  */
-const captureStream = () => {
+export const captureStream = () => {
 	const stream = new Writable();
 	const data = [];
 	// eslint-disable-next-line no-underscore-dangle -- Expected
@@ -66,7 +66,6 @@ const captureStream = () => {
 	stream.CAPTURE = true;
 	return stream;
 };
-module.exports.captureStream = captureStream;
 
 /**
  * @typedef {{
@@ -79,12 +78,14 @@ module.exports.captureStream = captureStream;
  * 	pkgJsonPath: string
  * }} Project
  */
+
 /**
- * @returns {Project[]}
+ * @type {() => Project[]}
  */
-const getProjects = once( () => {
+export const getProjects = once( () => {
+	const require = createRequire( import.meta.url );
 	const packages = require( '../package.json' ).workspaces
-		.map( w => glob.sync( w, { ignore: 'node_modules/**' } ) )
+		.map( w => globSync( w, { ignore: 'node_modules/**' } ) )
 		.flat();
 	let names = packages.slice();
 	while( names.every( ( n => n[0] === names[0][0] ) ) ){
@@ -92,12 +93,12 @@ const getProjects = once( () => {
 	}
 	return packages
 		.map( ( p, i ) => {
-			const pkgJsonPath = resolve( __dirname, '..', p, 'package.json' );
+			const pkgJsonPath = resolve( dirname, '..', p, 'package.json' );
 			const pkgJson = require( pkgJsonPath );
 			return {
 				id: relative( './packages', p ),
 				path: p,
-				absPath: this.resolveRoot( p ),
+				absPath: resolveRoot( p ),
 				name: names[i],
 				pkgJson,
 				pkgName: pkgJson.name,
@@ -105,18 +106,18 @@ const getProjects = once( () => {
 			};
 		} );
 } );
-module.exports.getProjects = getProjects;
+
 /**
  * @param {string} label
  */
-module.exports.createStash = async label => {
+export const createStash = async label => {
 	const message = `REPO SNAPSHOT '${label}'`;
 	await spawn( 'git', [ 'stash', 'push', '--all', '--message', message ], { stdio: [ null, null, process.stderr ] } );
 	console.log( `Created a stash "${message}"` );
 	await spawn( 'git', [ 'stash', 'apply', 'stash@{0}' ] );
 };
 
-module.exports.commonPath = ( input, sep = '/' ) => {
+export const commonPath = ( input, sep = '/' ) => {
 	if( input.length <= 1 ){
 		return input[0];
 	}
@@ -161,7 +162,7 @@ module.exports.commonPath = ( input, sep = '/' ) => {
 		.filter( allElementsEqual ).map( elAt( 0 ) ).join( sep );
 };
 
-module.exports.selectProjects = explicitProjects => {
+export const selectProjects = explicitProjects => {
 	const allProjects = getProjects();
 	const nonExistingProjects = explicitProjects.filter( p => !allProjects.find( pp => pp.name === p ) );
 	if( nonExistingProjects.length > 0 ){
@@ -176,16 +177,16 @@ const formatPackagesBin = process.platform === 'win32' ? '.\\node_modules\\.bin\
 /**
  * @param {string[]} packages
  */
-module.exports.formatPackages = ( ...packages ) => spawn( formatPackagesBin, [ '--write', ...packages.map( p => normalizePath( p ) ) ] );
+export const formatPackages = ( ...packages ) => spawn( formatPackagesBin, [ '--write', ...packages.map( p => normalizePath( p ) ) ] );
 /**
  * @param {string[]} packages
  */
-module.exports.checkFormatPackages = ( ...packages ) => spawn( formatPackagesBin, [ '--check', ...packages.map( p => normalizePath( p ) ) ] );
+export const checkFormatPackages = ( ...packages ) => spawn( formatPackagesBin, [ '--check', ...packages.map( p => normalizePath( p ) ) ] );
 
 /**
  * @param {string[]} filesList
  */
-module.exports.getStagedFiles = async ( ...filesList ) => {
+export const getStagedFiles = async ( ...filesList ) => {
 	const stagedPatchesOutput = captureStream();
 	if( filesList && filesList.length > 0 ){
 		filesList.unshift( '--' );
@@ -194,5 +195,8 @@ module.exports.getStagedFiles = async ( ...filesList ) => {
 	return stagedPatchesOutput.read().split( /\r?\n/ ).filter( v => v );
 };
 
-module.exports.resolveRoot = ( ...paths ) => resolve( __dirname, '..', ...paths );
-module.exports.relativeToRoot = path => relative( resolve( __dirname, '..' ), path );
+const dirname = fileURLToPath( new URL( '.', import.meta.url ) );
+export const resolveRoot = ( ...paths ) => resolve( dirname, '..', ...paths );
+export const relativeToRoot = path => relative( resolve( dirname, '..' ), path );
+
+export const normalizePath = path => path.replace( /\\/g, '/' );

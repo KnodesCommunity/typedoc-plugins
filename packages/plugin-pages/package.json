@@ -36,7 +36,7 @@
     "build:clean": "rimraf dist",
     "lint": "eslint --ignore-path ../../.eslintignore '**/?(.)*.?([cm])[tj]s?(x)'",
     "prepublishOnly": "npm run build:clean && npm run build",
-    "test": "jest --config jest.config.js"
+    "test": "jest --config jest.config.mjs"
   },
   "dependencies": {
     "lodash": "^4.17.21",
@@ -54,6 +54,7 @@
     "@types/lodash": "^4.14.182",
     "@types/node": "^18.0.0",
     "@types/react": "^18.0.14",
+    "@types/testing-library__jest-dom": "^5.14.9",
     "@typescript-eslint/eslint-plugin": "^5.28.0",
     "@typescript-eslint/parser": "^5.28.0",
     "eslint": "^8.18.0",
@@ -69,7 +70,7 @@
     "rimraf": "^5.0.0",
     "ts-jest": "^29.0.0",
     "typedoc": "^0.23.28",
-    "typescript": "^5.0.0",
+    "typescript": "~5.0.4",
     "@types/fs-extra": "^11.0.0",
     "@types/lunr": "^2.3.4",
     "conventional-changelog-cli": "^3.0.0",

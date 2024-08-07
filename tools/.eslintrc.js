@@ -1,11 +1,17 @@
 module.exports = {
-	extends: '../.eslintrc',
+	root: true,
+	extends: '@knodes/eslint-config/js',
+	env: { node: true },
+	settings: {
+		jsdoc: {
+			mode: 'typescript',
+		},
+	},
 	parserOptions: {
 		sourceType: 'module',
-		ecmaVersion: 'latest',
+		ecmaVersion: 2022,
 	},
 	rules: {
-		'import/no-extraneous-dependencies': [ 'error', { devDependencies: true } ],
 		'no-console': 'off',
 		'jsdoc/require-returns': 'off',
 		'jsdoc/require-returns-description': 'off',

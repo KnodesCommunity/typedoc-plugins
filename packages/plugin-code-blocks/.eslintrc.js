@@ -10,4 +10,13 @@ module.exports = {
 		'jsdoc/check-tag-names': [ 'error', { definedTags: [ 'codeblock', 'inlineCodeblock' ] } ],
 	},
 	// #endregion
+	overrides: [
+		{
+			files: [ '**/*.mjs' ],
+			parserOptions: {
+				sourceType: 'module',
+				ecmaVersion: 2022,
+			},
+		},
+	],
 };

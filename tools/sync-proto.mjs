@@ -1,8 +1,6 @@
 import { resolve } from 'path';
 import { fileURLToPath } from 'url';
 
-import { normalizePath } from 'typedoc';
-
 import { changelog } from './sync-proto-modules/changelog.mjs';
 import { circleCi } from './sync-proto-modules/circleci.mjs';
 import { issueTemplate } from './sync-proto-modules/issue-template.mjs';
@@ -11,7 +9,7 @@ import { readme } from './sync-proto-modules/readme.mjs';
 import { syncFs } from './sync-proto-modules/sync-fs.mjs';
 import { typedocSubmodule } from './sync-proto-modules/typedoc-submodule.mjs';
 import { summarizeErrors } from './sync-proto-modules/utils/index.mjs';
-import { createStash, selectProjects } from './utils.js';
+import { createStash, normalizePath, selectProjects } from './utils.mjs';
 
 const { explicitProjects, stash, checkOnly } = process.argv.slice( 2 )
 	.reduce( ( acc, arg ) => {

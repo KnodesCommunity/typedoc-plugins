@@ -28,6 +28,10 @@ No notable changes were done in this version.
 ### Features
 
 * fake repository for stable tests results ([bbfdf91](https://github.com/KnodesCommunity/typedoc-plugins/commit/bbfdf91bbd052ad4c1f27e359f5c3cc5ac9e8cd3))
+* **dep: @knodes/typedoc-pluginutils:** add `writeDiag` helper ([db07c67](https://github.com/KnodesCommunity/typedoc-plugins/commit/db07c676989a211ffff1aadfc3f0da5d6a6a838c))
+* **dep: @knodes/typedoc-pluginutils:** mutualize markdown replacement exclusion, modify packages ([dea1bd1](https://github.com/KnodesCommunity/typedoc-plugins/commit/dea1bd1715e8da6dec325b995480fe3e3d6cf9de)), closes [#126](https://github.com/KnodesCommunity/typedoc-plugins/issues/126)
+* **dep: @knodes/typedoc-pluginutils:** throw specific error with checked path on failed resolution ([5fbce18](https://github.com/KnodesCommunity/typedoc-plugins/commit/5fbce18feb9f2cf83e6ab408b1e1020c96584db8))
+* **dep: @knodes/typedoc-pluginutils:** validate options object, suggest unknown options ([78284ba](https://github.com/KnodesCommunity/typedoc-plugins/commit/78284ba84bb88613c212a1ca2563a02c5277e942))
 
 
 ## [0.23.1](https://github.com/KnodesCommunity/typedoc-plugins/compare/v0.23.0...v0.23.1) (2022-07-19)
@@ -42,9 +46,16 @@ No notable changes were done in this version.
 ## [0.23.0](https://github.com/KnodesCommunity/typedoc-plugins/compare/v0.22.7...v0.23.0) (2022-07-19)
 
 
+### Bug Fixes
+
+* **dep: @knodes/typedoc-pluginutils:** use correct Typedoc log methods for colors ([c02d8a](https://github.com/KnodesCommunity/typedoc-plugins/commit/c02d8a0dad05325005257537bdb405a847e875a5))
+* **dep: @knodes/typedoc-pluginutils:** avoid considering '.' files as relative paths ([c02d8a](https://github.com/KnodesCommunity/typedoc-plugins/commit/c02d8a0dad05325005257537bdb405a847e875a5))
+
+
 ### Features
 
 * forbid warn/error logger in mock plugin by default ([0081e0d](https://github.com/KnodesCommunity/typedoc-plugins/commit/0081e0d67bf2ab50ad387d2f3352c23d753f2d9e))
+* **dep: @knodes/typedoc-pluginutils:** add helper to create sources with repo URL ([d069278](https://github.com/KnodesCommunity/typedoc-plugins/commit/d069278d70398244a5bbf434b27b747c40ef5866))
 
 
 ## [0.22.7](https://github.com/KnodesCommunity/typedoc-plugins/compare/v0.22.6...v0.22.7) (2022-06-29)
@@ -106,6 +117,14 @@ No notable changes were done in this version.
 ### Features
 
 * add package ([fac9bfb](https://github.com/KnodesCommunity/typedoc-plugins/commit/fac9bfb31b40a52de790a990c7b5bc71dd354580))
+* **dep: @knodes/typedoc-pluginutils:** add `name` getter on plugin ([335095a](https://github.com/KnodesCommunity/typedoc-plugins/commit/335095a976ecedab7d1cbb64a2a1de0e4e5e7b79))
+* **dep: @knodes/typedoc-pluginutils:** add better support for modules in path reflection resolution ([ff0f7c7](https://github.com/KnodesCommunity/typedoc-plugins/commit/ff0f7c790c627a8308c00c8d5426d402657d11fa))
+* **dep: @knodes/typedoc-pluginutils:** add option group, add resolvePackageFile ([878baf8](https://github.com/KnodesCommunity/typedoc-plugins/commit/878baf8f713cd1f307bcde2a909ae0257d835d73))
+* **dep: @knodes/typedoc-pluginutils:** add package ([f6894ad](https://github.com/KnodesCommunity/typedoc-plugins/commit/f6894ad003e7f4336407238bc6dea1fd4d9c9101))
+* **dep: @knodes/typedoc-pluginutils:** add PathReflectionResolver, add plugin.relativeToRoot, use in MarkdownReplacer ([40eb1a1](https://github.com/KnodesCommunity/typedoc-plugins/commit/40eb1a1c2dca89cae27625f4234316166c652706))
+* **dep: @knodes/typedoc-pluginutils:** add rootDir on plugin, add CurrentPageMemo, add MarkdownReplacer, improve Logger ([200f52f](https://github.com/KnodesCommunity/typedoc-plugins/commit/200f52f8417865734c19ed6bc8d91128a2902abe))
+* **dep: @knodes/typedoc-pluginutils:** add source map support in markdown replacer ([57e5e39](https://github.com/KnodesCommunity/typedoc-plugins/commit/57e5e3925725e58677038d9b2dc9943ac42b0c96))
+* **dep: @knodes/typedoc-pluginutils:** fix `wrapError`, add helper `catchWrap` ([350fc9b](https://github.com/KnodesCommunity/typedoc-plugins/commit/350fc9b9281fce5b7bd7c98253af4a4ef8f66d79))
 
 
 ## 0.22.0 (2022-02-23)

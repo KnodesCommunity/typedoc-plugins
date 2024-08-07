@@ -5,7 +5,7 @@ import { fileURLToPath } from 'url';
 import _ from 'lodash';
 
 import { syncFile, tryReadFile } from './utils/index.mjs';
-import { captureStream, resolveRoot, spawn } from '../utils.js';
+import { captureStream, resolveRoot, spawn } from '../utils.mjs';
 
 const getOldestVersion = async pkgName => {
 	try {

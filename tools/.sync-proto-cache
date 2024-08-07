@@ -1,6 +1,6 @@
-.eslintrc.js :: 59c9aacd85fe3bbaeceac6a87f0dd2b8
+.eslintrc.js :: 9268d3ab14ceda8c672e9b1427acf0b4
 .gitignore :: b66164592275267fc3ca28955ffa8fa0
-jest.config.js :: 08ba616a6643b567c35f431d0921d9d5
 tsconfig.spec.json :: 5031c23cdd2cbdf3c84d9edfc31d5736
 tsconfig.build.json :: 6bd8e1f7568987c24b28bcf74a132c54
 __tests__/integration/.keep :: d41d8cd98f00b204e9800998ecf8427e
+jest.config.mjs :: 217a36792f5db535494b8f778ff7a9fb

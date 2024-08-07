@@ -2,13 +2,23 @@
 version: 2.1
 
 x-params:
-  node-version-non-default: &test-matrix-nodeversion-nondefault ["14.19.3", "18.4.0"]
-  node-version-default: &test-matrix-nodeversion-default "16.16.0"
+  node-version-non-default: &test-matrix-nodeversion-nondefault ["18.20.4", "16.20.2"]
+  node-version-default: &test-matrix-nodeversion-default "20.16.0"
   test-matrix: &params-test-matrix
     parameters: &test-matrix
-      # os: &test-matrix-os [&test-matrix-os-default linux, macos, windows]
       os: &test-matrix-os [&test-matrix-os-default linux, windows]
-      node-version: &test-matrix-nodeversion [ "16.16.0", "14.19.3", "18.4.0" ] # !FORMAT node-version: &test-matrix-nodeversion [ ${*test-matrix-nodeversion-default}, ${...*test-matrix-nodeversion-nondefault} ]
+      node-version: &test-matrix-nodeversion [ "20.16.0", "18.20.4", "16.20.2" ] # !FORMAT node-version: &test-matrix-nodeversion [ ${*test-matrix-nodeversion-default}, ${...*test-matrix-nodeversion-nondefault} ]
+
+
+parameters:
+  check-type:
+    type: enum
+    default: default
+    enum:
+      - default
+      - renovate
+      - full
+      - partial
 
 # Orbs are reusable packages of CircleCI configuration that you may share across projects, enabling you to create encapsulated, parameterized commands, jobs, and executors that can be used across multiple projects.
 # See: https://circleci.com/docs/2.0/orb-intro/
@@ -18,27 +28,35 @@ orbs:
     orbs:
       node: circleci/node@5.2.0
     commands:
+      install-node:
+        parameters:
+          node-version:
+            type: string
+        steps:
+          - node/install:
+              node-version: <<parameters.node-version>>
+          - run:
+              name: Install PNPM
+              command: |
+                  npm install --location=global pnpm@8.15.3
+                  pnpm --version
+                  pnpm config set store-dir ~/.pnpm-store
       install:
         parameters:
           os:
             type: string
-          type:
-            default: clean-install
-            type: string
         steps:
-        - when:
-            condition: { equal: [windows, <<parameters.os>>] }
-            steps:
-            - node/install-packages:
-                override-ci-command: npm run ci:<<parameters.type>>
-                cache-path: C:\Users\circleci\AppData\Roaming\npm-cache
-                cache-version: v1-<<parameters.os>>
-        - unless:
-            condition: { equal: [windows, <<parameters.os>>] }
-            steps:
-            - node/install-packages:
-                override-ci-command: npm run ci:<<parameters.type>>
-                cache-version: v1-<<parameters.os>>
+          - restore_cache:
+              keys:
+                - pnpm-v2-<<parameters.os>>-{{ checksum "pnpm-lock.yaml" }}
+                - pnpm-v2-<<parameters.os>>
+          - node/install-packages:
+              override-ci-command: pnpm install --recursive
+              with-cache: false
+          - save_cache:
+              paths:
+                - ~/.pnpm-store
+              key: pnpm-v2-<<parameters.os>>-{{ checksum "pnpm-lock.yaml" }}
       codeclimate-install-only:
         steps:
           - run:
@@ -96,8 +114,9 @@ orbs:
           - run:
               name: Stub bins
               command: |
+                set -exo pipefail
                 for bin in <<parameters.bins>>; do
-                  bin_path=$(npx which $bin)
+                  bin_path="$(pnpm exec which $bin)"
                   if ! [ -z "$HOMEDRIVE" ]; then
                     echo "Unsupported Windows"
                     exit 1
@@ -113,9 +132,9 @@ executors:
   node:
     docker:
       - image: cimg/node:lts
-  linux: # a Linux VM running Ubuntu 20.04
-    machine:
-      image: ubuntu-2004:202107-02
+  linux:
+    docker:
+      - image: cimg/base:2022.09
     resource_class: medium
   macos: # macos executor running Xcode
     macos:
@@ -123,9 +142,9 @@ executors:
     resource_class: macos.x86.medium.gen2
   windows:
     machine:
-      image: windows-server-2019-vs2019:stable
+      image: windows-server-2019-vs2019:current
       shell: bash.exe
-    resource_class:  windows.medium
+    resource_class: windows.medium
 
   default:
     docker:
@@ -148,45 +167,22 @@ jobs:
             - '*'
   npm-install:
     parameters:
-      install-type:
-        type: string
-        default: clean-install
       os:
         type: string
       node-version:
         type: string
     executor: <<parameters.os>>
     steps:
-      - when: &node-install-windows
-          condition:
-            equal: [ <<parameters.os>>, windows ]
-          steps:
-            - run: 
-                name: Install Node <<parameters.node-version>>
-                shell: cmd.exe
-                command: |
-                    nvm list
-                    nvm install <<parameters.node-version>>
-                    nvm use <<parameters.node-version>>
-
-                    node --version
-                    npm --version
-      - unless: &node-install-non-windows
-          condition:
-            equal: [ <<parameters.os>>, windows ]
-          steps:
-          - node/install:
-              node-version: <<parameters.node-version>>
+      - knodes-typedoc-orb/install-node:
+          node-version: <<parameters.node-version>>
       - attach_workspace:
           at: .
       - knodes-typedoc-orb/install:
-          type: <<parameters.install-type>>
           os: <<parameters.os>>
       - run:
-          name: Update submodule & patch
+          name: Update submodule
           command: |
             git submodule update --init --recursive
-            npm run tools:patch -- apply --no-stash
       - persist_to_workspace:
           root: .
           paths:
@@ -195,6 +191,7 @@ jobs:
             - 'package-lock.json'
             - 'node_modules'
             - 'packages/*/node_modules'
+            - 'tools/node_modules'
   lint:
     executor: node
     resource_class: small
@@ -217,8 +214,8 @@ jobs:
     executor: <<parameters.os>>
     parallelism: 2
     steps:
-      - when: *node-install-windows
-      - unless: *node-install-non-windows
+      - knodes-typedoc-orb/install-node:
+          node-version: <<parameters.node-version>>
       - attach_workspace:
           at: .
       - run:
@@ -265,7 +262,7 @@ jobs:
         default: false
     executor: <<parameters.os>>
     steps:
-      - node/install:
+      - knodes-typedoc-orb/install-node:
           node-version: *test-matrix-nodeversion-default
       - attach_workspace:
           at: .
@@ -278,7 +275,7 @@ jobs:
                 name: Run precommit with coverage
                 command: |
                   set -eo pipefail
-                  npx nyc --reporter json-summary --reporter json npm run precommit
+                  pnpx nyc --reporter json-summary --reporter json pnpm run precommit
                   echo $? > EXIT_CODE
             - knodes-typedoc-orb/coverage-arrange:
                 os: <<parameters.os>>
@@ -300,14 +297,14 @@ jobs:
         type: string
     executor: <<parameters.os>>
     steps:
-      - node/install:
+      - knodes-typedoc-orb/install-node:
           node-version: <<parameters.node-version>>
       - attach_workspace:
           at: .
       - run: |
-          npm run build
+          pnpm run build
           mkdir dists
-          npm pack -ws --pack-destination dists
+          pnpm run pack --pack-destination $PWD/dists
           for file in $(find ./dists -name '*.tgz'); do
             mkdir -p dists-content/$(basename $file .tgz)
             tar -xzf $file -C dists-content/$(basename $file .tgz)
@@ -320,24 +317,6 @@ jobs:
           root: .
           paths:
             - ./packages/**
-  infer-version:
-    executor: node
-    resource_class: small
-    steps:
-      - attach_workspace:
-          at: .
-      - run:
-          name: Maybe abort ci
-          command: |
-            npm run tools:infer-next-version --silent > RELEASE_TYPE
-            echo "Should release $(cat ./RELEASE_TYPE)"
-      - persist_to_workspace:
-          root: .
-          paths:
-            - RELEASE_TYPE
-      - run:
-          name: Check files
-          command: npm publish --dry-run
   do-release:
     executor: node
     resource_class: small
@@ -524,7 +503,11 @@ jobs:
 workflows:
   renovate: # Workflow ran only on `renovate/*`
     when:
-      matches: { pattern: "^renovate/.+$", value: <<pipeline.git.branch>> }
+      or:
+        - equal: [ <<pipeline.parameters.check-type>>, renovate ]
+        - and:
+            - equal: [ <<pipeline.parameters.check-type>>, default ]
+            - matches: { pattern: "^renovate/.+$", value: <<pipeline.git.branch>> }
     jobs:
       - checkout
       - npm-install:
@@ -562,18 +545,22 @@ workflows:
             - npm-install-<<matrix.os>>
 
   check-partial: # Workflow ran on all custom branches (no `main`, `develop` or `renovate/*`)
-    unless:
-      or: 
-        - matches: { pattern: "^main$", value: <<pipeline.git.branch>> }
-        - matches: { pattern: "^develop$", value: <<pipeline.git.branch>> }
-        - matches: { pattern: "^renovate/.+$", value: <<pipeline.git.branch>> }
+    when:
+      or:
+        - equal: [ <<pipeline.parameters.check-type>>, partial ]
+        - and:
+            - equal: [ <<pipeline.parameters.check-type>>, default ]
+            - not:
+                or:
+                - matches: { pattern: "^main$", value: <<pipeline.git.branch>> }
+                - matches: { pattern: "^develop$", value: <<pipeline.git.branch>> }
+                - matches: { pattern: "^renovate/.+$", value: <<pipeline.git.branch>> }
     jobs:
       - checkout
       - npm-install:
           matrix:
             parameters:
               os: *test-matrix-os
-          install-type: install
           node-version: *test-matrix-nodeversion-default
           requires:
             - checkout
@@ -621,15 +608,18 @@ workflows:
   check-full: # Workflow ran on `main` & `develop`
     when:
       or:
-        - matches: { pattern: "^main$", value: <<pipeline.git.branch>> }
-        - matches: { pattern: "^develop$", value: <<pipeline.git.branch>> }
+        - equal: [ <<pipeline.parameters.check-type>>, full ]
+        - and:
+            - equal: [ <<pipeline.parameters.check-type>>, default ]
+            - or:
+              - matches: { pattern: "^main$", value: <<pipeline.git.branch>> }
+              - matches: { pattern: "^develop$", value: <<pipeline.git.branch>> }
     jobs:
       - checkout
       - npm-install:
           matrix:
             parameters:
               os: *test-matrix-os
-          install-type: install
           node-version: *test-matrix-nodeversion-default
           requires:
             - checkout
@@ -668,54 +658,7 @@ workflows:
 
       - codeclimate-upload:
           requires:
-            - test-sources-16.16.0-linux # !FORMAT - test-sources-${!*test-matrix-nodeversion-default}-${*test-matrix-os-default}
+            - test-sources-20.16.0-linux # !FORMAT - test-sources-${!*test-matrix-nodeversion-default}-${*test-matrix-os-default}
             - test-tools-linux-coverage # !FORMAT - test-tools-${!*test-matrix-os-default}-coverage
             # - test-tools-16.16.0-macos # !FORMAT # - test-tools-${!*test-matrix-nodeversion-default}-macos
             # - test-tools-16.16.0-windows # !FORMAT # - test-tools-${!*test-matrix-nodeversion-default}-windows
-  # publish: # Workflow ran only on `main` & `develop`
-  #   when:
-  #     or:
-  #       - equal: [ main, <<pipeline.git.branch>> ]
-  #       - equal: [ develop, <<pipeline.git.branch>> ]
-  #   jobs:
-  #     - npm-ci-install
-  #     - codeclimate-before
-
-  #     - test:
-  #         requires:
-  #           - npm-ci-install
-  #           - codeclimate-before
-  #     - codeclimate-after:
-  #         requires:
-  #           - test
-  #     - build:
-  #         requires:
-  #           - npm-ci-install
-
-  #     - infer-version:
-  #         requires:
-  #           - build
-  #           - test
-  #     - Confirm new release:
-  #         type: approval
-  #         requires:
-  #           - infer-version
-  #     - do-release:
-  #         requires:
-  #           - Confirm new release
-
-  #     - npm-publish:
-  #         requires:
-  #           - do-release
-  #     - github-push:
-  #         requires:
-  #           - do-release
-  #     - github-release:
-  #         requires:
-  #           - github-push
-  #     - git-merge-develop:
-  #         filters:
-  #           branches:
-  #             only: main
-  #         requires:
-  #           - github-push

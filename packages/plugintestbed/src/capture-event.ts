@@ -27,7 +27,7 @@ export const setupCaptureEvent = <T extends EventDispatcher>( cls: Class<T>, eve
 	( registerEvent as any )[__isCapture] = true;
 	afterEach( () => {
 		if( baseOn && !( baseOn as any )[__isCapture] ){
-			cls.prototype.on = baseOn;
+			cls.prototype.on = baseOn as any;
 		}
 		listenerToTest = [];
 	} );

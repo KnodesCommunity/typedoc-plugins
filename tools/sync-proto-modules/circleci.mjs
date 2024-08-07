@@ -1,7 +1,7 @@
 import { readFile } from 'fs/promises';
 
 import { postProcessYaml, syncFile } from './utils/index.mjs';
-import { resolveRoot } from '../utils.js';
+import { resolveRoot } from '../utils.mjs';
 
 /**
  * @param {boolean} checkOnly
