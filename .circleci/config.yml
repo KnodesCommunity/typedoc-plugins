@@ -191,6 +191,7 @@ jobs:
             - 'package-lock.json'
             - 'node_modules'
             - 'packages/*/node_modules'
+            - 'tools/node_modules'
   lint:
     executor: node
     resource_class: small

@@ -34,7 +34,7 @@
     "build:clean": "rimraf dist",
     "lint": "eslint --ignore-path ../../.eslintignore '**/?(.)*.?([cm])[tj]s?(x)'",
     "prepublishOnly": "npm run build:clean && npm run build",
-    "test": "jest --config jest.config.js"
+    "test": "jest --config jest.config.mjs"
   },
   "dependencies": {
     "lodash": "^4.17.21",

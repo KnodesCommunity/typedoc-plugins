@@ -1,4 +1,9 @@
-const base = require( '../../jest.config.base' )( __dirname );
+import { fileURLToPath } from 'node:url';
+
+import generateJestProjectConfig from '../../jest.config.base.mjs';
+
+const dirname = fileURLToPath( new URL( '.', import.meta.url ) );
+const base = generateJestProjectConfig( dirname );
 /** @type {import('ts-jest/dist/types').InitialOptionsTsJest} */
 module.exports = {
 	...base,

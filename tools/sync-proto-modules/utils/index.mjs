@@ -5,7 +5,7 @@ import { readFile } from 'fs/promises';
 import { parse } from 'semver';
 
 /**
- * @typedef {import('../../utils').Project} Project
+ * @typedef {import('../../utils.mjs').Project} Project
  */
 /**
  * @template [T=void]

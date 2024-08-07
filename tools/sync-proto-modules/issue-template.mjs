@@ -4,7 +4,7 @@ import { glob } from 'glob';
 import { minVersion } from 'semver';
 
 import { postProcessYaml, syncFile } from './utils/index.mjs';
-import { resolveRoot } from '../utils.js';
+import { resolveRoot } from '../utils.mjs';
 
 const DIR = resolveRoot( './.github/ISSUE_TEMPLATE' );
 
@@ -19,7 +19,7 @@ export const issueTemplate = async checkOnly => ( {
 			const yaml = await readFile( path, 'utf-8' );
 			const yamlFormatted = postProcessYaml( yaml, {
 				plugins: projects.filter( p => !p.pkgJson.private ).map( p => p.pkgName ),
-				typedocVersion: minVersion( JSON.parse( await readFile( resolveRoot( 'package.json' ), 'utf-8' ) ).devDependencies.typedoc ),
+				typedocVersion: minVersion( JSON.parse( await readFile( resolveRoot( 'package.json' ), 'utf-8' ) ).peerDependencies.typedoc ),
 			} );
 			await syncFile( checkOnly, path, yamlFormatted );
 		} ) );

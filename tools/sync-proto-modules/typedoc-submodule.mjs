@@ -5,7 +5,7 @@ import { SemVer } from 'semver';
 
 import { syncFile } from './utils/diff.mjs';
 import { formatPackage } from './utils/package-json.mjs';
-import { resolveRoot } from '../utils.js';
+import { resolveRoot } from '../utils.mjs';
 
 /**
  * @param {boolean} checkOnly

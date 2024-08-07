@@ -30,7 +30,7 @@
     "build:clean": "rimraf dist",
     "lint": "eslint --ignore-path ../../.eslintignore '**/?(.)*.?([cm])[tj]s?(x)'",
     "prepublishOnly": "npm run build:clean && npm run build",
-    "test": "jest --config jest.config.js"
+    "test": "jest --config jest.config.mjs"
   },
   "dependencies": {
     "lodash": "^4.17.21",
@@ -68,6 +68,7 @@
     "ts-jest": "^29.0.0",
     "typedoc": "^0.23.28",
     "typescript": "~5.0.4",
+    "type-fest": "^3.0.0",
     "@types/js-beautify": "^1.13.3",
     "fs-monkey": "^1.0.3",
     "js-beautify": "^1.14.0"

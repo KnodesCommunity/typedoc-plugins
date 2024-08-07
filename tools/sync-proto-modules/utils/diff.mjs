@@ -4,7 +4,7 @@ import chalk from 'chalk';
 import { diffLines } from 'diff';
 import _ from 'lodash';
 
-import { relativeToRoot } from '../../utils.js';
+import { relativeToRoot } from '../../utils.mjs';
 
 const { bgGreen, bgGrey, bgRed, bold, grey } = chalk;
 

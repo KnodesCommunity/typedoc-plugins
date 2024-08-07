@@ -14,4 +14,13 @@ module.exports = {
 			mode: 'typescript',
 		},
 	},
+	overrides: [
+		{
+			files: [ '**/*.mjs' ],
+			parserOptions: {
+				sourceType: 'module',
+				ecmaVersion: 2022,
+			},
+		},
+	],
 };
