@@ -416,7 +416,7 @@ importers:
   packages/plugintestbed:
     dependencies:
       '@knodes/typedoc-pluginutils':
-        specifier: ~0.23.4
+        specifier: workspace:*
         version: link:../pluginutils
       '@testing-library/jest-dom':
         specifier: ^5.16.4
