@@ -47,8 +47,6 @@
     "run:packages": "pnpm -r --filter=./packages/* run ",
     "test": "jest",
     "test:coverage": "jest --config ./jest.config.coverage.mjs",
-    "tools:bump-versions": "node tools/bump-versions",
-    "tools:infer-next-version": "node tools/infer-next-version",
     "tools:sync-proto": "node tools/sync-proto.mjs"
   },
   "commitlint": {
@@ -68,9 +66,11 @@
     "@commitlint/config-conventional": "^17.0.2",
     "markdownlint-cli": "^0.36.0",
     "typescript": "~5.0.4",
-    "@knodes/typedoc-pluginutils": "workspace:*",
+    "typedoc": "^0.23.28",
+    "conventional-changelog-cli": "^3.0.0",
     "@knodes/typedoc-plugintestbed": "workspace:*",
     "@knodes/typedoc-plugin-pages": "workspace:*",
-    "@knodes/typedoc-plugin-code-blocks": "workspace:*"
+    "@knodes/typedoc-plugin-code-blocks": "workspace:*",
+    "@knodes/typedoc-pluginutils": "workspace:*"
   }
 }

@@ -317,24 +317,6 @@ jobs:
           root: .
           paths:
             - ./packages/**
-  infer-version:
-    executor: node
-    resource_class: small
-    steps:
-      - attach_workspace:
-          at: .
-      - run:
-          name: Maybe abort ci
-          command: |
-            npm run tools:infer-next-version --silent > RELEASE_TYPE
-            echo "Should release $(cat ./RELEASE_TYPE)"
-      - persist_to_workspace:
-          root: .
-          paths:
-            - RELEASE_TYPE
-      - run:
-          name: Check files
-          command: npm publish --dry-run
   do-release:
     executor: node
     resource_class: small
@@ -680,50 +662,3 @@ workflows:
             - test-tools-linux-coverage # !FORMAT - test-tools-${!*test-matrix-os-default}-coverage
             # - test-tools-16.16.0-macos # !FORMAT # - test-tools-${!*test-matrix-nodeversion-default}-macos
             # - test-tools-16.16.0-windows # !FORMAT # - test-tools-${!*test-matrix-nodeversion-default}-windows
-  # publish: # Workflow ran only on `main` & `develop`
-  #   when:
-  #     or:
-  #       - equal: [ main, <<pipeline.git.branch>> ]
-  #       - equal: [ develop, <<pipeline.git.branch>> ]
-  #   jobs:
-  #     - npm-ci-install
-  #     - codeclimate-before
-
-  #     - test:
-  #         requires:
-  #           - npm-ci-install
-  #           - codeclimate-before
-  #     - codeclimate-after:
-  #         requires:
-  #           - test
-  #     - build:
-  #         requires:
-  #           - npm-ci-install
-
-  #     - infer-version:
-  #         requires:
-  #           - build
-  #           - test
-  #     - Confirm new release:
-  #         type: approval
-  #         requires:
-  #           - infer-version
-  #     - do-release:
-  #         requires:
-  #           - Confirm new release
-
-  #     - npm-publish:
-  #         requires:
-  #           - do-release
-  #     - github-push:
-  #         requires:
-  #           - do-release
-  #     - github-release:
-  #         requires:
-  #           - github-push
-  #     - git-merge-develop:
-  #         filters:
-  #           branches:
-  #             only: main
-  #         requires:
-  #           - github-push
