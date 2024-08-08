@@ -79,8 +79,8 @@ importers:
         specifier: ^4.14.182
         version: 4.17.7
       '@types/marked':
-        specifier: ^4.0.2
-        version: 4.3.2
+        specifier: ^6.0.0
+        version: 6.0.0
       '@types/minimatch':
         specifier: ^5.0.0
         version: 5.1.2
@@ -236,8 +236,8 @@ importers:
         specifier: ^29.0.0
         version: 29.2.4(@babel/core@7.25.2)(jest@29.7.0)(typescript@5.5.4)
       type-fest:
-        specifier: ^3.0.0
-        version: 3.13.1
+        specifier: ^4.0.0
+        version: 4.23.0
       typedoc:
         specifier: ^0.23.28
         version: 0.23.28(typescript@5.5.4)
@@ -336,8 +336,8 @@ importers:
         specifier: ^29.0.0
         version: 29.2.4(@babel/core@7.25.2)(jest@29.7.0)(typescript@5.5.4)
       type-fest:
-        specifier: ^3.0.0
-        version: 3.13.1
+        specifier: ^4.0.0
+        version: 4.23.0
       typedoc:
         specifier: ^0.23.28
         version: 0.23.28(typescript@5.5.4)
@@ -445,8 +445,8 @@ importers:
         specifier: ^29.0.0
         version: 29.2.4(@babel/core@7.25.2)(jest@29.7.0)(typescript@5.5.4)
       type-fest:
-        specifier: ^3.0.0
-        version: 3.13.1
+        specifier: ^4.0.0
+        version: 4.23.0
       typedoc:
         specifier: ^0.23.28
         version: 0.23.28(typescript@5.5.4)
@@ -1613,8 +1613,11 @@ packages:
     resolution: {integrity: sha512-Tb/kUm38e8gmjahQzdCKhbdsvQ9/ppzHFfsJ0dMs3ckqQsRj+P5IkSAwFTBrBxdyr3E/LoMUUrZngjDYAjiE3A==}
     dev: true
 
-  /@types/marked@4.3.2:
-    resolution: {integrity: sha512-a79Yc3TOk6dGdituy8hmTTJXjOkZ7zsFYV10L337ttq/rec8lRMDBpV7fL3uLx6TgbFCa5DU/h8FmIBQPSbU0w==}
+  /@types/marked@6.0.0:
+    resolution: {integrity: sha512-jmjpa4BwUsmhxcfsgUit/7A9KbrC48Q0q8KvnY107ogcjGgTFDlIL3RpihNpx2Mu1hM4mdFQjoVc4O6JoGKHsA==}
+    deprecated: This is a stub types definition. marked provides its own type definitions, so you do not need this installed.
+    dependencies:
+      marked: 4.3.0
     dev: true
 
   /@types/minimatch@5.1.2:
@@ -6090,9 +6093,9 @@ packages:
     engines: {node: '>=8'}
     dev: true
 
-  /type-fest@3.13.1:
-    resolution: {integrity: sha512-tLq3bSNx+xSpwvAJnzrK0Ep5CLNWjvFTOp71URMaAEWBfRb9nnJiBoUe0tF8bI4ZFO3omgBR6NvnbzVUT3Ly4g==}
-    engines: {node: '>=14.16'}
+  /type-fest@4.23.0:
+    resolution: {integrity: sha512-ZiBujro2ohr5+Z/hZWHESLz3g08BBdrdLMieYFULJO+tWc437sn8kQsWLJoZErY8alNhxre9K4p3GURAG11n+w==}
+    engines: {node: '>=16'}
     dev: true
 
   /typed-array-buffer@1.0.2:

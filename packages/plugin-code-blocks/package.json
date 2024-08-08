@@ -70,7 +70,7 @@
     "typedoc": "^0.23.28",
     "typescript": "~5.5.0",
     "@types/minimatch": "^5.0.0",
-    "@types/marked": "^4.0.2",
+    "@types/marked": "^6.0.0",
     "@types/mock-fs": "^4.13.1",
     "conventional-changelog-cli": "^3.0.0"
   }
