@@ -79,8 +79,8 @@ importers:
         specifier: ^4.14.182
         version: 4.17.7
       '@types/marked':
-        specifier: ^4.0.2
-        version: 4.3.2
+        specifier: ^6.0.0
+        version: 6.0.0
       '@types/minimatch':
         specifier: ^5.0.0
         version: 5.1.2
@@ -1613,8 +1613,11 @@ packages:
     resolution: {integrity: sha512-Tb/kUm38e8gmjahQzdCKhbdsvQ9/ppzHFfsJ0dMs3ckqQsRj+P5IkSAwFTBrBxdyr3E/LoMUUrZngjDYAjiE3A==}
     dev: true
 
-  /@types/marked@4.3.2:
-    resolution: {integrity: sha512-a79Yc3TOk6dGdituy8hmTTJXjOkZ7zsFYV10L337ttq/rec8lRMDBpV7fL3uLx6TgbFCa5DU/h8FmIBQPSbU0w==}
+  /@types/marked@6.0.0:
+    resolution: {integrity: sha512-jmjpa4BwUsmhxcfsgUit/7A9KbrC48Q0q8KvnY107ogcjGgTFDlIL3RpihNpx2Mu1hM4mdFQjoVc4O6JoGKHsA==}
+    deprecated: This is a stub types definition. marked provides its own type definitions, so you do not need this installed.
+    dependencies:
+      marked: 4.3.0
     dev: true
 
   /@types/minimatch@5.1.2:
