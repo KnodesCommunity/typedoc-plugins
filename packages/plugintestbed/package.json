@@ -37,7 +37,7 @@
     "@testing-library/jest-dom": "^5.16.4",
     "@types/testing-library__jest-dom": "^5.14.9",
     "@knodes/typedoc-pluginutils": "workspace:*",
-    "memfs": "^3.4.1",
+    "memfs": "^4.0.0",
     "unionfs": "^4.4.0"
   },
   "peerDependencies": {
@@ -67,7 +67,7 @@
     "rimraf": "^5.0.0",
     "ts-jest": "^29.0.0",
     "typedoc": "^0.23.28",
-    "typescript": "~5.0.4",
+    "typescript": "~5.5.0",
     "type-fest": "^3.0.0",
     "@types/js-beautify": "^1.13.3",
     "fs-monkey": "^1.0.3",
