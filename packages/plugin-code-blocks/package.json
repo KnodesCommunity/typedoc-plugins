@@ -72,6 +72,6 @@
     "@types/minimatch": "^5.0.0",
     "@types/marked": "^6.0.0",
     "@types/mock-fs": "^4.13.1",
-    "conventional-changelog-cli": "^3.0.0"
+    "conventional-changelog-cli": "^5.0.0"
   }
 }
