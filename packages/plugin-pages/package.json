@@ -70,7 +70,7 @@
     "rimraf": "^5.0.0",
     "ts-jest": "^29.0.0",
     "typedoc": "^0.23.28",
-    "typescript": "~5.0.4",
+    "typescript": "~5.5.0",
     "@types/fs-extra": "^11.0.0",
     "@types/lunr": "^2.3.4",
     "conventional-changelog-cli": "^3.0.0",
