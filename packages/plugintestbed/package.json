@@ -67,7 +67,7 @@
     "rimraf": "^5.0.0",
     "ts-jest": "^29.0.0",
     "typedoc": "^0.23.28",
-    "typescript": "~5.0.4",
+    "typescript": "~5.5.0",
     "type-fest": "^3.0.0",
     "@types/js-beautify": "^1.13.3",
     "fs-monkey": "^1.0.3",
