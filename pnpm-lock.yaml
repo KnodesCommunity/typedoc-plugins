@@ -67,8 +67,8 @@ importers:
         specifier: ^1.6.5
         version: 1.7.1(@typescript-eslint/eslint-plugin@5.62.0)(@typescript-eslint/parser@5.62.0)(eslint-plugin-eslint-comments@3.2.0)(eslint-plugin-import@2.29.1)(eslint-plugin-jsdoc@39.9.1)(eslint-plugin-prefer-arrow@1.2.3)(eslint-plugin-sort-export-all@1.4.1)(eslint@8.57.0)
       '@testing-library/jest-dom':
-        specifier: ^5.16.4
-        version: 5.17.0
+        specifier: ^6.0.0
+        version: 6.4.8
       '@types/jest':
         specifier: ^29.0.0
         version: 29.5.12
@@ -164,8 +164,8 @@ importers:
         specifier: ^1.6.5
         version: 1.7.1(@typescript-eslint/eslint-plugin@5.62.0)(@typescript-eslint/parser@5.62.0)(eslint-plugin-eslint-comments@3.2.0)(eslint-plugin-import@2.29.1)(eslint-plugin-jsdoc@39.9.1)(eslint-plugin-prefer-arrow@1.2.3)(eslint-plugin-sort-export-all@1.4.1)(eslint@8.57.0)
       '@testing-library/jest-dom':
-        specifier: ^5.16.4
-        version: 5.17.0
+        specifier: ^6.0.0
+        version: 6.4.8
       '@types/fs-extra':
         specifier: ^11.0.0
         version: 11.0.4
@@ -251,8 +251,8 @@ importers:
         specifier: workspace:*
         version: link:../pluginutils
       '@testing-library/jest-dom':
-        specifier: ^5.16.4
-        version: 5.17.0
+        specifier: ^6.0.0
+        version: 6.4.8
       '@types/testing-library__jest-dom':
         specifier: ^5.14.9
         version: 5.14.9
@@ -367,8 +367,8 @@ importers:
         specifier: ^1.6.5
         version: 1.7.1(@typescript-eslint/eslint-plugin@5.62.0)(@typescript-eslint/parser@5.62.0)(eslint-plugin-eslint-comments@3.2.0)(eslint-plugin-import@2.29.1)(eslint-plugin-jsdoc@39.9.1)(eslint-plugin-prefer-arrow@1.2.3)(eslint-plugin-sort-export-all@1.4.1)(eslint@8.57.0)
       '@testing-library/jest-dom':
-        specifier: ^5.16.4
-        version: 5.17.0
+        specifier: ^6.0.0
+        version: 6.4.8
       '@types/jest':
         specifier: ^29.0.0
         version: 29.5.12
@@ -1483,17 +1483,16 @@ packages:
       '@sinonjs/commons': 3.0.1
     dev: true
 
-  /@testing-library/jest-dom@5.17.0:
-    resolution: {integrity: sha512-ynmNeT7asXyH3aSVv4vvX4Rb+0qjOhdNHnO/3vuZNqPmhDpV/+rCSGwQ7bLcmU2cJ4dvoheIO85LQj0IbJHEtg==}
-    engines: {node: '>=8', npm: '>=6', yarn: '>=1'}
+  /@testing-library/jest-dom@6.4.8:
+    resolution: {integrity: sha512-JD0G+Zc38f5MBHA4NgxQMR5XtO5Jx9g86jqturNTt2WUfRmLDIY7iKkWHDCCTiDuFMre6nxAD5wHw9W5kI4rGw==}
+    engines: {node: '>=14', npm: '>=6', yarn: '>=1'}
     dependencies:
       '@adobe/css-tools': 4.4.0
       '@babel/runtime': 7.25.0
-      '@types/testing-library__jest-dom': 5.14.9
       aria-query: 5.3.0
       chalk: 3.0.0
       css.escape: 1.5.1
-      dom-accessibility-api: 0.5.16
+      dom-accessibility-api: 0.6.3
       lodash: 4.17.21
       redent: 3.0.0
 
@@ -2787,8 +2786,8 @@ packages:
       esutils: 2.0.3
     dev: true
 
-  /dom-accessibility-api@0.5.16:
-    resolution: {integrity: sha512-X7BJ2yElsnOJ30pZF4uIIDfBEVgF4XEBxL9Bxhy6dnrm5hkzqmsWHGTiHqRiITNhMyFLyAiWndIJP7Z1NTteDg==}
+  /dom-accessibility-api@0.6.3:
+    resolution: {integrity: sha512-7ZgogeTnjuHbo+ct10G9Ffp0mif17idi0IyWNVA/wcwcm7NPOD/WEHVP3n7n3MhXqxoIYm8d6MuZohYWIZ4T3w==}
 
   /domexception@4.0.0:
     resolution: {integrity: sha512-A2is4PLG+eeSfoTMA95/s4pvAoSo2mKtiM5jlHkAVewmiO8ISFTFKZjH7UAM1Atli/OT/7JHOrJRJiMKUZKYBw==}
