@@ -53,7 +53,7 @@
     "semver": "^7.3.5"
   },
   "peerDependencies": {
-    "typedoc": "^0.23.0"
+    "typedoc": "^0.23.0 || ^0.26.0"
   },
   "devDependencies": {
     "@knodes/eslint-config": "^1.6.5",
@@ -78,7 +78,7 @@
     "jsdom": "^24.0.0",
     "rimraf": "^5.0.0",
     "ts-jest": "^29.0.0",
-    "typedoc": "^0.23.28",
+    "typedoc": "^0.26.0",
     "typescript": "~5.5.0",
     "@alex_neo/jest-expect-message": "^1.0.5",
     "@types/semver": "^7.3.9",
