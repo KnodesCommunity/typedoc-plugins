@@ -35,7 +35,7 @@
   "dependencies": {
     "lodash": "^4.17.21",
     "@testing-library/jest-dom": "^6.0.0",
-    "@types/testing-library__jest-dom": "^5.14.9",
+    "@types/testing-library__jest-dom": "^6.0.0",
     "@knodes/typedoc-pluginutils": "workspace:*",
     "memfs": "^4.0.0",
     "unionfs": "^4.4.0"
@@ -51,7 +51,7 @@
     "@types/lodash": "^4.14.182",
     "@types/node": "^20.0.0",
     "@types/react": "^18.0.14",
-    "@types/testing-library__jest-dom": "^5.14.9",
+    "@types/testing-library__jest-dom": "^6.0.0",
     "@typescript-eslint/eslint-plugin": "^5.28.0",
     "@typescript-eslint/parser": "^5.28.0",
     "eslint": "^8.18.0",
