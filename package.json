@@ -67,7 +67,7 @@
     "markdownlint-cli": "^0.41.0",
     "typescript": "~5.5.0",
     "typedoc": "^0.23.28",
-    "conventional-changelog-cli": "^3.0.0",
+    "conventional-changelog-cli": "^5.0.0",
     "@knodes/typedoc-plugintestbed": "workspace:*",
     "@knodes/typedoc-plugin-pages": "workspace:*",
     "@knodes/typedoc-plugin-code-blocks": "workspace:*",
