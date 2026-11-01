@@ -134,7 +134,7 @@ executors:
       - image: cimg/node:lts
   linux:
     docker:
-      - image: cimg/base:2022.09
+      - image: cimg/base:2022.12
     resource_class: medium
   macos: # macos executor running Xcode
     macos:
