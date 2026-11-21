@@ -83,7 +83,7 @@
     "@alex_neo/jest-expect-message": "^1.0.5",
     "@types/semver": "^7.3.9",
     "@types/tmp": "^0.2.3",
-    "conventional-changelog-cli": "^3.0.0",
+    "conventional-changelog-cli": "^5.0.0",
     "expect-type": "^0.16.0",
     "tmp": "^0.2.1",
     "type-fest": "^4.0.0"
